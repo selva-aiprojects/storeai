@@ -254,6 +254,18 @@ function App() {
                         {view === 'warehouse' && <WarehouseView warehouses={data.warehouses} />}
                     </motion.div></AnimatePresence>
                 </div>
+
+                <footer className="footer">
+                    <div className="footer-branding">
+                        <span>A PRODUCT FROM</span>
+                        <div className="cognivectra-logo">
+                            COGNIVE<span className="cognivectra-accent">CTRA</span>
+                        </div>
+                    </div>
+                    <div className="footer-copyright">
+                        &copy; {new Date().getFullYear()} StoreAI Enterprise Solutions. All operational telemetry strictly logged.
+                    </div>
+                </footer>
             </div>
 
             <AnimatePresence>{modal && <FormModal type={modal.type} metadata={modal.metadata} categories={data.categories} suppliers={data.suppliers} products={data.products} departments={data.departments} users={data.users} customers={data.customers} employees={data.employees} warehouses={data.warehouses} onClose={() => { setModal(null); refreshData(); }} />}</AnimatePresence>

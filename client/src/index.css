@@ -543,9 +543,39 @@ textarea:focus {
    Footer
    ======================= */
 .footer {
-  padding: 20px;
+  padding: 32px 20px;
+  background: rgba(0, 0, 0, 0.2);
   border-top: 1px solid var(--border-color);
-  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.footer-branding {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  text-align: center;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cognivectra-logo {
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.1em;
+  font-size: 0.85rem;
+}
+
+.cognivectra-accent {
+  color: var(--accent-primary);
+}
+
+.footer-copyright {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.6;
 }
