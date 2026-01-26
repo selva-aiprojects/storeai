@@ -374,19 +374,23 @@ const HRView = ({ items, payrolls, refresh, setModal, onDelete }: any) => {
             <div className="card">
                 <div className="card-header"><Users size={16} style={{ marginRight: '10px' }} /> WORKFORCE ROSTER</div>
                 <div className="table-container" style={{ marginTop: '15px' }}>
-                    <table><thead><tr><th>IDENTITY</th><th>OPERATIONAL ID</th><th>ANNUAL SALARY</th><th>PERFORMANCE</th><th>ATTENDANCE</th><th>ACTION</th></tr></thead>
+                    <table><thead><tr><th>IDENTITY</th><th>OPERATIONAL ID</th><th>SHIFT STATUS</th><th>ANNUAL SALARY</th><th>PERFORMANCE</th><th>ATTENDANCE</th><th>ACTION</th></tr></thead>
                         <tbody>{items.filter((i: any) => !i.isDeleted).map((e: any) => (
                             <tr key={e.id}>
                                 <td><div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <div className="avatar" style={{ width: '32px', height: '32px' }}>{(e.firstName?.[0] || e.user?.firstName?.[0] || '?')}</div>
-                                    <b>{e.firstName ? `${e.firstName} ${e.lastName}` : (e.user ? `${e.user.firstName} ${e.user.lastName}` : 'Unknown')}</b>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <b>{e.firstName ? `${e.firstName} ${e.lastName}` : (e.user ? `${e.user.firstName} ${e.user.lastName}` : 'Unknown')}</b>
+                                        <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{e.designation}</span>
+                                    </div>
                                 </div></td>
                                 <td>{e.employeeId}</td>
+                                <td><span className="badge" style={{ background: '#1e293b', color: '#94a3b8', border: '1px solid #334155' }}>Active Shift</span></td>
                                 <td style={{ fontWeight: 800 }}>${e.salary?.toLocaleString()}</td>
                                 <td><div style={{ display: 'flex', gap: '3px' }}>{[1, 2, 3, 4, 5].map(i => <div key={i} style={{ width: '12px', height: '12px', borderRadius: '2px', background: i <= (e.performanceRating || 0) ? 'var(--accent-success)' : '#334155' }}></div>)}</div></td>
                                 <td><span className={`badge ${e.attendances?.[0]?.status === 'PRESENT' ? 'badge-success' : 'badge-danger'}`}>{e.attendances?.[0]?.status || 'UNDOCUMENTED'}</span></td>
                                 <td><div style={{ display: 'flex', gap: '5px' }}>
-                                    <button className="btn btn-secondary" onClick={() => logAtt(e.id, 'PRESENT')}>Presence</button>
+                                    <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem' }} onClick={() => logAtt(e.id, 'PRESENT')}>Presence</button>
                                     <button className="btn btn-primary" style={{ padding: '5px' }} onClick={() => setModal({ type: 'payroll', metadata: e })}><BadgeDollarSign size={14} /></button>
                                     <button className="btn btn-secondary" style={{ padding: '5px', color: 'var(--accent-danger)' }} onClick={() => onDelete(e.id)}><Trash2 size={14} /></button>
                                 </div></td>
@@ -398,13 +402,15 @@ const HRView = ({ items, payrolls, refresh, setModal, onDelete }: any) => {
             <div className="card">
                 <div className="card-header"><Wallet size={16} style={{ marginRight: '10px' }} /> DISBURSEMENT LOG (PAYROLL)</div>
                 <div className="table-container" style={{ marginTop: '15px' }}>
-                    <table><thead><tr><th>TIMESTAMP</th><th>EMPLOYEE</th><th>MONTH</th><th>VALUATION</th><th>STATUS</th></tr></thead>
+                    <table><thead><tr><th>TIMESTAMP</th><th>EMPLOYEE</th><th>MONTH</th><th>BASE</th><th>VARIABLE (BONUS/OT)</th><th>TOTAL PAYOUT</th><th>STATUS</th></tr></thead>
                         <tbody>{payrolls.map((p: any) => (
                             <tr key={p.id}>
                                 <td>{new Date(p.paymentDate).toLocaleDateString()}</td>
                                 <td><b>{p.employee?.user?.firstName} {p.employee?.user?.lastName}</b></td>
                                 <td>{p.month}</td>
-                                <td style={{ fontWeight: 800, color: 'var(--accent-danger)' }}>-${p.amount.toFixed(2)}</td>
+                                <td>${p.amount.toFixed(2)}</td>
+                                <td style={{ color: 'var(--accent-success)' }}>+${(p.incentive + p.overtimeAmount).toFixed(2)}</td>
+                                <td style={{ fontWeight: 800, color: 'var(--accent-danger)' }}>-${p.totalPayout.toFixed(2)}</td>
                                 <td><span className="badge badge-success">{p.status}</span></td>
                             </tr>
                         ))}</tbody></table>
@@ -630,8 +636,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 setFormData({ ...formData, customerId: e.target.value, deliveryAddress: c?.address || '', deliveryCity: c?.city || '' })
                             }}><option value="">Walk-in Retail</option>{customers.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
                         </div>
-                        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><input type="checkbox" checked={formData.isHomeDelivery} onChange={e => setFormData({ ...formData, isHomeDelivery: e.target.checked })} /> <label>Home Delivery Protocol</label></div>
-                        {formData.isHomeDelivery && (
+                        <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><input type="checkbox" checked={!!(formData as any).isHomeDelivery} onChange={e => setFormData({ ...formData, isHomeDelivery: e.target.checked })} /> <label>Home Delivery Protocol</label></div>
+                        {(formData as any).isHomeDelivery && (
                             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
                                 <div className="form-group"><label>Delivery Address</label><input value={formData.deliveryAddress} onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })} placeholder="Street node" /></div>
                                 <div className="form-group"><label>City</label><input value={formData.deliveryCity} onChange={e => setFormData({ ...formData, deliveryCity: e.target.value })} placeholder="Metropolis" /></div>
