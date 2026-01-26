@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
@@ -19,7 +19,13 @@ import crmRoutes from './routes/crmRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 
-dotenv.config();
+
+console.log('--- ENVIRONMENT CONFIG CHECK ---');
+console.log('PORT:', process.env.PORT);
+const dbUrl = process.env.DATABASE_URL || '';
+const maskedDbUrl = dbUrl.replace(/:([^:@]+)@/, ':****@');
+console.log('DATABASE_URL (Masked):', maskedDbUrl);
+console.log('--------------------------------');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
