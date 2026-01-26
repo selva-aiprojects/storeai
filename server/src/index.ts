@@ -16,6 +16,7 @@ import payrollRoutes from './routes/payrollRoutes';
 import reportRoutes from './routes/reportRoutes';
 import inventoryRoutes from './routes/inventoryRoutes';
 import crmRoutes from './routes/crmRoutes';
+import debugRoutes from './routes/debugRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 
@@ -35,7 +36,6 @@ app.use(express.json());
 
 // Public Routes
 app.use('/api/v1/auth', authRoutes);
-import debugRoutes from './routes/debugRoutes';
 app.use('/api/debug', debugRoutes);
 
 // Protected Routes
