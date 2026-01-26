@@ -48,7 +48,8 @@ app.get('/api/v1/dashboard/stats', authenticate, getDashboardStats);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
-if (process.env.NODE_ENV !== 'production') {
+// Only listen if NOT running on Vercel (Vercel handles binding automatically)
+if (process.env.VERCEL !== '1') {
     app.listen(PORT, () => {
         console.log(`🚀 StoreAI Enterprise Server running on port ${PORT}`);
     });
