@@ -35,6 +35,8 @@ app.use(express.json());
 
 // Public Routes
 app.use('/api/v1/auth', authRoutes);
+import debugRoutes from './routes/debugRoutes';
+app.use('/api/debug', debugRoutes);
 
 // Protected Routes
 app.use('/api/v1/users', userRoutes);
