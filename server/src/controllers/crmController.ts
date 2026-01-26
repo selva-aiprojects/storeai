@@ -4,7 +4,7 @@ import prisma from '../lib/prisma';
 export const getDeals = async (req: Request, res: Response) => {
     try {
         const deals = await prisma.deal.findMany({
-            include: { customer: true, assignedTo: true, items: true, activities: { orderBy: { createdAt: 'desc' } } }
+            include: { customer: true, assignedTo: true, items: { include: { product: true } } }
         });
         res.json(deals);
     } catch (error) {

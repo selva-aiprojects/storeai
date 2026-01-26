@@ -106,34 +106,48 @@ function App() {
 
     const refreshData = async () => {
         setLoading(true);
-        try {
-            const [stats, products, sales, orders, users, transactions, ledger, liabilities, inventory, suppliers, categories, employees, payrolls, customers, reports, deals] = await Promise.all([
-                api.get('/dashboard/stats').then(r => r.data),
-                getProducts().then(r => r.data),
-                getSales().then(r => r.data),
-                api.get('/orders').then(r => r.data),
-                getUsers().then(r => r.data),
-                api.get('/payment').then(r => r.data),
-                api.get('/accounts/ledger').then(r => r.data),
-                api.get('/accounts/liabilities').then(r => r.data),
-                api.get('/inventory/warehouses').then(r => r.data),
-                getSuppliers().then(r => r.data),
-                getCategories().then(r => r.data),
-                getEmployees().then(r => r.data),
-                getPayrolls().then(r => r.data),
-                getCustomers().then(r => r.data),
-                api.get('/reports/comprehensive').then(r => r.data),
-                api.get('/crm').then(r => r.data),
-            ]);
+        const newData: any = { ...data };
 
-            setData({
-                stats, products, sales, orders, users, transactions, ledger,
-                financialSummary: liabilities, suppliers, categories, employees, payrolls, customers, reports, deals,
-                warehouses: inventory
-            });
-        } catch (e) {
-            console.error(e);
-        }
+        const safeFetch = async (endpoint: string, key: string, transform: (d: any) => any = (d) => d) => {
+            try {
+                const resp = await api.get(endpoint);
+                newData[key] = transform(resp.data);
+            } catch (e) {
+                console.warn(`Failed to fetch ${endpoint}:`, e);
+                newData[key] = Array.isArray(data[key]) ? [] : null;
+            }
+        };
+
+        const safeFetchService = async (serviceCall: () => Promise<any>, key: string) => {
+            try {
+                const resp = await serviceCall();
+                newData[key] = resp.data;
+            } catch (e) {
+                console.warn(`Failed to call service for ${key}:`, e);
+                newData[key] = Array.isArray(data[key]) ? [] : null;
+            }
+        };
+
+        await Promise.all([
+            safeFetch('/dashboard/stats', 'stats'),
+            safeFetchService(getProducts, 'products'),
+            safeFetchService(getSales, 'sales'),
+            safeFetch('/orders', 'orders'),
+            safeFetchService(getUsers, 'users'),
+            safeFetch('/payment', 'transactions'),
+            safeFetch('/accounts/ledger', 'ledger'),
+            safeFetch('/accounts/summary', 'financialSummary'), // Corrected from liabilities to summary
+            safeFetch('/inventory/warehouses', 'warehouses'),
+            safeFetchService(getSuppliers, 'suppliers'),
+            safeFetchService(getCategories, 'categories'),
+            safeFetchService(getEmployees, 'employees'),
+            safeFetchService(getPayrolls, 'payrolls'),
+            safeFetchService(getCustomers, 'customers'),
+            safeFetch('/reports/comprehensive', 'reports'),
+            safeFetch('/crm', 'deals')
+        ]);
+
+        setData(newData);
         setLoading(false);
     };
 
@@ -194,7 +208,6 @@ function App() {
                     <button className={`menu-item ${view === 'accounts' ? 'active' : ''}`} onClick={() => setView('accounts')}><Wallet size={18} /> Capital Ledger</button>
                     <div className="menu-divider">Organization</div>
                     <button className={`menu-item ${view === 'hr' ? 'active' : ''}`} onClick={() => setView('hr')}><Users size={18} /> Workforce Portal</button>
-                    <button className={`menu-item ${view === 'customers' ? 'active' : ''}`} onClick={() => setView('customers')}><Home size={18} /> Delivery Nodes</button>
                     <button className={`menu-item ${view === 'customers' ? 'active' : ''}`} onClick={() => setView('customers')}><Home size={18} /> Delivery Nodes</button>
                     <button className={`menu-item ${view === 'reports' ? 'active' : ''}`} onClick={() => setView('reports')}><TrendingUp size={18} /> Intelligence</button>
                     {user.role === 'SUPER_ADMIN' && <button className={`menu-item ${view === 'users' ? 'active' : ''}`} onClick={() => setView('users')}><Settings size={18} /> System Core</button>}
@@ -643,9 +656,13 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                 )}
                 {type === 'users' && (
                     <>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <div className="form-group"><label>First Name</label><input value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} required /></div>
+                            <div className="form-group"><label>Last Name</label><input value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} required /></div>
+                        </div>
                         <div className="form-group"><label>Email</label><input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required /></div>
                         <div className="form-group"><label>Password</label><input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} required /></div>
-                        <div className="form-group"><label>System Role</label><select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}><option value="STAFF">Staff</option><option value="ADMIN">Admin</option><option value="ACCOUNTANT">Accountant</option><option value="HR">HR Manager</option><option value="SHIPMENT">Shipment Team</option></select></div>
+                        <div className="form-group"><label>System Role</label><select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}><option value="STAFF">Staff</option><option value="ADMIN">Admin</option><option value="ACCOUNTANT">Accountant</option><option value="HR">HR Manager</option><option value="SHIPMENT">Shipment Team</option><option value="SUPER_ADMIN">Super Admin</option></select></div>
                     </>
                 )}
                 {type === 'customers' && (

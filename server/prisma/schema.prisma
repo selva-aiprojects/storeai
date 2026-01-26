@@ -79,7 +79,10 @@ model Warehouse {
   location   String
   isDefault  Boolean  @default(false)
   stocks     Stock[]
-  documents  InventoryDocument[]
+  
+  // Relations to InventoryDocument
+  sourceDocuments InventoryDocument[] @relation("SourceWarehouse")
+  targetDocuments InventoryDocument[] @relation("TargetWarehouse")
   
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -171,8 +174,6 @@ model InventoryDocument {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  Warehouse Warehouse[]
 }
 
 model InventoryDocumentItem {
@@ -276,6 +277,8 @@ model Customer {
   zipCode   String?
   isDeleted Boolean  @default(false)
   sales     Sale[]
+  deals     Deal[]
+  salesOrders SalesOrder[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

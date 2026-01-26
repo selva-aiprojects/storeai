@@ -47,8 +47,8 @@ export const createSale = async (req: Request, res: Response) => {
             const sale = await tx.sale.create({
                 data: {
                     invoiceNo: `INV-${Date.now()}`,
-                    totalAmount: calculatedTotal,
-                    discountAmount: totalDiscount,
+                    totalAmount: calculatedTotal || 0,
+                    discountAmount: totalDiscount || 0,
                     taxAmount: taxAmount || 0,
                     customerId,
                     team: req.body.team || 'SALES',

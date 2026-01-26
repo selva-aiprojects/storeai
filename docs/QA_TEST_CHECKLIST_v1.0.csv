@@ -1,0 +1,3 @@
+Module,Test_ID,Scenario,Expected,Actual,Status,Timestamp
+AUTH,TC-001,"Verify Admin User Exists","User found in DB","User found",PASS,2026-01-26T11:48:21.000Z
+SYSTEM,TC-999,"Critical Error Exception","No Exceptions","Prisma Warehouse Model missing - Run npx prisma generate",FAIL,2026-01-26T11:48:21.002Z
