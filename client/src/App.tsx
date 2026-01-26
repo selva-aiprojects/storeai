@@ -177,7 +177,6 @@ function App() {
 
     if (!user) {
         return (
-            /* BUILD_VERSION: 2.1_TACTICAL_ELEVATION */
             <div className="modal-overlay" style={{ background: '#050810', backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(129, 140, 248, 0.1) 0%, transparent 70%)' }}>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ maxWidth: '400px', width: '90%', padding: '40px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '32px' }}>
@@ -245,20 +244,21 @@ function App() {
 
             <div className="main-content">
                 <header className="header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div className="header-title" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>SYSTEM // <span style={{ color: '#fff', fontWeight: 700 }}>{view.toUpperCase()}</span></div>
-                        <div style={{ padding: '4px 10px', background: '#ef4444', borderRadius: '6px', fontSize: '0.6rem', color: '#fff', fontWeight: 900, letterSpacing: '0.1em' }}>
-                            ACTIVE BUILD: V3.0_LIVE
-                        </div>
-                        <div style={{ padding: '4px 10px', background: 'rgba(129, 140, 248, 0.08)', borderRadius: '6px', border: '1px solid rgba(129, 140, 248, 0.15)', fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                            PRODUCT OF COGNIVE<span style={{ color: '#fff' }}>CTRA</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>SYSTEM // <span style={{ color: '#fff' }}>{view.toUpperCase()} CONTROL</span></div>
+                        <div style={{ width: '1px', height: '16px', background: 'var(--border-color)' }}></div>
+                        <div className="cognivectra-logo" style={{ fontSize: '0.7rem', opacity: 0.8 }}>
+                            <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginRight: '8px', letterSpacing: '0.05em' }}>PROVIDED BY</span>
+                            COGNIVE<span className="cognivectra-accent">CTRA</span>
                         </div>
                     </div>
                     <div className="header-actions">
-                        <button className="btn btn-secondary" onClick={refreshData} style={{ fontSize: '0.7rem' }}>Sync Data</button>
+                        <button className="btn btn-secondary" onClick={refreshData} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
+                            <RefreshCw size={12} style={{ marginRight: '6px' }} /> Synchronize Matrix
+                        </button>
                         {['products', 'suppliers', 'accounts', 'sales', 'procurement', 'hr', 'users', 'customers'].includes(view) && (
-                            <button className="btn btn-primary" onClick={() => setModal({ type: view === 'procurement' ? 'orders' : (view === 'accounts' ? 'payment' : (view === 'hr' ? 'employees' : view)) })} style={{ fontSize: '0.7rem' }}>
-                                <Plus size={14} /> New {view === 'users' ? 'Operator' : (view === 'customers' ? 'Client' : 'Artifact')}
+                            <button className="btn btn-primary" onClick={() => setModal({ type: view === 'procurement' ? 'orders' : (view === 'accounts' ? 'payment' : (view === 'hr' ? 'employees' : view)) })} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
+                                <Plus size={14} /> New Artifact
                             </button>
                         )}
                     </div>
