@@ -177,26 +177,36 @@ function App() {
 
     if (!user) {
         return (
-            <div className="modal-overlay" style={{ background: '#020617' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="modal" style={{ maxWidth: '400px' }}>
-                    <div className="modal-header" style={{ justifyContent: 'center' }}>
-                        <Layers color="#6366f1" size={32} />
-                        <span style={{ fontSize: '1.5rem', fontWeight: 900, marginLeft: '10px' }}>STORE<span style={{ color: '#6366f1' }}>AI</span></span>
+            <div className="modal-overlay" style={{ background: '#050810', backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(129, 140, 248, 0.1) 0%, transparent 70%)' }}>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ maxWidth: '400px', width: '90%', padding: '40px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '32px' }}>
+                        <Layers color="#818cf8" size={48} />
+                        <span style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '0.1em' }}>STORE<span style={{ color: '#818cf8' }}>AI</span></span>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Security Gateway v2.0</div>
                     </div>
-                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '30px' }}>
-                        <div className="form-group"><label>Email Protocol</label><input type="email" value={authForm.email} onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} required placeholder="admin@storeai.com" /></div>
-                        <div className="form-group"><label>Security Phrase</label><input type="password" value={authForm.password} onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} required placeholder="••••••••" /></div>
-                        <button className="btn btn-primary" style={{ padding: '14px' }}>Authorize Access</button>
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div className="form-group">
+                            <label>ENCRYPTED EMAIL</label>
+                            <input type="email" value={authForm.email} onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} required placeholder="admin@storeai.com" />
+                        </div>
+                        <div className="form-group">
+                            <label>ACCESS PHRASE</label>
+                            <input type="password" value={authForm.password} onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} required placeholder="••••••••" />
+                        </div>
+                        <button className="btn btn-primary" style={{ padding: '14px', marginTop: '10px', fontSize: '0.8rem' }}>AUTHENTICATE</button>
                     </form>
-                </motion.div>
-            </div>
+                    <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+                        &copy; 2026 STOREAI QUANTUM CORE. ALL RIGHTS RESERVED.
+                    </div>
+                </motion.div >
+            </div >
         );
     }
 
     return (
         <div className="app-container">
             <aside className="sidebar">
-                <div className="sidebar-header"><Layers size={24} style={{ marginRight: '10px' }} /> STORE<span style={{ color: '#06b6d4' }}>AI</span></div>
+                <div className="sidebar-header"><Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span></div>
                 <div className="sidebar-menu">
                     <button className={`menu-item ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}><LayoutDashboard size={18} /> Operational Feed</button>
                     <div className="menu-divider">Core Inventory</div>
@@ -219,11 +229,11 @@ function App() {
             </aside>
 
             <div className="main-content">
-                <header className="header"><div className="header-title">{view.toUpperCase()} CONTROL</div><div className="header-actions">
-                    <button className="btn btn-secondary" onClick={refreshData}>Refresh</button>
+                <header className="header"><div className="header-title" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>SYSTEM // <span style={{ color: '#fff', fontWeight: 700 }}>{view.toUpperCase()}</span></div><div className="header-actions">
+                    <button className="btn btn-secondary" onClick={refreshData} style={{ fontSize: '0.7rem' }}>Sync Data</button>
                     {['products', 'suppliers', 'accounts', 'sales', 'procurement', 'hr', 'users', 'customers'].includes(view) && (
-                        <button className="btn btn-primary" onClick={() => setModal({ type: view === 'procurement' ? 'orders' : (view === 'accounts' ? 'payment' : (view === 'hr' ? 'employees' : view)) })}>
-                            <Plus size={16} /> {view === 'users' ? 'User' : (view === 'customers' ? 'Customer' : 'Entry')}
+                        <button className="btn btn-primary" onClick={() => setModal({ type: view === 'procurement' ? 'orders' : (view === 'accounts' ? 'payment' : (view === 'hr' ? 'employees' : view)) })} style={{ fontSize: '0.7rem' }}>
+                            <Plus size={14} /> New {view === 'users' ? 'Operator' : (view === 'customers' ? 'Client' : 'Artifact')}
                         </button>
                     )}
                 </div></header>
@@ -253,8 +263,8 @@ function App() {
 
 // --- Views Components ---
 const ReportsView = ({ data }: any) => {
-    if (!data) return <div className="card">Loading Intelligence Matrix...</div>;
-    const COLORS = ['#6366f1', '#06b6d4', '#f59e0b', '#ef4444', '#8b5cf6'];
+    if (!data) return <div className="card" style={{ textAlign: 'center', padding: '100px 0' }}>Initializing Predictive Intelligence Matrix...</div>;
+    const COLORS = ['#818cf8', '#22d3ee', '#fbbf24', '#f43f5e', '#8b5cf6'];
     const pieData = data.sales.map((s: any) => ({ name: s.team, value: s._sum.totalAmount }));
 
     const [predictions, setPredictions] = useState<any[]>([]);
@@ -264,60 +274,68 @@ const ReportsView = ({ data }: any) => {
     }, []);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)' }}>
-                <div className="card-header">🧠 AI PREDICTIVE STOCK INTELLIGENCE</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)', padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                    <div style={{ padding: '8px', background: 'rgba(129, 140, 248, 0.1)', borderRadius: '8px' }}><TrendingUp size={20} color="#818cf8" /></div>
+                    <div className="card-header" style={{ marginBottom: 0 }}>AI PREDICTIVE STOCK INTELLIGENCE</div>
+                </div>
                 <div className="table-container">
                     <table>
-                        <thead><tr><th>ARTIFACT</th><th>BURN RATE</th><th>DAYS LEFT</th><th>STOCK-OUT DATE</th><th>STATUS</th><th>AI REORDER SUGGESTION</th></tr></thead>
+                        <thead><tr><th>ARTIFACT</th><th>BURN RATE</th><th>DAYS LEFT</th><th>STOCK-OUT DATE</th><th>STATUS</th><th>AI SUGGESTION</th></tr></thead>
                         <tbody>{predictions.map((p: any) => (
                             <tr key={p.id}>
                                 <td><b>{p.name}</b></td>
                                 <td>{p.burnRate.toFixed(1)} / day</td>
                                 <td>{p.daysLeft} Days</td>
-                                <td>{p.stockOutDate}</td>
+                                <td style={{ color: 'var(--text-muted)' }}>{p.stockOutDate}</td>
                                 <td><span className={`badge ${p.status === 'CRITICAL' ? 'badge-danger' : (p.status === 'WARNING' ? 'badge-warning' : 'badge-success')}`}>{p.status}</span></td>
-                                <td>{p.suggestedReorder > 0 ? <b style={{ color: 'var(--accent-primary)' }}>+{p.suggestedReorder} Units</b> : <span style={{ color: 'var(--text-muted)' }}>Sufficient</span>}</td>
+                                <td>{p.suggestedReorder > 0 ? <b style={{ color: 'var(--accent-primary)' }}>REORDER +{p.suggestedReorder}</b> : <span style={{ color: 'var(--text-muted)' }}>Optimum</span>}</td>
                             </tr>
                         ))}</tbody>
                     </table>
                 </div>
             </div>
 
-            <div className="dashboard-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                <div className="card">
-                    <div className="card-header">SALES BY DEPARTMENT (REVENUE)</div>
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
+                <div className="card" style={{ minHeight: '380px' }}>
+                    <div className="card-header">DEPARTMENTAL REVENUE DISTRIBUTION</div>
                     <div style={{ height: '300px', marginTop: '20px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <Pie data={pieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                <Pie data={pieData} innerRadius={70} outerRadius={90} paddingAngle={8} dataKey="value" stroke="none">
                                     {pieData.map((_entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                 </Pie>
-                                <Tooltip />
+                                <Tooltip contentStyle={{ background: '#0a0f1d', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
-                <div className="card">
-                    <div className="card-header">STOCK VALUATION CONTROL</div>
-                    <div style={{ marginTop: '20px' }}>
-                        <div className="metric-title">TOTAL STOCK QUANTITY</div>
-                        <div className="metric-value">{data.inventory.totalQuantity} Units</div>
-                        <div className="metric-title" style={{ marginTop: '20px' }}>LIQUID VALUATION</div>
-                        <div className="metric-value" style={{ color: 'var(--accent-success)' }}>${data.inventory.totalValue.toLocaleString()}</div>
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '30px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                        <div className="metric-title" style={{ letterSpacing: '0.1em' }}>TOTAL ASSET QUANTITY</div>
+                        <div className="metric-value" style={{ fontSize: '3rem', fontWeight: 800 }}>{data.inventory.totalQuantity}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--accent-success)', marginTop: '4px' }}>Active artifacts across all nodes</div>
+                    </div>
+                    <div style={{ width: '100%', height: '1px', background: 'var(--border-color)' }}></div>
+                    <div style={{ textAlign: 'center' }}>
+                        <div className="metric-title" style={{ letterSpacing: '0.1em' }}>LIQUID VALUATION</div>
+                        <div className="metric-value" style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--accent-success)' }}>${(data.inventory.totalValue / 1000).toFixed(1)}k</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>Net inventory market value</div>
                     </div>
                 </div>
             </div>
 
             <div className="card">
-                <div className="card-header">FINANCIAL LIQUIDITY (LEADGER RECAP)</div>
+                <div className="card-header">FINANCIAL LIQUIDITY (LEDGER RECAP)</div>
                 <div style={{ height: '300px', marginTop: '20px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={data.finance}>
-                            <XAxis dataKey="type" stroke="#94a3b8" />
-                            <YAxis stroke="#94a3b8" />
-                            <Tooltip />
-                            <Bar dataKey="_sum.amount" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                            <XAxis dataKey="type" stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />
+                            <YAxis stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />
+                            <Tooltip contentStyle={{ background: '#0a0f1d', border: '1px solid var(--border-color)', borderRadius: '8px' }} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                            <Bar dataKey="_sum.amount" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} barSize={40} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -328,10 +346,38 @@ const ReportsView = ({ data }: any) => {
 
 const DashboardView = ({ stats, setView }: any) => (
     <div className="dashboard-grid">
-        <div className="card metric-card" onClick={() => setView('accounts')} style={{ cursor: 'pointer' }}><div className="metric-title">GROSS REVENUE</div><div className="metric-value" style={{ color: 'var(--accent-success)' }}>${stats?.revenue?.toFixed(2) || '0.00'}</div></div>
-        <div className="card metric-card" onClick={() => setView('procurement')} style={{ cursor: 'pointer' }}><div className="metric-title">OPEN P.O.s</div><div className="metric-value">{stats?.activeOrders || '0'}</div></div>
-        <div className="card metric-card" onClick={() => setView('products')} style={{ cursor: 'pointer' }}><div className="metric-title">CRITICAL STOCK</div><div className="metric-value" style={{ color: 'var(--accent-danger)' }}>{stats?.lowStock || '0'}</div></div>
-        <div className="card metric-card" onClick={() => setView('reports')} style={{ cursor: 'pointer' }}><div className="metric-title">DEPARTMENTAL HEALTH</div><div className="metric-value">INTELLIGENCE</div></div>
+        <div className="card metric-card" onClick={() => setView('accounts')} style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div className="metric-title">GROSS REVENUE</div>
+                <div style={{ padding: '6px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '6px' }}><CreditCard size={16} color="var(--accent-success)" /></div>
+            </div>
+            <div className="metric-value" style={{ color: 'var(--accent-success)' }}>${stats?.revenue?.toLocaleString() || '0.00'}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><ArrowUpRight size={12} /> Live stream active</div>
+        </div>
+        <div className="card metric-card" onClick={() => setView('procurement')} style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div className="metric-title">SUPPLY PIPELINE</div>
+                <div style={{ padding: '6px', background: 'rgba(34, 211, 238, 0.1)', borderRadius: '6px' }}><Truck size={16} color="var(--accent-secondary)" /></div>
+            </div>
+            <div className="metric-value">{stats?.activeOrders || '0'} <span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}>Orders</span></div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Inbound logistics tracking</div>
+        </div>
+        <div className="card metric-card" onClick={() => setView('products')} style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div className="metric-title">SYSTEM ALERTS</div>
+                <div style={{ padding: '6px', background: 'rgba(244, 63, 94, 0.1)', borderRadius: '6px' }}><Info size={16} color="var(--accent-danger)" /></div>
+            </div>
+            <div className="metric-value" style={{ color: 'var(--accent-danger)' }}>{stats?.lowStock || '0'} <span style={{ fontSize: '0.8rem', fontWeight: 400 }}>Critical</span></div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Inventory below threshold</div>
+        </div>
+        <div className="card metric-card" onClick={() => setView('reports')} style={{ cursor: 'pointer' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div className="metric-title">AI CORE</div>
+                <div style={{ padding: '6px', background: 'rgba(129, 140, 248, 0.1)', borderRadius: '6px' }}><Layers size={16} color="var(--accent-primary)" /></div>
+            </div>
+            <div className="metric-value">SYNAPSE</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Predictive analytics ready</div>
+        </div>
     </div>
 );
 
