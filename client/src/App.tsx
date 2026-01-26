@@ -245,10 +245,10 @@ function App() {
             <div className="main-content">
                 <header className="header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>SYSTEM // <span style={{ color: '#fff' }}>{view.toUpperCase()} CONTROL</span></div>
+                        <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>OPERATIONAL CORE // <span style={{ color: '#fff' }}>{view.toUpperCase()}</span></div>
                         <div style={{ width: '1px', height: '16px', background: 'var(--border-color)' }}></div>
-                        <div className="cognivectra-logo" style={{ fontSize: '0.7rem', opacity: 0.8 }}>
-                            <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginRight: '8px', letterSpacing: '0.05em' }}>PROVIDED BY</span>
+                        <div className="cognivectra-logo" style={{ fontSize: '0.7rem', opacity: 1, background: 'rgba(16, 185, 129, 0.15)', padding: '4px 12px', borderRadius: '4px', border: '1px solid var(--accent-success)' }}>
+                            <span style={{ color: 'var(--text-success)', fontWeight: 600, marginRight: '8px', letterSpacing: '0.05em' }}>CERTIFIED BY</span>
                             COGNIVE<span className="cognivectra-accent">CTRA</span>
                         </div>
                     </div>

@@ -8,4 +8,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <App />
     </React.StrictMode>,
 )
-// Operational Matrix v3.0.1 - Tactical Elevation Build
+// Operational Matrix v3.0.2 - Tactical Elevation Build
