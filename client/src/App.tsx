@@ -177,6 +177,7 @@ function App() {
 
     if (!user) {
         return (
+            /* BUILD_VERSION: 2.1_TACTICAL_ELEVATION */
             <div className="modal-overlay" style={{ background: '#050810', backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(129, 140, 248, 0.1) 0%, transparent 70%)' }}>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ maxWidth: '400px', width: '90%', padding: '40px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '32px' }}>
