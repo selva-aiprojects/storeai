@@ -223,20 +223,42 @@ function App() {
                     {user.role === 'SUPER_ADMIN' && <button className={`menu-item ${view === 'users' ? 'active' : ''}`} onClick={() => setView('users')}><Settings size={18} /> System Core</button>}
                 </div>
                 <div className="sidebar-footer">
-                    <div className="profile-card"><div className="avatar">{user.firstName[0]}</div><div className="profile-info"><span>{user.firstName}</span><span className="profile-role">{user.role}</span></div></div>
-                    <button onClick={() => { localStorage.removeItem('store_ai_token'); setUser(null); }} className="btn btn-secondary" style={{ width: '100%', marginTop: '20px' }}>Logout</button>
+                    <div className="profile-card">
+                        <div className="avatar">{user.firstName[0]}</div>
+                        <div className="profile-info">
+                            <span>{user.firstName}</span>
+                            <span className="profile-role">{user.role}</span>
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '4px' }}>PRODUCT OF</div>
+                        <div className="cognivectra-logo" style={{ fontSize: '0.75rem' }}>
+                            COGNIVE<span className="cognivectra-accent">CTRA</span>
+                        </div>
+                    </div>
+
+                    <button onClick={() => { localStorage.removeItem('store_ai_token'); setUser(null); }} className="btn btn-secondary" style={{ width: '100%', marginTop: '16px', fontSize: '0.7rem' }}>Logout System</button>
                 </div>
             </aside>
 
             <div className="main-content">
-                <header className="header"><div className="header-title" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>SYSTEM // <span style={{ color: '#fff', fontWeight: 700 }}>{view.toUpperCase()}</span></div><div className="header-actions">
-                    <button className="btn btn-secondary" onClick={refreshData} style={{ fontSize: '0.7rem' }}>Sync Data</button>
-                    {['products', 'suppliers', 'accounts', 'sales', 'procurement', 'hr', 'users', 'customers'].includes(view) && (
-                        <button className="btn btn-primary" onClick={() => setModal({ type: view === 'procurement' ? 'orders' : (view === 'accounts' ? 'payment' : (view === 'hr' ? 'employees' : view)) })} style={{ fontSize: '0.7rem' }}>
-                            <Plus size={14} /> New {view === 'users' ? 'Operator' : (view === 'customers' ? 'Client' : 'Artifact')}
-                        </button>
-                    )}
-                </div></header>
+                <header className="header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div className="header-title" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>SYSTEM // <span style={{ color: '#fff', fontWeight: 700 }}>{view.toUpperCase()}</span></div>
+                        <div style={{ padding: '4px 10px', background: 'rgba(129, 140, 248, 0.08)', borderRadius: '6px', border: '1px solid rgba(129, 140, 248, 0.15)', fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                            PRODUCT OF COGNIVE<span style={{ color: '#fff' }}>CTRA</span>
+                        </div>
+                    </div>
+                    <div className="header-actions">
+                        <button className="btn btn-secondary" onClick={refreshData} style={{ fontSize: '0.7rem' }}>Sync Data</button>
+                        {['products', 'suppliers', 'accounts', 'sales', 'procurement', 'hr', 'users', 'customers'].includes(view) && (
+                            <button className="btn btn-primary" onClick={() => setModal({ type: view === 'procurement' ? 'orders' : (view === 'accounts' ? 'payment' : (view === 'hr' ? 'employees' : view)) })} style={{ fontSize: '0.7rem' }}>
+                                <Plus size={14} /> New {view === 'users' ? 'Operator' : (view === 'customers' ? 'Client' : 'Artifact')}
+                            </button>
+                        )}
+                    </div>
+                </header>
 
                 <div className="page-container">
                     <AnimatePresence mode="wait"><motion.div key={view} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
