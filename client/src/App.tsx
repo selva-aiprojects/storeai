@@ -247,6 +247,9 @@ function App() {
                 <header className="header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div className="header-title" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>SYSTEM // <span style={{ color: '#fff', fontWeight: 700 }}>{view.toUpperCase()}</span></div>
+                        <div style={{ padding: '4px 10px', background: '#ef4444', borderRadius: '6px', fontSize: '0.6rem', color: '#fff', fontWeight: 900, letterSpacing: '0.1em' }}>
+                            ACTIVE BUILD: V3.0_LIVE
+                        </div>
                         <div style={{ padding: '4px 10px', background: 'rgba(129, 140, 248, 0.08)', borderRadius: '6px', border: '1px solid rgba(129, 140, 248, 0.15)', fontSize: '0.6rem', color: 'var(--accent-primary)', fontWeight: 600, letterSpacing: '0.05em' }}>
                             PRODUCT OF COGNIVE<span style={{ color: '#fff' }}>CTRA</span>
                         </div>
