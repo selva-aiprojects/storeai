@@ -48,24 +48,32 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                         <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
                     )}
                 </div>
-                <div style={{ marginTop: '5px', paddingLeft: '30px' }}>
+                <div style={{
+                    marginTop: '12px',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '10px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}>
                     {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ height: '20px', maxWidth: '120px', objectFit: 'contain', opacity: 0.9 }} alt="Tenant Brand" />
+                        <img src={user.activeTenant.logo} style={{ height: '36px', maxWidth: '100%', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} alt="Tenant Brand" />
                     ) : (
                         <div style={{
-                            height: '20px',
-                            width: '100px',
-                            border: '1px dashed #ffffff44',
-                            borderRadius: '4px',
+                            height: '36px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '0.55rem',
-                            color: '#ffffff66',
+                            fontSize: '0.65rem',
+                            color: 'rgba(255, 255, 255, 0.3)',
                             textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
+                            letterSpacing: '0.2em',
+                            fontWeight: 600
                         }}>
-                            Your Brand
+                            Operant Core
                         </div>
                     )}
                 </div>
