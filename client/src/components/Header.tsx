@@ -31,7 +31,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen }: any) => {
                     <Menu size={20} />
                 </button>
                 <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>
-                    OPERATIONAL CORE // <span style={{ color: '#fff' }}>{getPageTitle()}</span>
+                    OPERATIONAL CORE // <span style={{ color: 'var(--text-primary)' }}>{getPageTitle()}</span>
                 </div>
             </div>
             <div className="header-actions">

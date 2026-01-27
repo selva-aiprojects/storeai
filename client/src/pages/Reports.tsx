@@ -51,7 +51,7 @@ const Reports = () => {
                                 <Pie data={pieData} innerRadius={70} outerRadius={90} paddingAngle={8} dataKey="value" stroke="none">
                                     {pieData.map((_entry: any, index: number) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                 </Pie>
-                                <Tooltip contentStyle={{ background: '#0a0f1d', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
+                                <Tooltip contentStyle={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-primary)' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
@@ -62,10 +62,10 @@ const Reports = () => {
                     <div style={{ height: '300px', marginTop: '20px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={reports?.finance}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="type" stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />
                                 <YAxis stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ background: '#0a0f1d', border: '1px solid var(--border-color)', borderRadius: '8px' }} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                                <Tooltip contentStyle={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '8px' }} cursor={{ fill: '#f8fafc' }} />
                                 <Bar dataKey="_sum.amount" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} barSize={40} />
                             </BarChart>
                         </ResponsiveContainer>

@@ -1,5 +1,5 @@
 /* =======================
-   Responsive System
+   Responsive System (Light Edition)
    ======================= */
 
 @media (max-width: 1024px) {
@@ -13,10 +13,45 @@
         --sidebar-width: 0px;
     }
 
+    html,
+    body {
+        font-size: 14px;
+    }
+
     .sidebar {
         width: 280px !important;
         transform: translateX(-100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1) !important;
+        background: #ffffff !important;
+    }
+
+    .sidebar-header {
+        color: var(--text-primary) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .menu-divider {
+        color: var(--text-muted) !important;
+    }
+
+    .sidebar-menu .menu-item {
+        color: var(--text-secondary) !important;
+    }
+
+    .sidebar-menu .menu-item:hover {
+        background: var(--bg-hover) !important;
+        color: var(--accent-primary) !important;
+    }
+
+    .sidebar-menu .menu-item.active {
+        background: var(--accent-primary) !important;
+        color: #ffffff !important;
+    }
+
+    .sidebar-footer {
+        background: #f8fafc !important;
+        border-top: 1px solid var(--border-color) !important;
     }
 
     .sidebar.mobile-open {
@@ -30,10 +65,13 @@
 
     .header {
         padding: 0 16px;
+        background: #fff;
+        /* Solid on mobile for better visibility */
     }
 
     .mobile-toggle {
         display: block !important;
+        color: var(--text-primary) !important;
     }
 
     .btn-text {
@@ -49,50 +87,48 @@
     }
 
     .card {
-        padding: 16px;
+        padding: 20px;
     }
 
     .table-container {
         border-radius: 8px;
         overflow-x: auto;
+        border: 1px solid var(--border-color);
     }
 
     table {
-        min-width: 600px;
-    }
-
-    html,
-    body {
-        font-size: 12px;
+        min-width: 700px;
+        /* Force scroll for data visibility */
     }
 
     .header-actions .btn {
-        padding: 8px !important;
+        padding: 10px !important;
     }
 }
 
 @media (max-width: 480px) {
     .modal {
         width: 95% !important;
-        padding: 16px !important;
+        padding: 24px !important;
         margin: 10px !important;
+        border-radius: 12px;
     }
 
     .btn {
-        padding: 6px 12px;
-        font-size: 0.75rem;
+        padding: 10px 14px;
+        font-size: 0.85rem;
     }
 
     .header-title {
-        font-size: 0.7rem !important;
+        font-size: 0.8rem !important;
     }
 }
 
 .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
     z-index: 95;
     display: none;
 }

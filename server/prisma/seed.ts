@@ -54,7 +54,9 @@ async function main() {
         { name: 'Server Infrastructure', desc: 'Compute & Rack hardware' },
         { name: 'Networking', desc: 'Enterprise connectivity' },
         { name: 'Storage Solutions', desc: 'SAN/NAS and Flash' },
-        { name: 'Security Hardware', desc: 'Firewalls and CCTV' }
+        { name: 'Security Hardware', desc: 'Firewalls and CCTV' },
+        { name: 'Workstations', desc: 'High performance PCs' },
+        { name: 'Peripherals', desc: 'Input/Output devices' }
     ];
     const createdCats: Record<string, any> = {};
     for (const cat of categories) {
@@ -66,12 +68,20 @@ async function main() {
     const whRegional = await prisma.warehouse.create({ data: { name: 'Manchester North', location: 'Trafford Centre', isDefault: false } });
     const whBackup = await prisma.warehouse.create({ data: { name: 'Birmingham SEC', location: 'NEC Park', isDefault: false } });
 
-    // 5. Products
+    // 5. Products (BULK INVENTORY)
     const products = [
         { sku: 'SRV-DL380', name: 'HPE ProLiant DL380 Gen11', price: 9500, cost: 6800, cat: 'Server Infrastructure', stock: 12 },
+        { sku: 'SRV-R740', name: 'Dell PowerEdge R740', price: 8200, cost: 5900, cat: 'Server Infrastructure', stock: 8 },
         { sku: 'NET-C9200', name: 'Cisco Catalyst 9200L', price: 2100, cost: 1400, cat: 'Networking', stock: 25 },
+        { sku: 'NET-MX204', name: 'Juniper MX204 Router', price: 15400, cost: 11200, cat: 'Networking', stock: 4 },
         { sku: 'STO-FLS-10TB', name: 'PureStorage FlashArray 10TB', price: 18000, cost: 13500, cat: 'Storage Solutions', stock: 5 },
-        { sku: 'SEC-FW-100', name: 'FortiGate 100F Firewall', price: 3200, cost: 2400, cat: 'Security Hardware', stock: 18 }
+        { sku: 'STO-NAS-64', name: 'Synology FS6400 64TB', price: 12500, cost: 9200, cat: 'Storage Solutions', stock: 3 },
+        { sku: 'SEC-FW-100', name: 'FortiGate 100F Firewall', price: 3200, cost: 2400, cat: 'Security Hardware', stock: 18 },
+        { sku: 'SEC-CAM-4K', name: 'Axis P1455-LE 4K Cam', price: 850, cost: 580, cat: 'Security Hardware', stock: 45 },
+        { sku: 'WRK-Z8G4', name: 'HP Z8 G4 Workstation', price: 4500, cost: 3100, cat: 'Workstations', stock: 10 },
+        { sku: 'WRK-MAC-STUDIO', name: 'Mac Studio M2 Ultra', price: 3999, cost: 3200, cat: 'Workstations', stock: 15 },
+        { sku: 'PRP-MON-32', name: 'Dell UltraSharp 32" 4K', price: 1200, cost: 850, cat: 'Peripherals', stock: 30 },
+        { sku: 'PRP-KEY-MECH', name: 'Logitech G915 Wireless', price: 250, cost: 180, cat: 'Peripherals', stock: 50 }
     ];
     const createdProds: any[] = [];
     for (const p of products) {
@@ -84,13 +94,21 @@ async function main() {
         });
         createdProds.push(prod);
 
-        // Initial Stock with Batch
+        // Distribute stock across warehouses
         await prisma.stock.create({
             data: {
-                productId: prod.id, warehouseId: whMain.id, quantity: p.stock,
-                batchNumber: 'LOT-2024-001', expiryDate: new Date('2028-12-01')
+                productId: prod.id, warehouseId: whMain.id, quantity: Math.floor(p.stock * 0.7),
+                batchNumber: 'LOT-2024-A1', expiryDate: new Date('2028-12-01')
             }
         });
+        if (p.stock > 5) {
+            await prisma.stock.create({
+                data: {
+                    productId: prod.id, warehouseId: whRegional.id, quantity: Math.ceil(p.stock * 0.3),
+                    batchNumber: 'LOT-2024-B2', expiryDate: new Date('2028-12-01')
+                }
+            });
+        }
     }
 
     // 6. Users & Employees
@@ -114,7 +132,7 @@ async function main() {
         });
     }
 
-    // 7. Partners & Customers (EXCESSIVE DATA FOR DEMO)
+    // 7. Partners & Customers
     const suppliers = [
         { name: 'Global Tech Distribution', email: 'orders@globaltech.com', contact: '+44 20 7946 0000', status: 'ACTIVE', rating: 4.9, terms: 'Net 30' },
         { name: 'Cisco Systems UK', email: 'supply@cisco.co.uk', contact: '+44 20 7946 1111', status: 'ACTIVE', rating: 4.7, terms: 'Net 45' },
@@ -137,18 +155,15 @@ async function main() {
         createdCustomers.push(await prisma.customer.create({ data: { name: c.name, email: c.email, city: c.city, address: 'Business Park Suite ' + Math.floor(Math.random() * 100) } }));
     }
 
-    // 8. Workflows (Bulk Orders & Sales)
-    // DRAFT
+    // 8. Workflows
     await prisma.order.create({
         data: { orderNumber: 'PO-2026-001', supplierId: createdSuppliers[0].id, totalAmount: 13600, status: 'DRAFT', items: { create: [{ productId: createdProds[0].id, quantity: 2, unitPrice: 6800 }] } }
     });
-    // APPROVED
     await prisma.order.create({
-        data: { orderNumber: 'PO-2026-002', supplierId: createdSuppliers[1].id, totalAmount: 42000, status: 'APPROVED', items: { create: [{ productId: createdProds[1].id, quantity: 30, unitPrice: 1400 }] } }
+        data: { orderNumber: 'PO-2026-002', supplierId: createdSuppliers[1].id, totalAmount: 42000, status: 'APPROVED', items: { create: [{ productId: createdProds[2].id, quantity: 30, unitPrice: 1400 }] } }
     });
-    // PARTIAL
     await prisma.order.create({
-        data: { orderNumber: 'PO-2026-003', supplierId: createdSuppliers[2].id, totalAmount: 7200, status: 'PARTIAL_RECEIVED', items: { create: [{ productId: createdProds[3].id, quantity: 3, unitPrice: 2400 }] } }
+        data: { orderNumber: 'PO-2026-003', supplierId: createdSuppliers[2].id, totalAmount: 7200, status: 'PARTIAL_RECEIVED', items: { create: [{ productId: createdProds[6].id, quantity: 3, unitPrice: 2400 }] } }
     });
 
     // SALES
@@ -156,19 +171,16 @@ async function main() {
         data: { invoiceNo: 'INV-2026-101', totalAmount: 19000, taxAmount: 0, customerId: createdCustomers[0].id, team: 'SALES', status: 'DELIVERED', items: { create: [{ productId: createdProds[0].id, quantity: 2, unitPrice: 9500 }] } }
     });
     await prisma.sale.create({
-        data: { invoiceNo: 'INV-2026-102', totalAmount: 10500, taxAmount: 0, customerId: createdCustomers[1].id, team: 'DIRECT', status: 'SHIPPED', items: { create: [{ productId: createdProds[1].id, quantity: 5, unitPrice: 2100 }] } }
-    });
-    await prisma.sale.create({
-        data: { invoiceNo: 'INV-2026-103', totalAmount: 36000, taxAmount: 0, customerId: createdCustomers[2].id, team: 'SALES', status: 'PENDING', items: { create: [{ productId: createdProds[2].id, quantity: 2, unitPrice: 18000 }] } }
+        data: { invoiceNo: 'INV-2026-102', totalAmount: 10500, taxAmount: 0, customerId: createdCustomers[1].id, team: 'DIRECT', status: 'SHIPPED', items: { create: [{ productId: createdProds[2].id, quantity: 5, unitPrice: 2100 }] } }
     });
 
-    // 9. Financial Ledger - MAJOR INVESTMENT
+    // 9. Financial Ledger
     await prisma.ledger.create({ data: { title: 'Seed Series Investment Round', amount: 100000, type: 'CREDIT', category: 'INVESTMENT', description: 'Institutional investment for growth' } });
     await prisma.ledger.create({ data: { title: 'Operational Fixed Equity', amount: 500000, type: 'CREDIT', category: 'EQUITY' } });
     await prisma.ledger.create({ data: { title: 'Office Lease Q1', amount: 15000, type: 'DEBIT', category: 'OPERATIONAL' } });
     await prisma.ledger.create({ data: { title: 'Infrastructure Upgrade', amount: 8500, type: 'DEBIT', category: 'ASSETS' } });
 
-    console.log('✔ DEMO READY: Massive Data Pulse established.');
+    console.log('✔ DEMO READY: Massive Inventory & Data Pulse established.');
 }
 
 main()
