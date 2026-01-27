@@ -32,7 +32,7 @@ function App() {
         products: [], users: [], sales: [], orders: [],
         employees: [], suppliers: [], categories: [], ledger: [],
         financialSummary: null, stats: null, departments: [],
-        customers: [], payrolls: [], reports: null
+        customers: [], payrolls: [], reports: null, taxSummary: null
     });
 
     useEffect(() => {
@@ -91,7 +91,8 @@ function App() {
             safeFetchService(getPayrolls, 'payrolls'),
             safeFetchService(getCustomers, 'customers'),
             safeFetch('/reports/comprehensive', 'reports'),
-            safeFetch('/crm', 'deals')
+            safeFetch('/crm', 'deals'),
+            safeFetch('/accounts/tax-summary', 'taxSummary')
             // fetchMe() REMOVED TO PREVENT INFINITE LOOP: 
             // refreshData triggers on user change, and fetchMe updates user.
         ]);

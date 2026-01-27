@@ -11,12 +11,16 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
 
     try {
         const order = await prisma.$transaction(async (tx) => {
-            const totalAmount = items.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
+            const subTotal = items.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
+            const taxRate = 0.18;
+            const taxAmount = subTotal * taxRate;
+            const grandTotal = subTotal + taxAmount;
 
             const newOrder = await tx.order.create({
                 data: {
                     orderNumber: `PO-${Date.now()}`,
-                    totalAmount,
+                    totalAmount: grandTotal,
+                    taxAmount: taxAmount,
                     supplierId,
                     tenantId,
                     status, // DRAFT or PENDING_APPROVAL
@@ -56,13 +60,29 @@ export const approveOrder = async (req: AuthRequest, res: Response) => {
         });
 
         // Log financial commitment (Soft Ledger)
+        const taxAmount = order.taxAmount || 0;
+        const baseAmount = order.totalAmount - taxAmount;
+
+        // 1. Base Purchase Cost
         await prisma.ledger.create({
             data: {
                 title: `PO Commitment: ${order.orderNumber}`,
                 type: 'DEBIT', // Pending debit
-                amount: order.totalAmount,
-                category: 'PAYABLE_COMMITMENT',
+                amount: baseAmount,
+                category: 'PURCHASE',
                 description: `Approved PO for Supplier`,
+                tenantId: tenantId!
+            }
+        });
+
+        // 2. Input Tax Credit (Asset)
+        await prisma.ledger.create({
+            data: {
+                title: `GST Input Credit: ${order.orderNumber}`,
+                type: 'DEBIT',
+                amount: taxAmount,
+                category: 'GST_INPUT',
+                description: `18% Input Tax on PO`,
                 tenantId: tenantId!
             }
         });

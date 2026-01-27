@@ -9,6 +9,7 @@ const Accounts = () => {
         { label: 'Total Receivables', value: financialSummary?.receivables || 0, icon: ArrowUpRight, color: 'var(--accent-success)' },
         { label: 'Total Payables', value: financialSummary?.payables || 0, icon: ArrowDownRight, color: 'var(--accent-danger)' },
         { label: 'Cash On Hand', value: (financialSummary?.receivables || 0) - (financialSummary?.payables || 0), icon: DollarSign, color: 'var(--accent-primary)' },
+        { label: 'Net GST Liability', value: data?.taxSummary?.netPayable || 0, icon: DollarSign, color: (data?.taxSummary?.netPayable || 0) > 0 ? 'var(--accent-danger)' : 'var(--accent-success)' },
     ];
 
     return (
@@ -25,7 +26,7 @@ const Accounts = () => {
                 </div>
             </div>
 
-            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
                 {summaryData.map((item, idx) => (
                     <div key={idx} className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '24px' }}>
                         <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>

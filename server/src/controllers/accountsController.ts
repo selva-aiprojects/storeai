@@ -42,6 +42,34 @@ export const getFinancialSummary = async (req: AuthRequest, res: Response) => {
     }
 };
 
+export const getTaxSummary = async (req: AuthRequest, res: Response) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const [outputTax, inputTax] = await Promise.all([
+            prisma.ledger.aggregate({
+                where: { category: 'GST_PAYABLE', tenantId },
+                _sum: { amount: true }
+            }),
+            prisma.ledger.aggregate({
+                where: { category: 'GST_INPUT', tenantId },
+                _sum: { amount: true }
+            })
+        ]);
+
+        const gstOutput = outputTax?._sum?.amount || 0;
+        const gstInput = inputTax?._sum?.amount || 0;
+
+        res.json({
+            gstOutput,
+            gstInput,
+            netPayable: gstOutput - gstInput,
+            status: (gstOutput - gstInput) > 0 ? 'PAYABLE' : 'CREDIT_CARRYOVER'
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Tax summary fetch failed' });
+    }
+};
+
 export const createPaymentEntry = async (req: AuthRequest, res: Response) => {
     const { amount, method, type, transactionId, saleId, orderId } = req.body;
     const tenantId = req.user?.tenantId;

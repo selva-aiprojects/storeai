@@ -46,13 +46,19 @@ export const createSale = async (req: AuthRequest, res: Response) => {
                 };
             }));
 
-            // 1. Create the Sale record
+            // 1. Calculate Tax (GST 18%)
+            const taxRate = 0.18;
+            const subTotal = calculatedTotal;
+            const taxAmount = subTotal * taxRate;
+            const grandTotal = subTotal + taxAmount;
+
+            // 2. Create the Sale record
             const sale = await tx.sale.create({
                 data: {
                     invoiceNo: `INV-${Date.now()}`,
-                    totalAmount: calculatedTotal || 0,
+                    totalAmount: grandTotal || 0,
                     discountAmount: totalDiscount || 0,
-                    taxAmount: taxAmount || 0,
+                    taxAmount: taxAmount,
                     customerId,
                     tenantId,
                     team: req.body.team || 'SALES',
@@ -71,7 +77,7 @@ export const createSale = async (req: AuthRequest, res: Response) => {
                 include: { items: true },
             });
 
-            // 2. Update Stock for each product
+            // 3. Update Stock for each product
             for (const item of items) {
                 const product = await tx.product.findFirst({ where: { id: item.productId, tenantId } });
                 if (!product || product.stockQuantity < item.quantity) {
@@ -84,14 +90,27 @@ export const createSale = async (req: AuthRequest, res: Response) => {
                 });
             }
 
-            // 3. Log to Ledger (Accounting)
+            // 4. Log to Ledger (Revenue)
             await tx.ledger.create({
                 data: {
-                    title: `Sale Reference: ${sale.invoiceNo}`,
+                    title: `Sale Revenue: ${sale.invoiceNo}`,
                     type: 'CREDIT',
-                    amount: calculatedTotal,
+                    amount: subTotal,
+                    category: 'SALES',
                     tenantId,
-                    description: `Sale to customer ${customerId || 'Walk-in'} (Saved $${totalDiscount.toFixed(2)})`,
+                    description: `Base Sale Amount for ${customerId || 'Walk-in'}`,
+                },
+            });
+
+            // 5. Log to Ledger (GST Liability)
+            await tx.ledger.create({
+                data: {
+                    title: `GST Output: ${sale.invoiceNo}`,
+                    type: 'CREDIT',
+                    amount: taxAmount,
+                    category: 'GST_PAYABLE',
+                    tenantId,
+                    description: `18% GST collected on Invoice ${sale.invoiceNo}`,
                 },
             });
 

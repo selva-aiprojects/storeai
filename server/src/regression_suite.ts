@@ -166,7 +166,10 @@ async function runRegressionSuite() {
             supplierId: supplierId,
             items: [{ productId: productId, quantity: 50, unitPrice: 900 }]
         }, { headers: CONFIG.headers });
-        logSuccess(`PO # ${orderResp.data.orderNumber}`);
+        // PO must be APPROVED to trigger GST Input Ledger
+        logStep('PROCUREMENT: Approving PO for GST');
+        await axios.patch(`${API_BASE}/orders/${orderResp.data.id}/approve`, {}, { headers: CONFIG.headers });
+        logSuccess('PO Approved');
 
         // --- TEST CASE 10: REPORTS ---
         logStep('REPORTS: Inventory Summary');
@@ -174,9 +177,19 @@ async function runRegressionSuite() {
         if (!Array.isArray(stockRep.data)) throw new Error('Invalid Stock Report');
         logSuccess(`Stock Report Generated (${stockRep.data.length} records)`);
 
+        // --- TEST CASE 11: TAXATION ---
+        logStep('FINANCE: GST Liability Check');
+        const taxSummary = await axios.get(`${API_BASE}/accounts/tax-summary`, { headers: CONFIG.headers });
+        const { gstOutput, gstInput, netPayable } = taxSummary.data;
+
+        if (gstOutput <= 0) throw new Error('No GST Output recorded from Sales');
+        if (gstInput <= 0) throw new Error('No GST Input Credit from PO');
+
+        logSuccess(`Tax Report: Output $${gstOutput.toFixed(2)} | Input $${gstInput.toFixed(2)} | Net $${netPayable.toFixed(2)}`);
+
         console.log('\n---------------------------------------------------');
         console.log('✨ REGRESSION RESULT: PASSED');
-        console.log('   All 10 Verification Modules Successful.');
+        console.log('   All 11 Verification Modules Successful.');
         console.log('---------------------------------------------------\n');
         process.exit(0);
 
