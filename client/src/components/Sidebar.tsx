@@ -48,11 +48,27 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                         <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
                     )}
                 </div>
-                {user?.activeTenant?.logo && (
-                    <div style={{ paddingLeft: '30px' }}>
-                        <img src={user.activeTenant.logo} style={{ height: '18px', maxWidth: '100px', objectFit: 'contain', opacity: 0.8 }} alt="Tenant Brand" />
-                    </div>
-                )}
+                <div style={{ marginTop: '5px', paddingLeft: '30px' }}>
+                    {user?.activeTenant?.logo ? (
+                        <img src={user.activeTenant.logo} style={{ height: '20px', maxWidth: '120px', objectFit: 'contain', opacity: 0.9 }} alt="Tenant Brand" />
+                    ) : (
+                        <div style={{
+                            height: '20px',
+                            width: '100px',
+                            border: '1px dashed #ffffff44',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.55rem',
+                            color: '#ffffff66',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                        }}>
+                            Your Brand
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="sidebar-menu">
@@ -81,7 +97,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
 
                 <div style={{ marginTop: '15px', textAlign: 'left', opacity: 0.9, paddingLeft: '5px' }}>
                     <a href="https://cognivectra.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/logo-cognivectra.png" alt="Cognivectra" style={{ maxHeight: '30px', maxWidth: '140px', objectFit: 'contain' }} />
+                        <img src="/logo.png" alt="Cognivectra" style={{ maxHeight: '30px', maxWidth: '140px', objectFit: 'contain' }} />
                     </a>
                 </div>
 
