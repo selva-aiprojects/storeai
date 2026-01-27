@@ -77,9 +77,9 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                <div style={{ marginTop: '24px', textAlign: 'center' }}>
                     <a href="https://cognivectra.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/logo-final.png" alt="Cognivectra" style={{ height: '30px', maxWidth: '100%', objectFit: 'contain', opacity: 0.9 }} />
+                        <img src="/logo-final.png" alt="Cognivectra" style={{ maxHeight: '40px', maxWidth: '100%', objectFit: 'contain' }} />
                     </a>
                 </div>
 
