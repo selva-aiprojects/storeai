@@ -92,6 +92,8 @@ function App() {
             safeFetchService(getCustomers, 'customers'),
             safeFetch('/reports/comprehensive', 'reports'),
             safeFetch('/crm', 'deals')
+            // fetchMe() REMOVED TO PREVENT INFINITE LOOP: 
+            // refreshData triggers on user change, and fetchMe updates user.
         ]);
 
         setData(newData);

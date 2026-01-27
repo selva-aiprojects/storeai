@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const getLedger = async (req: Request, res: Response) => {
+export const getLedger = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const ledger = await prisma.ledger.findMany({
+            where: { tenantId },
             orderBy: { createdAt: 'desc' }
         });
         res.json(ledger);
@@ -12,31 +15,39 @@ export const getLedger = async (req: Request, res: Response) => {
     }
 };
 
-export const getFinancialSummary = async (req: Request, res: Response) => {
+export const getFinancialSummary = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const [receivables, payables] = await Promise.all([
             prisma.payment.aggregate({
-                where: { type: 'RECEIVABLE' },
+                where: { type: 'RECEIVABLE', tenantId },
                 _sum: { amount: true }
             }),
             prisma.payment.aggregate({
-                where: { type: 'PAYABLE' },
+                where: { type: 'PAYABLE', tenantId },
                 _sum: { amount: true }
             })
         ]);
 
+        const receivablesTotal = receivables?._sum?.amount || 0;
+        const payablesTotal = payables?._sum?.amount || 0;
+
         res.json({
-            receivables: receivables._sum.amount || 0,
-            payables: payables._sum.amount || 0,
-            netBalance: (receivables._sum.amount || 0) - (payables._sum.amount || 0)
+            receivables: receivablesTotal,
+            payables: payablesTotal,
+            netBalance: receivablesTotal - payablesTotal
         });
     } catch (error) {
         res.status(500).json({ error: 'Financial data fetch failed' });
     }
 };
 
-export const createPaymentEntry = async (req: Request, res: Response) => {
+export const createPaymentEntry = async (req: AuthRequest, res: Response) => {
     const { amount, method, type, transactionId, saleId, orderId } = req.body;
+    const tenantId = req.user?.tenantId;
+
+    if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
     try {
         const payment = await prisma.payment.create({
             data: {
@@ -44,7 +55,8 @@ export const createPaymentEntry = async (req: Request, res: Response) => {
                 method,
                 type,
                 transactionId,
-                saleId
+                saleId,
+                tenantId
             }
         });
 
@@ -55,7 +67,8 @@ export const createPaymentEntry = async (req: Request, res: Response) => {
                 type: type === 'RECEIVABLE' ? 'CREDIT' : 'DEBIT',
                 amount: Number(amount),
                 category: type,
-                description: `TxID: ${transactionId || 'N/A'}`
+                description: `TxID: ${transactionId || 'N/A'}`,
+                tenantId
             }
         });
 

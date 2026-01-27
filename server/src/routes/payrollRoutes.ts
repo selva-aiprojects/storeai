@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { getPayrolls, createPayroll } from '../controllers/payrollController';
-import { authenticate, authorize } from '../middleware/authMiddleware';
+import { authenticate, checkPermission } from '../middleware/authMiddleware';
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get('/', authorize(['ADMIN', 'SUPER_ADMIN', 'ACCOUNTANT', 'HR']), getPayrolls);
-router.post('/', authorize(['ADMIN', 'SUPER_ADMIN', 'ACCOUNTANT']), createPayroll);
+router.get('/', checkPermission('payroll:read'), getPayrolls);
+router.post('/', checkPermission('payroll:write'), createPayroll);
 
 export default router;

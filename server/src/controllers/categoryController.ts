@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const getCategories = async (req: Request, res: Response) => {
+export const getCategories = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const categories = await prisma.category.findMany({
+            where: { tenantId },
             orderBy: { name: 'asc' }
         });
         res.json(categories);
@@ -12,11 +15,14 @@ export const getCategories = async (req: Request, res: Response) => {
     }
 };
 
-export const createCategory = async (req: Request, res: Response) => {
+export const createCategory = async (req: AuthRequest, res: Response) => {
     const { name, description } = req.body;
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
     try {
         const category = await prisma.category.create({
-            data: { name, description }
+            data: { name, description, tenantId }
         });
         res.status(201).json(category);
     } catch (error) {
@@ -24,12 +30,13 @@ export const createCategory = async (req: Request, res: Response) => {
     }
 };
 
-export const updateCategory = async (req: Request, res: Response) => {
+export const updateCategory = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { name, description } = req.body;
+    const tenantId = req.user?.tenantId;
     try {
-        const category = await prisma.category.update({
-            where: { id },
+        const category = await prisma.category.updateMany({
+            where: { id, tenantId },
             data: { name, description }
         });
         res.json(category);
@@ -38,10 +45,13 @@ export const updateCategory = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteCategory = async (req: Request, res: Response) => {
+export const deleteCategory = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
+    const tenantId = req.user?.tenantId;
     try {
-        await prisma.category.delete({ where: { id } });
+        await prisma.category.deleteMany({
+            where: { id, tenantId }
+        });
         res.json({ message: 'Category deleted' });
     } catch (error) {
         res.status(400).json({ error: 'Delete failed' });

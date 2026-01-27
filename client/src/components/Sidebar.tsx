@@ -11,37 +11,50 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
         if (setMobileOpen) setMobileOpen(false);
     };
 
-    const menuItems = [
+    const menuItems: any[] = [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard },
         { divider: 'Inventory' },
-        { path: '/inventory', label: 'Inventory', icon: Package },
-        { path: '/sales', label: 'Sales', icon: CreditCard },
-        { path: '/purchases', label: 'Purchases', icon: Truck },
+        { path: '/inventory', label: 'Inventory', icon: Package, feature: 'INVENTORY_MODULE' },
+        { path: '/sales', label: 'Sales', icon: CreditCard, feature: 'RETAIL_MODULE' },
+        { path: '/purchases', label: 'Purchases', icon: Truck, feature: 'PROCUREMENT_MODULE' },
         { divider: 'Organization' },
-        { path: '/partners', label: 'Partners', icon: Building2 },
-        { path: '/customers', label: 'Customers', icon: Home },
-        { path: '/hr', label: 'HR & Payroll', icon: Users },
+        { path: '/partners', label: 'Partners', icon: Building2, feature: 'PARTNER_MODULE' },
+        { path: '/customers', label: 'Customers', icon: Home, feature: 'CRM_MODULE' },
+        { path: '/hr', label: 'HR & Payroll', icon: Users, feature: 'HR_MODULE' },
         { divider: 'Finance & Intel' },
-        { path: '/accounts', label: 'Accounts', icon: Wallet },
-        { path: '/reports', label: 'Reports', icon: TrendingUp },
+        { path: '/accounts', label: 'Accounts', icon: Wallet, feature: 'FINANCE_MODULE' },
+        { path: '/reports', label: 'Reports', icon: TrendingUp, feature: 'REPORT_MODULE' },
     ];
 
     if (user?.role === 'SUPER_ADMIN') {
         menuItems.push({ path: '/settings', label: 'Settings', icon: Settings });
     }
 
+    // Filter menu items based on features
+    const filteredMenuItems = menuItems.filter(item => {
+        if (item.divider) return true;
+        if (!item.feature) return true;
+        return user?.features?.[item.feature] !== false; // Enable by default if not explicitly false
+    });
+
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
             <div className="sidebar-header" style={{ justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
+                    {user?.activeTenant?.logo ? (
+                        <img src={user.activeTenant.logo} style={{ height: '24px', maxWidth: '120px', objectFit: 'contain' }} alt="Brand" />
+                    ) : (
+                        <>
+                            <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
+                        </>
+                    )}
                 </div>
                 {mobileOpen && (
                     <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
                 )}
             </div>
             <div className="sidebar-menu">
-                {menuItems.map((item: any, index) => (
+                {filteredMenuItems.map((item: any, index) => (
                     item.divider ? (
                         <div key={index} className="menu-divider">{item.divider}</div>
                     ) : (

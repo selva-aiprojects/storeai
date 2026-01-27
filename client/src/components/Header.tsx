@@ -1,7 +1,7 @@
 import { RefreshCw, Plus, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
-const Header = ({ refreshData, setModal, setSidebarOpen }: any) => {
+const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
     const location = useLocation();
 
     const getPageTitle = () => {
@@ -31,7 +31,8 @@ const Header = ({ refreshData, setModal, setSidebarOpen }: any) => {
                     <Menu size={20} />
                 </button>
                 <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>
-                    OPERATIONAL CORE // <span style={{ color: 'var(--text-primary)' }}>{getPageTitle()}</span>
+                    {user?.activeTenant?.name ? `${user.activeTenant.name.toUpperCase()} // ` : 'OPERATIONAL CORE // '}
+                    <span style={{ color: 'var(--text-primary)' }}>{getPageTitle()}</span>
                 </div>
             </div>
             <div className="header-actions">

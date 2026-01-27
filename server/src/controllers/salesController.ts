@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const createSale = async (req: Request, res: Response) => {
+export const createSale = async (req: AuthRequest, res: Response) => {
     const { customerId, items, taxAmount } = req.body;
-    // items: [{ productId, quantity, unitPrice }]
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
     try {
         const result = await prisma.$transaction(async (tx) => {
@@ -16,6 +18,7 @@ export const createSale = async (req: Request, res: Response) => {
                 const rules = await tx.pricingRule.findMany({
                     where: {
                         productId: item.productId,
+                        tenantId: tenantId,
                         isActive: true,
                         minQuantity: { lte: item.quantity } // Volume discount check
                     },
@@ -51,6 +54,7 @@ export const createSale = async (req: Request, res: Response) => {
                     discountAmount: totalDiscount || 0,
                     taxAmount: taxAmount || 0,
                     customerId,
+                    tenantId,
                     team: req.body.team || 'SALES',
                     isHomeDelivery: req.body.isHomeDelivery || false,
                     deliveryAddress: req.body.deliveryAddress || null,
@@ -69,7 +73,7 @@ export const createSale = async (req: Request, res: Response) => {
 
             // 2. Update Stock for each product
             for (const item of items) {
-                const product = await tx.product.findUnique({ where: { id: item.productId } });
+                const product = await tx.product.findFirst({ where: { id: item.productId, tenantId } });
                 if (!product || product.stockQuantity < item.quantity) {
                     throw new Error(`Insufficient stock for product: ${product?.name || item.productId}`);
                 }
@@ -86,6 +90,7 @@ export const createSale = async (req: Request, res: Response) => {
                     title: `Sale Reference: ${sale.invoiceNo}`,
                     type: 'CREDIT',
                     amount: calculatedTotal,
+                    tenantId,
                     description: `Sale to customer ${customerId || 'Walk-in'} (Saved $${totalDiscount.toFixed(2)})`,
                 },
             });
@@ -99,10 +104,11 @@ export const createSale = async (req: Request, res: Response) => {
     }
 };
 
-export const getSales = async (req: Request, res: Response) => {
+export const getSales = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const sales = await prisma.sale.findMany({
-            where: { isDeleted: false },
+            where: { isDeleted: false, tenantId },
             include: {
                 customer: true,
                 items: { include: { product: true } }
@@ -115,11 +121,12 @@ export const getSales = async (req: Request, res: Response) => {
     }
 };
 
-export const getSaleById = async (req: Request, res: Response) => {
+export const getSaleById = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const sale = await prisma.sale.findUnique({
-            where: { id },
+        const tenantId = req.user?.tenantId;
+        const sale = await prisma.sale.findFirst({
+            where: { id, tenantId },
             include: {
                 customer: true,
                 items: { include: { product: true } }
@@ -131,12 +138,13 @@ export const getSaleById = async (req: Request, res: Response) => {
     }
 };
 
-export const updateSaleTracking = async (req: Request, res: Response) => {
+export const updateSaleTracking = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
+    const tenantId = req.user?.tenantId;
     const { trackingNumber, shippingCarrier, status } = req.body;
     try {
-        const sale = await prisma.sale.update({
-            where: { id },
+        const sale = await prisma.sale.updateMany({
+            where: { id, tenantId },
             data: {
                 trackingNumber,
                 shippingCarrier,

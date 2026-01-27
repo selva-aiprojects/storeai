@@ -31,6 +31,16 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                     expiryDate: ''
                 })) || [],
                 notes: ''
+            },
+            tenant: { name: '', slug: '', planId: 'PRO' }, // Default plan
+            payment_feature: {
+                cardName: '',
+                cardNumber: '',
+                expiry: '',
+                cvv: '',
+                featureKey: metadata?.featureKey || '',
+                featureLabel: metadata?.featureLabel || '',
+                price: metadata?.price || 0
             }
         };
         setFormData((init as any)[type] || {});
@@ -51,6 +61,12 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             if (type === 'customers') await createCustomer(formData);
             if (type === 'payroll') await createPayroll(formData);
             if (type === 'grn') await createGoodsReceipt(metadata.id, formData);
+            if (type === 'tenant') await api.post('/tenants', formData);
+            if (type === 'payment_feature') {
+                const currentFeatures = (typeof users?.features === 'object' && users?.features !== null) ? users.features : {};
+                const newFeatures = { ...currentFeatures, [formData.featureKey]: true };
+                await api.put('/tenants/features', { features: newFeatures });
+            }
             onClose();
         } catch (e: any) { alert("Execution Error: " + (e.response?.data?.error || e.message)); }
     };
@@ -169,7 +185,65 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                         </>
                     )}
 
-                    <button className="btn btn-primary" type="submit" style={{ padding: '14px', marginTop: '10px' }}>EXECUTE PROTOCOL</button>
+                    {type === 'tenant' && (
+                        <>
+                            <div className="form-group">
+                                <label>Organization Name</label>
+                                <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required placeholder="StoreAI Retail Hub" />
+                            </div>
+                            <div className="form-group">
+                                <label>URL Slug (Unique ID)</label>
+                                <input value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="retail-hub" />
+                            </div>
+                            <div className="form-group">
+                                <label>Initial Plan</label>
+                                <select value={formData.planId} onChange={e => setFormData({ ...formData, planId: e.target.value })}>
+                                    <option value="PRO">PRO ($99/mo)</option>
+                                    <option value="ENTERPRISE">ENTERPRISE ($499/mo)</option>
+                                </select>
+                            </div>
+                        </>
+                    )}
+
+                    {type === 'payment_feature' && (
+                        <>
+                            <div style={{ background: 'rgba(129, 140, 248, 0.1)', padding: '20px', borderRadius: '12px', border: '1px solid var(--accent-primary)', marginBottom: '10px' }}>
+                                <div style={{ fontSize: '0.65rem', color: 'var(--accent-primary)', fontWeight: 800, letterSpacing: '0.1em' }}>UPGRADE PROTOCOL</div>
+                                <div style={{ fontSize: '1.2rem', fontWeight: 800, marginTop: '5px' }}>{formData.featureLabel}</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '10px' }}>${formData.price}<span style={{ fontSize: '0.8rem', opacity: 0.6 }}>/mo</span></div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>CARDHOLDER NAME</label>
+                                <input value={formData.cardName} onChange={e => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} required placeholder="J. DOE" />
+                            </div>
+
+                            <div className="form-group">
+                                <label>CREDIT CARD NUMBER</label>
+                                <input value={formData.cardNumber} onChange={e => setFormData({ ...formData, cardNumber: e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim() })} maxLength={19} required placeholder="0000 0000 0000 0000" />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                <div className="form-group">
+                                    <label>EXPIRY (MM/YY)</label>
+                                    <input value={formData.expiry} onChange={e => setFormData({ ...formData, expiry: e.target.value })} required placeholder="12/26" />
+                                </div>
+                                <div className="form-group">
+                                    <label>CVV/CVC</label>
+                                    <input type="password" value={formData.cvv} onChange={e => setFormData({ ...formData, cvv: e.target.value })} maxLength={3} required placeholder="***" />
+                                </div>
+                            </div>
+
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '10px' }}>
+                                Securely processed by StoreAI Payment Gateway. <br />
+                                Your subscription will begin immediately upon authorization.
+                            </div>
+                        </>
+                    )}
+
+                    <button className="btn btn-primary" type="submit" style={{ padding: '14px', marginTop: '10px' }}>
+                        {type === 'payment_feature' ? `AUTHORIZE $${formData.price} PAYMENT` : 'EXECUTE PROTOCOL'}
+                    </button>
                 </form>
             </motion.div>
         </div>

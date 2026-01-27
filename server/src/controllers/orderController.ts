@@ -1,10 +1,14 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
 // --- Purchase Order Lifecycle ---
 
-export const createOrder = async (req: Request, res: Response) => {
+export const createOrder = async (req: AuthRequest, res: Response) => {
     const { supplierId, items, status = 'DRAFT' } = req.body;
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
     try {
         const order = await prisma.$transaction(async (tx) => {
             const totalAmount = items.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
@@ -14,6 +18,7 @@ export const createOrder = async (req: Request, res: Response) => {
                     orderNumber: `PO-${Date.now()}`,
                     totalAmount,
                     supplierId,
+                    tenantId,
                     status, // DRAFT or PENDING_APPROVAL
                     items: {
                         create: items.map((item: any) => ({
@@ -34,12 +39,15 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 };
 
-export const approveOrder = async (req: Request, res: Response) => {
+export const approveOrder = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const { userId } = req.body; // In real app, get from req.user
+    const tenantId = req.user?.tenantId;
+    // In real app, get from req.user
+    const userId = req.user?.id;
+
     try {
         const order = await prisma.order.update({
-            where: { id },
+            where: { id, tenantId }, // Ensure tenant ownership
             data: {
                 status: 'APPROVED',
                 approvalStatus: 'APPROVED',
@@ -54,7 +62,8 @@ export const approveOrder = async (req: Request, res: Response) => {
                 type: 'DEBIT', // Pending debit
                 amount: order.totalAmount,
                 category: 'PAYABLE_COMMITMENT',
-                description: `Approved PO for Supplier`
+                description: `Approved PO for Supplier`,
+                tenantId: tenantId!
             }
         });
 
@@ -64,12 +73,13 @@ export const approveOrder = async (req: Request, res: Response) => {
     }
 };
 
-export const updateOrderTracking = async (req: Request, res: Response) => {
+export const updateOrderTracking = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
+    const tenantId = req.user?.tenantId;
     const { trackingNumber, shippingCarrier, status, expectedDeliveryDate } = req.body;
     try {
         const order = await prisma.order.update({
-            where: { id },
+            where: { id, tenantId },
             data: {
                 trackingNumber,
                 shippingCarrier,
@@ -86,19 +96,26 @@ export const updateOrderTracking = async (req: Request, res: Response) => {
 
 // --- Goods Received Note (GRN) & 3-Way Matching ---
 
-export const createGoodsReceipt = async (req: Request, res: Response) => {
+export const createGoodsReceipt = async (req: AuthRequest, res: Response) => {
     const { id } = req.params; // Order ID
+    const tenantId = req.user?.tenantId;
     const { warehouseId, items, notes } = req.body;
     // items: [{ productId, quantity, batchNumber, expiryDate }]
 
+    if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
     try {
+        // Validate warehouse belongs to tenant
+        const wh = await prisma.warehouse.findFirst({ where: { id: warehouseId, tenantId } });
+        if (!wh) return res.status(404).json({ error: 'Warehouse not found or access denied' });
+
         const result = await prisma.$transaction(async (tx) => {
             const order = await tx.order.findUnique({
                 where: { id },
                 include: { items: true }
             });
 
-            if (!order) throw new Error('Order not found');
+            if (!order || order.tenantId !== tenantId) throw new Error('Order not found');
             if (['DRAFT', 'PENDING_APPROVAL', 'CANCELLED', 'COMPLETED'].includes(order.status)) {
                 throw new Error('Order is not in a receivable state');
             }
@@ -139,8 +156,8 @@ export const createGoodsReceipt = async (req: Request, res: Response) => {
                 }
 
                 // Update Warehouse Stock (General Product Level)
-                await tx.product.update({
-                    where: { id: grnItem.productId },
+                await tx.product.updateMany({
+                    where: { id: grnItem.productId, tenantId },
                     data: { stockQuantity: { increment: grnItem.quantity } }
                 });
 
@@ -178,9 +195,11 @@ export const createGoodsReceipt = async (req: Request, res: Response) => {
     }
 };
 
-export const getOrders = async (req: Request, res: Response) => {
+export const getOrders = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const orders = await prisma.order.findMany({
+            where: { tenantId },
             include: {
                 supplier: true,
                 items: { include: { product: true } },

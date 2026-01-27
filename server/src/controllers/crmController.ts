@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const getDeals = async (req: Request, res: Response) => {
+export const getDeals = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const deals = await prisma.deal.findMany({
+            where: { tenantId },
             include: { customer: true, assignedTo: true, items: { include: { product: true } } }
         });
         res.json(deals);
@@ -12,10 +15,11 @@ export const getDeals = async (req: Request, res: Response) => {
     }
 };
 
-export const updateDealStage = async (req: Request, res: Response) => {
+export const updateDealStage = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const { stage } = req.body;
+        const tenantId = req.user?.tenantId;
 
         let probability = 10;
         if (stage === 'QUALIFIED') probability = 40;
@@ -23,8 +27,8 @@ export const updateDealStage = async (req: Request, res: Response) => {
         if (stage === 'WON') probability = 100;
         if (stage === 'LOST') probability = 0;
 
-        const deal = await prisma.deal.update({
-            where: { id },
+        const deal = await prisma.deal.updateMany({
+            where: { id, tenantId },
             data: { stage, probability }
         });
         res.json(deal);
@@ -33,10 +37,15 @@ export const updateDealStage = async (req: Request, res: Response) => {
     }
 };
 
-export const addActivity = async (req: Request, res: Response) => {
+export const addActivity = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params; // dealId
         const { type, content, subject } = req.body;
+        const tenantId = req.user?.tenantId;
+
+        // Verify deal belongs to tenant
+        const deal = await prisma.deal.findFirst({ where: { id, tenantId } });
+        if (!deal) return res.status(403).json({ error: 'Deal access denied' });
 
         const activity = await prisma.activity.create({
             data: {
@@ -52,18 +61,22 @@ export const addActivity = async (req: Request, res: Response) => {
     }
 };
 
-export const createDeal = async (req: Request, res: Response) => {
+export const createDeal = async (req: AuthRequest, res: Response) => {
     try {
         const { title, value, customerId, assignedToId, items } = req.body;
+        const tenantId = req.user?.tenantId;
+
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const deal = await prisma.deal.create({
             data: {
                 title,
                 value: Number(value),
                 customerId,
                 assignedToId,
+                tenantId,
                 stage: 'NEW',
                 probability: 10,
-                // Assuming simple flat creation for now
             }
         });
         res.json(deal);

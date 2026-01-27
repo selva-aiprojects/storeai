@@ -7,7 +7,12 @@ export interface AuthRequest extends Request {
     user?: {
         id: string;
         email: string;
+        firstName: string;
+        lastName: string;
+        tenantId: string;
         role: string;
+        permissions: string[];
+        features: any;
     };
 }
 
@@ -27,10 +32,19 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     }
 };
 
-export const authorize = (roles: string[]) => {
+export const checkPermission = (permission: string) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user || !roles.includes(req.user.role)) {
-            return res.status(403).json({ error: 'Access denied' });
+        if (!req.user || !req.user.permissions.includes(permission)) {
+            return res.status(403).json({ error: `Insufficient permissions: ${permission} required` });
+        }
+        next();
+    };
+};
+
+export const checkFeature = (featureName: string) => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
+        if (!req.user || !req.user.features[featureName]) {
+            return res.status(403).json({ error: `Feature '${featureName}' is not available on your current plan` });
         }
         next();
     };

@@ -1,9 +1,12 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const getInventorySummary = async (req: Request, res: Response) => {
+export const getInventorySummary = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const stocks = await prisma.stock.findMany({
+            where: { product: { tenantId } },
             include: {
                 product: true,
                 warehouse: true
@@ -15,10 +18,12 @@ export const getInventorySummary = async (req: Request, res: Response) => {
     }
 };
 
-export const createDocument = async (req: Request, res: Response) => {
+export const createDocument = async (req: AuthRequest, res: Response) => {
     try {
         const { type, sourceWarehouseId, targetWarehouseId, items, notes } = req.body;
-        // items: [{ productId, quantity }]
+        const tenantId = req.user?.tenantId;
+
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
         const result = await prisma.$transaction(async (tx) => {
             // 1. Create Document
@@ -29,13 +34,14 @@ export const createDocument = async (req: Request, res: Response) => {
                     sourceWarehouseId,
                     targetWarehouseId,
                     notes,
+                    tenantId,
                     items: {
                         create: items.map((i: any) => ({
                             productId: i.productId,
                             quantity: Number(i.quantity)
                         }))
                     },
-                    performedBy: 'Admin' // TODO: from auth
+                    performedBy: req.user?.firstName || 'Admin'
                 },
                 include: { items: true }
             });
@@ -51,8 +57,11 @@ export const createDocument = async (req: Request, res: Response) => {
                         update: { quantity: { increment: qty } },
                         create: { warehouseId: sourceWarehouseId, productId: item.productId, quantity: qty, batchNumber: 'GENERAL' }
                     });
-                    // Update global product stock for reference
-                    await tx.product.update({ where: { id: item.productId }, data: { stockQuantity: { increment: qty } } });
+                    // Update product stock (must verify tenant ownership)
+                    await tx.product.updateMany({
+                        where: { id: item.productId, tenantId },
+                        data: { stockQuantity: { increment: qty } }
+                    });
                 }
                 else if (type === 'TRANSFER') {
                     // Deduct from Source
@@ -73,7 +82,10 @@ export const createDocument = async (req: Request, res: Response) => {
                         where: { warehouseId_productId_batchNumber: { warehouseId: sourceWarehouseId, productId: item.productId, batchNumber: 'GENERAL' } },
                         data: { quantity: { increment: qty * multiplier } }
                     });
-                    await tx.product.update({ where: { id: item.productId }, data: { stockQuantity: { increment: qty * multiplier } } });
+                    await tx.product.updateMany({
+                        where: { id: item.productId, tenantId },
+                        data: { stockQuantity: { increment: qty * multiplier } }
+                    });
                 }
             }
 
@@ -87,9 +99,13 @@ export const createDocument = async (req: Request, res: Response) => {
     }
 };
 
-export const getKyotoWarehouses = async (req: Request, res: Response) => {
+export const getKyotoWarehouses = async (req: AuthRequest, res: Response) => {
     try {
-        const warehouses = await prisma.warehouse.findMany({ include: { stocks: { include: { product: true } } } });
+        const tenantId = req.user?.tenantId;
+        const warehouses = await prisma.warehouse.findMany({
+            where: { tenantId },
+            include: { stocks: { include: { product: true } } }
+        });
         res.json(warehouses);
     } catch (error) {
         res.status(500).json({ error: 'Failed' });

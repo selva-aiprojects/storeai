@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { getDepartmentalReport, getInventoryReport, getPredictionReport } from '../controllers/reportController';
-import { authenticate, authorize } from '../middleware/authMiddleware';
+import { authenticate, checkPermission } from '../middleware/authMiddleware';
 
 const router = Router();
 
 router.use(authenticate);
 
-// Restricted to Management and Admins
-router.get('/comprehensive', authorize(['ADMIN', 'SUPER_ADMIN', 'MANAGEMENT']), getDepartmentalReport);
-router.get('/inventory', authorize(['ADMIN', 'SUPER_ADMIN', 'OPERATIONS', 'MANAGEMENT']), getInventoryReport);
-router.get('/prediction', authorize(['ADMIN', 'SUPER_ADMIN', 'MANAGEMENT']), getPredictionReport);
+// Restricted based on granular permissions
+router.get('/comprehensive', checkPermission('reports:read'), getDepartmentalReport);
+router.get('/inventory', checkPermission('inventory:read'), getInventoryReport);
+router.get('/prediction', checkPermission('inventory:read'), getPredictionReport);
 
 export default router;

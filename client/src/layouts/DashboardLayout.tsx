@@ -15,7 +15,7 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data }: any) => 
             ></div>
             <Sidebar user={user} logout={logout} mobileOpen={sidebarOpen} setMobileOpen={setSidebarOpen} />
             <div className="main-content">
-                <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={setSidebarOpen} />
+                <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={setSidebarOpen} user={user} />
                 <div className="page-container">
                     <AnimatePresence mode="wait">
                         <motion.div

@@ -1,10 +1,12 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const products = await prisma.product.findMany({
-            where: { isDeleted: false },
+            where: { isDeleted: false, tenantId },
             include: { category: true },
             orderBy: { createdAt: 'desc' }
         });
@@ -20,8 +22,9 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const {
             sku, name, description, price, costPrice, stockQuantity,
             categoryId, unit, lowStockThreshold, leadTimeDays, avgDailySales
@@ -32,9 +35,10 @@ export const createProduct = async (req: Request, res: Response) => {
                 sku, name, description, price, costPrice,
                 stockQuantity: Number(stockQuantity || 0),
                 categoryId, unit,
-                lowStockThreshold: Number(lowStockThreshold),
-                leadTimeDays: Number(leadTimeDays),
-                avgDailySales: Number(avgDailySales)
+                tenantId: tenantId!,
+                lowStockThreshold: Number(lowStockThreshold || 10),
+                leadTimeDays: Number(leadTimeDays || 7),
+                avgDailySales: Number(avgDailySales || 0)
             }
         });
         res.status(201).json(product);
@@ -44,25 +48,28 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
+        const tenantId = req.user?.tenantId;
         const data = req.body;
-        const product = await prisma.product.update({
-            where: { id },
+        // Ensure the product belongs to the tenant
+        const product = await prisma.product.updateMany({
+            where: { id, tenantId },
             data
         });
-        res.json(product);
+        res.json({ message: 'Product updated', product });
     } catch (error) {
         res.status(400).json({ error: 'Failed to update product' });
     }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        await prisma.product.update({
-            where: { id },
+        const tenantId = req.user?.tenantId;
+        await prisma.product.updateMany({
+            where: { id, tenantId },
             data: { isDeleted: true }
         });
         res.status(204).send();
@@ -71,13 +78,15 @@ export const deleteProduct = async (req: Request, res: Response) => {
     }
 };
 
-export const createPricingRule = async (req: Request, res: Response) => {
+export const createPricingRule = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const { productId, name, minQuantity, discountPercent } = req.body;
         const rule = await prisma.pricingRule.create({
             data: {
                 productId,
                 name,
+                tenantId: tenantId!,
                 minQuantity: Number(minQuantity),
                 discountPercent: Number(discountPercent),
                 isActive: true
@@ -89,10 +98,11 @@ export const createPricingRule = async (req: Request, res: Response) => {
     }
 };
 
-export const getPricingRules = async (req: Request, res: Response) => {
+export const getPricingRules = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const rules = await prisma.pricingRule.findMany({
-            where: { isActive: true },
+            where: { isActive: true, tenantId },
             include: { product: true }
         });
         res.json(rules);
