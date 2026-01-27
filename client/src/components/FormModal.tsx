@@ -131,11 +131,29 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>PAYING EMPLOYEE</div>
                                 <div style={{ fontWeight: 700 }}>{metadata.firstName} {metadata.lastName}</div>
                             </div>
-                            <div className="form-group"><label>Base Amount ($)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} required /></div>
+
+                            <div className="form-group"><label>Base Salary ($)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })} required /></div>
+
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                <div className="form-group"><label>Incentive ($)</label><input type="number" value={formData.incentive} onChange={e => setFormData({ ...formData, incentive: parseFloat(e.target.value) })} /></div>
-                                <div className="form-group"><label>Overtime Pay ($)</label><input type="number" value={formData.overtimeAmount} onChange={e => setFormData({ ...formData, overtimeAmount: parseFloat(e.target.value) })} /></div>
+                                <div className="form-group"><label>Incentive/Commission ($)</label><input type="number" value={formData.incentive} onChange={e => setFormData({ ...formData, incentive: parseFloat(e.target.value) || 0 })} /></div>
+                                <div className="form-group"><label>Overtime Pay ($)</label><input type="number" value={formData.overtimeAmount} onChange={e => setFormData({ ...formData, overtimeAmount: parseFloat(e.target.value) || 0 })} /></div>
                             </div>
+
+                            {/* PROJECTION SCREEN */}
+                            <div style={{
+                                marginTop: '10px',
+                                padding: '15px',
+                                background: 'rgba(5, 150, 105, 0.1)',
+                                border: '1px solid var(--accent-secondary)',
+                                borderRadius: '8px',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--accent-secondary)', fontWeight: 800 }}>PROJECTED PAYABLE</div>
+                                <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                                    ${((formData.amount || 0) + (formData.incentive || 0) + (formData.overtimeAmount || 0)).toFixed(2)}
+                                </div>
+                            </div>
+
                             <div className="form-group"><label>Month Period</label><input value={formData.month} onChange={e => setFormData({ ...formData, month: e.target.value })} /></div>
                         </>
                     )}

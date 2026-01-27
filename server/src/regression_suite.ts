@@ -113,17 +113,52 @@ async function runRegressionSuite() {
             designation: 'Test Runner',
             salary: 50000,
             departmentId,
-            joiningDate: new Date().toISOString()
+            joiningDate: new Date().toISOString(),
+            incentivePercentage: 0.10 // 10% Commission
         }, { headers: CONFIG.headers });
-        logSuccess(`Employee Created (${employeeResp.data.id})`);
+        const employeeId = employeeResp.data.id;
+        logSuccess(`Employee Created (${employeeId})`);
 
-        // --- TEST CASE 8: SALES TRANSACTION ---
-        logStep('SALES: Processing Order');
+        logStep('HR: Attendance Marking');
+        await axios.post(`${API_BASE}/hr/attendance`, {
+            employeeId: employeeId,
+            status: 'PRESENT'
+        }, { headers: CONFIG.headers });
+        logSuccess('Attendance Logged');
+
+        logStep('HR: Payroll Generation (OT + Incentive)');
+        const payrollResp = await axios.post(`${API_BASE}/hr/payroll`, {
+            employeeId: employeeId,
+            amount: 4166, // Base Monthly
+            month: 'Regression Month',
+            status: 'PAID',
+            monthlySales: 10000, // Should trigger 10% incentive = 1000
+            overtimeHours: 10 // Should trigger OT calc
+        }, { headers: CONFIG.headers });
+
+        const payout = payrollResp.data.totalPayout;
+        const expectedIncentive = 10000 * 0.10;
+        // OT Rate: (50000 / 160) * 1.5 * 10 hours approx logic check or just existence
+        if (payout <= 4166) throw new Error('Payroll did not include incentives/OT');
+        logSuccess(`Payroll Generated: $${payout.toFixed(2)} (lnc: $${expectedIncentive})`);
+
+        // --- TEST CASE 8: SALES & STOCK DEDUCTION ---
+        logStep('SALES: Transaction & Stock Update');
+        // Check initial stock
+        const initialProd = await axios.get(`${API_BASE}/products`, { headers: CONFIG.headers });
+        const startQty = initialProd.data.find((p: any) => p.id === productId)?.stockQuantity;
+
         const saleResp = await axios.post(`${API_BASE}/sales`, {
             customerId: customerId,
             items: [{ productId: productId, quantity: 2, unitPrice: 1500 }]
         }, { headers: CONFIG.headers });
-        logSuccess(`Sale # ${saleResp.data.invoiceNo}`);
+
+        // Check final stock
+        const finalProd = await axios.get(`${API_BASE}/products`, { headers: CONFIG.headers });
+        const endQty = finalProd.data.find((p: any) => p.id === productId)?.stockQuantity;
+
+        if (startQty - endQty !== 2) throw new Error('Stock not deducted correctly');
+        logSuccess(`Sale Verified (Stock: ${startQty} -> ${endQty})`);
 
         // --- TEST CASE 9: PROCUREMENT ---
         logStep('PROCUREMENT: Raising Purchase Order');
@@ -133,9 +168,15 @@ async function runRegressionSuite() {
         }, { headers: CONFIG.headers });
         logSuccess(`PO # ${orderResp.data.orderNumber}`);
 
+        // --- TEST CASE 10: REPORTS ---
+        logStep('REPORTS: Inventory Summary');
+        const stockRep = await axios.get(`${API_BASE}/inventory/summary`, { headers: CONFIG.headers });
+        if (!Array.isArray(stockRep.data)) throw new Error('Invalid Stock Report');
+        logSuccess(`Stock Report Generated (${stockRep.data.length} records)`);
+
         console.log('\n---------------------------------------------------');
         console.log('✨ REGRESSION RESULT: PASSED');
-        console.log('   All modules function within expected parameters.');
+        console.log('   All 10 Verification Modules Successful.');
         console.log('---------------------------------------------------\n');
         process.exit(0);
 
