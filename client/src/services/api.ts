@@ -34,9 +34,12 @@ export const updateSupplier = (id: string, data: any) => api.patch(`/suppliers/$
 export const getCategories = () => api.get('/categories');
 export const createCategory = (data: any) => api.post('/categories', data);
 
-// Orders
+// Orders (PO Lifecycle)
 export const getOrders = () => api.get('/orders');
 export const createOrder = (data: any) => api.post('/orders', data);
+export const approveOrder = (id: string, userId: string) => api.patch(`/orders/${id}/approve`, { userId }); // New
+export const createGoodsReceipt = (id: string, data: any) => api.post(`/orders/${id}/grn`, data); // New (Replaces receiveOrder)
+// Deprecated but keeping for backward compat if needed temporarily
 export const receiveOrder = (id: string) => api.patch(`/orders/${id}/receive`);
 
 // Sales

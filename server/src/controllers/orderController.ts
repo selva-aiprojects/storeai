@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 
+// --- Purchase Order Lifecycle ---
+
 export const createOrder = async (req: Request, res: Response) => {
-    const { supplierId, items } = req.body;
+    const { supplierId, items, status = 'DRAFT' } = req.body;
     try {
         const order = await prisma.$transaction(async (tx) => {
             const totalAmount = items.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
@@ -12,6 +14,7 @@ export const createOrder = async (req: Request, res: Response) => {
                     orderNumber: `PO-${Date.now()}`,
                     totalAmount,
                     supplierId,
+                    status, // DRAFT or PENDING_APPROVAL
                     items: {
                         create: items.map((item: any) => ({
                             productId: item.productId,
@@ -23,21 +26,41 @@ export const createOrder = async (req: Request, res: Response) => {
                 include: { items: true }
             });
 
-            // Log debit for purchase
-            await tx.ledger.create({
-                data: {
-                    title: `Purchase Order: ${newOrder.orderNumber}`,
-                    type: 'DEBIT',
-                    amount: totalAmount,
-                    description: `Stock Purchase from Supplier ${supplierId}`
-                }
-            });
-
             return newOrder;
         });
         res.status(201).json(order);
     } catch (error) {
         res.status(400).json({ error: 'Failed to create order' });
+    }
+};
+
+export const approveOrder = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { userId } = req.body; // In real app, get from req.user
+    try {
+        const order = await prisma.order.update({
+            where: { id },
+            data: {
+                status: 'APPROVED',
+                approvalStatus: 'APPROVED',
+                approvedById: userId
+            }
+        });
+
+        // Log financial commitment (Soft Ledger)
+        await prisma.ledger.create({
+            data: {
+                title: `PO Commitment: ${order.orderNumber}`,
+                type: 'DEBIT', // Pending debit
+                amount: order.totalAmount,
+                category: 'PAYABLE_COMMITMENT',
+                description: `Approved PO for Supplier`
+            }
+        });
+
+        res.json(order);
+    } catch (error) {
+        res.status(400).json({ error: 'Failed to approve order' });
     }
 };
 
@@ -61,8 +84,13 @@ export const updateOrderTracking = async (req: Request, res: Response) => {
     }
 };
 
-export const receiveOrder = async (req: Request, res: Response) => {
-    const { id } = req.params;
+// --- Goods Received Note (GRN) & 3-Way Matching ---
+
+export const createGoodsReceipt = async (req: Request, res: Response) => {
+    const { id } = req.params; // Order ID
+    const { warehouseId, items, notes } = req.body;
+    // items: [{ productId, quantity, batchNumber, expiryDate }]
+
     try {
         const result = await prisma.$transaction(async (tx) => {
             const order = await tx.order.findUnique({
@@ -70,35 +98,94 @@ export const receiveOrder = async (req: Request, res: Response) => {
                 include: { items: true }
             });
 
-            if (!order || order.status === 'RECEIVED') {
-                throw new Error('Order already received or not found');
+            if (!order) throw new Error('Order not found');
+            if (['DRAFT', 'PENDING_APPROVAL', 'CANCELLED', 'COMPLETED'].includes(order.status)) {
+                throw new Error('Order is not in a receivable state');
             }
 
-            // Update Stock
-            for (const item of order.items) {
+            // 1. Create GRN Header
+            const grn = await tx.goodsReceipt.create({
+                data: {
+                    grnNumber: `GRN-${Date.now()}`,
+                    orderId: id,
+                    warehouseId,
+                    notes,
+                    items: {
+                        create: items.map((i: any) => ({
+                            productId: i.productId,
+                            quantity: i.quantity,
+                            batchNumber: i.batchNumber, // Batch Tracking Logic
+                            expiryDate: i.expiryDate ? new Date(i.expiryDate) : null
+                        }))
+                    }
+                }
+            });
+
+            // 2. Update Inventory (Stock + Batch) & Order Received Qty
+            let allItemsFullyReceived = true;
+
+            for (const grnItem of items) {
+                // Update Order Item 'receivedQuantity'
+                const orderItem = order.items.find(oi => oi.productId === grnItem.productId);
+                if (orderItem) {
+                    await tx.orderItem.update({
+                        where: { id: orderItem.id },
+                        data: { receivedQuantity: { increment: grnItem.quantity } }
+                    });
+
+                    if ((orderItem.receivedQuantity + grnItem.quantity) < orderItem.quantity) {
+                        allItemsFullyReceived = false;
+                    }
+                }
+
+                // Update Warehouse Stock (General Product Level)
                 await tx.product.update({
-                    where: { id: item.productId },
-                    data: { stockQuantity: { increment: item.quantity } }
+                    where: { id: grnItem.productId },
+                    data: { stockQuantity: { increment: grnItem.quantity } }
+                });
+
+                // Update Batch/Lot Specific Stock
+                // Check if stock entry exists for this Batch+Warehouse+Product
+                // Note: Since we removed the unique key for batch flexibility in schemaStep, 
+                // we treat a new entry as a new batch packet or fetch existing if we implemented strict logic.
+                // For this implementation, we simply Create a new Stock Line for every Batch Receipt to ensure traceability.
+                // This mimics "Quants" in Odoo.
+                await tx.stock.create({
+                    data: {
+                        productId: grnItem.productId,
+                        warehouseId,
+                        quantity: grnItem.quantity,
+                        batchNumber: grnItem.batchNumber || 'GENERAL',
+                        expiryDate: grnItem.expiryDate ? new Date(grnItem.expiryDate) : null
+                    }
                 });
             }
 
-            const updatedOrder = await tx.order.update({
+            // 3. Update Order Status
+            const finalStatus = allItemsFullyReceived ? 'COMPLETED' : 'PARTIAL_RECEIVED';
+            await tx.order.update({
                 where: { id },
-                data: { status: 'RECEIVED', updatedAt: new Date() }
+                data: { status: finalStatus }
             });
 
-            return updatedOrder;
+            return grn;
         });
+
         res.json(result);
     } catch (error: any) {
-        res.status(400).json({ error: error.message });
+        console.error(error);
+        res.status(400).json({ error: error.message || 'Failed to process GRN' });
     }
 };
 
 export const getOrders = async (req: Request, res: Response) => {
     try {
         const orders = await prisma.order.findMany({
-            include: { supplier: true, items: { include: { product: true } } },
+            include: {
+                supplier: true,
+                items: { include: { product: true } },
+                goodsReceipts: { include: { items: true } } // Include GRNs for visibility
+            },
             orderBy: { createdAt: 'desc' }
         });
         res.json(orders);

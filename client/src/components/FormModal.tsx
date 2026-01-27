@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import api, { createProduct, createSupplier, createOrder, receiveOrder, createSale, createUser, createEmployee, createCustomer, createPayroll } from '../services/api';
+import api, { createProduct, createSupplier, createOrder, createSale, createUser, createEmployee, createCustomer, createPayroll, createGoodsReceipt } from '../services/api';
 
 const FormModal = ({ type, metadata, onClose, categories, suppliers, products, departments, users, customers, employees, warehouses }: any) => {
     const [formData, setFormData] = useState<any>({});
@@ -22,7 +22,20 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             pricing_rule: { productId: metadata?.id || '', name: 'Volume Discount', minQuantity: 10, discountPercent: 5.0 },
             document_receipt: { type: 'RECEIPT', sourceWarehouseId: warehouses?.[0]?.id, items: [{ productId: '', quantity: 0 }], notes: '' },
             document_transfer: { type: 'TRANSFER', sourceWarehouseId: warehouses?.[0]?.id, targetWarehouseId: '', items: [{ productId: '', quantity: 0 }], notes: '' },
-            deals: { title: 'New Deal', value: 0, customerId: '', items: [{ productId: '', quantity: 1, price: 0 }] }
+            deals: { title: 'New Deal', value: 0, customerId: '', items: [{ productId: '', quantity: 1, price: 0 }] },
+            // GRN: Pre-fill items from the PO metadata
+            grn: {
+                warehouseId: warehouses?.[0]?.id || '',
+                items: metadata?.items?.map((i: any) => ({
+                    productId: i.productId,
+                    productName: i.product?.name || 'Unknown',
+                    quantity: i.quantity - (i.receivedQuantity || 0), // Default to remaining qty
+                    maxQty: i.quantity - (i.receivedQuantity || 0),
+                    batchNumber: '',
+                    expiryDate: ''
+                })) || [],
+                notes: ''
+            }
         };
         // Safe access
         setFormData((init as any)[type] || {});
@@ -43,17 +56,16 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             if (type === 'customers') await createCustomer(formData);
             if (type === 'payroll') await createPayroll(formData);
             if (type === 'deals') await api.post('/crm', formData);
+            if (type === 'grn') await createGoodsReceipt(metadata.id, formData);
             onClose();
-        } catch (e: any) { alert("Execution Error."); }
+        } catch (e: any) { alert("Execution Error: " + (e.response?.data?.error || e.message)); }
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <motion.div initial={{ y: 20 }} animate={{ y: 0 }} className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: type === 'hr' ? '600px' : '500px' }}>
+            <motion.div initial={{ y: 20 }} animate={{ y: 0 }} className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: type === 'grn' ? '800px' : (type === 'hr' ? '600px' : '500px') }}>
                 <div className="modal-header"><span>{type.toUpperCase()} PROTOCOL</span><X onClick={onClose} style={{ cursor: 'pointer' }} /></div>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
-                    {/* Dynamic Form Fields based on type */}
-                    {/* Simplified for brevity in this extraction, assumes logic matches original App.tsx */}
 
                     {type === 'products' && (
                         <>
@@ -70,7 +82,6 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                         </>
                     )}
 
-                    {/* Add other form types here... I will include essential ones for 'functionalities' */}
                     {type === 'orders' && (
                         <>
                             <div className="form-group"><label>Partner Node</label><select value={formData.supplierId} onChange={e => setFormData({ ...formData, supplierId: e.target.value })} required><option value="">Select Partner</option>{suppliers?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
@@ -80,6 +91,28 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                     <input type="number" value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} placeholder="Qty" />
                                 </div>
                             ))}
+                        </>
+                    )}
+
+                    {type === 'grn' && (
+                        <>
+                            <div className="form-group"><label>Target Warehouse</label><select value={formData.warehouseId} onChange={e => setFormData({ ...formData, warehouseId: e.target.value })} required><option value="">Select Warehouse</option>{warehouses?.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}</select></div>
+                            <div className="table-container" style={{ maxHeight: '200px' }}>
+                                <table>
+                                    <thead><tr><th>Artifact</th><th>Expected</th><th>Received</th><th>Batch #</th><th>Expiry</th></tr></thead>
+                                    <tbody>
+                                        {formData.items?.map((item: any, idx: number) => (
+                                            <tr key={idx}>
+                                                <td>{item.productName}</td>
+                                                <td>{item.maxQty}</td>
+                                                <td><input type="number" style={{ width: '60px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} max={item.maxQty} /></td>
+                                                <td><input type="text" style={{ width: '80px' }} placeholder="BATCH-001" value={item.batchNumber} onChange={e => { const n = [...formData.items]; n[idx].batchNumber = e.target.value; setFormData({ ...formData, items: n }); }} required /></td>
+                                                <td><input type="date" style={{ width: '100px' }} value={item.expiryDate} onChange={e => { const n = [...formData.items]; n[idx].expiryDate = e.target.value; setFormData({ ...formData, items: n }); }} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </>
                     )}
 

@@ -25,6 +25,7 @@ model User {
   // Relations
   employee      Employee?
   deals         Deal[]
+  approvedOrders Order[] @relation("OrderApprover")
 }
 
 // --- Product Management ---
@@ -45,15 +46,15 @@ model Product {
   description   String?
   price         Float
   costPrice     Float
-  stockQuantity Int            @default(0)
+  stockQuantity Int            @default(0) // Virtual total (sum of all batches)
   unit          String         @default("pcs")
   
-  // Advanced Features: Intelligent Reordering
-  batchNumber   String?
-  expiryDate    DateTime?
-  lowStockThreshold Int        @default(10)
-  leadTimeDays     Int        @default(7)  // Days it takes to restock
-  avgDailySales    Float      @default(0.5) // Average units sold per day
+  // Advanced Features: Intelligent Reordering & QA
+  isBatchTracked   Boolean    @default(false) // Toggle for strict batch/expiry tracking
+  lowStockThreshold Int       @default(10)
+  reorderPoint     Int        @default(10)
+  reorderQuantity  Int        @default(50)
+  leadTimeDays     Int        @default(7)
   
   categoryId    String
   category      Category       @relation(fields: [categoryId], references: [id])
@@ -66,6 +67,7 @@ model Product {
   inventoryItems InventoryDocumentItem[]
   dealItems     DealItem[]
   salesOrderItems SalesOrderItem[]
+  receiptItems  GoodsReceiptItem[]
   
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -81,6 +83,7 @@ model Warehouse {
   // Relations to InventoryDocument
   sourceDocuments InventoryDocument[] @relation("SourceWarehouse")
   targetDocuments InventoryDocument[] @relation("TargetWarehouse")
+  goodsReceipts   GoodsReceipt[]
   
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -91,6 +94,10 @@ model Stock {
   quantity     Int       @default(0)
   reserved     Int       @default(0)
   
+  // Batch & Lot Tracking (NetSuite/Odoo Parity)
+  batchNumber  String?   @default("GENERAL")
+  expiryDate   DateTime? 
+  
   warehouseId  String
   warehouse    Warehouse @relation(fields: [warehouseId], references: [id])
   
@@ -99,56 +106,106 @@ model Stock {
 
   updatedAt    DateTime  @updatedAt
   
-  @@unique([warehouseId, productId])
+  // Removed strict unique constraint to allow multiple batches of same product
+  // ideally unique on [warehouseId, productId, batchNumber] but keeping flexible for now
 }
 
 // --- Order Management (Purchases from Suppliers) ---
 
 model Supplier {
-  id        String   @id @default(uuid())
-  name      String
-  contact   String?
-  email     String   @unique
-  address   String?
-  isBlocked Boolean  @default(false) // Advanced: Supplier Blocking
-  isDeleted Boolean  @default(false)
-  orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  contact     String?
+  email       String   @unique
+  address     String?
+  
+  // Advanced Vendor Management (Bitrix24/Odoo Parity)
+  status      String   @default("ACTIVE") // ACTIVE, ONBOARDING, BLOCKED
+  rating      Float    @default(5.0)      // Quality KPI (1-5)
+  paymentTerms String?  // e.g., "Net 30", "Immediate"
+  taxId       String?
+  
+  isDeleted   Boolean  @default(false)
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Order {
   id          String      @id @default(uuid())
   orderNumber String      @unique
-  status      String      @default("PENDING") // PENDING, SHIPPED, RECEIVED, CANCELLED
+  
+  // PO Lifecycle (Approvals & Workflow)
+  status      String      @default("DRAFT") // DRAFT, PENDING_APPROVAL, APPROVED, SENT, PARTIAL_RECEIVED, COMPLETED, CANCELLED
+  approvalStatus String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  approvedById String?
+  approvedBy   User?      @relation("OrderApprover", fields: [approvedById], references: [id])
+  
   totalAmount Float
+  taxAmount   Float       @default(0.0)
   
   // Shipment Tracking (Inbound)
   trackingNumber  String?
   shippingCarrier String?
-  shippedAt       DateTime?
   expectedDeliveryDate DateTime?
   
   supplierId  String
   supplier    Supplier    @relation(fields: [supplierId], references: [id])
   
   items       OrderItem[]
+  goodsReceipts GoodsReceipt[] // 3-Way Match Relation
+  
   isDeleted   Boolean     @default(false)
-  payment     Payment?
+  
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  quantity  Int
-  unitPrice Float
+  id               String  @id @default(uuid())
+  quantity         Int
+  receivedQuantity Int     @default(0) // For Partial Receipts
+  unitPrice        Float
   
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id])
   
   productId String
   product   Product @relation(fields: [productId], references: [id])
+}
+
+// --- Goods Received Note (GRN) --
+// Handles Inwarding, Batch Assignment, and PO Matching
+model GoodsReceipt {
+  id          String   @id @default(uuid())
+  grnNumber   String   @unique // Auto-generated GRN-2026-X
+  
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  
+  items       GoodsReceiptItem[]
+  
+  receivedDate DateTime @default(now())
+  notes       String?
+}
+
+model GoodsReceiptItem {
+  id          String   @id @default(uuid())
+  quantity    Int
+  
+  // Batch Assignment at Receipt Level
+  batchNumber String?
+  expiryDate  DateTime?
+  
+  goodsReceiptId String
+  goodsReceipt   GoodsReceipt @relation(fields: [goodsReceiptId], references: [id])
+  
+  productId     String
+  product       Product      @relation(fields: [productId], references: [id])
 }
 
 // --- Inventory Documents (Receipts, Transfers, Adjustments) ---
@@ -337,9 +394,7 @@ model Payment {
   saleId        String?       @unique
   sale          Sale?         @relation(fields: [saleId], references: [id])
   
-  orderId       String?       @unique
-  order         Order?        @relation(fields: [orderId], references: [id])
-  
+  // Note: Order/Payment relation simplified for now, usually AP is more complex
   createdAt     DateTime      @default(now())
 }
 
