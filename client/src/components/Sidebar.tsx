@@ -78,9 +78,9 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                 </div>
 
                 <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                    <div className="cognivectra-logo" style={{ fontSize: '0.65rem', opacity: 0.8 }}>
-                        COGNIVE<span className="cognivectra-accent">CTRA</span>
-                    </div>
+                    <a href="https://cognivectra.com" target="_blank" rel="noopener noreferrer">
+                        <img src="/logo-final.png" alt="Cognivectra" style={{ height: '30px', maxWidth: '100%', objectFit: 'contain', opacity: 0.9 }} />
+                    </a>
                 </div>
 
                 <button onClick={logout} className="btn btn-secondary" style={{ width: '100%', marginTop: '16px', fontSize: '0.7rem' }}>

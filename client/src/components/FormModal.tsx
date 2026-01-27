@@ -13,6 +13,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             inventory: productInit,
             suppliers: { name: '', email: '', contact: '', status: 'ACTIVE', paymentTerms: 'Net 30' },
             orders: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
+            purchases: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
             payment: { title: 'Payment Processing', amount: 0, method: 'BANK_TRANSFER', type: 'PAYABLE', category: 'GENERAL', description: '' },
             sales: { items: [{ productId: '', quantity: 1, unitPrice: 0 }], customerId: '', team: 'SALES', isHomeDelivery: false, deliveryAddress: '', deliveryCity: '' },
             users: { email: '', password: '', firstName: '', lastName: '', role: 'STAFF' },
@@ -53,7 +54,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
         try {
             if (type === 'products' || type === 'inventory') await createProduct(formData);
             if (type === 'suppliers') await createSupplier(formData);
-            if (type === 'orders') await createOrder(formData);
+            if (type === 'orders' || type === 'purchases') await createOrder(formData);
             if (type === 'payment') await api.post('/accounts/payment', formData);
             if (type === 'sales') await createSale({ ...formData, taxAmount: 0 });
             if (type === 'users') await createUser(formData);
@@ -160,7 +161,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                         </>
                     )}
 
-                    {type === 'orders' && (
+                    {(type === 'orders' || type === 'purchases') && (
                         <>
                             <div className="form-group"><label>Supplier</label><select value={formData.supplierId} onChange={e => setFormData({ ...formData, supplierId: e.target.value })} required><option value="">Select Partner</option>{suppliers?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
                             <div className="table-container" style={{ maxHeight: '200px' }}>
