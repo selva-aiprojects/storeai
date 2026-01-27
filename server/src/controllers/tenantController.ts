@@ -58,7 +58,7 @@ export const updateTenantFeatures = async (req: AuthRequest, res: Response) => {
 
 export const createTenant = async (req: AuthRequest, res: Response) => {
     try {
-        const { name, slug, planId } = req.body;
+        const { name, slug, planId, logo } = req.body;
         const userId = req.user?.id;
 
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -77,6 +77,7 @@ export const createTenant = async (req: AuthRequest, res: Response) => {
             data: {
                 name,
                 slug: cleanSlug,
+                logo,
                 planId: plan.id,
                 status: 'ACTIVE', // Admin created tenants are active by default
                 users: {

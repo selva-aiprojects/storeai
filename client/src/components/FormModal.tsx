@@ -306,6 +306,22 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <input value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="retail-hub" />
                             </div>
                             <div className="form-group">
+                                <label>Branding Logo</label>
+                                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                                    <div style={{ width: '40px', height: '40px', background: 'var(--bg-hover)', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--border-color)' }}>
+                                        {formData.logo ? <img src={formData.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <Building2 size={16} opacity={0.3} />}
+                                    </div>
+                                    <input type="file" accept="image/*" onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => setFormData({ ...formData, logo: reader.result as string });
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }} style={{ fontSize: '0.7rem' }} />
+                                </div>
+                            </div>
+                            <div className="form-group">
                                 <label>Initial Plan</label>
                                 <select value={formData.planId} onChange={e => setFormData({ ...formData, planId: e.target.value })}>
                                     <option value="PRO">PRO ($99/mo)</option>

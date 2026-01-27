@@ -58,19 +58,20 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                 {/* Tenant Branding Card */}
                 <div style={{
                     width: '100%',
-                    padding: '8px',
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    padding: '6px',
+                    background: 'rgba(255, 255, 255, 0.05)',
                     borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: '40px'
+                    minHeight: '44px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                 }}>
                     {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ maxHeight: '24px', maxWidth: '100%', objectFit: 'contain' }} alt="Tenant" />
+                        <img src={user.activeTenant.logo} style={{ maxHeight: '28px', maxWidth: '100%', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }} alt="Tenant" />
                     ) : (
-                        <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 600 }}>
                             {user?.activeTenant?.name || 'OPERANT CORE'}
                         </span>
                     )}
