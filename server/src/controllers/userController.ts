@@ -5,10 +5,17 @@ import { AuthRequest } from '../middleware/authMiddleware';
 
 export const createUser = async (req: AuthRequest, res: Response) => {
     try {
-        const tenantId = req.user?.tenantId;
-        const { email, password, firstName, lastName, roleCode } = req.body;
+        const currentTenantId = req.user?.tenantId;
+        const { email, password, firstName, lastName, roleCode, tenantId: bodyTenantId } = req.body;
 
-        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+        if (!currentTenantId) return res.status(403).json({ error: 'Tenant context required' });
+
+        // Security: Only StoreAI Hub Admins can provision users for OTHER tenants
+        let targetTenantId = currentTenantId;
+        const currentTenant = await prisma.tenant.findUnique({ where: { id: currentTenantId } });
+        if (currentTenant?.slug === 'storeai' && bodyTenantId) {
+            targetTenantId = bodyTenantId;
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -24,12 +31,21 @@ export const createUser = async (req: AuthRequest, res: Response) => {
         // Assign to Tenant
         // Find role by code
         const role = await prisma.role.findFirst({ where: { code: roleCode || 'STAFF' } });
-        if (!role) return res.status(400).json({ error: 'Invalid role code' });
+        if (!role) return res.status(400).json({ error: 'Invalid role code: ' + (roleCode || 'STAFF') });
+
+        // Check if already assigned to this tenant to prevent duplicates
+        const existingAssignment = await prisma.userTenant.findUnique({
+            where: { userId_tenantId: { userId: user.id, tenantId: targetTenantId } }
+        });
+
+        if (existingAssignment) {
+            return res.status(400).json({ error: 'Operator is already provisioned for this organization' });
+        }
 
         await prisma.userTenant.create({
             data: {
                 userId: user.id,
-                tenantId,
+                tenantId: targetTenantId,
                 roleId: role.id
             }
         });

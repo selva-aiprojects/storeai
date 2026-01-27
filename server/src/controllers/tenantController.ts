@@ -63,24 +63,35 @@ export const createTenant = async (req: AuthRequest, res: Response) => {
 
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
+        // Ensure slug is clean
+        const cleanSlug = slug.toLowerCase().trim().replace(/\s+/g, '-');
+
+        const superAdminRole = await prisma.role.findFirst({ where: { code: 'SUPER_ADMIN' } });
+        if (!superAdminRole) return res.status(500).json({ error: 'System Roles not initialized. Please run seeding.' });
+
+        // Resolve plan by name (frontend sends 'PRO' or 'ENTERPRISE')
+        const plan = await prisma.plan.findUnique({ where: { name: planId || 'PRO' } });
+        if (!plan) return res.status(400).json({ error: 'Selected subscription plan not found' });
+
         const tenant = await prisma.tenant.create({
             data: {
                 name,
-                slug,
-                planId,
+                slug: cleanSlug,
+                planId: plan.id,
+                status: 'ACTIVE', // Admin created tenants are active by default
                 users: {
                     create: {
                         userId: userId,
-                        roleId: (await prisma.role.findUnique({ where: { code: 'SUPER_ADMIN' } }))?.id || ''
+                        roleId: superAdminRole.id
                     }
                 }
             }
         });
 
         res.status(201).json(tenant);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Create Tenant Error:", error);
-        res.status(400).json({ error: 'Failed to create tenant' });
+        res.status(400).json({ error: error.message || 'Failed to create tenant' });
     }
 };
 

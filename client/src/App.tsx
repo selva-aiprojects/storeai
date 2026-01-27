@@ -32,7 +32,7 @@ function App() {
         products: [], users: [], sales: [], orders: [],
         employees: [], suppliers: [], categories: [], ledger: [],
         financialSummary: null, stats: null, departments: [],
-        customers: [], payrolls: [], reports: null, taxSummary: null
+        customers: [], payrolls: [], reports: null, taxSummary: null, tenants: []
     });
 
     useEffect(() => {
@@ -92,9 +92,8 @@ function App() {
             safeFetchService(getCustomers, 'customers'),
             safeFetch('/reports/comprehensive', 'reports'),
             safeFetch('/crm', 'deals'),
-            safeFetch('/accounts/tax-summary', 'taxSummary')
-            // fetchMe() REMOVED TO PREVENT INFINITE LOOP: 
-            // refreshData triggers on user change, and fetchMe updates user.
+            safeFetch('/accounts/tax-summary', 'taxSummary'),
+            user?.activeTenant?.slug === 'storeai' ? safeFetch('/tenants/all', 'tenants') : Promise.resolve()
         ]);
 
         setData(newData);
@@ -137,6 +136,8 @@ function App() {
                         customers={data.customers}
                         employees={data.employees}
                         warehouses={data.warehouses}
+                        tenants={data.tenants}
+                        user={user}
                     />
                 )}
             </AnimatePresence>

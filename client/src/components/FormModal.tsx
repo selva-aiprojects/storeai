@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import api, { createProduct, createSupplier, createOrder, createSale, createUser, createEmployee, createCustomer, createPayroll, createGoodsReceipt } from '../services/api';
 
-const FormModal = ({ type, metadata, onClose, categories, suppliers, products, departments, users, customers, employees, warehouses }: any) => {
+const FormModal = ({ type, metadata, onClose, categories, suppliers, products, departments, users, customers, employees, warehouses, tenants, user }: any) => {
     const [formData, setFormData] = useState<any>({});
 
     useEffect(() => {
@@ -16,7 +16,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             purchases: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
             payment: { title: 'Payment Processing', amount: 0, method: 'BANK_TRANSFER', type: 'PAYABLE', category: 'GENERAL', description: '' },
             sales: { items: [{ productId: '', quantity: 1, unitPrice: 0 }], customerId: '', team: 'SALES', isHomeDelivery: false, deliveryAddress: '', deliveryCity: '' },
-            users: { email: '', password: '', firstName: '', lastName: '', role: 'STAFF' },
+            users: { email: '', password: '', firstName: '', lastName: '', roleCode: 'STAFF', tenantId: '' },
             employees: { firstName: '', lastName: '', employeeId: '', designation: '', joiningDate: new Date().toISOString().split('T')[0], salary: 0, departmentId: '', userId: '' },
             tracking_po: { trackingNumber: '', shippingCarrier: '', status: 'SHIPPED', expectedDeliveryDate: '' },
             tracking_sale: { trackingNumber: '', shippingCarrier: '', status: 'SHIPPED' },
@@ -247,7 +247,29 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                             </div>
                             <div className="form-group"><label>Email</label><input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required /></div>
                             <div className="form-group"><label>Password</label><input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} required /></div>
-                            <div className="form-group"><label>System Role</label><select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} required><option value="STAFF">Staff</option><option value="SHIPMENT">Shipment</option><option value="HR">HR Manager</option><option value="MANAGEMENT">Management</option><option value="SUPER_ADMIN">Super Admin</option></select></div>
+                            <div style={{ display: 'grid', gridTemplateColumns: user?.activeTenant?.slug === 'storeai' ? '1fr 1fr' : '1fr', gap: '10px' }}>
+                                <div className="form-group">
+                                    <label>System Role</label>
+                                    <select value={formData.roleCode} onChange={e => setFormData({ ...formData, roleCode: e.target.value })} required>
+                                        <option value="STAFF">Staff</option>
+                                        <option value="SHIPMENT">Shipment Officer</option>
+                                        <option value="HR">HR Manager</option>
+                                        <option value="MANAGEMENT">Management</option>
+                                        <option value="SUPER_ADMIN">Super Admin</option>
+                                    </select>
+                                </div>
+                                {user?.activeTenant?.slug === 'storeai' && (
+                                    <div className="form-group">
+                                        <label>Organization Mapping</label>
+                                        <select value={formData.tenantId} onChange={e => setFormData({ ...formData, tenantId: e.target.value })} required>
+                                            <option value="">Select Tenant</option>
+                                            {tenants?.map((t: any) => (
+                                                <option key={t.id} value={t.id}>{t.name} ({t.slug})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
                         </>
                     )}
 
