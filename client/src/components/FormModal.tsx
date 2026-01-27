@@ -7,8 +7,10 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
     const [formData, setFormData] = useState<any>({});
 
     useEffect(() => {
+        const productInit = { name: '', sku: '', categoryId: '', price: 0, costPrice: 0, stockQuantity: 0, lowStockThreshold: 10, leadTimeDays: 7, avgDailySales: 1.0 };
         const init = {
-            products: { name: '', sku: '', categoryId: '', price: 0, costPrice: 0, stockQuantity: 0, lowStockThreshold: 10, leadTimeDays: 7, avgDailySales: 1.0 },
+            products: productInit,
+            inventory: productInit,
             suppliers: { name: '', email: '', contact: '', status: 'ACTIVE', paymentTerms: 'Net 30' },
             orders: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
             payment: { title: 'Payment Processing', amount: 0, method: 'BANK_TRANSFER', type: 'PAYABLE', category: 'GENERAL', description: '' },
@@ -49,7 +51,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         try {
-            if (type === 'products') await createProduct(formData);
+            if (type === 'products' || type === 'inventory') await createProduct(formData);
             if (type === 'suppliers') await createSupplier(formData);
             if (type === 'orders') await createOrder(formData);
             if (type === 'payment') await api.post('/accounts/payment', formData);
@@ -78,7 +80,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
 
-                    {type === 'products' && (
+                    {(type === 'products' || type === 'inventory') && (
                         <>
                             <div className="form-group"><label>Artifact Name</label><input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required /></div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -158,6 +160,55 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                         </>
                     )}
 
+                    {type === 'orders' && (
+                        <>
+                            <div className="form-group"><label>Supplier</label><select value={formData.supplierId} onChange={e => setFormData({ ...formData, supplierId: e.target.value })} required><option value="">Select Partner</option>{suppliers?.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
+                            <div className="table-container" style={{ maxHeight: '200px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                    <label>Order Items</label>
+                                    <button type="button" className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.65rem' }} onClick={() => setFormData({ ...formData, items: [...formData.items, { productId: '', quantity: 1, unitPrice: 0 }] })}>+ ITEM</button>
+                                </div>
+                                {formData.items?.map((item: any, idx: number) => (
+                                    <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
+                                        <select style={{ flex: 1 }} value={item.productId} onChange={e => { const n = [...formData.items]; n[idx].productId = e.target.value; setFormData({ ...formData, items: n }); }} required><option value="">Item</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                                        <input type="number" style={{ width: '60px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
+                                        <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {type === 'sales' && (
+                        <>
+                            <div className="form-group"><label>Client / Customer</label><select value={formData.customerId} onChange={e => setFormData({ ...formData, customerId: e.target.value })}><option value="">Walk-in Customer</option>{customers?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+                            <div className="table-container" style={{ maxHeight: '200px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                    <label>Cart Items</label>
+                                    <button type="button" className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.65rem' }} onClick={() => setFormData({ ...formData, items: [...formData.items, { productId: '', quantity: 1 }] })}>+ ITEM</button>
+                                </div>
+                                {formData.items?.map((item: any, idx: number) => (
+                                    <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
+                                        <select style={{ flex: 1 }} value={item.productId} onChange={e => { const n = [...formData.items]; n[idx].productId = e.target.value; setFormData({ ...formData, items: n }); }} required><option value="">Product</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                                        <input type="number" style={{ width: '60px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
+                                        <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="form-group">
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <input type="checkbox" checked={formData.isHomeDelivery} onChange={e => setFormData({ ...formData, isHomeDelivery: e.target.checked })} />
+                                    Home Delivery Required?
+                                </label>
+                            </div>
+                            {formData.isHomeDelivery && (
+                                <>
+                                    <div className="form-group"><label>Delivery Address</label><input value={formData.deliveryAddress} onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })} required /></div>
+                                    <div className="form-group"><label>City / Zone</label><input value={formData.deliveryCity} onChange={e => setFormData({ ...formData, deliveryCity: e.target.value })} required /></div>
+                                </>
+                            )}
+                        </>
+                    )}
                     {type === 'payment' && (
                         <>
                             <div className="form-group"><label>Payment Title</label><input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required /></div>
