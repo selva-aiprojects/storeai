@@ -1,10 +1,15 @@
-import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers } from 'lucide-react';
+import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const Sidebar = ({ user, logout }: any) => {
+const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentPath = location.pathname;
+
+    const handleNavigate = (path: string) => {
+        navigate(path);
+        if (setMobileOpen) setMobileOpen(false);
+    };
 
     const menuItems = [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,9 +31,14 @@ const Sidebar = ({ user, logout }: any) => {
     }
 
     return (
-        <aside className="sidebar">
-            <div className="sidebar-header">
-                <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
+        <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
+            <div className="sidebar-header" style={{ justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
+                </div>
+                {mobileOpen && (
+                    <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
+                )}
             </div>
             <div className="sidebar-menu">
                 {menuItems.map((item: any, index) => (
@@ -38,7 +48,7 @@ const Sidebar = ({ user, logout }: any) => {
                         <button
                             key={index}
                             className={`menu-item ${currentPath === item.path ? 'active' : ''}`}
-                            onClick={() => navigate(item.path)}
+                            onClick={() => handleNavigate(item.path)}
                         >
                             <item.icon size={18} /> {item.label}
                         </button>

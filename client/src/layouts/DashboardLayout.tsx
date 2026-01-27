@@ -1,14 +1,21 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardLayout = ({ user, logout, refreshData, setModal, data }: any) => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     return (
         <div className="app-container">
-            <Sidebar user={user} logout={logout} />
+            <div
+                className={`sidebar-overlay ${sidebarOpen ? 'mobile-open' : ''}`}
+                onClick={() => setSidebarOpen(false)}
+            ></div>
+            <Sidebar user={user} logout={logout} mobileOpen={sidebarOpen} setMobileOpen={setSidebarOpen} />
             <div className="main-content">
-                <Header refreshData={refreshData} setModal={setModal} />
+                <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={setSidebarOpen} />
                 <div className="page-container">
                     <AnimatePresence mode="wait">
                         <motion.div

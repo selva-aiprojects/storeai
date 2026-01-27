@@ -4,11 +4,16 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 
 const Dashboard = () => {
     const { data, user } = useOutletContext<any>();
-    const { stats, sales = [], orders = [], products = [], inventory } = data || {};
+    const { stats, sales = [], orders = [], products = [], inventory, financialSummary } = data || {};
+
+    // --- Financial Status ---
+    const totalRevenue = sales.reduce((acc: number, s: any) => acc + (s.totalAmount || 0), 0);
+    const totalProcurement = orders.reduce((acc: number, o: any) => acc + (o.totalAmount || 0), 0);
+    const netStatus = totalRevenue - totalProcurement;
 
     // --- Calculations for Widgets ---
     const toBePacked = sales.filter((s: any) => s.status === 'PENDING' && s.isHomeDelivery).length;
-    const toBeShipped = sales.filter((s: any) => s.status === 'PACKED').length; // Assuming PACKED status exists, else mock logic
+    const toBeShipped = sales.filter((s: any) => s.status === 'PACKED').length;
     const toBeDelivered = sales.filter((s: any) => s.status === 'SHIPPED').length;
     const toBeInvoiced = sales.filter((s: any) => s.paymentStatus === 'PENDING').length;
 
@@ -43,6 +48,25 @@ const Dashboard = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+            {/* --- Financial Status --- */}
+            <div className="section-header">Enterprise Financial Pulse</div>
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                <div className="card" style={{ borderLeft: '4px solid var(--accent-success)' }}>
+                    <div className="card-header">TOTAL REVENUE (SALES)</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-success)' }}>${totalRevenue.toLocaleString()}</div>
+                </div>
+                <div className="card" style={{ borderLeft: '4px solid var(--accent-danger)' }}>
+                    <div className="card-header">TOTAL PROCUREMENT (COSTS)</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-danger)' }}>-${totalProcurement.toLocaleString()}</div>
+                </div>
+                <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)', background: 'rgba(129, 140, 248, 0.05)' }}>
+                    <div className="card-header">OPERATIONAL NET BALANCE</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: netStatus >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
+                        {netStatus >= 0 ? '+' : '-'}${Math.abs(netStatus).toLocaleString()}
+                    </div>
+                </div>
+            </div>
 
             {/* --- Sales Activity Section --- */}
             <div className="section-header">Sales Activity</div>

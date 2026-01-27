@@ -46,15 +46,16 @@ model Product {
   description   String?
   price         Float
   costPrice     Float
-  stockQuantity Int            @default(0) // Virtual total (sum of all batches)
+  stockQuantity Int            @default(0)
   unit          String         @default("pcs")
   
-  // Advanced Features: Intelligent Reordering & QA
-  isBatchTracked   Boolean    @default(false) // Toggle for strict batch/expiry tracking
+  // Advanced Features
+  isBatchTracked   Boolean    @default(false)
   lowStockThreshold Int       @default(10)
   reorderPoint     Int        @default(10)
   reorderQuantity  Int        @default(50)
   leadTimeDays     Int        @default(7)
+  avgDailySales    Float      @default(0.0)
   
   categoryId    String
   category      Category       @relation(fields: [categoryId], references: [id])
@@ -80,7 +81,6 @@ model Warehouse {
   isDefault  Boolean  @default(false)
   stocks     Stock[]
   
-  // Relations to InventoryDocument
   sourceDocuments InventoryDocument[] @relation("SourceWarehouse")
   targetDocuments InventoryDocument[] @relation("TargetWarehouse")
   goodsReceipts   GoodsReceipt[]
@@ -94,8 +94,7 @@ model Stock {
   quantity     Int       @default(0)
   reserved     Int       @default(0)
   
-  // Batch & Lot Tracking (NetSuite/Odoo Parity)
-  batchNumber  String?   @default("GENERAL")
+  batchNumber  String    @default("GENERAL")
   expiryDate   DateTime? 
   
   warehouseId  String
@@ -106,11 +105,10 @@ model Stock {
 
   updatedAt    DateTime  @updatedAt
   
-  // Removed strict unique constraint to allow multiple batches of same product
-  // ideally unique on [warehouseId, productId, batchNumber] but keeping flexible for now
+  @@unique([warehouseId, productId, batchNumber])
 }
 
-// --- Order Management (Purchases from Suppliers) ---
+// --- Order Management ---
 
 model Supplier {
   id          String   @id @default(uuid())
@@ -119,10 +117,9 @@ model Supplier {
   email       String   @unique
   address     String?
   
-  // Advanced Vendor Management (Bitrix24/Odoo Parity)
-  status      String   @default("ACTIVE") // ACTIVE, ONBOARDING, BLOCKED
-  rating      Float    @default(5.0)      // Quality KPI (1-5)
-  paymentTerms String?  // e.g., "Net 30", "Immediate"
+  status      String   @default("ACTIVE")
+  rating      Float    @default(5.0)
+  paymentTerms String?
   taxId       String?
   
   isDeleted   Boolean  @default(false)
@@ -132,54 +129,50 @@ model Supplier {
 }
 
 model Order {
-  id          String      @id @default(uuid())
-  orderNumber String      @unique
+  id               String      @id @default(uuid())
+  orderNumber      String      @unique
+  status           String      @default("DRAFT")
+  approvalStatus   String      @default("PENDING")
   
-  // PO Lifecycle (Approvals & Workflow)
-  status      String      @default("DRAFT") // DRAFT, PENDING_APPROVAL, APPROVED, SENT, PARTIAL_RECEIVED, COMPLETED, CANCELLED
-  approvalStatus String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedById     String?
+  approvedBy       User?      @relation("OrderApprover", fields: [approvedById], references: [id])
   
-  approvedById String?
-  approvedBy   User?      @relation("OrderApprover", fields: [approvedById], references: [id])
+  totalAmount      Float
+  taxAmount        Float       @default(0.0)
   
-  totalAmount Float
-  taxAmount   Float       @default(0.0)
-  
-  // Shipment Tracking (Inbound)
-  trackingNumber  String?
-  shippingCarrier String?
+  trackingNumber   String?
+  shippingCarrier  String?
+  shippedAt        DateTime?
   expectedDeliveryDate DateTime?
   
-  supplierId  String
-  supplier    Supplier    @relation(fields: [supplierId], references: [id])
+  supplierId       String
+  supplier         Supplier    @relation(fields: [supplierId], references: [id])
   
-  items       OrderItem[]
-  goodsReceipts GoodsReceipt[] // 3-Way Match Relation
+  items            OrderItem[]
+  goodsReceipts    GoodsReceipt[]
   
-  isDeleted   Boolean     @default(false)
+  isDeleted        Boolean     @default(false)
   
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 }
 
 model OrderItem {
   id               String  @id @default(uuid())
   quantity         Int
-  receivedQuantity Int     @default(0) // For Partial Receipts
+  receivedQuantity Int     @default(0)
   unitPrice        Float
   
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
+  orderId          String
+  order            Order   @relation(fields: [orderId], references: [id])
   
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+  productId        String
+  product          Product @relation(fields: [productId], references: [id])
 }
 
-// --- Goods Received Note (GRN) --
-// Handles Inwarding, Batch Assignment, and PO Matching
 model GoodsReceipt {
   id          String   @id @default(uuid())
-  grnNumber   String   @unique // Auto-generated GRN-2026-X
+  grnNumber   String   @unique
   
   orderId     String
   order       Order    @relation(fields: [orderId], references: [id])
@@ -197,7 +190,6 @@ model GoodsReceiptItem {
   id          String   @id @default(uuid())
   quantity    Int
   
-  // Batch Assignment at Receipt Level
   batchNumber String?
   expiryDate  DateTime?
   
@@ -208,18 +200,16 @@ model GoodsReceiptItem {
   product       Product      @relation(fields: [productId], references: [id])
 }
 
-// --- Inventory Documents (Receipts, Transfers, Adjustments) ---
-
 model InventoryDocument {
   id          String   @id @default(uuid())
-  type        String   // RECEIPT, TRANSFER, ADJUSTMENT, WRITE_OFF, DELIVERY_NOTE
-  reference   String?  // Linked Order ID or formatted REF
-  status      String   @default("DRAFT") // DRAFT, POSTED, CANCELLED
+  type        String
+  reference   String?
+  status      String   @default("DRAFT")
   
   sourceWarehouseId String?
   sourceWarehouse   Warehouse? @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
   
-  targetWarehouseId String? // If transfer
+  targetWarehouseId String?
   targetWarehouse   Warehouse? @relation("TargetWarehouse", fields: [targetWarehouseId], references: [id])
   
   items       InventoryDocumentItem[]
@@ -242,12 +232,10 @@ model InventoryDocumentItem {
   product     Product @relation(fields: [productId], references: [id])
 }
 
-// --- CRM & Sales Orders ---
-
 model Deal {
   id            String   @id @default(uuid())
   title         String
-  stage         String   @default("NEW") // NEW, QUALIFIED, NEGOTIATION, WON, LOST
+  stage         String   @default("NEW")
   value         Float    @default(0.0)
   
   customerId    String?
@@ -260,7 +248,7 @@ model Deal {
   assignedToId  String?
   assignedTo    User?     @relation(fields: [assignedToId], references: [id])
   
-  probability   Int       @default(10) // 10%, 50%, 90%
+  probability   Int       @default(10)
   expectedCloseDate DateTime?
 
   createdAt     DateTime @default(now())
@@ -269,7 +257,7 @@ model Deal {
 
 model Activity {
   id        String   @id @default(uuid())
-  type      String   // CALL, EMAIL, MEETING, NOTE
+  type      String
   subject   String
   content   String?
   
@@ -294,7 +282,7 @@ model DealItem {
 model SalesOrder {
   id            String   @id @default(uuid())
   orderNumber   String   @unique
-  status        String   @default("DRAFT") // DRAFT, RESERVED, CONFIRMED, COMPLETED, CANCELLED
+  status        String   @default("DRAFT")
   
   dealId        String?
   deal          Deal?    @relation(fields: [dealId], references: [id])
@@ -320,8 +308,6 @@ model SalesOrderItem {
   product      Product @relation(fields: [productId], references: [id])
 }
 
-// --- Sales Management ---
-
 model Customer {
   id        String   @id @default(uuid())
   name      String
@@ -345,17 +331,14 @@ model Sale {
   taxAmount   Float
   discountAmount Float @default(0.0)
   
-  // Home Delivery Management
   isHomeDelivery      Boolean   @default(false)
   deliveryAddress     String?
   deliveryCity        String?
   estimatedDelivery   DateTime?
 
-  // Team Assignment
-  team                String    @default("SALES") // SALES, OPERATIONS, MANAGEMENT, SHIPMENT, OTHERS
+  team                String    @default("SALES")
 
-  // Shipment Tracking (Outbound)
-  status          String    @default("PENDING") // PENDING, SHIPPED, DELIVERED
+  status          String    @default("PENDING")
   trackingNumber  String?
   shippingCarrier String?
   shippedAt       DateTime?
@@ -382,33 +365,28 @@ model SaleItem {
   product   Product @relation(fields: [productId], references: [id])
 }
 
-// --- Account Management ---
-
 model Payment {
   id            String        @id @default(uuid())
   amount        Float
-  method        String        @default("CASH") // CASH, CARD, TRANSFER
-  type          String        @default("RECEIVABLE") // RECEIVABLE (from customer), PAYABLE (to supplier)
+  method        String        @default("CASH")
+  type          String        @default("RECEIVABLE")
   transactionId String?       @unique
   
   saleId        String?       @unique
   sale          Sale?         @relation(fields: [saleId], references: [id])
   
-  // Note: Order/Payment relation simplified for now, usually AP is more complex
   createdAt     DateTime      @default(now())
 }
 
 model Ledger {
   id          String   @id @default(uuid())
   title       String
-  type        String   // DEBIT / CREDIT
+  type        String
   amount      Float
-  category    String   @default("GENERAL") // PAYABLE, RECEIVABLE, OPERATIONAL
+  category    String   @default("GENERAL")
   description String?
   createdAt   DateTime @default(now())
 }
-
-// --- HR Management ---
 
 model Department {
   id          String     @id @default(uuid())
@@ -430,8 +408,8 @@ model Employee {
   designation   String
   joiningDate   DateTime
   salary        Float
-  performanceRating Int?   // 1-5 rating
-  incentivePercentage Float @default(0.0) // Sales Commission %
+  performanceRating Int?
+  incentivePercentage Float @default(0.0)
   
   departmentId  String
   department    Department @relation(fields: [departmentId], references: [id])
@@ -460,7 +438,7 @@ model PricingRule {
 model Attendance {
   id          String   @id @default(uuid())
   date        DateTime @default(now())
-  status      String   // PRESENT, ABSENT, LEAVE
+  status      String
   checkIn     DateTime?
   checkOut    DateTime?
   overtimeHours Float     @default(0.0)
@@ -471,13 +449,13 @@ model Attendance {
 
 model Payroll {
   id            String   @id @default(uuid())
-  amount        Float    // Base Salary
+  amount        Float
   incentive     Float    @default(0.0)
   overtimeAmount Float   @default(0.0)
-  totalPayout   Float    // Base + Incentive + OT
+  totalPayout   Float
   paymentDate   DateTime @default(now())
-  month         String   // e.g., "January 2026"
-  status        String   @default("PAID") // PENDING, PAID
+  month         String
+  status        String   @default("PAID")
   
   employeeId    String
   employee      Employee @relation(fields: [employeeId], references: [id])

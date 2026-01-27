@@ -63,7 +63,7 @@ const Purchases = () => {
 
                                     {(o.status === 'DRAFT' || o.status === 'PENDING') && (
                                         <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.7rem', color: 'var(--accent-success)', borderColor: 'var(--accent-success)' }} onClick={() => handleApprove(o.id)} title="Approve PO">
-                                            <CheckCircle size={14} style={{ marginRight: '4px' }} /> APPROVE
+                                            <CheckCircle size={14} style={{ marginRight: '4px' }} /> <span className="btn-text">APPROVE</span>
                                         </button>
                                     )}
 
@@ -75,7 +75,7 @@ const Purchases = () => {
 
                                     {['APPROVED', 'SHIPPED', 'PARTIAL_RECEIVED'].includes(o.status) && (
                                         <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.7rem' }} onClick={() => setModal({ type: 'grn', metadata: o })}>
-                                            <Package size={14} style={{ marginRight: '4px' }} /> INWARD
+                                            <Package size={14} style={{ marginRight: '4px' }} /> <span className="btn-text">INWARD</span>
                                         </button>
                                     )}
                                 </div>

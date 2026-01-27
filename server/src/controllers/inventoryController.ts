@@ -47,9 +47,9 @@ export const createDocument = async (req: Request, res: Response) => {
                 if (type === 'RECEIPT') {
                     // Add to Source (which is the receiving warehouse in this context)
                     await tx.stock.upsert({
-                        where: { warehouseId_productId: { warehouseId: sourceWarehouseId, productId: item.productId } },
+                        where: { warehouseId_productId_batchNumber: { warehouseId: sourceWarehouseId, productId: item.productId, batchNumber: 'GENERAL' } },
                         update: { quantity: { increment: qty } },
-                        create: { warehouseId: sourceWarehouseId, productId: item.productId, quantity: qty }
+                        create: { warehouseId: sourceWarehouseId, productId: item.productId, quantity: qty, batchNumber: 'GENERAL' }
                     });
                     // Update global product stock for reference
                     await tx.product.update({ where: { id: item.productId }, data: { stockQuantity: { increment: qty } } });
@@ -57,21 +57,20 @@ export const createDocument = async (req: Request, res: Response) => {
                 else if (type === 'TRANSFER') {
                     // Deduct from Source
                     await tx.stock.update({
-                        where: { warehouseId_productId: { warehouseId: sourceWarehouseId, productId: item.productId } },
+                        where: { warehouseId_productId_batchNumber: { warehouseId: sourceWarehouseId, productId: item.productId, batchNumber: 'GENERAL' } },
                         data: { quantity: { decrement: qty } }
                     });
                     // Add to Target
                     await tx.stock.upsert({
-                        where: { warehouseId_productId: { warehouseId: targetWarehouseId!, productId: item.productId } },
+                        where: { warehouseId_productId_batchNumber: { warehouseId: targetWarehouseId!, productId: item.productId, batchNumber: 'GENERAL' } },
                         update: { quantity: { increment: qty } },
-                        create: { warehouseId: targetWarehouseId!, productId: item.productId, quantity: qty }
+                        create: { warehouseId: targetWarehouseId!, productId: item.productId, quantity: qty, batchNumber: 'GENERAL' }
                     });
                 }
                 else if (type === 'ADJUSTMENT' || type === 'WRITE_OFF') {
-                    // For write-off, we deduct. For Adjustment, we assume it can be negative or positive but simplified here to deducation if write-off
                     const multiplier = type === 'WRITE_OFF' ? -1 : 1;
                     await tx.stock.update({
-                        where: { warehouseId_productId: { warehouseId: sourceWarehouseId, productId: item.productId } },
+                        where: { warehouseId_productId_batchNumber: { warehouseId: sourceWarehouseId, productId: item.productId, batchNumber: 'GENERAL' } },
                         data: { quantity: { increment: qty * multiplier } }
                     });
                     await tx.product.update({ where: { id: item.productId }, data: { stockQuantity: { increment: qty * multiplier } } });

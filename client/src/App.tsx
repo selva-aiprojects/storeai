@@ -18,6 +18,11 @@ import Inventory from './pages/Inventory';
 import Sales from './pages/Sales';
 import Purchases from './pages/Purchases';
 import Reports from './pages/Reports';
+import Partners from './pages/Partners';
+import Customers from './pages/Customers';
+import HR from './pages/HR';
+import Accounts from './pages/Accounts';
+import Settings from './pages/Settings';
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -105,12 +110,11 @@ function App() {
                         <Route path="/sales" element={<Sales />} />
                         <Route path="/purchases" element={<Purchases />} />
                         <Route path="/reports" element={<Reports />} />
-                        {/* Placeholders for other routes to avoid 404s on menu clicks */}
-                        <Route path="/hr" element={<div className="card">HR Module Loading...</div>} />
-                        <Route path="/accounts" element={<div className="card">Accounts Module Loading...</div>} />
-                        <Route path="/customers" element={<div className="card">Customers Module Loading...</div>} />
-                        <Route path="/partners" element={<div className="card">Partners Module Loading...</div>} />
-                        <Route path="/settings" element={<div className="card">System Settings Loading...</div>} />
+                        <Route path="/partners" element={<Partners />} />
+                        <Route path="/customers" element={<Customers />} />
+                        <Route path="/hr" element={<HR />} />
+                        <Route path="/accounts" element={<Accounts />} />
+                        <Route path="/settings" element={<Settings />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>
                 </Routes>

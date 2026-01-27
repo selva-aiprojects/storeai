@@ -6,7 +6,7 @@ import api from '../services/api';
 
 const Reports = () => {
     const { data } = useOutletContext<any>() as any;
-    const { reports, sales, finance } = data || {};
+    const { reports, sales } = data || {};
     const [predictions, setPredictions] = useState<any[]>([]);
 
     useEffect(() => {
@@ -14,7 +14,7 @@ const Reports = () => {
     }, []);
 
     const COLORS = ['#818cf8', '#22d3ee', '#fbbf24', '#f43f5e', '#8b5cf6'];
-    const pieData = sales?.map((s: any) => ({ name: s.team, value: s._sum?.totalAmount || 0 })) || [];
+    const pieData = reports?.sales?.map((s: any) => ({ name: s.team, value: s._sum?.totalAmount || 0 })) || [];
 
     if (!reports && !sales) return <div className="card" style={{ textAlign: 'center', padding: '100px 0' }}>Initializing Predictive Intelligence Matrix...</div>;
 
@@ -61,7 +61,7 @@ const Reports = () => {
                     <div className="card-header">FINANCIAL LIQUIDITY (LEDGER RECAP)</div>
                     <div style={{ height: '300px', marginTop: '20px' }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={finance}>
+                            <BarChart data={reports?.finance}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                                 <XAxis dataKey="type" stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />
                                 <YAxis stroke="#64748b" fontSize={10} axisLine={false} tickLine={false} />

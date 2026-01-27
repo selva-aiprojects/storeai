@@ -24,19 +24,17 @@ export const createProduct = async (req: Request, res: Response) => {
     try {
         const {
             sku, name, description, price, costPrice, stockQuantity,
-            categoryId, unit, lowStockThreshold, leadTimeDays, avgDailySales,
-            batchNumber, expiryDate
+            categoryId, unit, lowStockThreshold, leadTimeDays, avgDailySales
         } = req.body;
 
         const product = await prisma.product.create({
             data: {
-                sku, name, description, price, costPrice, stockQuantity,
+                sku, name, description, price, costPrice,
+                stockQuantity: Number(stockQuantity || 0),
                 categoryId, unit,
                 lowStockThreshold: Number(lowStockThreshold),
                 leadTimeDays: Number(leadTimeDays),
-                avgDailySales: Number(avgDailySales),
-                batchNumber,
-                expiryDate: expiryDate ? new Date(expiryDate) : null
+                avgDailySales: Number(avgDailySales)
             }
         });
         res.status(201).json(product);

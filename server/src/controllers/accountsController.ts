@@ -44,8 +44,7 @@ export const createPaymentEntry = async (req: Request, res: Response) => {
                 method,
                 type,
                 transactionId,
-                saleId,
-                orderId
+                saleId
             }
         });
 
