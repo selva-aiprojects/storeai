@@ -54,9 +54,8 @@ const Sidebar = ({ user, logout }: any) => {
                     </div>
                 </div>
 
-                <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '4px' }}>PRODUCT OF</div>
-                    <div className="cognivectra-logo" style={{ fontSize: '0.75rem' }}>
+                <div style={{ marginTop: '24px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                    <div className="cognivectra-logo" style={{ fontSize: '0.65rem', opacity: 0.8 }}>
                         COGNIVE<span className="cognivectra-accent">CTRA</span>
                     </div>
                 </div>

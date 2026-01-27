@@ -23,12 +23,6 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data }: any) => 
                     </AnimatePresence>
                 </div>
                 <footer className="footer">
-                    <div className="footer-branding">
-                        <span style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}>A PREMIUM PRODUCT FROM</span>
-                        <div className="cognivectra-logo" style={{ fontSize: '1rem' }}>
-                            COGNIVE<span className="cognivectra-accent">CTRA</span>
-                        </div>
-                    </div>
                     <div className="footer-copyright">
                         <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginBottom: '4px' }}>VERSION 3.0.2 // TACTICAL ELEVATION BUILD</div>
                         &copy; {new Date().getFullYear()} StoreAI Enterprise Solutions. All operational telemetry strictly logged.
