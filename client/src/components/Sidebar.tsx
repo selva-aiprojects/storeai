@@ -39,20 +39,24 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
 
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
-            <div className="sidebar-header" style={{ justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ height: '24px', maxWidth: '120px', objectFit: 'contain' }} alt="Brand" />
-                    ) : (
-                        <>
-                            <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
-                        </>
+            <div className="sidebar-header" style={{ justifyContent: 'space-between', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
+                    </div>
+                    {mobileOpen && (
+                        <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
                     )}
                 </div>
-                {mobileOpen && (
-                    <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
-                )}
+
+                {/* Tenant / Proprietor Logo */}
+                <div style={{ marginTop: '10px', textAlign: 'left', width: '100%' }}>
+                    <a href="https://cognivectra.com" target="_blank" rel="noopener noreferrer">
+                        <img src="/logo-final.png" alt="Cognivectra" style={{ maxHeight: '35px', maxWidth: '100%', objectFit: 'contain' }} />
+                    </a>
+                </div>
             </div>
+
             <div className="sidebar-menu">
                 {filteredMenuItems.map((item: any, index) => (
                     item.divider ? (
@@ -75,12 +79,6 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                         <span>{user.firstName}</span>
                         <span className="profile-role">{user.role}</span>
                     </div>
-                </div>
-
-                <div style={{ marginTop: '24px', textAlign: 'center' }}>
-                    <a href="https://cognivectra.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/logo-final.png" alt="Cognivectra" style={{ maxHeight: '40px', maxWidth: '100%', objectFit: 'contain' }} />
-                    </a>
                 </div>
 
                 <button onClick={logout} className="btn btn-secondary" style={{ width: '100%', marginTop: '16px', fontSize: '0.7rem' }}>
