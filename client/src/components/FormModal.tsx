@@ -175,7 +175,14 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 </div>
                                 {formData.items?.map((item: any, idx: number) => (
                                     <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
-                                        <select style={{ flex: 1 }} value={item.productId} onChange={e => { const n = [...formData.items]; n[idx].productId = e.target.value; setFormData({ ...formData, items: n }); }} required><option value="">Item</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                                        <select style={{ flex: 1 }} value={item.productId} onChange={e => {
+                                            const n = [...formData.items];
+                                            n[idx].productId = e.target.value;
+                                            const product = products?.find((p: any) => p.id === e.target.value);
+                                            if (product) n[idx].unitPrice = product.costPrice;
+                                            setFormData({ ...formData, items: n });
+                                        }} required><option value="">Item</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                                        <input type="number" step="0.01" placeholder="Price" style={{ width: '80px' }} value={item.unitPrice} onChange={e => { const n = [...formData.items]; n[idx].unitPrice = parseFloat(e.target.value); setFormData({ ...formData, items: n }); }} required />
                                         <input type="number" style={{ width: '60px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
                                         <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
                                     </div>
@@ -194,7 +201,14 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 </div>
                                 {formData.items?.map((item: any, idx: number) => (
                                     <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
-                                        <select style={{ flex: 1 }} value={item.productId} onChange={e => { const n = [...formData.items]; n[idx].productId = e.target.value; setFormData({ ...formData, items: n }); }} required><option value="">Product</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                                        <select style={{ flex: 1 }} value={item.productId} onChange={e => {
+                                            const n = [...formData.items];
+                                            n[idx].productId = e.target.value;
+                                            const product = products?.find((p: any) => p.id === e.target.value);
+                                            if (product) n[idx].unitPrice = product.price;
+                                            setFormData({ ...formData, items: n });
+                                        }} required><option value="">Product</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                                        <input type="number" step="0.01" placeholder="Price" style={{ width: '80px' }} value={item.unitPrice} onChange={e => { const n = [...formData.items]; n[idx].unitPrice = parseFloat(e.target.value); setFormData({ ...formData, items: n }); }} required />
                                         <input type="number" style={{ width: '60px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
                                         <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
                                     </div>
