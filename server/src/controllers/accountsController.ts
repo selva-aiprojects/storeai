@@ -5,6 +5,8 @@ import { AuthRequest } from '../middleware/authMiddleware';
 export const getLedger = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const ledger = await prisma.ledger.findMany({
             where: { tenantId },
             orderBy: { createdAt: 'desc' }
@@ -18,6 +20,8 @@ export const getLedger = async (req: AuthRequest, res: Response) => {
 export const getFinancialSummary = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const [receivables, payables] = await Promise.all([
             prisma.payment.aggregate({
                 where: { type: 'RECEIVABLE', tenantId },
@@ -45,6 +49,8 @@ export const getFinancialSummary = async (req: AuthRequest, res: Response) => {
 export const getTaxSummary = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const [outputTax, inputTax] = await Promise.all([
             prisma.ledger.aggregate({
                 where: { category: 'GST_PAYABLE', tenantId },

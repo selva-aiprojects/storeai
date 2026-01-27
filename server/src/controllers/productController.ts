@@ -5,6 +5,8 @@ import { AuthRequest } from '../middleware/authMiddleware';
 export const getProducts = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const products = await prisma.product.findMany({
             where: { isDeleted: false, tenantId },
             include: { category: true },

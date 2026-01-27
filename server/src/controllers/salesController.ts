@@ -126,6 +126,8 @@ export const createSale = async (req: AuthRequest, res: Response) => {
 export const getSales = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const sales = await prisma.sale.findMany({
             where: { isDeleted: false, tenantId },
             include: {

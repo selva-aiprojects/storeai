@@ -218,6 +218,8 @@ export const createGoodsReceipt = async (req: AuthRequest, res: Response) => {
 export const getOrders = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const orders = await prisma.order.findMany({
             where: { tenantId },
             include: {

@@ -5,6 +5,8 @@ import { AuthRequest } from '../middleware/authMiddleware';
 export const getInventorySummary = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const stocks = await prisma.stock.findMany({
             where: { product: { tenantId } },
             include: {
@@ -102,6 +104,8 @@ export const createDocument = async (req: AuthRequest, res: Response) => {
 export const getKyotoWarehouses = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const warehouses = await prisma.warehouse.findMany({
             where: { tenantId },
             include: { stocks: { include: { product: true } } }

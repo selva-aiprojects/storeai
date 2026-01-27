@@ -1,20 +1,24 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import prisma from '../lib/prisma';
+import { AuthRequest } from '../middleware/authMiddleware';
 
-export const getDepartmentalReport = async (req: Request, res: Response) => {
+export const getDepartmentalReport = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const [salesByTeam, inventoryValuation, hrSummary, financialHealth] = await Promise.all([
             // 1. Sales Report by Team
             prisma.sale.groupBy({
                 by: ['team'],
-                where: { isDeleted: false },
+                where: { isDeleted: false, tenantId },
                 _sum: { totalAmount: true },
                 _count: { id: true }
             }),
 
             // 2. Inventory Valuation
             prisma.product.aggregate({
-                where: { isDeleted: false },
+                where: { isDeleted: false, tenantId },
                 _sum: {
                     stockQuantity: true,
                 }
@@ -22,18 +26,19 @@ export const getDepartmentalReport = async (req: Request, res: Response) => {
 
             // 3. HR Summary (Attendance Rate & Payroll)
             prisma.employee.count({
-                where: { isDeleted: false }
+                where: { isDeleted: false, department: { tenantId } }
             }),
 
             // 4. Financial Health (Total Receivables vs Payables)
             prisma.ledger.groupBy({
                 by: ['type'],
+                where: { tenantId },
                 _sum: { amount: true }
             })
         ]);
 
         // Deep dive for Stock Valuation (Manual sum as price * stock is not a groupable aggregate)
-        const products = await prisma.product.findMany({ where: { isDeleted: false } });
+        const products = await prisma.product.findMany({ where: { isDeleted: false, tenantId } });
         const totalStockValue = products.reduce((acc, p) => acc + (p.stockQuantity * p.price), 0);
 
         res.json({
@@ -52,10 +57,11 @@ export const getDepartmentalReport = async (req: Request, res: Response) => {
     }
 };
 
-export const getInventoryReport = async (req: Request, res: Response) => {
+export const getInventoryReport = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const products = await prisma.product.findMany({
-            where: { isDeleted: false },
+            where: { isDeleted: false, tenantId },
             include: { category: true }
         });
         res.json(products);
@@ -64,15 +70,16 @@ export const getInventoryReport = async (req: Request, res: Response) => {
     }
 };
 
-export const getAuditLog = async (req: Request, res: Response) => {
+export const getAuditLog = async (req: AuthRequest, res: Response) => {
     try {
+        const tenantId = req.user?.tenantId;
         const [deletedProducts, deletedEmployees] = await Promise.all([
             prisma.product.findMany({
-                where: { isDeleted: true },
+                where: { isDeleted: true, tenantId },
                 include: { category: true }
             }),
             prisma.employee.findMany({
-                where: { isDeleted: true },
+                where: { isDeleted: true, department: { tenantId } },
                 include: { user: true, department: true }
             })
         ]);
@@ -86,9 +93,13 @@ export const getAuditLog = async (req: Request, res: Response) => {
     }
 };
 
-export const getPredictionReport = async (req: Request, res: Response) => {
+export const getPredictionReport = async (req: AuthRequest, res: Response) => {
     try {
-        const products = await prisma.product.findMany({ where: { isDeleted: false }, include: { category: true } });
+        const tenantId = req.user?.tenantId;
+        const products = await prisma.product.findMany({
+            where: { isDeleted: false, tenantId },
+            include: { category: true }
+        });
 
         // Simple Moving Average (SMA) Logic
         const predictions = products.map(p => {

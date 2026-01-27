@@ -5,6 +5,8 @@ import { AuthRequest } from '../middleware/authMiddleware';
 export const getCustomers = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const customers = await prisma.customer.findMany({
             where: { tenantId, isDeleted: false },
             orderBy: { createdAt: 'desc' }

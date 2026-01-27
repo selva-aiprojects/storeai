@@ -47,6 +47,8 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
 export const getDepartments = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const departments = await prisma.department.findMany({
             where: { tenantId }
         });
@@ -59,6 +61,8 @@ export const getDepartments = async (req: AuthRequest, res: Response) => {
 export const getEmployees = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
         const employees = await prisma.employee.findMany({
             where: {
                 isDeleted: false,
