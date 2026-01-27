@@ -7,7 +7,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
     const [formData, setFormData] = useState<any>({});
 
     useEffect(() => {
-        const productInit = { name: '', sku: '', categoryId: '', price: 0, costPrice: 0, stockQuantity: 0, reorderPoint: 10, uom: 'pcs', leadTimeDays: 7, avgDailySales: 1.0 };
+        const productInit = { name: '', sku: '', categoryId: '', price: 0, costPrice: 0, stockQuantity: 0, lowStockThreshold: 10, unit: 'pcs', leadTimeDays: 7, avgDailySales: 1.0 };
         const init = {
             products: productInit,
             inventory: productInit,
@@ -94,8 +94,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <div className="form-group"><label>Cost Basis ($)</label><input type="number" value={formData.costPrice} onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) })} step="0.01" /></div>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                <div className="form-group"><label>UOM</label><input value={formData.uom} onChange={e => setFormData({ ...formData, uom: e.target.value })} placeholder="pcs, kg, box" /></div>
-                                <div className="form-group"><label>Reorder Level</label><input type="number" value={formData.reorderPoint} onChange={e => setFormData({ ...formData, reorderPoint: parseInt(e.target.value) })} /></div>
+                                <div className="form-group"><label>UOM</label><input value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} placeholder="pcs, kg, box" /></div>
+                                <div className="form-group"><label>Reorder Level (Safety Stock)</label><input type="number" value={formData.lowStockThreshold} onChange={e => setFormData({ ...formData, lowStockThreshold: parseInt(e.target.value) })} /></div>
                             </div>
                         </>
                     )}
