@@ -196,7 +196,8 @@ function App() {
                         <button className="btn btn-primary" style={{ padding: '14px', marginTop: '10px', fontSize: '0.8rem' }}>AUTHENTICATE</button>
                     </form>
                     <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-                        &copy; 2026 STOREAI QUANTUM CORE. ALL RIGHTS RESERVED.
+                        &copy; 2026 STOREAI QUANTUM CORE. <br />
+                        <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>BUILD: v3.0.2_LIVE_2026_01_27</span>
                     </div>
                 </motion.div >
             </div >
@@ -247,8 +248,17 @@ function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>OPERATIONAL CORE // <span style={{ color: '#fff' }}>{view.toUpperCase()}</span></div>
                         <div style={{ width: '1px', height: '16px', background: 'var(--border-color)' }}></div>
-                        <div className="cognivectra-logo" style={{ fontSize: '0.7rem', opacity: 1, background: 'rgba(16, 185, 129, 0.15)', padding: '4px 12px', borderRadius: '4px', border: '1px solid var(--accent-success)' }}>
-                            <span style={{ color: 'var(--text-success)', fontWeight: 600, marginRight: '8px', letterSpacing: '0.05em' }}>CERTIFIED BY</span>
+                        <div className="cognivectra-logo" style={{
+                            fontSize: '0.7rem',
+                            opacity: 1,
+                            background: 'rgba(16, 185, 129, 0.2)',
+                            padding: '6px 14px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--accent-success)',
+                            boxShadow: '0 0 15px rgba(16, 185, 129, 0.2)',
+                            animation: 'pulse-glow 2s infinite'
+                        }}>
+                            <span style={{ color: 'var(--text-success)', fontWeight: 700, marginRight: '8px', letterSpacing: '0.05em' }}>CERTIFIED BY</span>
                             COGNIVE<span className="cognivectra-accent">CTRA</span>
                         </div>
                     </div>
@@ -283,12 +293,13 @@ function App() {
 
                 <footer className="footer">
                     <div className="footer-branding">
-                        <span>A PRODUCT FROM</span>
-                        <div className="cognivectra-logo">
+                        <span style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}>A PREMIUM PRODUCT FROM</span>
+                        <div className="cognivectra-logo" style={{ fontSize: '1rem' }}>
                             COGNIVE<span className="cognivectra-accent">CTRA</span>
                         </div>
                     </div>
                     <div className="footer-copyright">
+                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginBottom: '4px' }}>VERSION 3.0.2 // TACTICAL ELEVATION BUILD</div>
                         &copy; {new Date().getFullYear()} StoreAI Enterprise Solutions. All operational telemetry strictly logged.
                     </div>
                 </footer>
