@@ -95,6 +95,18 @@ const HR = () => {
                         </div>
                     ) : (
                         <div className="table-container">
+                            {/* Summary Card for 'So Far Spent' */}
+                            <div style={{ padding: '20px', background: 'var(--bg-hover)', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <div style={{ background: 'rgba(5, 150, 105, 0.2)', padding: '12px', borderRadius: '50%' }}>
+                                    <Wallet size={24} color="var(--accent-success)" />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL DISBURSED (YTD)</div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                                        ${payrolls?.reduce((acc: number, p: any) => acc + p.totalPayout, 0).toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
                             <table>
                                 <thead>
                                     <tr>
