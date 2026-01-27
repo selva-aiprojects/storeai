@@ -38,79 +38,79 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     });
 
     return (
-        <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
-            <div className="sidebar-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+        <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`} style={{ fontFamily: "'Open Sans', sans-serif" }}>
+            <div className="sidebar-header" style={{
+                padding: '20px 20px 15px',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+            }}>
                 <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Layers size={20} style={{ marginRight: '10px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
+                    <div style={{ display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.05em', color: '#fff' }}>
+                        <Layers size={18} style={{ marginRight: '8px' }} color="#818cf8" /> STORE<span style={{ color: '#818cf8' }}>AI</span>
                     </div>
                     {mobileOpen && (
-                        <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
+                        <X size={18} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.6 }} />
                     )}
                 </div>
+
+                {/* Tenant Branding Card */}
                 <div style={{
-                    marginTop: '12px',
                     width: '100%',
+                    padding: '8px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.08)',
                     display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '10px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    minHeight: '40px'
                 }}>
                     {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ height: '36px', maxWidth: '100%', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} alt="Tenant Brand" />
+                        <img src={user.activeTenant.logo} style={{ maxHeight: '24px', maxWidth: '100%', objectFit: 'contain' }} alt="Tenant" />
                     ) : (
-                        <div style={{
-                            height: '36px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.65rem',
-                            color: 'rgba(255, 255, 255, 0.3)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.2em',
-                            fontWeight: 600
-                        }}>
-                            Operant Core
-                        </div>
+                        <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            {user?.activeTenant?.name || 'OPERANT CORE'}
+                        </span>
                     )}
                 </div>
             </div>
 
-            <div className="sidebar-menu">
+            <div className="sidebar-menu" style={{ padding: '10px' }}>
                 {filteredMenuItems.map((item: any, index) => (
                     item.divider ? (
-                        <div key={index} className="menu-divider">{item.divider}</div>
+                        <div key={index} className="menu-divider" style={{ padding: '15px 10px 5px', fontSize: '0.65rem' }}>{item.divider}</div>
                     ) : (
                         <button
                             key={index}
                             className={`menu-item ${currentPath === item.path ? 'active' : ''}`}
                             onClick={() => handleNavigate(item.path)}
+                            style={{ padding: '8px 12px', fontSize: '0.85rem' }}
                         >
-                            <item.icon size={18} /> {item.label}
+                            <item.icon size={16} /> {item.label}
                         </button>
                     )
                 ))}
             </div>
-            <div className="sidebar-footer">
-                <div className="profile-card">
-                    <div className="avatar">{user.firstName[0]}</div>
+
+            <div className="sidebar-footer" style={{ padding: '15px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="profile-card" style={{ marginBottom: '15px' }}>
+                    <div className="avatar" style={{ width: '32px', height: '32px', fontSize: '0.8rem' }}>{user.firstName[0]}</div>
                     <div className="profile-info">
-                        <span>{user.firstName}</span>
-                        <span className="profile-role">{user.role}</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user.firstName}</span>
+                        <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>{user.role}</span>
                     </div>
                 </div>
 
-                <div style={{ marginTop: '15px', textAlign: 'left', opacity: 0.9, paddingLeft: '5px' }}>
+                <div style={{ marginBottom: '15px', opacity: 0.8 }}>
                     <a href="https://cognivectra.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/logo.png" alt="Cognivectra" style={{ maxHeight: '30px', maxWidth: '140px', objectFit: 'contain' }} />
+                        <img src="/logo.png" alt="Cognivectra" style={{ maxHeight: '25px', maxWidth: '100%', objectFit: 'contain' }} />
                     </a>
                 </div>
 
-                <button onClick={logout} className="btn btn-secondary" style={{ width: '100%', marginTop: '16px', fontSize: '0.7rem' }}>
-                    <LogOut size={14} style={{ marginRight: '8px' }} /> Logout
+                <button onClick={logout} className="btn btn-secondary" style={{ width: '100%', padding: '6px', fontSize: '0.65rem' }}>
+                    <LogOut size={12} style={{ marginRight: '6px' }} /> LOGOUT
                 </button>
             </div>
         </aside>
