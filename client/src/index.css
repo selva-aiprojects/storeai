@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 /* =========================================================
    INVENTORY MANAGEMENT PORTAL - INDEX.CSS
    Enterprise UI Theme (Modern / Clean / Scalable)
@@ -44,8 +46,6 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* =======================
    Global Reset
