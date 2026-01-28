@@ -164,31 +164,23 @@ const Products = () => {
 
                             <div style={{ marginTop: 'auto', paddingTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 <button
-                                    className="btn"
+                                    className="btn btn-secondary"
                                     onClick={() => setModal({ type: 'requisitions', metadata: { productId: p.id, name: p.name } })}
                                     style={{
                                         justifyContent: 'center',
                                         fontSize: '0.8rem',
-                                        fontWeight: 700,
-                                        background: '#fff',
-                                        color: '#334155',
-                                        border: '1px solid #e2e8f0',
-                                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+                                        fontWeight: 700
                                     }}
                                 >
                                     Stock Request
                                 </button>
                                 <button
-                                    className="btn"
+                                    className="btn btn-primary"
                                     onClick={() => setModal({ type: 'sales', metadata: { items: [{ productId: p.id, quantity: 1, unitPrice: p.price }] } })}
                                     style={{
                                         justifyContent: 'center',
                                         fontSize: '0.8rem',
-                                        fontWeight: 700,
-                                        background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
-                                        color: '#fff',
-                                        border: 'none',
-                                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
+                                        fontWeight: 700
                                     }}
                                 >
                                     Sell Item

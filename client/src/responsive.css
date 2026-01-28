@@ -104,6 +104,23 @@
     .header-actions .btn {
         padding: 10px !important;
     }
+
+    /* Premium Navy Blue Buttons for Mobile View */
+    .btn-primary {
+        background: linear-gradient(135deg, #001f3f 0%, #000c24 100%) !important;
+        box-shadow: 0 8px 25px rgba(0, 12, 36, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+        letter-spacing: 0.1em !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .btn-primary:active {
+        background: #000814 !important;
+        transform: scale(0.97) translateY(1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+    }
 }
 
 @media (max-width: 480px) {

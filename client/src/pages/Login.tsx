@@ -166,9 +166,6 @@ const Login = ({ setUser }: any) => {
                             padding: '14px',
                             marginTop: '10px',
                             fontSize: '0.9rem',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
-                            border: 'none',
                             fontWeight: 700
                         }}>AUTHORIZE ACCESS</button>
 
@@ -246,7 +243,14 @@ const Login = ({ setUser }: any) => {
                             <input value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. global-retail" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
                         </div>
 
-                        <button className="btn" style={{ padding: '14px', marginTop: '10px', fontSize: '0.9rem', background: '#10b981', color: '#0f172a', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>INITIATE ONBOARDING</button>
+                        <button className="btn btn-primary" style={{
+                            padding: '14px',
+                            marginTop: '10px',
+                            fontSize: '0.9rem',
+                            fontWeight: 700,
+                            borderRadius: '8px',
+                            cursor: 'pointer'
+                        }}>INITIATE ONBOARDING</button>
                         <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: '5px' }}>CANCEL</button>
                     </form>
                 )}
