@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 const BASE_URL = 'http://localhost:5000/api/v1';
 
@@ -70,9 +72,35 @@ async function runAutomationTest() {
         const ledgerRes = await axios.get(`${BASE_URL}/accounts/ledger`, { headers });
         console.log(`✔ Ledger Verified. Total Entries: ${ledgerRes.data.length}`);
 
+        // 7. SaaS Compliance Test
+        console.log('7. Verifying Enterprise Audit Trail...');
+
+        // We need the ID of the product we "created" or found. 
+        // Wait, the script earlier uses Fetch/Get. Let's CREATE a product to test the Audit Log.
+        const newProductSku = `AUDIT-TEST-${Date.now()}`;
+        const createRes = await axios.post(`${BASE_URL}/products`, {
+            name: 'Audit Compliance Widget',
+            sku: newProductSku,
+            price: 999,
+            categoryId: (await axios.get(`${BASE_URL}/products`, { headers })).data[0].categoryId
+        }, { headers });
+        const newProductId = createRes.data.id;
+
+        // Verify DB Log
+        const log = await prisma.activityLog.findFirst({
+            where: { entityId: newProductId, action: 'CREATE' }
+        });
+
+        if (!log) throw new Error('Compliance Failure: No Audit Log found for created product.');
+        console.log(`✔ Audit Log Verified: [${log.action}] ${log.entityType} by ${log.userId} at ${log.createdAt}`);
+
+        await prisma.$disconnect();
+
+        console.log('\n✨ ALL ENTERPRISE PROTOCOLS VERIFIED. WORKFLOW IS STABLE.');
         console.log('\n✨ ALL ENTERPRISE PROTOCOLS VERIFIED. WORKFLOW IS STABLE.');
     } catch (e: any) {
-        console.error('❌ AUTOMATION TEST FAILED:', e.response?.data || e.message);
+        console.error('❌ AUTOMATION TEST FAILED:');
+        console.error(JSON.stringify(e.response?.data || e.message, null, 2));
         process.exit(1);
     }
 }

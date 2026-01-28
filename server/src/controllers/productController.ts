@@ -27,14 +27,29 @@ export const getProducts = async (req: AuthRequest, res: Response) => {
 export const createProduct = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
+        const userId = req.user?.id;
         const {
             sku, name, description, price, costPrice, stockQuantity,
             categoryId, unit, lowStockThreshold, leadTimeDays, avgDailySales,
             transportationCost, gstRate, otherTaxRate
         } = req.body;
 
+        // 1. Check Plan Limits (Revenue Protection)
+        const tenant = await prisma.tenant.findUnique({
+            where: { id: tenantId },
+            include: { plan: true }
+        });
+        const currentCount = await prisma.product.count({ where: { tenantId, isDeleted: false } });
+        const limit = tenant?.plan?.maxProducts || 100; // Default limit if no plan
+
+        if (currentCount >= limit) {
+            return res.status(403).json({
+                error: `Plan Limit Exceeded: Your plan allows ${limit} products. Upgrade to Enterprise for unlimited.`
+            });
+        }
+
         const result = await prisma.$transaction(async (tx) => {
-            // 1. Create Product
+            // 2. Create Product
             const product = await tx.product.create({
                 data: {
                     sku, name, description,
@@ -52,7 +67,7 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
                 }
             });
 
-            // 2. Normalize Stock: Add to Default Warehouse
+            // 3. Normalize Stock: Add to Default Warehouse
             const warehouse = await tx.warehouse.findFirst({
                 where: { tenantId, isDefault: true }
             });
@@ -67,6 +82,19 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
                     }
                 });
             }
+
+            // 4. Audit Log (Compliance)
+            await tx.activityLog.create({
+                data: {
+                    action: 'CREATE',
+                    entityType: 'PRODUCT',
+                    entityId: product.id,
+                    tenantId: tenantId!,
+                    userId: userId!,
+                    details: { name: product.name, sku: product.sku, price: product.price },
+                    ipAddress: req.ip
+                }
+            });
 
             return product;
         });

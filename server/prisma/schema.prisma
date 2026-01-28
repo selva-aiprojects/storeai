@@ -39,6 +39,7 @@ model Tenant {
   supplierAgreements   SupplierAgreement[]
   stockLedgers         StockLedger[]
   salesRegisters       SalesRegister[]
+  activityLogs         ActivityLog[]
 }
 
 model Plan {
@@ -47,6 +48,8 @@ model Plan {
   price        Float
   billingCycle String   @default("MONTHLY")
   features     Json
+  maxUsers     Int?     @default(5)
+  maxProducts  Int?     @default(100)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   tenants      Tenant[]
@@ -95,6 +98,7 @@ model User {
   employee       Employee?
   approvedOrders Order[]      @relation("OrderApprover")
   tenants        UserTenant[]
+  activityLogs   ActivityLog[]
 }
 
 model Category {
@@ -751,4 +755,24 @@ model Leave {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   employee    Employee @relation(fields: [employeeId], references: [id])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  action      String   // CREATE, UPDATE, DELETE, LOGIN
+  entityType  String   // PRODUCT, ORDER, USER
+  entityId    String?
+  details     Json?    // Snapshot of changes
+  ipAddress   String?
+  userId      String
+  tenantId    String
+  createdAt   DateTime @default(now())
+  
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([entityType])
+  @@index([userId])
+  @@index([createdAt])
 }
