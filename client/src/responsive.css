@@ -24,38 +24,51 @@
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1) !important;
         background: #ffffff !important;
+        border-right: 1px solid #e2e8f0 !important;
     }
 
     .sidebar-header {
-        color: var(--text-primary) !important;
-        border-bottom: 1px solid var(--border-color) !important;
+        color: #001f3f !important;
+        /* Deep Blue */
+        border-bottom: 1px solid #f1f5f9 !important;
+        background: #ffffff !important;
     }
 
     .menu-divider {
-        color: var(--text-muted) !important;
+        color: #64748b !important;
+        opacity: 0.8;
     }
 
     .sidebar-menu .menu-item {
-        color: var(--text-secondary) !important;
+        color: #001f3f !important;
+        /* Deep Blue Text */
+        font-weight: 600 !important;
+        background: transparent !important;
+        margin: 4px 12px !important;
+        border-radius: 8px !important;
     }
 
     .sidebar-menu .menu-item:hover {
-        background: var(--bg-hover) !important;
-        color: var(--accent-primary) !important;
+        background: #f0f7ff !important;
+        /* Very light blue */
+        color: #001f3f !important;
     }
 
     .sidebar-menu .menu-item.active {
-        background: var(--accent-primary) !important;
+        background: #001f3f !important;
+        /* Deep Blue Background */
         color: #ffffff !important;
+        /* White text for contrast */
+        box-shadow: 0 4px 12px rgba(0, 31, 63, 0.2) !important;
     }
 
     .sidebar-footer {
         background: #f8fafc !important;
-        border-top: 1px solid var(--border-color) !important;
+        border-top: 1px solid #e2e8f0 !important;
     }
 
     .sidebar.mobile-open {
-        transform: translateX(0);
+        transform: translateX(0) !important;
     }
 
     .main-content {
