@@ -278,7 +278,9 @@ h6 {
 .header {
   height: var(--header-height);
   background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  color: #0f172a;
+  border-bottom: 2px solid #7c3aed;
+  /* Vibrant purple accent */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -286,13 +288,15 @@ h6 {
   position: sticky;
   top: 0;
   z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .header-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   font-size: 1.25rem;
-  color: #111827;
+  color: #818cf8;
+  /* Matching the 'AI' brand color */
 }
 
 .header-actions {
@@ -336,7 +340,7 @@ h6 {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.11em;
-  color: #6b7280;
+  color: #5d03b1;
   margin-bottom: 14px;
   display: flex;
   align-items: center;
@@ -345,7 +349,7 @@ h6 {
 
 .card-subtitle {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #ecebf2;
 }
 
 .dashboard-grid {
@@ -651,7 +655,7 @@ tbody tr:nth-child(even) td {
 .tabs-header {
   display: flex;
   gap: 4px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #6f4fe4;
   margin-bottom: 24px;
   padding: 0 4px;
 }
@@ -664,7 +668,7 @@ tbody tr:nth-child(even) td {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #6b7280;
+  color: #370299;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: -2px;
