@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Ship, CheckCircle, Package, ArrowRight, ClipboardList, Briefcase } from 'lucide-react';
 import { approveOrder } from '../services/api';
 
 const Purchases = () => {
     const { data, refreshData, setModal, user } = useOutletContext<any>() as any;
+
+    useEffect(() => {
+        refreshData('purchases');
+    }, []);
     const { orders, requisitions } = data || {};
     const [tab, setTab] = useState('orders'); // orders | requisitions
 

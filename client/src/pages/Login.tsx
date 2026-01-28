@@ -4,21 +4,50 @@ import { Layers } from 'lucide-react';
 import api, { login as loginApi } from '../services/api';
 
 const Login = ({ setUser }: any) => {
-    const [mode, setMode] = useState<'LOGIN' | 'ONBOARD'>('LOGIN');
+    const [mode, setMode] = useState<'LOGIN' | 'ONBOARD' | 'SELECT_TENANT'>('LOGIN');
     const [authForm, setAuthForm] = useState({ email: '', password: '', tenantSlug: '' });
+    const [availableTenants, setAvailableTenants] = useState<any[]>([]);
+
     const [onboardForm, setOnboardForm] = useState({
         email: '', password: '', firstName: '', lastName: '', orgName: '', orgSlug: ''
     });
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleLogin = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         try {
             const resp = await loginApi(authForm);
+
+            // Check for multi-tenant availability
+            if (resp.data.availableTenants && resp.data.availableTenants.length > 1 && !authForm.tenantSlug) {
+                setAvailableTenants(resp.data.availableTenants);
+                setMode('SELECT_TENANT');
+                return;
+            }
+
             localStorage.setItem('store_ai_token', resp.data.token);
             setUser(resp.data.user);
         } catch (e: any) {
             alert(e.response?.data?.error || "Login failed. Check credentials or Tenant ID.");
         }
+    };
+
+    const handleTenantSelect = (slug: string) => {
+        setAuthForm(prev => {
+            const newState = { ...prev, tenantSlug: slug };
+            // We can't immediately call handleLogin because state async update.
+            // But we can call api directly or use a temp var.
+            // Let's call API directly with new slug.
+            (async () => {
+                try {
+                    const resp = await loginApi({ ...newState });
+                    localStorage.setItem('store_ai_token', resp.data.token);
+                    setUser(resp.data.user);
+                } catch (e: any) {
+                    alert("Failed to switch tenant.");
+                }
+            })();
+            return newState;
+        });
     };
 
     const handleOnboardRequest = async (e: React.FormEvent) => {
@@ -39,7 +68,7 @@ const Login = ({ setUser }: any) => {
                     <Layers color="var(--accent-primary)" size={48} />
                     <span style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--bg-sidebar)' }}>STORE<span style={{ color: 'var(--accent-primary)' }}>AI</span></span>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600 }}>
-                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : 'Tenant Onboarding Program'}
+                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Select Organization' : 'Tenant Onboarding Program'}
                     </div>
                 </div>
 
@@ -63,6 +92,38 @@ const Login = ({ setUser }: any) => {
                             <button type="button" onClick={() => setMode('ONBOARD')} style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}>REQUEST ONBOARDING</button>
                         </div>
                     </form>
+                ) : mode === 'SELECT_TENANT' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
+                            Your account is linked to multiple organizations. Please select the workspace to access.
+                        </p>
+                        {availableTenants.map((t: any) => (
+                            <button
+                                key={t.id}
+                                onClick={() => handleTenantSelect(t.slug)}
+                                className="btn"
+                                style={{
+                                    padding: '15px',
+                                    justifyContent: 'flex-start',
+                                    background: 'var(--bg-hover)',
+                                    color: 'var(--text-primary)',
+                                    fontWeight: 600,
+                                    border: '1px solid var(--border-color)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}
+                            >
+                                <div style={{
+                                    width: '8px', height: '8px',
+                                    borderRadius: '50%',
+                                    background: t.slug === 'storeai' ? 'var(--accent-primary)' : 'var(--text-muted)'
+                                }}></div>
+                                {t.name}
+                            </button>
+                        ))}
+                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', marginTop: '15px', alignSelf: 'center' }}>BACK TO LOGIN</button>
+                    </div>
                 ) : (
                     <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

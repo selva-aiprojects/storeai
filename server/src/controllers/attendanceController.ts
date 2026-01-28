@@ -11,8 +11,11 @@ export const getDailyAttendance = async (req: AuthRequest, res: Response) => {
 
         // Parse date properly to query the range (start of day to end of day)
         const targetDate = date ? new Date(String(date)) : new Date();
-        const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-        const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
 
         const attendance = await prisma.attendance.findMany({
             where: {

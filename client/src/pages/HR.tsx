@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { UserPlus, Wallet, Calendar, Star, Building, CheckCircle2 } from 'lucide-react';
 import { getDailyAttendance, markDailyAttendance } from '../services/api';
 
 const HR = () => {
     const { data, setModal, refreshData } = useOutletContext<any>();
+
+    useEffect(() => {
+        refreshData('hr');
+    }, []);
     const { employees, payrolls, departments } = data || {};
     const [activeTab, setActiveTab] = useState('employees');
 
