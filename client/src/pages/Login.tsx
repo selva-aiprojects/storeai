@@ -62,87 +62,197 @@ const Login = ({ setUser }: any) => {
     };
 
     return (
-        <div className="modal-overlay" style={{ background: '#f0f4f9', backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05) 0%, transparent 70%)' }}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ maxWidth: '440px', width: '90%', padding: '30px', boxShadow: 'var(--shadow-elevated)' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '25px' }}>
-                    <Layers color="var(--accent-primary)" size={48} />
-                    <span style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--bg-sidebar)' }}>STORE<span style={{ color: 'var(--accent-primary)' }}>AI</span></span>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600 }}>
-                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Select Organization' : 'Tenant Onboarding Program'}
+        <div className="modal-overlay" style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #312e81 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        }}>
+            <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)',
+                pointerEvents: 'none'
+            }} />
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="card"
+                style={{
+                    maxWidth: '420px',
+                    width: '90%',
+                    padding: '40px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    color: '#fff',
+                    zIndex: 10
+                }}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+                        <Layers color="#818cf8" size={40} />
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '0.05em', color: '#fff' }}>STORE<span style={{ color: '#818cf8' }}>AI</span></span>
+                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600, marginTop: '5px' }}>
+                            {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Select Organization' : 'Tenant Onboarding'}
+                        </div>
                     </div>
                 </div>
 
                 {mode === 'LOGIN' ? (
-                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div className="form-group">
-                            <label style={{ fontWeight: 700, fontSize: '0.65rem' }}>OPERATOR EMAIL</label>
-                            <input type="email" value={authForm.email} onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} required placeholder="admin@storeai.com" style={{ background: '#f8fafc' }} />
+                            <label style={{ fontWeight: 600, fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>OPERATOR EMAIL</label>
+                            <input
+                                type="email"
+                                value={authForm.email}
+                                onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
+                                required
+                                placeholder="admin@storeai.com"
+                                style={{
+                                    background: 'rgba(15, 23, 42, 0.6)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    color: '#fff',
+                                    fontSize: '0.95rem',
+                                    padding: '12px 16px'
+                                }}
+                            />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontWeight: 700, fontSize: '0.65rem' }}>ACCESS KEY</label>
-                            <input type="password" value={authForm.password} onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} required placeholder="••••••••" style={{ background: '#f8fafc' }} />
+                            <label style={{ fontWeight: 600, fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>ACCESS KEY</label>
+                            <input
+                                type="password"
+                                value={authForm.password}
+                                onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+                                required
+                                placeholder="••••••••"
+                                style={{
+                                    background: 'rgba(15, 23, 42, 0.6)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    color: '#fff',
+                                    fontSize: '0.95rem',
+                                    padding: '12px 16px'
+                                }}
+                            />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontWeight: 700, fontSize: '0.65rem' }}>TENANT ID (OPTIONAL)</label>
-                            <input type="text" value={authForm.tenantSlug} onChange={(e) => setAuthForm({ ...authForm, tenantSlug: e.target.value.toLowerCase() })} placeholder="e.g. quantum, nexus, horizon" style={{ background: '#f8fafc' }} />
+                            <label style={{ fontWeight: 600, fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.05em', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                                <span>TENANT ID (OPTIONAL)</span>
+                                <span style={{ opacity: 0.5 }}>For Multi-Tenant Access</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={authForm.tenantSlug}
+                                onChange={(e) => setAuthForm({ ...authForm, tenantSlug: e.target.value.toLowerCase() })}
+                                placeholder="e.g. quantum"
+                                style={{
+                                    background: 'rgba(15, 23, 42, 0.6)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    color: '#fff',
+                                    fontSize: '0.95rem',
+                                    padding: '12px 16px'
+                                }}
+                            />
                         </div>
-                        <button className="btn btn-primary" style={{ padding: '14px', marginTop: '10px', fontSize: '0.8rem' }}>AUTHORIZE ACCESS</button>
+                        <button className="btn btn-primary" style={{
+                            padding: '14px',
+                            marginTop: '10px',
+                            fontSize: '0.9rem',
+                            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+                            border: 'none',
+                            fontWeight: 700
+                        }}>AUTHORIZE ACCESS</button>
+
                         <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Need a dedicated instance? </span>
-                            <button type="button" onClick={() => setMode('ONBOARD')} style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}>REQUEST ONBOARDING</button>
+                            <button type="button" onClick={() => setMode('ONBOARD')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}>
+                                Need a dedicated instance? <span style={{ color: '#818cf8', fontWeight: 600 }}>Request Onboarding</span>
+                            </button>
                         </div>
                     </form>
                 ) : mode === 'SELECT_TENANT' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                            Your account is linked to multiple organizations. Please select the workspace to access.
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
+                        <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginBottom: '16px', lineHeight: '1.5' }}>
+                            Your identity is securely linked to multiple workspaces.<br />Select one to continue.
                         </p>
                         {availableTenants.map((t: any) => (
                             <button
                                 key={t.id}
                                 onClick={() => handleTenantSelect(t.slug)}
-                                className="btn"
                                 style={{
-                                    padding: '15px',
+                                    padding: '16px',
                                     justifyContent: 'flex-start',
-                                    background: 'var(--bg-hover)',
-                                    color: 'var(--text-primary)',
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    color: '#fff',
                                     fontWeight: 600,
-                                    border: '1px solid var(--border-color)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '8px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '10px'
+                                    gap: '12px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    transition: 'all 0.2s'
                                 }}
+                                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = '#818cf8'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
                             >
                                 <div style={{
-                                    width: '8px', height: '8px',
+                                    width: '10px', height: '10px',
                                     borderRadius: '50%',
-                                    background: t.slug === 'storeai' ? 'var(--accent-primary)' : 'var(--text-muted)'
+                                    background: t.slug === 'storeai' ? '#818cf8' : 'rgba(255,255,255,0.3)',
+                                    boxShadow: t.slug === 'storeai' ? '0 0 10px rgba(129, 140, 248, 0.5)' : 'none'
                                 }}></div>
                                 {t.name}
                             </button>
                         ))}
-                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', marginTop: '15px', alignSelf: 'center' }}>BACK TO LOGIN</button>
+                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: '15px', alignSelf: 'center' }}>&larr; BACK TO LOGIN</button>
                     </div>
                 ) : (
-                    <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                            <div className="form-group"><label style={{ fontSize: '0.6rem' }}>FIRST NAME</label><input value={onboardForm.firstName} onChange={(e) => setOnboardForm({ ...onboardForm, firstName: e.target.value })} required /></div>
-                            <div className="form-group"><label style={{ fontSize: '0.6rem' }}>LAST NAME</label><input value={onboardForm.lastName} onChange={(e) => setOnboardForm({ ...onboardForm, lastName: e.target.value })} required /></div>
+                    <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                            <div className="form-group">
+                                <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>FIRST NAME</label>
+                                <input value={onboardForm.firstName} onChange={(e) => setOnboardForm({ ...onboardForm, firstName: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                            </div>
+                            <div className="form-group">
+                                <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>LAST NAME</label>
+                                <input value={onboardForm.lastName} onChange={(e) => setOnboardForm({ ...onboardForm, lastName: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                            </div>
                         </div>
-                        <div className="form-group"><label style={{ fontSize: '0.6rem' }}>EMAIL</label><input type="email" value={onboardForm.email} onChange={(e) => setOnboardForm({ ...onboardForm, email: e.target.value })} required /></div>
-                        <div className="form-group"><label style={{ fontSize: '0.6rem' }}>PASSWORD</label><input type="password" value={onboardForm.password} onChange={(e) => setOnboardForm({ ...onboardForm, password: e.target.value })} required /></div>
-                        <div style={{ borderTop: '1px solid #e2e8f0', margin: '5px 0' }}></div>
-                        <div className="form-group"><label style={{ fontSize: '0.6rem' }}>TENANT NAME</label><input value={onboardForm.orgName} onChange={(e) => setOnboardForm({ ...onboardForm, orgName: e.target.value })} required placeholder="e.g. Global Retail Inc" /></div>
-                        <div className="form-group"><label style={{ fontSize: '0.6rem' }}>TENANT SLUG (URL ID)</label><input value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. global-retail" /></div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>EMAIL</label>
+                            <input type="email" value={onboardForm.email} onChange={(e) => setOnboardForm({ ...onboardForm, email: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>PASSWORD</label>
+                            <input type="password" value={onboardForm.password} onChange={(e) => setOnboardForm({ ...onboardForm, password: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                        </div>
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '5px 0' }}></div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>TENANT NAME</label>
+                            <input value={onboardForm.orgName} onChange={(e) => setOnboardForm({ ...onboardForm, orgName: e.target.value })} required placeholder="e.g. Global Retail Inc" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                        </div>
+                        <div className="form-group">
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>TENANT SLUG (URL ID)</label>
+                            <input value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. global-retail" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                        </div>
 
-                        <button className="btn btn-success" style={{ padding: '14px', marginTop: '10px', fontSize: '0.8rem' }}>SUBMIT REQUEST</button>
-                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer', marginTop: '5px' }}>BACK TO LOGIN</button>
+                        <button className="btn" style={{ padding: '14px', marginTop: '10px', fontSize: '0.9rem', background: '#10b981', color: '#0f172a', border: 'none', fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}>INITIATE ONBOARDING</button>
+                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: '5px' }}>CANCEL</button>
                     </form>
                 )}
-                <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+                <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', lineHeight: '1.6' }}>
                     &copy; 2026 STOREAI INTELLIGENCE SYSTEMS. <br />
-                    <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>SECURE BUILD: v3.2.1_ONBRD</span>
+                    <span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>SECURE ENCLAVE ACTIVE</span>
                 </div>
             </motion.div >
         </div >

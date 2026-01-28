@@ -2,10 +2,10 @@ import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const BASE_URL = 'http://localhost:5000/api/v1';
+const BASE_URL = process.env.TEST_URL || 'http://localhost:5000/api/v1';
 
 async function runAutomationTest() {
-    console.log('🧪 STARTING AUTOMATED ENTERPRISE FLOW TEST...');
+    console.log(`🧪 STARTING AUTOMATION TEST AGAINST: ${BASE_URL}`);
 
     try {
         // 1. Auth Test
@@ -22,12 +22,14 @@ async function runAutomationTest() {
         // 2. Data Health Check
         console.log('2. Testing Catalog Fetch...');
         const productsRes = await axios.get(`${BASE_URL}/products`, { headers });
+        if (productsRes.data.length === 0) throw new Error('Catalog is empty! Seed data missing on remote.');
         const product = productsRes.data[0];
         console.log(`✔ Catalog Healthy. Found ${productsRes.data.length} items.`);
 
         // 3. Procurement Workflow Test (PO -> Tracking -> Inward)
         console.log('3. Testing Procurement Loop...');
         const suppliersRes = await axios.get(`${BASE_URL}/suppliers`, { headers });
+        if (suppliersRes.data.length === 0) throw new Error('Suppliers missing! Seed data missing.');
         const supplier = suppliersRes.data[0];
 
         const orderRes = await axios.post(`${BASE_URL}/orders`, {
@@ -54,8 +56,11 @@ async function runAutomationTest() {
 
         // 5. Inventory Sync Test
         console.log('5. Testing Inward Logistics (GRN)...');
+        const warehouses = await axios.get(`${BASE_URL}/inventory/warehouses`, { headers });
+        if (warehouses.data.length === 0) throw new Error('Warehouses missing! Seed data missing.');
+
         const receiveRes = await axios.post(`${BASE_URL}/orders/${orderId}/grn`, {
-            warehouseId: (await axios.get(`${BASE_URL}/inventory/warehouses`, { headers })).data[0].id,
+            warehouseId: warehouses.data[0].id,
             items: [{
                 productId: product.id,
                 quantity: 10,
@@ -73,28 +78,32 @@ async function runAutomationTest() {
         console.log(`✔ Ledger Verified. Total Entries: ${ledgerRes.data.length}`);
 
         // 7. SaaS Compliance Test
-        console.log('7. Verifying Enterprise Audit Trail...');
+        // Only run DB checks if Localhost (Direct Access)
+        if (BASE_URL.includes('localhost')) {
+            console.log('7. Verifying Enterprise Audit Trail (Local DB Check)...');
 
-        // We need the ID of the product we "created" or found. 
-        // Wait, the script earlier uses Fetch/Get. Let's CREATE a product to test the Audit Log.
-        const newProductSku = `AUDIT-TEST-${Date.now()}`;
-        const createRes = await axios.post(`${BASE_URL}/products`, {
-            name: 'Audit Compliance Widget',
-            sku: newProductSku,
-            price: 999,
-            categoryId: (await axios.get(`${BASE_URL}/products`, { headers })).data[0].categoryId
-        }, { headers });
-        const newProductId = createRes.data.id;
+            const newProductSku = `AUDIT-TEST-${Date.now()}`;
+            const createRes = await axios.post(`${BASE_URL}/products`, {
+                name: 'Audit Compliance Widget',
+                sku: newProductSku,
+                price: 999,
+                categoryId: product.categoryId,
+                unit: 'PCS'
+            }, { headers });
+            const newProductId = createRes.data.id;
 
-        // Verify DB Log
-        const log = await prisma.activityLog.findFirst({
-            where: { entityId: newProductId, action: 'CREATE' }
-        });
+            // Verify DB Log
+            const log = await prisma.activityLog.findFirst({
+                where: { entityId: newProductId, action: 'CREATE' }
+            });
 
-        if (!log) throw new Error('Compliance Failure: No Audit Log found for created product.');
-        console.log(`✔ Audit Log Verified: [${log.action}] ${log.entityType} by ${log.userId} at ${log.createdAt}`);
+            if (!log) throw new Error('Compliance Failure: No Audit Log found for created product.');
+            console.log(`✔ Audit Log Verified: [${log.action}] ${log.entityType} by ${log.userId} at ${log.createdAt}`);
 
-        await prisma.$disconnect();
+            await prisma.$disconnect();
+        } else {
+            console.log('⚠ Skipping Direct DB Audit Check (Remote Environment). Test via API only.');
+        }
 
         console.log('\n✨ ALL ENTERPRISE PROTOCOLS VERIFIED. WORKFLOW IS STABLE.');
         console.log('\n✨ ALL ENTERPRISE PROTOCOLS VERIFIED. WORKFLOW IS STABLE.');

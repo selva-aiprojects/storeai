@@ -47,26 +47,34 @@ const Dashboard = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* --- Financial Status --- */}
-            <div className="section-header">Enterprise Financial Pulse</div>
-            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-                <div className="card" style={{ borderLeft: '4px solid var(--accent-success)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="section-header" style={{ fontSize: '1.2rem', fontWeight: 800 }}>Enterprise Financial Pulse</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Real-time consolidated view</div>
+            </div>
+
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+                <div className="card glass-effect" style={{ borderLeft: '4px solid var(--success)' }}>
                     <div className="card-header">TOTAL REVENUE (SALES)</div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-success)' }}>${totalRevenue.toLocaleString()}</div>
+                    <div className="metric-value" style={{ fontSize: '2.2rem', color: 'var(--success)' }}>
+                        ${totalRevenue.toLocaleString()}
+                    </div>
                 </div>
-                <div className="card" style={{ borderLeft: '4px solid var(--accent-danger)' }}>
+                <div className="card glass-effect" style={{ borderLeft: '4px solid var(--danger)' }}>
                     <div className="card-header">TOTAL PROCUREMENT (COSTS)</div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-danger)' }}>-${totalProcurement.toLocaleString()}</div>
+                    <div className="metric-value" style={{ fontSize: '2.2rem', color: 'var(--danger)' }}>
+                        -${totalProcurement.toLocaleString()}
+                    </div>
                 </div>
-                <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)', background: 'rgba(129, 140, 248, 0.05)' }}>
+                <div className="card glass-effect" style={{ borderLeft: '4px solid var(--primary-500)', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(255,255,255,0) 100%)' }}>
                     <div className="card-header">OPERATIONAL NET BALANCE</div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: netStatus >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
+                    <div className="metric-value" style={{ color: netStatus >= 0 ? 'var(--success)' : 'var(--danger)' }}>
                         {netStatus >= 0 ? '+' : '-'}${Math.abs(netStatus).toLocaleString()}
                     </div>
                 </div>
             </div>
 
             {/* --- Sales Activity Section --- */}
-            <div className="section-header">Sales Activity</div>
+            <div className="section-header" style={{ marginTop: '10px' }}>Sales Activity</div>
             <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                 <ActivityCard count={toBePacked} label="Qty To Be Packed" icon={Package} color="#3b82f6" />
                 <ActivityCard count={toBeShipped} label="Pkgs To Be Shipped" icon={Truck} color="#eab308" />
@@ -108,11 +116,11 @@ const Dashboard = () => {
                     <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>QUANTITY IN HAND</span>
-                            <span style={{ fontSize: '1.8rem', fontWeight: 700 }}>{quantityInHand.toLocaleString()}</span>
+                            <span className="metric-value" style={{ fontSize: '1.8rem' }}>{quantityInHand.toLocaleString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
                             <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>QUANTITY TO BE RECEIVED</span>
-                            <span style={{ fontSize: '1.8rem', fontWeight: 700 }}>{quantityToReceive.toLocaleString()}</span>
+                            <span className="metric-value" style={{ fontSize: '1.8rem' }}>{quantityToReceive.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
@@ -127,15 +135,15 @@ const Dashboard = () => {
                     </div>
                     <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {topSelling.length > 0 ? topSelling.map((item: any, idx: number) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                <div style={{ width: '40px', height: '40px', background: 'var(--bg-hover)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Layers size={18} color="var(--accent-primary)" />
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px', borderRadius: '8px', background: 'var(--bg-body)' }}>
+                                <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-500)' }}>
+                                    <Layers size={20} />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: 600 }}>{item.name}</div>
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{item.qty} pcs sold</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.qty} pcs sold</div>
                                 </div>
-                                <div style={{ fontWeight: 700 }}>#{idx + 1}</div>
+                                <div style={{ fontWeight: 700, opacity: 0.5 }}>#{idx + 1}</div>
                             </div>
                         )) : <div style={{ opacity: 0.5, textAlign: 'center', padding: '20px' }}>No sales recorded this month.</div>}
                     </div>
@@ -147,10 +155,10 @@ const Dashboard = () => {
                         <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Active Orders</span>
                     </div>
                     <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Quantity Pending Inward</div>
-                        <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--accent-secondary)' }}>{quantityToReceive}</div>
-                        <div style={{ marginTop: '15px', color: 'var(--accent-primary)', fontSize: '0.8rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}>
-                            Monitoring Supply Chain <CheckCircle2 size={14} />
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Quantity Pending Inward</div>
+                        <div className="metric-value" style={{ color: 'var(--secondary-500)' }}>{quantityToReceive}</div>
+                        <div style={{ marginTop: '15px', color: 'var(--primary-500)', fontSize: '0.85rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+                            Monitoring Supply Chain <CheckCircle2 size={16} />
                         </div>
                     </div>
                 </div>
@@ -163,11 +171,11 @@ const Dashboard = () => {
                     <table style={{ borderCollapse: 'separate', borderSpacing: '0' }}>
                         <thead>
                             <tr>
-                                <th style={{ background: 'var(--bg-hover)' }}>PRODUCT</th>
-                                <th style={{ background: 'var(--bg-hover)' }}>NEXT BATCH</th>
-                                <th style={{ background: 'var(--bg-hover)' }}>UOM</th>
-                                <th style={{ background: 'var(--bg-hover)' }}>AVAIL QTY</th>
-                                <th style={{ background: 'var(--bg-hover)' }}>EXPIRY STATUS</th>
+                                <th style={{ background: 'var(--bg-body)' }}>PRODUCT</th>
+                                <th style={{ background: 'var(--bg-body)' }}>NEXT BATCH</th>
+                                <th style={{ background: 'var(--bg-body)' }}>UOM</th>
+                                <th style={{ background: 'var(--bg-body)' }}>AVAIL QTY</th>
+                                <th style={{ background: 'var(--bg-body)' }}>EXPIRY STATUS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -178,7 +186,7 @@ const Dashboard = () => {
                                 return (
                                     <tr key={p.id}>
                                         <td><b>{p.name}</b></td>
-                                        <td><code style={{ color: 'var(--accent-secondary)' }}>{bestBatch.batchNumber}</code></td>
+                                        <td><code style={{ color: 'var(--secondary-500)' }}>{bestBatch.batchNumber}</code></td>
                                         <td>{p.unit}</td>
                                         <td><b>{bestBatch.quantityAvailable}</b></td>
                                         <td>
@@ -203,7 +211,7 @@ const Dashboard = () => {
 
 // Helper Components
 const ActivityCard = ({ count, label, icon: Icon, color }: any) => (
-    <div className="card hover-up" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '12px' }}>
+    <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '12px' }}>
         <div style={{ fontSize: '2.5rem', fontWeight: 800, color }}>{count}</div>
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
         <div style={{ marginTop: '8px', color: 'var(--text-muted)', opacity: 0.5 }}><Icon size={20} /></div>

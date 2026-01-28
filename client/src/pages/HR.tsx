@@ -78,54 +78,30 @@ const HR = () => {
             </div>
 
             <div className="card" style={{ padding: '0' }}>
-                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)' }}>
+                <div className="tabs-header" style={{ marginBottom: 0, paddingLeft: '12px', borderBottom: '1px solid #e5e7eb' }}>
                     <button
+                        className={`tab-btn ${activeTab === 'employees' ? 'active' : ''}`}
                         onClick={() => setActiveTab('employees')}
-                        style={{
-                            padding: '16px 24px',
-                            background: 'none',
-                            border: 'none',
-                            color: activeTab === 'employees' ? 'var(--accent-primary)' : 'var(--text-muted)',
-                            borderBottom: activeTab === 'employees' ? '2px solid var(--accent-primary)' : 'none',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                        }}
                     >
                         EMPLOYEE ROSTER
                     </button>
                     <button
+                        className={`tab-btn ${activeTab === 'payroll' ? 'active' : ''}`}
                         onClick={() => setActiveTab('payroll')}
-                        style={{
-                            padding: '16px 24px',
-                            background: 'none',
-                            border: 'none',
-                            color: activeTab === 'payroll' ? 'var(--accent-primary)' : 'var(--text-muted)',
-                            borderBottom: activeTab === 'payroll' ? '2px solid var(--accent-primary)' : 'none',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                        }}
                     >
                         PAYROLL CLERK
                     </button>
                     <button
+                        className={`tab-btn ${activeTab === 'attendance' ? 'active' : ''}`}
                         onClick={() => { setActiveTab('attendance'); fetchAttendance(); }}
-                        style={{
-                            padding: '16px 24px',
-                            background: 'none',
-                            border: 'none',
-                            color: activeTab === 'attendance' ? 'var(--accent-primary)' : 'var(--text-muted)',
-                            borderBottom: activeTab === 'attendance' ? '2px solid var(--accent-primary)' : 'none',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                        }}
                     >
                         DAILY ATTENDANCE
                     </button>
                     {activeTab === 'attendance' && (
-                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px' }}>
-                            <input type="date" value={attendanceDate} onChange={e => { setAttendanceDate(e.target.value); setTimeout(fetchAttendance, 100); }} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)' }} />
-                            <button className="btn btn-primary" onClick={handleBulkAttendanceSave} style={{ fontSize: '0.8rem' }}>
-                                <CheckCircle2 size={16} style={{ marginRight: '6px' }} /> SAVE REGISTER
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', alignSelf: 'center' }}>
+                            <input type="date" value={attendanceDate} onChange={e => { setAttendanceDate(e.target.value); setTimeout(fetchAttendance, 100); }} style={{ padding: '6px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }} />
+                            <button className="btn btn-primary" onClick={handleBulkAttendanceSave} style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
+                                <CheckCircle2 size={14} style={{ marginRight: '6px' }} /> SAVE REGISTER
                             </button>
                         </div>
                     )}
@@ -165,7 +141,7 @@ const HR = () => {
                                                 </div>
                                             </td>
                                             <td>
-                                                <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.7rem' }} onClick={() => setModal({ type: 'payroll', metadata: e })}>
+                                                <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.7rem' }} onClick={() => setModal({ type: 'payroll', metadata: e })}>
                                                     <Wallet size={14} style={{ marginRight: '6px' }} /> PROCESS PAY
                                                 </button>
                                             </td>

@@ -15,7 +15,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
 
     return (
         <header className="header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                 <button
                     className="mobile-toggle"
                     onClick={() => setSidebarOpen(true)}
@@ -28,11 +28,13 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         display: 'none' // Controlled by CSS media query
                     }}
                 >
-                    <Menu size={20} />
+                    <Menu size={24} />
                 </button>
-                <div className="header-title" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.1em', fontWeight: 600 }}>
-                    {user?.activeTenant?.name ? `${user.activeTenant.name.toUpperCase()} // ` : 'OPERATIONAL CORE // '}
-                    <span style={{ color: 'var(--text-primary)' }}>{getPageTitle()}</span>
+                <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', lineHeight: 1.2 }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>{getPageTitle()}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                        {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'OPERATIONAL CORE'}
+                    </span>
                 </div>
             </div>
             <div className="header-actions">
@@ -44,8 +46,8 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     if (path === '/hr') scope = 'hr';
                     if (path === '/accounts' || path === '/financials') scope = 'finance';
                     refreshData(scope);
-                }} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
-                    <RefreshCw size={12} /> <span className="btn-text">Synchronize Matrix</span>
+                }}>
+                    <RefreshCw size={14} /> <span className="btn-text">SYNC</span>
                 </button>
                 {showNewButton && (
                     <button className="btn btn-primary" onClick={() => {
@@ -55,8 +57,8 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         if (path === '/hr') type = 'employees';
                         if (path === '/purchases') type = 'orders';
                         setModal({ type });
-                    }} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
-                        <Plus size={14} /> <span className="btn-text">New Artifact</span>
+                    }}>
+                        <Plus size={16} /> <span className="btn-text">NEW ENTRY</span>
                     </button>
                 )}
             </div>

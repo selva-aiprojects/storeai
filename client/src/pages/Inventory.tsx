@@ -54,15 +54,15 @@ const Inventory = () => {
                                 </span>
                             </td>
                             <td>
-                                <div style={{ display: 'flex', gap: '5px' }}>
-                                    <button className="btn btn-secondary" style={{ padding: '6px' }} title="Pricing Rules" onClick={() => setModal({ type: 'pricing_rule', metadata: p })}>
-                                        Rules
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.7rem' }} title="Pricing Rules" onClick={() => setModal({ type: 'pricing_rule', metadata: p })}>
+                                        RULES
                                     </button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px' }} title="View Batches" onClick={() => setModal({ type: 'view_batches', metadata: p })}>
-                                        Batches
+                                    <button className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: '0.7rem' }} title="View Batches" onClick={() => setModal({ type: 'view_batches', metadata: p })}>
+                                        BATCHES
                                     </button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px', color: 'var(--accent-danger)' }} onClick={() => handleDelete(p.id)}>
-                                        <Trash2 size={12} />
+                                    <button className="btn btn-secondary" style={{ padding: '6px 10px', color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }} onClick={() => handleDelete(p.id)}>
+                                        <Trash2 size={14} />
                                     </button>
                                 </div>
                             </td>
