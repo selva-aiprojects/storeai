@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, AlertTriangle } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, CartesianGrid, XAxis, YAxis, Bar } from 'recharts';
 import api from '../services/api';
 
@@ -8,9 +8,11 @@ const Reports = () => {
     const { data } = useOutletContext<any>() as any;
     const { reports, sales } = data || {};
     const [predictions, setPredictions] = useState<any[]>([]);
+    const [batchRisks, setBatchRisks] = useState<any[]>([]);
 
     useEffect(() => {
         api.get('/reports/prediction').then(res => setPredictions(res.data)).catch(console.error);
+        api.get('/reports/batch-integrity').then(res => setBatchRisks(res.data)).catch(console.error);
     }, []);
 
     const COLORS = ['#818cf8', '#22d3ee', '#fbbf24', '#f43f5e', '#8b5cf6'];
@@ -20,6 +22,33 @@ const Reports = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="card" style={{ borderLeft: '4px solid var(--accent-danger)', padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                    <div style={{ padding: '8px', background: 'rgba(244, 63, 94, 0.1)', borderRadius: '8px' }}><AlertTriangle size={20} color="#f43f5e" /></div>
+                    <div className="card-header" style={{ marginBottom: 0 }}>BATCH INTEGRITY & EXPIRY RISK REPORT</div>
+                </div>
+                <div className="table-container">
+                    <table>
+                        <thead><tr><th>PRODUCT</th><th>BATCH #</th><th>AVAIL QTY</th><th>EXPIRY DATE</th><th>RISK STATUS</th></tr></thead>
+                        <tbody>
+                            {batchRisks.length > 0 ? batchRisks.map((b: any, idx: number) => (
+                                <tr key={idx}>
+                                    <td><b>{b.product_name}</b></td>
+                                    <td><code style={{ color: 'var(--accent-secondary)' }}>{b.batchNumber}</code></td>
+                                    <td>{b.quantityAvailable} {b.unit}</td>
+                                    <td>{b.expiryDate ? new Date(b.expiryDate).toLocaleDateString() : 'N/A'}</td>
+                                    <td>
+                                        <span className={`badge ${b.risk_status === 'EXPIRED' ? 'badge-danger' : (b.risk_status === 'RISK (30D)' ? 'badge-warning' : 'badge-success')}`}>
+                                            {b.risk_status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            )) : <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5, padding: '20px' }}>No batch risks identified. System stable.</td></tr>}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                     <div style={{ padding: '8px', background: 'rgba(129, 140, 248, 0.1)', borderRadius: '8px' }}><TrendingUp size={20} color="#818cf8" /></div>

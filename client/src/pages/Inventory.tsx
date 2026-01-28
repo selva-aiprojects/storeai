@@ -5,15 +5,15 @@ const Inventory = () => {
     const { data, setModal, refreshData } = useOutletContext<any>() as any; // Cast to bypass strict type for now
     const { products } = data || {};
 
-    const handleDelete = (id: string) => {
-        // Mock delete handled via App.tsx logic usually, but here need to reimplement or pass function
-        // For now, I'll log or alert, better to lift handle delete to Context or recreate logic here
-        // Recreating logic requires 'api' import. I will use a simple placeholder alert.
-        if (window.confirm('Delete item?')) {
-            // To implement properly, need api service. 
-            // Best practice: The context should provide 'actions' object. 
-            // Current refactor step: focus on View structure.
-            alert('Delete function pending context refactor.');
+    const handleDelete = async (id: string) => {
+        if (window.confirm('Are you sure you want to decommission this artifact? This action is immutable in the audit logs.')) {
+            try {
+                const { deleteProduct } = await import('../services/api');
+                await deleteProduct(id);
+                refreshData('essential');
+            } catch (e: any) {
+                alert("Decommissioning Error: " + (e.response?.data?.error || e.message));
+            }
         }
     };
 
@@ -23,11 +23,12 @@ const Inventory = () => {
                 <thead>
                     <tr>
                         <th>ARTIFACT</th>
-                        <th>VELOCITY</th>
-                        <th>STOCK</th>
+                        <th>CATEGORY</th>
+                        <th>PRICING & TAX</th>
+                        <th>COST & LOGISTICS</th>
+                        <th>STOCK (UOM)</th>
                         <th>STATUS</th>
-                        <th>STRATEGY</th>
-                        <th>CRUD</th>
+                        <th>ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,24 +36,35 @@ const Inventory = () => {
                         <tr key={p.id}>
                             <td>
                                 <b>{p.name}</b>
-                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{p.sku}</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>SKU: {p.sku}</div>
                             </td>
-                            <td>{p.avgDailySales || 0} / Day</td>
-                            <td>{p.stockQuantity}</td>
+                            <td><span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>{p.category?.name || 'Uncategorized'}</span></td>
                             <td>
-                                <span className={`badge ${p.stockQuantity <= p.reorderPoint ? 'badge-danger' : 'badge-success'}`}>
-                                    {p.stockQuantity <= p.reorderPoint ? 'REORDER' : 'OK'}
+                                <div><b>${p.price?.toFixed(2)}</b></div>
+                                <div style={{ fontSize: '0.65rem', opacity: 0.6 }}>GST: {p.gstRate}% | Other: {p.otherTaxRate}%</div>
+                            </td>
+                            <td>
+                                <div><b>${p.costPrice?.toFixed(2)}</b></div>
+                                <div style={{ fontSize: '0.65rem', opacity: 0.6 }}>Transport: ${p.transportationCost?.toFixed(2)}</div>
+                            </td>
+                            <td><b>{p.stockQuantity}</b> <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{p.unit}</span></td>
+                            <td>
+                                <span className={`badge ${p.stockQuantity <= (p.lowStockThreshold || 10) ? 'badge-danger' : 'badge-success'}`}>
+                                    {p.stockQuantity <= (p.lowStockThreshold || 10) ? 'REORDER' : 'OPTIMAL'}
                                 </span>
                             </td>
                             <td>
-                                <button className="btn btn-secondary" style={{ fontSize: '0.7rem' }} onClick={() => setModal({ type: 'pricing_rule', metadata: p })}>
-                                    Configure Rules
-                                </button>
-                            </td>
-                            <td>
-                                <button className="btn btn-secondary" style={{ padding: '5px', color: 'var(--accent-danger)' }} onClick={() => handleDelete(p.id)}>
-                                    <Trash2 size={14} />
-                                </button>
+                                <div style={{ display: 'flex', gap: '5px' }}>
+                                    <button className="btn btn-secondary" style={{ padding: '6px' }} title="Pricing Rules" onClick={() => setModal({ type: 'pricing_rule', metadata: p })}>
+                                        Rules
+                                    </button>
+                                    <button className="btn btn-secondary" style={{ padding: '6px' }} title="View Batches" onClick={() => setModal({ type: 'view_batches', metadata: p })}>
+                                        Batches
+                                    </button>
+                                    <button className="btn btn-secondary" style={{ padding: '6px', color: 'var(--accent-danger)' }} onClick={() => handleDelete(p.id)}>
+                                        <Trash2 size={12} />
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}

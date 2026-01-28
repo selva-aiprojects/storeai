@@ -7,11 +7,11 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/me', getMyTenant);
-router.get('/all', getAllTenants);
-router.get('/plans', getPlans);
-router.put('/manage/:id', adminUpdateTenant);
-router.put('/branding', updateTenantBranding);
-router.put('/features', updateTenantFeatures);
-router.post('/', createTenant);
+router.get('/all', checkPermission('tenants:manage'), getAllTenants);
+router.get('/plans', checkPermission('tenants:manage'), getPlans);
+router.put('/manage/:id', checkPermission('tenants:manage'), adminUpdateTenant);
+router.put('/branding', checkPermission('tenants:manage'), updateTenantBranding);
+router.put('/features', checkPermission('tenants:manage'), updateTenantFeatures);
+router.post('/', checkPermission('tenants:manage'), createTenant);
 
 export default router;

@@ -5,7 +5,7 @@ import { AuthRequest } from '../middleware/authMiddleware';
 export const createEmployee = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;
-        const { employeeId, designation, joiningDate, salary, departmentId, userId, incentivePercentage, firstName, lastName } = req.body;
+        const { employeeId, designation, joiningDate, salary, departmentId, userId, incentivePercentage, firstName, lastName, pan, bankAccountNo } = req.body;
 
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
@@ -35,7 +35,9 @@ export const createEmployee = async (req: AuthRequest, res: Response) => {
                 salary: Number(salary),
                 incentivePercentage: Number(incentivePercentage || 0),
                 departmentId,
-                userId: userId || null
+                userId: userId || null,
+                pan: pan || null,
+                bankAccountNo: bankAccountNo || null
             }
         });
         res.status(201).json(employee);
@@ -144,5 +146,26 @@ export const deleteEmployee = async (req: AuthRequest, res: Response) => {
         res.status(204).send();
     } catch (error) {
         res.status(400).json({ error: 'Failed to delete employee' });
+    }
+};
+
+/**
+ * HR Service Integration
+ */
+import { HRService } from '../services/hr.service';
+
+export const generatePayroll = async (req: AuthRequest, res: Response) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
+        const { employeeId, monthStr } = req.body;
+        // monthStr: YYYY-MM
+
+        const result = await HRService.generatePayrollForEmployee(employeeId, monthStr);
+        res.status(201).json(result);
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).json({ error: error.message || 'Payroll generation failed' });
     }
 };

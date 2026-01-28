@@ -1,5 +1,6 @@
-import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers, X } from 'lucide-react';
+import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers, X, BarChart3 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { memo } from 'react';
 
 const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     const navigate = useNavigate();
@@ -12,29 +13,38 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     };
 
     const menuItems: any[] = [
-        { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-        { divider: 'Inventory' },
-        { path: '/inventory', label: 'Inventory', icon: Package, feature: 'INVENTORY_MODULE' },
-        { path: '/sales', label: 'Sales', icon: CreditCard, feature: 'RETAIL_MODULE' },
-        { path: '/purchases', label: 'Purchases', icon: Truck, feature: 'PROCUREMENT_MODULE' },
+        { path: '/', label: 'Dashboard', icon: LayoutDashboard, permission: 'dashboard:view' },
+        { divider: 'Inventory & Catalog' },
+        { path: '/products', label: 'Product Catalog', icon: Layers, feature: 'RETAIL_MODULE', permission: 'inventory:read' },
+        { path: '/inventory', label: 'Stock Master', icon: Package, feature: 'INVENTORY_MODULE', permission: 'inventory:read' },
+        { divider: 'Trade & Logistics' },
+        { path: '/sales', label: 'Sales [POS]', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
+        { path: '/purchases', label: 'Procurement Hub', icon: Truck, feature: 'PROCUREMENT_MODULE', permission: 'orders:read' },
         { divider: 'Organization' },
-        { path: '/partners', label: 'Partners', icon: Building2, feature: 'PARTNER_MODULE' },
-        { path: '/customers', label: 'Customers', icon: Home, feature: 'CRM_MODULE' },
-        { path: '/hr', label: 'HR & Payroll', icon: Users, feature: 'HR_MODULE' },
+        { path: '/partners', label: 'Partners', icon: Building2, feature: 'PARTNER_MODULE', permission: 'crm:read' },
+        { path: '/customers', label: 'Customers', icon: Home, feature: 'CRM_MODULE', permission: 'crm:read' },
+        { path: '/hr', label: 'HR & Payroll', icon: Users, feature: 'HR_MODULE', permission: 'hr:read' },
         { divider: 'Finance & Intel' },
-        { path: '/accounts', label: 'Accounts', icon: Wallet, feature: 'FINANCE_MODULE' },
-        { path: '/reports', label: 'Reports', icon: TrendingUp, feature: 'REPORT_MODULE' },
+        { path: '/accounts', label: 'Billing & Accounts', icon: Wallet, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
+        { path: '/financials', label: 'Financial Performance', icon: BarChart3, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
+        { path: '/reports', label: 'Reports', icon: TrendingUp, feature: 'REPORT_MODULE', permission: 'reports:view' },
     ];
 
     if (user?.role === 'SUPER_ADMIN') {
-        menuItems.push({ path: '/settings', label: 'Settings', icon: Settings });
+        menuItems.push({ path: '/settings', label: 'Settings', icon: Settings, permission: 'tenants:manage' });
     }
 
-    // Filter menu items based on features
+    // Filter menu items based on features and permissions
     const filteredMenuItems = menuItems.filter(item => {
         if (item.divider) return true;
-        if (!item.feature) return true;
-        return user?.features?.[item.feature] !== false; // Enable by default if not explicitly false
+
+        // 1. Check Feature Flag
+        if (item.feature && user?.features?.[item.feature] === false) return false;
+
+        // 2. Check Permission
+        if (item.permission && !user?.permissions?.includes(item.permission)) return false;
+
+        return true;
     });
 
     return (
@@ -118,4 +128,4 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     );
 };
 
-export default Sidebar;
+export default memo(Sidebar);

@@ -36,11 +36,26 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </div>
             </div>
             <div className="header-actions">
-                <button className="btn btn-secondary" onClick={refreshData} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
+                <button className="btn btn-secondary" onClick={() => {
+                    const path = location.pathname;
+                    let scope = 'essential';
+                    if (path === '/sales' || path === '/customers') scope = 'sales';
+                    if (path === '/inventory' || path === '/purchases') scope = 'purchases';
+                    if (path === '/hr') scope = 'hr';
+                    if (path === '/accounts' || path === '/financials') scope = 'finance';
+                    refreshData(scope);
+                }} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
                     <RefreshCw size={12} /> <span className="btn-text">Synchronize Matrix</span>
                 </button>
                 {showNewButton && (
-                    <button className="btn btn-primary" onClick={() => setModal({ type: location.pathname.substring(1) })} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
+                    <button className="btn btn-primary" onClick={() => {
+                        const path = location.pathname;
+                        let type = path.substring(1);
+                        if (path === '/accounts' || path === '/financials') type = 'payment';
+                        if (path === '/hr') type = 'employees';
+                        if (path === '/purchases') type = 'orders';
+                        setModal({ type });
+                    }} style={{ fontSize: '0.7rem', padding: '8px 16px' }}>
                         <Plus size={14} /> <span className="btn-text">New Artifact</span>
                     </button>
                 )}

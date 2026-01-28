@@ -33,7 +33,12 @@ model Tenant {
   suppliers     Supplier[]
   plan          Plan?               @relation(fields: [planId], references: [id])
   users         UserTenant[]
-  warehouses    Warehouse[]
+  warehouses          Warehouse[]
+  purchaseRequisitions PurchaseRequisition[]
+  purchaseQuotations   PurchaseQuotation[]
+  supplierAgreements   SupplierAgreement[]
+  stockLedgers         StockLedger[]
+  salesRegisters       SalesRegister[]
 }
 
 model Plan {
@@ -106,37 +111,50 @@ model Category {
 }
 
 model Product {
-  id                String                  @id @default(uuid())
-  sku               String
-  name              String
-  description       String?
-  price             Float
-  costPrice         Float
-  stockQuantity     Int                     @default(0)
-  unit              String                  @default("pcs")
-  isBatchTracked    Boolean                 @default(false)
-  lowStockThreshold Int                     @default(10)
-  reorderPoint      Int                     @default(10)
-  reorderQuantity   Int                     @default(50)
-  leadTimeDays      Int                     @default(7)
-  avgDailySales     Float                   @default(0.0)
-  categoryId        String
-  tenantId          String
-  isDeleted         Boolean                 @default(false)
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
-  dealItems         DealItem[]
-  receiptItems      GoodsReceiptItem[]
-  inventoryItems    InventoryDocumentItem[]
-  orderItems        OrderItem[]
-  pricingRules      PricingRule[]
-  category          Category                @relation(fields: [categoryId], references: [id])
-  tenant            Tenant                  @relation(fields: [tenantId], references: [id])
-  saleItems         SaleItem[]
-  salesOrderItems   SalesOrderItem[]
-  stocks            Stock[]
+  id                 String                  @id @default(uuid())
+  sku                String                  // Product Code (Part Number)
+  name               String
+  description        String?
+  brand              String?
+  image              String?                 // Product Visual URL/Base64
+  price              Float                   // Selling Price
+  costPrice          Float                   // Standard Cost
+  transportationCost Float                   @default(0.0)
+  gstRate            Float                   @default(0.0) // Percentage
+  otherTaxRate       Float                   @default(0.0) // Percentage
+  stockQuantity      Int                     @default(0)
+  unit               String                  @default("pcs") // UOM
+  isBatchTracked     Boolean                 @default(false)
+  lowStockThreshold  Int                     @default(10)
+  reorderPoint       Int                     @default(10)
+  reorderQuantity    Int                     @default(50)
+  leadTimeDays       Int                     @default(7)
+  avgDailySales      Float                   @default(0.0)
+  categoryId         String
+  tenantId           String
+  isDeleted          Boolean                 @default(false)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  dealItems          DealItem[]
+  receiptItems       GoodsReceiptItem[]
+  inventoryItems     InventoryDocumentItem[]
+  orderItems         OrderItem[]
+  pricingRules       PricingRule[]
+  category           Category                @relation(fields: [categoryId], references: [id])
+  tenant             Tenant                  @relation(fields: [tenantId], references: [id])
+  saleItems          SaleItem[]
+  salesOrderItems    SalesOrderItem[]
+  batches            ProductBatch[]
+  stocks             Stock[]
+  supplierAgreements SupplierAgreement[]
+  requisitionItems   PurchaseRequisitionItem[]
+  stockLedgers       StockLedger[]
+  salesRegisters     SalesRegister[]
 
   @@unique([tenantId, sku])
+  @@index([tenantId])
+  @@index([categoryId])
+  @@index([isDeleted])
 }
 
 model Warehouse {
@@ -169,52 +187,131 @@ model Stock {
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
 
   @@unique([warehouseId, productId, batchNumber])
+  @@index([productId])
+  @@index([warehouseId])
+}
+
+model ProductBatch {
+  id                String      @id @default(uuid())
+  batchNumber       String
+  slotNumber        String?
+  productId         String
+  inwardDate        DateTime    @default(now())
+  expiryDate        DateTime?
+  poId              String?
+  quantityReceived  Int
+  quantityAvailable Int
+  warehouseLocation String?
+  costPrice         Float
+  status            String      @default("ACTIVE")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  product           Product     @relation(fields: [productId], references: [id])
+  ledgerEntries     StockLedger[]
+  salesRegisters    SalesRegister[]
+  saleItems         SaleItem[]
+
+  @@unique([productId, batchNumber])
+  @@index([productId])
+}
+
+model StockLedger {
+  id              String      @id @default(uuid())
+  productId       String
+  batchId         String?
+  transactionType String      // INWARD, SALE, ADJUSTMENT, RETURN
+  referenceType   String      // PO, SALES_INVOICE, STOCK_ADJUSTMENT
+  referenceId     String?
+  quantityIn      Int         @default(0)
+  quantityOut     Int         @default(0)
+  balanceQuantity Int
+  transactionDate DateTime    @default(now())
+  remarks         String?
+  createdBy       String?
+  tenantId        String
+  product         Product     @relation(fields: [productId], references: [id])
+  batch           ProductBatch? @relation(fields: [batchId], references: [id])
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+
+  @@index([productId])
+  @@index([transactionDate])
+  @@index([tenantId])
+}
+
+model SalesRegister {
+  id                   String       @id @default(uuid())
+  invoiceId            String
+  productId            String
+  batchId              String?
+  quantitySold         Int
+  stockBefore          Int
+  stockAfter           Int
+  transactionTimestamp DateTime     @default(now())
+  tenantId             String
+  product              Product      @relation(fields: [productId], references: [id])
+  batch                ProductBatch? @relation(fields: [batchId], references: [id])
+  sale                 Sale         @relation(fields: [invoiceId], references: [id])
+  tenant               Tenant       @relation(fields: [tenantId], references: [id])
+
+  @@index([invoiceId])
+  @@index([productId])
+  @@index([tenantId])
 }
 
 model Supplier {
-  id           String   @id @default(uuid())
-  name         String
-  contact      String?
-  email        String
-  address      String?
-  status       String   @default("ACTIVE")
-  rating       Float    @default(5.0)
-  paymentTerms String?
-  taxId        String?
-  tenantId     String
-  isDeleted    Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  orders       Order[]
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  id                String              @id @default(uuid())
+  name              String
+  contact           String?
+  email             String
+  address           String?
+  status            String              @default("ACTIVE")
+  rating            Float               @default(5.0)
+  reliabilityScore  Float               @default(5.0)
+  paymentTerms      String?
+  taxId             String?
+  gstNumber         String?
+  tenantId          String
+  isDeleted         Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  orders            Order[]
+  quotations        PurchaseQuotation[]
+  pricingAgreements SupplierAgreement[]
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, email])
 }
 
 model Order {
-  id                   String         @id @default(uuid())
+  id                   String             @id @default(uuid())
   orderNumber          String
-  status               String         @default("DRAFT")
-  approvalStatus       String         @default("PENDING")
+  status               String             @default("DRAFT")
+  approvalStatus       String             @default("PENDING")
   approvedById         String?
   totalAmount          Float
-  taxAmount            Float          @default(0.0)
+  taxAmount            Float              @default(0.0)
   trackingNumber       String?
   shippingCarrier      String?
   shippedAt            DateTime?
   expectedDeliveryDate DateTime?
   supplierId           String
   tenantId             String
-  isDeleted            Boolean        @default(false)
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  quotationId          String?
+  isDeleted            Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
   goodsReceipts        GoodsReceipt[]
-  approvedBy           User?          @relation("OrderApprover", fields: [approvedById], references: [id])
-  supplier             Supplier       @relation(fields: [supplierId], references: [id])
-  tenant               Tenant         @relation(fields: [tenantId], references: [id])
+  approvedBy           User?              @relation("OrderApprover", fields: [approvedById], references: [id])
+  supplier             Supplier           @relation(fields: [supplierId], references: [id])
+  tenant               Tenant             @relation(fields: [tenantId], references: [id])
+  purchaseQuotation    PurchaseQuotation? @relation(fields: [quotationId], references: [id])
   items                OrderItem[]
 
   @@unique([tenantId, orderNumber])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([status])
+  @@index([tenantId, createdAt])
 }
 
 model OrderItem {
@@ -226,6 +323,9 @@ model OrderItem {
   productId        String
   order            Order   @relation(fields: [orderId], references: [id])
   product          Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model GoodsReceipt {
@@ -233,13 +333,16 @@ model GoodsReceipt {
   grnNumber    String
   orderId      String
   warehouseId  String
-  receivedDate DateTime           @default(now())
+  receivedById String?
   notes        String?
-  order        Order              @relation(fields: [orderId], references: [id])
-  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id])
+  receivedBy   Employee?    @relation("ReceivedByEmployee", fields: [receivedById], references: [id])
+  order        Order        @relation(fields: [orderId], references: [id])
+  warehouse    Warehouse    @relation(fields: [warehouseId], references: [id])
   items        GoodsReceiptItem[]
 
   @@unique([orderId, grnNumber])
+  @@index([orderId])
+  @@index([warehouseId])
 }
 
 model GoodsReceiptItem {
@@ -251,6 +354,9 @@ model GoodsReceiptItem {
   productId      String
   goodsReceipt   GoodsReceipt @relation(fields: [goodsReceiptId], references: [id])
   product        Product      @relation(fields: [productId], references: [id])
+
+  @@index([goodsReceiptId])
+  @@index([productId])
 }
 
 model InventoryDocument {
@@ -278,6 +384,9 @@ model InventoryDocumentItem {
   productId  String
   document   InventoryDocument @relation(fields: [documentId], references: [id])
   product    Product           @relation(fields: [productId], references: [id])
+
+  @@index([documentId])
+  @@index([productId])
 }
 
 model Deal {
@@ -308,6 +417,8 @@ model Activity {
   dealId    String
   createdAt DateTime @default(now())
   deal      Deal     @relation(fields: [dealId], references: [id])
+
+  @@index([dealId])
 }
 
 model DealItem {
@@ -318,6 +429,9 @@ model DealItem {
   productId String
   deal      Deal    @relation(fields: [dealId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
+
+  @@index([dealId])
+  @@index([productId])
 }
 
 model SalesOrder {
@@ -355,6 +469,7 @@ model Customer {
   address     String?
   city        String?
   zipCode     String?
+  gstNumber   String?
   tenantId    String
   isDeleted   Boolean      @default(false)
   createdAt   DateTime     @default(now())
@@ -363,6 +478,9 @@ model Customer {
   deals       Deal[]
   sales       Sale[]
   salesOrders SalesOrder[]
+
+  @@index([tenantId])
+  @@index([isDeleted])
 }
 
 model Sale {
@@ -370,7 +488,11 @@ model Sale {
   invoiceNo         String
   totalAmount       Float
   taxAmount         Float
+  cgstAmount        Float      @default(0.0)
+  sgstAmount        Float      @default(0.0)
+  igstAmount        Float      @default(0.0)
   discountAmount    Float      @default(0.0)
+  roundOff          Float      @default(0.0)
   isHomeDelivery    Boolean    @default(false)
   deliveryAddress   String?
   deliveryCity      String?
@@ -381,26 +503,43 @@ model Sale {
   shippingCarrier   String?
   shippedAt         DateTime?
   customerId        String?
+  salesmanId        String?
   tenantId          String
   isDeleted         Boolean    @default(false)
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   payment           Payment?
   customer          Customer?  @relation(fields: [customerId], references: [id])
+  salesman          Employee?  @relation(fields: [salesmanId], references: [id])
   tenant            Tenant     @relation(fields: [tenantId], references: [id])
   items             SaleItem[]
+  salesRegisters    SalesRegister[]
 
   @@unique([tenantId, invoiceNo])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([isDeleted])
+  @@index([tenantId, createdAt])
 }
+
 
 model SaleItem {
   id        String  @id @default(uuid())
   quantity  Int
   unitPrice Float
+  taxAmount Float   @default(0.0)
+  cgst      Float   @default(0.0)
+  sgst      Float   @default(0.0)
+  igst      Float   @default(0.0)
   saleId    String
   productId String
   product   Product @relation(fields: [productId], references: [id])
   sale      Sale    @relation(fields: [saleId], references: [id])
+  batchId   String?
+  batch     ProductBatch? @relation(fields: [batchId], references: [id])
+
+  @@index([saleId])
+  @@index([productId])
 }
 
 model Payment {
@@ -414,6 +553,9 @@ model Payment {
   createdAt     DateTime @default(now())
   sale          Sale?    @relation(fields: [saleId], references: [id])
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([saleId])
+  @@index([tenantId])
 }
 
 model Ledger {
@@ -426,6 +568,11 @@ model Ledger {
   tenantId    String
   createdAt   DateTime @default(now())
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([type])
+  @@index([tenantId, createdAt])
 }
 
 model Department {
@@ -442,24 +589,32 @@ model Department {
 }
 
 model Employee {
-  id                  String       @id @default(uuid())
-  userId              String?      @unique
-  employeeId          String       @unique
+  id                  String                @id @default(uuid())
+  userId              String?               @unique
+  employeeId          String                @unique
   firstName           String
   lastName            String
   designation         String
   joiningDate         DateTime
+  status              String                @default("ACTIVE")
+  pan                 String?
+  bankAccountNo       String?
   salary              Float
   performanceRating   Int?
-  incentivePercentage Float        @default(0.0)
+  incentivePercentage Float                 @default(0.0)
   departmentId        String
-  isDeleted           Boolean      @default(false)
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  isDeleted           Boolean               @default(false)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
   attendances         Attendance[]
-  department          Department   @relation(fields: [departmentId], references: [id])
-  user                User?        @relation(fields: [userId], references: [id])
+  department          Department            @relation(fields: [departmentId], references: [id])
+  user                User?                 @relation(fields: [userId], references: [id])
   payrolls            Payroll[]
+  salaryStructure     SalaryStructure?
+  requisitions        PurchaseRequisition[]
+  sales               Sale[]
+  leaves              Leave[]
+  goodsReceipts       GoodsReceipt[]      @relation("ReceivedByEmployee")
 }
 
 model PricingRule {
@@ -482,6 +637,8 @@ model Attendance {
   checkIn       DateTime?
   checkOut      DateTime?
   overtimeHours Float     @default(0.0)
+  lateMinutes   Int       @default(0)
+  isLop         Boolean   @default(false)
   employeeId    String
   employee      Employee  @relation(fields: [employeeId], references: [id])
 }
@@ -489,6 +646,13 @@ model Attendance {
 model Payroll {
   id             String   @id @default(uuid())
   amount         Float
+  basicSalary    Float    @default(0.0)
+  hra            Float    @default(0.0)
+  allowances     Float    @default(0.0)
+  grossSalary    Float    @default(0.0)
+  deductions     Float    @default(0.0)
+  netSalary      Float    @default(0.0)
+  taxAmount      Float    @default(0.0)
   incentive      Float    @default(0.0)
   overtimeAmount Float    @default(0.0)
   totalPayout    Float
@@ -499,4 +663,92 @@ model Payroll {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   employee       Employee @relation(fields: [employeeId], references: [id])
+}
+
+model PurchaseRequisition {
+  id             String                    @id @default(uuid())
+  requisitionNo  String                    @unique
+  requestDate    DateTime                  @default(now())
+  status         String                    @default("PENDING") // PENDING, APPROVED, REJECTED, ORDERED
+  priority       String                    @default("MEDIUM")
+  requestedById  String
+  tenantId       String
+  notes          String?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  requestedBy    Employee                  @relation(fields: [requestedById], references: [id])
+  tenant         Tenant                    @relation(fields: [tenantId], references: [id])
+  items          PurchaseRequisitionItem[]
+  quotations     PurchaseQuotation[]
+}
+
+model PurchaseRequisitionItem {
+  id            String              @id @default(uuid())
+  requisitionId String
+  productId     String
+  quantity      Int
+  requisition   PurchaseRequisition @relation(fields: [requisitionId], references: [id])
+  product       Product             @relation(fields: [productId], references: [id])
+}
+
+model PurchaseQuotation {
+  id            String              @id @default(uuid())
+  quotationNo   String
+  supplierId    String
+  requisitionId String?
+  totalAmount   Float
+  validUntil    DateTime?
+  status        String              @default("RECEIVED") // RECEIVED, ACCEPTED, REJECTED
+  tenantId      String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  items         Json?               // Store items snapshot or create a separate table if needed
+  supplier      Supplier            @relation(fields: [supplierId], references: [id])
+  requisition   PurchaseRequisition? @relation(fields: [requisitionId], references: [id])
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  orders        Order[]
+}
+
+model SupplierAgreement {
+  id          String   @id @default(uuid())
+  supplierId  String
+  productId   String
+  agreedPrice Float
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  tenantId    String
+  createdAt   DateTime @default(now())
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model SalaryStructure {
+  id            String   @id @default(uuid())
+  employeeId    String   @unique
+  basic         Float
+  hra           Float    @default(0.0)
+  da            Float    @default(0.0)
+  medical       Float    @default(0.0)
+  transport     Float    @default(0.0)
+  special       Float    @default(0.0)
+  providentFund Float    @default(0.0)
+  professionalTax Float  @default(0.0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  employee      Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Leave {
+  id          String   @id @default(uuid())
+  type        String   // SICK, CASUAL, EARNED
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?
+  status      String   @default("PENDING")
+  employeeId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  employee    Employee @relation(fields: [employeeId], references: [id])
 }

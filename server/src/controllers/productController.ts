@@ -29,24 +29,52 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
         const tenantId = req.user?.tenantId;
         const {
             sku, name, description, price, costPrice, stockQuantity,
-            categoryId, unit, lowStockThreshold, leadTimeDays, avgDailySales
+            categoryId, unit, lowStockThreshold, leadTimeDays, avgDailySales,
+            transportationCost, gstRate, otherTaxRate
         } = req.body;
 
-        const product = await prisma.product.create({
-            data: {
-                sku, name, description, price, costPrice,
-                stockQuantity: Number(stockQuantity || 0),
-                categoryId, unit,
-                tenantId: tenantId!,
-                lowStockThreshold: Number(lowStockThreshold || 10),
-                leadTimeDays: Number(leadTimeDays || 7),
-                avgDailySales: Number(avgDailySales || 0)
+        const result = await prisma.$transaction(async (tx) => {
+            // 1. Create Product
+            const product = await tx.product.create({
+                data: {
+                    sku, name, description,
+                    price: Number(price),
+                    costPrice: Number(costPrice),
+                    stockQuantity: Number(stockQuantity || 0),
+                    categoryId, unit,
+                    tenantId: tenantId!,
+                    lowStockThreshold: Number(lowStockThreshold || 10),
+                    leadTimeDays: Number(leadTimeDays || 7),
+                    avgDailySales: Number(avgDailySales || 0),
+                    transportationCost: Number(transportationCost || 0),
+                    gstRate: Number(gstRate || 0),
+                    otherTaxRate: Number(otherTaxRate || 0)
+                }
+            });
+
+            // 2. Normalize Stock: Add to Default Warehouse
+            const warehouse = await tx.warehouse.findFirst({
+                where: { tenantId, isDefault: true }
+            });
+
+            if (warehouse) {
+                await tx.stock.create({
+                    data: {
+                        productId: product.id,
+                        warehouseId: warehouse.id,
+                        quantity: Number(stockQuantity || 0),
+                        batchNumber: 'GENERAL'
+                    }
+                });
             }
+
+            return product;
         });
-        res.status(201).json(product);
+
+        res.status(201).json(result);
     } catch (error) {
         console.error("Create Product Error:", error);
-        res.status(400).json({ error: 'Failed to create product' });
+        res.status(400).json({ error: (error as Error).message || 'Failed to create product' });
     }
 };
 

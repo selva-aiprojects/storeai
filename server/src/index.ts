@@ -17,6 +17,7 @@ import reportRoutes from './routes/reportRoutes';
 import inventoryRoutes from './routes/inventoryRoutes';
 import crmRoutes from './routes/crmRoutes';
 import tenantRoutes from './routes/tenantRoutes';
+import requisitionRoutes from './routes/requisitionRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 
@@ -28,8 +29,12 @@ const maskedDbUrl = dbUrl.replace(/:([^:@]+)@/, ':****@');
 console.log('DATABASE_URL (Masked):', maskedDbUrl);
 console.log('--------------------------------');
 
+import compression from 'compression';
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(compression());
 
 app.use(cors({
     origin: [
@@ -68,6 +73,7 @@ app.use('/api/v1/reports', authenticate, reportRoutes);
 app.use('/api/v1/inventory', authenticate, inventoryRoutes);
 app.use('/api/v1/crm', authenticate, crmRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
+app.use('/api/v1/requisitions', requisitionRoutes);
 app.get('/api/v1/dashboard/stats', authenticate, getDashboardStats);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));

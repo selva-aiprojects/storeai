@@ -20,33 +20,53 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
         // Note: Even with PG, this logic remains simple and robust
         const lowStockCount = products.filter(p => p.stockQuantity <= p.lowStockThreshold).length;
 
-        // 2. Chart Data: Monthly Revenue (Last 6 months)
-        const chartData = [];
-        for (let i = 5; i >= 0; i--) {
+        // 2. Chart Data: Monthly Revenue (Last 6 months) - OPTIMIZED: Bulk fetch and manual aggregation
+        const sixMonthsAgo = startOfMonth(subMonths(new Date(), 5));
+        const salesData = await prisma.sale.findMany({
+            where: {
+                tenantId,
+                createdAt: { gte: sixMonthsAgo },
+                isDeleted: false
+            },
+            select: { totalAmount: true, createdAt: true }
+        });
+
+        const monthOffsets = [5, 4, 3, 2, 1, 0];
+        const chartData = monthOffsets.map(i => {
             const date = subMonths(new Date(), i);
             const start = startOfMonth(date);
             const end = endOfMonth(date);
 
-            const monthRevenue = await prisma.sale.aggregate({
-                where: {
-                    tenantId,
-                    createdAt: {
-                        gte: start,
-                        lte: end
-                    }
-                },
-                _sum: { totalAmount: true }
-            });
+            const revenue = salesData
+                .filter(s => s.createdAt >= start && s.createdAt <= end)
+                .reduce((acc, s) => acc + s.totalAmount, 0);
 
-            chartData.push({
+            return {
                 name: format(date, 'MMM'),
-                revenue: monthRevenue._sum.totalAmount || 0
-            });
-        }
+                revenue
+            };
+        });
 
-        // 3. Recent Activity
+        // 3. Activity Counts
+        const [activityCounts, totalProcurement] = await Promise.all([
+            prisma.sale.groupBy({
+                by: ['status'],
+                where: { tenantId, isDeleted: false },
+                _count: true
+            }),
+            prisma.order.aggregate({ where: { tenantId, isDeleted: false }, _sum: { totalAmount: true } })
+        ]);
+
+        const activity: any = {
+            toBePacked: activityCounts.find(c => c.status === 'PENDING')?._count || 0,
+            toBeShipped: activityCounts.find(c => c.status === 'PACKED')?._count || 0,
+            toBeDelivered: activityCounts.find(c => c.status === 'SHIPPED')?._count || 0,
+            toBeInvoiced: activityCounts.find(c => c.status === 'PENDING')?._count || 0,
+        };
+
+        // 4. Recent Activity
         const recentSales = await prisma.sale.findMany({
-            where: { tenantId },
+            where: { tenantId, isDeleted: false },
             take: 5,
             orderBy: { createdAt: 'desc' },
             include: {
@@ -57,11 +77,13 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
 
         res.json({
             revenue: totalRevenue._sum.totalAmount || 0,
+            procurement: totalProcurement._sum.totalAmount || 0,
             activeOrders: activeOrders,
             lowStock: lowStockCount,
             totalProducts: totalProducts,
             recentActivity: recentSales,
-            chartData: chartData
+            chartData: chartData,
+            activity
         });
     } catch (error) {
         console.error("Dashboard Stats Error:", error);

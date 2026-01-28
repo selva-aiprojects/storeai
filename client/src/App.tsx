@@ -23,6 +23,8 @@ import Customers from './pages/Customers';
 import HR from './pages/HR';
 import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
+import Financials from './pages/Financials';
+import Products from './pages/Products';
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -32,7 +34,8 @@ function App() {
         products: [], users: [], sales: [], orders: [],
         employees: [], suppliers: [], categories: [], ledger: [],
         financialSummary: null, stats: null, departments: [],
-        customers: [], payrolls: [], reports: null, taxSummary: null, tenants: []
+        customers: [], payrolls: [], reports: null, taxSummary: null, tenants: [],
+        requisitions: []
     });
 
     useEffect(() => {
@@ -51,52 +54,84 @@ function App() {
         } catch (e) { localStorage.removeItem('store_ai_token'); }
     };
 
-    const refreshData = async () => {
+    const refreshData = async (scope: 'essential' | 'full' | string = 'essential') => {
         setLoading(true);
-        const newData: any = { ...data };
 
-        const safeFetch = async (endpoint: string, key: string, transform: (d: any) => any = (d) => d) => {
+        const updates: any = {};
+        const safeFetch = async (endpoint: string, key: string) => {
             try {
                 const resp = await api.get(endpoint);
-                newData[key] = transform(resp.data);
+                updates[key] = resp.data;
             } catch (e) {
-                // console.warn(`Failed to fetch ${endpoint}:`, e);
-                newData[key] = Array.isArray(data[key]) ? [] : null;
+                updates[key] = Array.isArray(data[key]) ? [] : null;
             }
         };
 
         const safeFetchService = async (serviceCall: () => Promise<any>, key: string) => {
             try {
                 const resp = await serviceCall();
-                newData[key] = resp.data;
+                updates[key] = resp.data;
             } catch (e) {
-                // console.warn(`Failed to call service for ${key}:`, e);
-                newData[key] = Array.isArray(data[key]) ? [] : null;
+                updates[key] = Array.isArray(data[key]) ? [] : null;
             }
         };
 
-        await Promise.all([
+        // Execution Groups
+        const essentialTasks = [
             safeFetch('/dashboard/stats', 'stats'),
             safeFetchService(getProducts, 'products'),
-            safeFetchService(getSales, 'sales'),
-            safeFetch('/orders', 'orders'),
-            safeFetchService(getUsers, 'users'),
-            safeFetch('/payment', 'transactions'),
-            safeFetch('/accounts/ledger', 'ledger'),
-            safeFetch('/accounts/summary', 'financialSummary'),
-            safeFetch('/inventory/warehouses', 'warehouses'),
-            safeFetchService(getSuppliers, 'suppliers'),
             safeFetchService(getCategories, 'categories'),
+        ];
+
+        const salesTasks = [
+            safeFetchService(getSales, 'sales'),
+            safeFetchService(getCustomers, 'customers'),
+        ];
+
+        const purchaseTasks = [
+            safeFetch('/orders', 'orders'),
+            safeFetchService(getSuppliers, 'suppliers'),
+            safeFetch('/inventory/warehouses', 'warehouses'),
+            safeFetch('/requisitions', 'requisitions'),
+        ];
+
+        const hrTasks = [
             safeFetchService(getEmployees, 'employees'),
             safeFetchService(getPayrolls, 'payrolls'),
-            safeFetchService(getCustomers, 'customers'),
+        ];
+
+        const financeTasks = [
+            safeFetch('/accounts/ledger', 'ledger'),
+            safeFetch('/accounts/summary', 'financialSummary'),
+            safeFetch('/accounts/tax-summary', 'taxSummary'),
+            safeFetch('/payment', 'transactions'),
+        ];
+
+        const intelTasks = [
             safeFetch('/reports/comprehensive', 'reports'),
             safeFetch('/crm', 'deals'),
-            safeFetch('/accounts/tax-summary', 'taxSummary'),
-            user?.activeTenant?.slug === 'storeai' ? safeFetch('/tenants/all', 'tenants') : Promise.resolve()
-        ]);
+        ];
 
-        setData(newData);
+        // Intelligent Loading Strategy
+        if (scope === 'full') {
+            await Promise.all([...essentialTasks, ...salesTasks, ...purchaseTasks, ...hrTasks, ...financeTasks, ...intelTasks]);
+        } else if (scope === 'sales') {
+            await Promise.all([...essentialTasks, ...salesTasks]);
+        } else if (scope === 'purchases') {
+            await Promise.all([...essentialTasks, ...purchaseTasks]);
+        } else if (scope === 'hr') {
+            await Promise.all([...essentialTasks, ...hrTasks]);
+        } else if (scope === 'finance') {
+            await Promise.all([...essentialTasks, ...financeTasks]);
+        } else {
+            await Promise.all(essentialTasks);
+        }
+
+        if (user?.activeTenant?.slug === 'storeai') {
+            await safeFetch('/tenants/all', 'tenants');
+        }
+
+        setData((prev: any) => ({ ...prev, ...updates }));
         setLoading(false);
     };
 
@@ -106,8 +141,9 @@ function App() {
                 <Login setUser={setUser} />
             ) : (
                 <Routes>
-                    <Route element={<DashboardLayout user={user} logout={() => { localStorage.removeItem('store_ai_token'); setUser(null); }} refreshData={refreshData} setModal={setModal} data={data} />}>
+                    <Route element={<DashboardLayout user={user} logout={() => { localStorage.removeItem('store_ai_token'); setUser(null); }} refreshData={refreshData} setModal={setModal} data={data} loading={loading} />}>
                         <Route path="/" element={<Dashboard />} />
+                        <Route path="/products" element={<Products />} />
                         <Route path="/inventory" element={<Inventory />} />
                         <Route path="/sales" element={<Sales />} />
                         <Route path="/purchases" element={<Purchases />} />
@@ -116,6 +152,7 @@ function App() {
                         <Route path="/customers" element={<Customers />} />
                         <Route path="/hr" element={<HR />} />
                         <Route path="/accounts" element={<Accounts />} />
+                        <Route path="/financials" element={<Financials />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>
@@ -127,7 +164,17 @@ function App() {
                     <FormModal
                         type={modal.type}
                         metadata={modal.metadata}
-                        onClose={() => { setModal(null); refreshData(); }}
+                        onClose={() => {
+                            const type = modal.type;
+                            let scope = 'essential';
+                            if (['sales', 'customers'].includes(type)) scope = 'sales';
+                            if (['orders', 'purchases', 'grn', 'suppliers', 'requisitions'].includes(type)) scope = 'purchases';
+                            if (['employees', 'payroll', 'generate_all_payroll'].includes(type)) scope = 'hr';
+                            if (['payment'].includes(type)) scope = 'finance';
+
+                            setModal(null);
+                            refreshData(scope);
+                        }}
                         categories={data.categories}
                         suppliers={data.suppliers}
                         products={data.products}

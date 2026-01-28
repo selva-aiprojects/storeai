@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { createSale, getSales, getSaleById, updateSaleTracking } from '../controllers/salesController';
-import { authenticate } from '../middleware/authMiddleware';
+import { authenticate, checkPermission } from '../middleware/authMiddleware';
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get('/', getSales);
-router.get('/:id', getSaleById);
-router.post('/', createSale);
-router.patch('/:id/tracking', updateSaleTracking);
+router.get('/', checkPermission('sales:read'), getSales);
+router.get('/:id', checkPermission('sales:read'), getSaleById);
+router.post('/', checkPermission('sales:write'), createSale);
+router.patch('/:id/tracking', checkPermission('sales:write'), updateSaleTracking);
 
 export default router;

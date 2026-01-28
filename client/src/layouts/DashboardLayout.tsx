@@ -1,38 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { AnimatePresence, motion } from 'framer-motion';
 
-const DashboardLayout = ({ user, logout, refreshData, setModal, data }: any) => {
+const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }: any) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const handleSetSidebarOpen = useCallback((open: boolean) => setSidebarOpen(open), []);
+
+    useEffect(() => {
+        const handleGlobalDown = (e: KeyboardEvent) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                setModal({ type: 'sales' });
+            }
+        };
+        window.addEventListener('keydown', handleGlobalDown);
+        return () => window.removeEventListener('keydown', handleGlobalDown);
+    }, [setModal]);
+
+    const outletContext = useMemo(() => ({ user, refreshData, setModal, data }), [user, refreshData, setModal, data]);
 
     return (
         <div className="app-container">
+            {loading && (
+                <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        height: '2px',
+                        background: 'linear-gradient(to right, var(--accent-primary), var(--accent-secondary))',
+                        zIndex: 9999,
+                        boxShadow: '0 0 10px var(--accent-primary)'
+                    }}
+                />
+            )}
             <div
                 className={`sidebar-overlay ${sidebarOpen ? 'mobile-open' : ''}`}
-                onClick={() => setSidebarOpen(false)}
+                onClick={() => handleSetSidebarOpen(false)}
             ></div>
-            <Sidebar user={user} logout={logout} mobileOpen={sidebarOpen} setMobileOpen={setSidebarOpen} />
+            <Sidebar user={user} logout={logout} mobileOpen={sidebarOpen} setMobileOpen={handleSetSidebarOpen} />
             <div className="main-content">
-                <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={setSidebarOpen} user={user} />
-                <div className="page-container">
-                    <AnimatePresence mode="wait">
+                <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={handleSetSidebarOpen} user={user} />
+                <div className="page-container" style={{ position: 'relative' }}>
+                    <AnimatePresence mode="popLayout">
                         <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
+                            key={window.location.pathname}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
                             style={{ width: '100%' }}
                         >
-                            <Outlet context={{ user, refreshData, setModal, data }} />
+                            <Outlet context={outletContext} />
                         </motion.div>
                     </AnimatePresence>
                 </div>
-                <footer className="footer">
+                <footer className="footer" style={{ padding: '20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="footer-copyright">
-                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginBottom: '4px' }}>VERSION 3.0.2 // TACTICAL ELEVATION BUILD</div>
-                        &copy; {new Date().getFullYear()} StoreAI Enterprise Solutions. All operational telemetry strictly logged.
+                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginBottom: '4px' }}>VERSION 3.0.4 // HYPERION ARCHITECTURE</div>
+                        &copy; {new Date().getFullYear()} StoreAI Tactical Core. All systems operational.
+                    </div>
+                    <div style={{ display: 'flex', gap: '20px', fontSize: '0.65rem', opacity: 0.6, fontWeight: 700 }}>
+                        <span style={{ color: 'var(--accent-secondary)' }}>F2: NEW SALE</span>
+                        <span>F9: EXECUTE</span>
+                        <span>ESC: CLOSE</span>
                     </div>
                 </footer>
             </div>

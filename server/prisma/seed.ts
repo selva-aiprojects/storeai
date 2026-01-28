@@ -10,12 +10,13 @@ async function main() {
 
     // 1. Clean Database
     try {
+        await prisma.activity.deleteMany({});
         await prisma.goodsReceiptItem.deleteMany({});
         await prisma.goodsReceipt.deleteMany({});
         await prisma.payroll.deleteMany({});
         await prisma.attendance.deleteMany({});
-        await prisma.activity.deleteMany({});
         await prisma.dealItem.deleteMany({});
+        await prisma.salesRegister.deleteMany({});
         await prisma.salesOrderItem.deleteMany({});
         await prisma.salesOrder.deleteMany({});
         await prisma.deal.deleteMany({});
@@ -27,7 +28,9 @@ async function main() {
         await prisma.order.deleteMany({});
         await prisma.inventoryDocumentItem.deleteMany({});
         await prisma.inventoryDocument.deleteMany({});
+        await prisma.stockLedger.deleteMany({});
         await prisma.stock.deleteMany({});
+        await prisma.productBatch.deleteMany({});
         await prisma.warehouse.deleteMany({});
         await prisma.pricingRule.deleteMany({});
         await prisma.product.deleteMany({});
@@ -46,14 +49,19 @@ async function main() {
     } catch (e) { console.log('⚠ Cleanup warning:', e); }
 
     // 2. Seed Plans
-    const proPlan = await prisma.plan.create({
-        data: {
+    const proPlan = await prisma.plan.upsert({
+        where: { name: 'PRO' },
+        update: { price: 99.0, features: { maxUsers: 20, aiPredictions: true, multiWarehouse: true, advancedCRM: true } },
+        create: {
             name: 'PRO', price: 99.0, billingCycle: 'MONTHLY',
             features: { maxUsers: 20, aiPredictions: true, multiWarehouse: true, advancedCRM: true }
         }
     });
-    const enterprisePlan = await prisma.plan.create({
-        data: {
+
+    const enterprisePlan = await prisma.plan.upsert({
+        where: { name: 'ENTERPRISE' },
+        update: { price: 499.0, features: { maxUsers: 1000, aiPredictions: true, multiWarehouse: true, advancedCRM: true, customBranding: true } },
+        create: {
             name: 'ENTERPRISE', price: 499.0, billingCycle: 'ANNUAL',
             features: { maxUsers: 1000, aiPredictions: true, multiWarehouse: true, advancedCRM: true, customBranding: true }
         }
@@ -71,17 +79,107 @@ async function main() {
         { code: 'accounts:read', name: 'View Accounts', category: 'FINANCE' },
         { code: 'accounts:write', name: 'Manage Accounts', category: 'FINANCE' },
         { code: 'reports:view', name: 'View Reports', category: 'REPORTS' },
-        { code: 'crm:read', name: 'View CRM', category: 'CRM' },
         { code: 'crm:write', name: 'Manage CRM', category: 'CRM' },
+        { code: 'orders:read', name: 'View Purchase Orders', category: 'PROCUREMENT' },
+        { code: 'orders:write', name: 'Manage Purchase Orders', category: 'PROCUREMENT' },
         { code: 'users:manage', name: 'Manage Users', category: 'ADMIN' },
         { code: 'tenants:manage', name: 'Manage Organizations', category: 'ADMIN' }
     ];
-    for (const p of perms) await prisma.permission.create({ data: p });
+    for (const p of perms) {
+        await prisma.permission.upsert({
+            where: { code: p.code },
+            update: { name: p.name, category: p.category },
+            create: p
+        });
+    }
 
-    const superAdminRole = await prisma.role.create({
-        data: {
+    const superAdminRole = await prisma.role.upsert({
+        where: { code: 'SUPER_ADMIN' },
+        update: { permissions: { set: perms.map(p => ({ code: p.code })) } },
+        create: {
             name: 'Super Admin', code: 'SUPER_ADMIN',
             permissions: { connect: perms.map(p => ({ code: p.code })) }
+        }
+    });
+
+    const procurementRole = await prisma.role.upsert({
+        where: { code: 'PROCUREMENT_TEAM' },
+        update: {
+            permissions: {
+                set: [
+                    { code: 'dashboard:view' },
+                    { code: 'inventory:read' },
+                    { code: 'inventory:write' },
+                    { code: 'orders:read' },
+                    { code: 'orders:write' },
+                    { code: 'reports:view' }
+                ]
+            }
+        },
+        create: {
+            name: 'Procurement Team', code: 'PROCUREMENT_TEAM',
+            permissions: {
+                connect: [
+                    { code: 'dashboard:view' },
+                    { code: 'inventory:read' },
+                    { code: 'inventory:write' },
+                    { code: 'orders:read' },
+                    { code: 'orders:write' },
+                    { code: 'reports:view' }
+                ]
+            }
+        }
+    });
+
+    const salesRole = await prisma.role.upsert({
+        where: { code: 'SALES_TEAM' },
+        update: {
+            permissions: {
+                set: [
+                    { code: 'dashboard:view' },
+                    { code: 'inventory:read' },
+                    { code: 'sales:read' },
+                    { code: 'sales:write' },
+                    { code: 'reports:view' }
+                ]
+            }
+        },
+        create: {
+            name: 'Sales Team', code: 'SALES_TEAM',
+            permissions: {
+                connect: [
+                    { code: 'dashboard:view' },
+                    { code: 'inventory:read' },
+                    { code: 'sales:read' },
+                    { code: 'sales:write' },
+                    { code: 'reports:view' }
+                ]
+            }
+        }
+    });
+
+    const hrRole = await prisma.role.upsert({
+        where: { code: 'HR_TEAM' },
+        update: {
+            permissions: {
+                set: [
+                    { code: 'dashboard:view' },
+                    { code: 'hr:read' },
+                    { code: 'hr:write' },
+                    { code: 'reports:view' }
+                ]
+            }
+        },
+        create: {
+            name: 'HR Team', code: 'HR_TEAM',
+            permissions: {
+                connect: [
+                    { code: 'dashboard:view' },
+                    { code: 'hr:read' },
+                    { code: 'hr:write' },
+                    { code: 'reports:view' }
+                ]
+            }
         }
     });
 

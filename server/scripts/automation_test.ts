@@ -35,6 +35,11 @@ async function runAutomationTest() {
         const orderId = orderRes.data.id;
         console.log(`✔ P.O. Created: ${orderRes.data.orderNumber}`);
 
+        // 3.5 Approval Test
+        console.log('3.5 Testing P.O. Approval...');
+        await axios.patch(`${BASE_URL}/orders/${orderId}/approve`, {}, { headers });
+        console.log('✔ P.O. Approved and Ledger Updated.');
+
         // 4. Traceability Test
         console.log('4. Testing Shipment Tracking Update...');
         await axios.patch(`${BASE_URL}/orders/${orderId}/tracking`, {
@@ -46,8 +51,18 @@ async function runAutomationTest() {
         console.log('✔ Inbound Tracking Logged.');
 
         // 5. Inventory Sync Test
-        console.log('5. Testing Inward Logistics...');
-        const receiveRes = await axios.patch(`${BASE_URL}/orders/${orderId}/receive`, {}, { headers });
+        console.log('5. Testing Inward Logistics (GRN)...');
+        const receiveRes = await axios.post(`${BASE_URL}/orders/${orderId}/grn`, {
+            warehouseId: (await axios.get(`${BASE_URL}/inventory/warehouses`, { headers })).data[0].id,
+            items: [{
+                productId: product.id,
+                quantity: 10,
+                batchNumber: `BATCH-${Date.now()}`,
+                expiryDate: '2026-12-31',
+                costPrice: 1500
+            }],
+            notes: 'Automated Test GRN'
+        }, { headers });
         console.log(`✔ Inward Complete. Order Status: ${receiveRes.data.status}`);
 
         // 6. Ledger Verification

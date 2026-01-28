@@ -131,3 +131,92 @@ export const getPredictionReport = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ error: 'Failed to generate predictions' });
     }
 };
+
+export const getFinancialPerformance = async (req: AuthRequest, res: Response) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const { year } = req.query;
+        const currentYear = year ? parseInt(year as string) : new Date().getFullYear();
+
+        const startDate = new Date(currentYear, 0, 1);
+        const endDate = new Date(currentYear, 11, 31);
+
+        const [sales, purchases, payrolls] = await Promise.all([
+            prisma.sale.findMany({ where: { tenantId, createdAt: { gte: startDate, lte: endDate }, isDeleted: false } }),
+            prisma.order.findMany({ where: { tenantId, createdAt: { gte: startDate, lte: endDate }, isDeleted: false, status: { in: ['COMPLETED', 'PARTIAL_RECEIVED', 'APPROVED', 'SHIPPED'] } } }),
+            prisma.payroll.findMany({
+                where: {
+                    employee: { department: { tenantId } },
+                    createdAt: { gte: startDate, lte: endDate }
+                }
+            })
+        ]);
+
+        // Monthly Aggregation
+        const monthlyData = Array.from({ length: 12 }, (_, i) => ({
+            month: i + 1,
+            sales: 0,
+            procurement: 0,
+            expenses: 0,
+            gstCollected: 0
+        }));
+
+        sales.forEach(s => {
+            const m = s.createdAt.getMonth();
+            monthlyData[m].sales += s.totalAmount;
+            monthlyData[m].gstCollected += s.taxAmount;
+        });
+
+        purchases.forEach(p => {
+            const m = p.createdAt.getMonth();
+            monthlyData[m].procurement += p.totalAmount;
+        });
+
+        payrolls.forEach(p => {
+            const m = (p.createdAt).getMonth();
+            monthlyData[m].expenses += p.totalPayout;
+        });
+
+        const totalRevenue = sales.reduce((acc, s) => acc + s.totalAmount, 0);
+        const totalGst = sales.reduce((acc, s) => acc + s.taxAmount, 0);
+        const totalExpenses = monthlyData.reduce((acc, m) => acc + m.expenses + m.procurement, 0);
+
+        // Simple Income Tax Calculation (e.g., 25% of Profit)
+        const profit = totalRevenue - totalExpenses;
+        const incomeTax = profit > 0 ? profit * 0.25 : 0;
+
+        // Expenditure Forecast (Next 3 months based on average of last 3 months)
+        const last3Months = monthlyData.slice(new Date().getMonth() - 2, new Date().getMonth() + 1);
+        const avgMonthlyExpense = last3Months.reduce((acc, m) => acc + m.expenses + m.procurement, 0) / (last3Months.length || 1);
+        const forecast = avgMonthlyExpense * 1.1; // 10% buffering for safety
+
+        res.json({
+            monthlyData,
+            summary: {
+                totalRevenue,
+                totalGst,
+                totalExpenses,
+                profit,
+                incomeTax,
+                expenditureForecast: forecast
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed' });
+    }
+};
+
+export const getBatchIntegrityReport = async (req: AuthRequest, res: Response) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
+        // Use raw query for the specific view
+        const report = await prisma.$queryRaw`SELECT * FROM "vw_batch_expiry" WHERE "tenantId" = ${tenantId} ORDER BY "expiryDate" ASC`;
+        res.json(report);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch batch integrity report' });
+    }
+};
