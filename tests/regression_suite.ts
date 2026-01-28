@@ -74,10 +74,10 @@ async function runRegressionSuite() {
         // --- TEST CASE 4: INVENTORY ---
         logStep('INVENTORY: Create Product Logic');
         const productData = {
-            sku: `REG-SKU-${TIMESTAMP}`,
-            name: `Regression Probe ${TIMESTAMP}`,
-            price: 1500,
-            costPrice: 900,
+            sku: `QNT-PXL-${TIMESTAMP}`,
+            name: `Quantum Pixel Pro - Alpha Build ${TIMESTAMP}`,
+            price: 1800,
+            costPrice: 1100,
             stockQuantity: 100,
             categoryId,
             unit: 'PCS'
@@ -89,8 +89,8 @@ async function runRegressionSuite() {
         // --- TEST CASE 5: PARTNERS ---
         logStep('PARTNERS: Supplier Onboarding');
         const supplierResp = await axios.post(`${API_BASE}/suppliers`, {
-            name: `RegSupplier-${TIMESTAMP}`,
-            email: `reg-sup-${TIMESTAMP}@test.com`
+            name: `Global Infrastructure Partners ${TIMESTAMP}`,
+            email: `procure-tier1-${TIMESTAMP}@gip-logistics.com`
         }, { headers: CONFIG.headers });
         const supplierId = supplierResp.data.id;
         logSuccess(`Supplier Created (${supplierId})`);
@@ -98,23 +98,23 @@ async function runRegressionSuite() {
         // --- TEST CASE 6: CRM ---
         logStep('CRM: Customer Acquisition');
         const customerResp = await axios.post(`${API_BASE}/customers`, {
-            name: `RegClient-${TIMESTAMP}`,
-            email: `reg-client-${TIMESTAMP}@test.com`
+            name: `Enterprise Solution Corp ${TIMESTAMP}`,
+            email: `accounts@esc-${TIMESTAMP}.com`
         }, { headers: CONFIG.headers });
         const customerId = customerResp.data.id;
         logSuccess(`Customer Created (${customerId})`);
 
-        // --- TEST CASE 7: HUMAN RESOURCES ---
+        // --- TEST CASE 7: HR / STAFFING ---
         logStep('HR: Employee Hiring Protocol');
         const employeeResp = await axios.post(`${API_BASE}/hr/employees`, {
-            employeeId: `REG-EMP-${TIMESTAMP}`,
-            firstName: 'Regression',
-            lastName: 'Bot',
-            designation: 'Test Runner',
-            salary: 50000,
+            employeeId: `EMP-QNT-${TIMESTAMP}`,
+            firstName: 'Jonathan',
+            lastName: 'Ops-Manager',
+            email: `j.ops-${TIMESTAMP}@storeai-corp.com`,
+            designation: 'Senior Operations Lead',
+            salary: 12000,
             departmentId,
-            joiningDate: new Date().toISOString(),
-            incentivePercentage: 0.10 // 10% Commission
+            joiningDate: new Date().toISOString()
         }, { headers: CONFIG.headers });
         const employeeId = employeeResp.data.id;
         logSuccess(`Employee Created (${employeeId})`);
@@ -129,17 +129,16 @@ async function runRegressionSuite() {
         logStep('HR: Payroll Generation (OT + Incentive)');
         const payrollResp = await axios.post(`${API_BASE}/hr/payroll`, {
             employeeId: employeeId,
-            amount: 4166, // Base Monthly
-            month: 'Regression Month',
+            amount: 10000, // Monthly Executive Base
+            month: 'Fiscal Q1 - Operations',
             status: 'PAID',
-            monthlySales: 10000, // Should trigger 10% incentive = 1000
-            overtimeHours: 10 // Should trigger OT calc
+            monthlySales: 50000, // Strategic Sales Target
+            overtimeHours: 20
         }, { headers: CONFIG.headers });
 
         const payout = payrollResp.data.totalPayout;
-        const expectedIncentive = 10000 * 0.10;
-        // OT Rate: (50000 / 160) * 1.5 * 10 hours approx logic check or just existence
-        if (payout <= 4166) throw new Error('Payroll did not include incentives/OT');
+        const expectedIncentive = 50000 * 0.10; // 10% on Strategic Target
+        if (payout <= 10000) throw new Error('Payroll did not include performance incentives');
         logSuccess(`Payroll Generated: $${payout.toFixed(2)} (lnc: $${expectedIncentive})`);
 
         // --- TEST CASE 8: SALES & STOCK DEDUCTION ---
@@ -150,7 +149,7 @@ async function runRegressionSuite() {
 
         const saleResp = await axios.post(`${API_BASE}/sales`, {
             customerId: customerId,
-            items: [{ productId: productId, quantity: 2, unitPrice: 1500 }]
+            items: [{ productId: productId, quantity: 2, unitPrice: 1800 }]
         }, { headers: CONFIG.headers });
 
         // Check final stock

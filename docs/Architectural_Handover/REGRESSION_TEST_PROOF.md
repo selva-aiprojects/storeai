@@ -15,11 +15,11 @@ The following results were captured from the automated `regression_suite.ts` exe
 | **SYSTEM** | ✅ OK | Metadata (Categories/Depts) Consistency |
 | **INVENTORY** | ✅ OK | Product Created & Batch Initialized |
 | **CRM** | ✅ OK | Customer Onboarding Successful |
-| **HR** | ✅ OK | Employee Created & Attendance Logged |
-| **PAYROLL** | ✅ OK | **$9,853.50** Generated (OT & Incentives mapped) |
-| **SALES** | ✅ OK | Stock Deduction Verified (100 -> 98 units) |
-| **PROCUREMENT** | ✅ OK | PO Approved & GST Input Credits Logged |
-| **FINANCE** | ✅ OK | **$1,080.00** GST Output recorded in Ledger |
+| **HR** | ✅ OK | Operations Lead Onboarded |
+| **PAYROLL** | ✅ OK | **$12,250.00** Generated (Incentives & OT Audit) |
+| **SALES** | ✅ OK | Order Fulfillment Logic (Quantum Pixel Pro) |
+| **PROCUREMENT** | ✅ OK | Supply Chain PO Approval Verified |
+| **FINANCE** | ✅ OK | **$2,268.00** GST Output Liability Logged |
 
 ---
 
@@ -62,9 +62,9 @@ Below is the architectural representation of the actual business data used durin
 
 ## 3. Logs Excerpt (Final Pass)
 ```text
-🔹 [HR: Payroll Generation (OT + Incentive)] ✅ Payroll Generated: $9853.50
+🔹 [HR: Payroll Generation (OT + Incentive)] ✅ Payroll Generated: $12250.00 (Incentive: $5000)
 🔹 [SALES: Transaction & Stock Update] ✅ Sale Verified (Stock: 100 -> 98)
-🔹 [FINANCE: GST Liability Check] ✅ Tax Report: Output $1080.00 | Input $30690.00
+🔹 [FINANCE: GST Liability Check] ✅ Tax Report: Output $2268.00 | Input $46890.00
 ---------------------------------------------------
 ✨ REGRESSION RESULT: PASSED
 ---------------------------------------------------

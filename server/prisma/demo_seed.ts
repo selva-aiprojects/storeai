@@ -64,8 +64,8 @@ async function seedDemoData() {
     }
 
     const demoProducts = [
-        { sku: 'MED-EXP-001', name: 'Critical Medic A', price: 50, cost: 30 },
-        { sku: 'ELC-EXP-002', name: 'Smart Controller X', price: 500, cost: 350 }
+        { sku: 'QNT-PXL-PRO-256', name: 'Quantum Pixel Pro - 256GB Platinum', price: 1499.00, cost: 950.00 },
+        { sku: 'ENT-INF-HUB-X1', name: 'Enterprise Infrastructure Hub X1', price: 2999.00, cost: 1800.00 }
     ];
 
     for (const p of demoProducts) {
