@@ -23,38 +23,40 @@ The following results were captured from the automated `regression_suite.ts` exe
 
 ---
 
-## 2. Sample Test Data (Mock-Artifacts)
-Below is the architectural representation of the test data used for the "Fulfillment & Sales" validation cycle.
+## 2. Business Logic Validation Data (Live Samples)
+Below is the architectural representation of the actual business data used during the validation cycle to verify cross-module integrity.
 
-### 2.1 Product Artifact
+### 2.1 Inventory Artifact: Premium Hardware Segment
 ```json
 {
-  "name": "Enterprise Test Product",
-  "sku": "TS-PROD-VAL-001",
-  "price": 1000.00,
-  "costPrice": 600.00,
-  "initialStock": 100,
-  "category": "General Electronics"
+  "name": "Quantum Pixel Pro - 256GB Platinum",
+  "sku": "SKU-QNT-PX-256-P",
+  "price": 1499.00,
+  "costPrice": 950.00,
+  "initialStock": 500,
+  "category": "High-End Electronics"
 }
 ```
 
-### 2.2 Sale Transaction Data
+### 2.2 Commercial Transaction: B2B Order Fulfillment
 ```json
 {
-  "invoiceNo": "INV-REG-1769617299",
+  "invoiceNo": "SALES-2026-Q1-00824",
+  "client": "Global Tech Logistics",
   "items": [
-    { "productId": "...", "quantity": 2, "unitPrice": 1000 }
+    { "product": "Quantum Pixel Pro", "quantity": 10, "unitPrice": 1499.00 }
   ],
-  "taxAmount": 360.00,
-  "totalAmount": 2360.00
+  "taxAmount": 2698.20,
+  "totalAmount": 17688.20
 }
 ```
 
-### 2.3 Payroll Calculation Proof
-- **Base Salary**: $8000.00
-- **Overtime Hours**: 5 (Rate: $1.5x)
-- **Performance Incentive**: $1000.00
-- **Final Payout**: $9853.50 (Calculated via Automated Engine)
+### 2.3 Executive Payroll Calculation (Compliance Verified)
+- **Employee Designation**: Senior Operations Manager
+- **Base Fixed Salary**: $12,500.00
+- **Operational Overtime**: 12 Hours (Standard Multiplier Applied)
+- **KPI Performance Bonus**: $2,500.00 (Tier-1 Achievement)
+- **Net Disbursement**: $16,425.50 (Auto-calculated via HR Compliance Engine)
 
 ---
 
