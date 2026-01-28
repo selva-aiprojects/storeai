@@ -50,13 +50,19 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
             <div className="sidebar-header">
-                <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Layers size={20} style={{ marginRight: '10px', color: '#6366f1' }} />
-                        STORE<span className="sidebar-brand-accent">AI</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%', marginBottom: '4px' }}>
+                    <div style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <Layers color="#818cf8" size={32} />
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '0.05em', color: '#fff' }}>
+                            STORE<span className="sidebar-brand-accent">AI</span>
+                        </span>
                     </div>
                     {mobileOpen && (
-                        <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
+                        <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                            <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
+                        </div>
                     )}
                 </div>
 

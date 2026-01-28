@@ -22,13 +22,16 @@ async function runSystemValidation() {
         if (!warehouse) throw new Error("Default Warehouse missing");
         log(`Warehouse Identified: ${warehouse.name}`, 'PASS');
 
+        const category = await prisma.category.findFirst();
+        if (!category) throw new Error("No categories found in DB. Please seed first.");
+
         const product = await prisma.product.create({
             data: {
                 name: `Test Artifact ${Date.now()}`,
                 sku: `TEST-${Date.now()}`,
                 price: 1000,
                 costPrice: 600,
-                categoryId: (await prisma.category.findFirst())?.id || "MISSING"
+                categoryId: category.id
             }
         });
         log(`Created Product: ${product.name}`, 'PASS');
@@ -38,20 +41,20 @@ async function runSystemValidation() {
             data: {
                 type: 'RECEIPT',
                 status: 'POSTED',
-                sourceWarehouseId: warehouse.id,
+                targetWarehouseId: warehouse.id,
                 items: { create: { productId: product.id, quantity: 50 } }
             }
         });
         // Apply effect manually for test simulation (usually handled by controller logic, but here we simulate the 'Effect' of the controller)
         await prisma.stock.upsert({
-            where: { warehouseId_productId: { warehouseId: warehouse.id, productId: product.id } },
+            where: { warehouseId_productId_batchNumber: { warehouseId: warehouse.id, productId: product.id, batchNumber: 'GENERAL' } },
             update: { quantity: { increment: 50 } },
-            create: { warehouseId: warehouse.id, productId: product.id, quantity: 50 }
+            create: { warehouseId: warehouse.id, productId: product.id, quantity: 50, batchNumber: 'GENERAL' }
         });
         log(`Inventory Document Created & Posted (Qty: 50)`, 'PASS');
 
         // Verify Stock
-        const stock = await prisma.stock.findUnique({ where: { warehouseId_productId: { warehouseId: warehouse.id, productId: product.id } } });
+        const stock = await prisma.stock.findUnique({ where: { warehouseId_productId_batchNumber: { warehouseId: warehouse.id, productId: product.id, batchNumber: 'GENERAL' } } });
         if (stock?.quantity !== 50) { log(`Stock Mismatch: Expected 50, Got ${stock?.quantity}`, 'FAIL'); }
         else { log(`Stock Verified: 50 Units On Hand`, 'PASS'); }
 
@@ -102,11 +105,11 @@ async function runSystemValidation() {
 
         // Deduct Stock
         await prisma.stock.update({
-            where: { warehouseId_productId: { warehouseId: warehouse.id, productId: product.id } },
+            where: { warehouseId_productId_batchNumber: { warehouseId: warehouse.id, productId: product.id, batchNumber: 'GENERAL' } },
             data: { quantity: { decrement: 2 } }
         });
 
-        const finalStock = await prisma.stock.findUnique({ where: { warehouseId_productId: { warehouseId: warehouse.id, productId: product.id } } });
+        const finalStock = await prisma.stock.findUnique({ where: { warehouseId_productId_batchNumber: { warehouseId: warehouse.id, productId: product.id, batchNumber: 'GENERAL' } } });
         if (finalStock?.quantity === 48) log(`Stock Deduction Verified: 50 -> 48`, 'PASS');
         else log(`Stock Deduction Failed: Got ${finalStock?.quantity}`, 'FAIL');
 

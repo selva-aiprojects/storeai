@@ -214,44 +214,51 @@ const Login = ({ setUser }: any) => {
                         <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: '15px', alignSelf: 'center' }}>&larr; BACK TO LOGIN</button>
                     </div>
                 ) : (
-                    <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             <div className="form-group">
-                                <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>FIRST NAME</label>
-                                <input value={onboardForm.firstName} onChange={(e) => setOnboardForm({ ...onboardForm, firstName: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                                <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>FIRST NAME</label>
+                                <input className="hover-lift" value={onboardForm.firstName} onChange={(e) => setOnboardForm({ ...onboardForm, firstName: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                             </div>
                             <div className="form-group">
-                                <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>LAST NAME</label>
-                                <input value={onboardForm.lastName} onChange={(e) => setOnboardForm({ ...onboardForm, lastName: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                                <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>LAST NAME</label>
+                                <input className="hover-lift" value={onboardForm.lastName} onChange={(e) => setOnboardForm({ ...onboardForm, lastName: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                             </div>
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>EMAIL</label>
-                            <input type="email" value={onboardForm.email} onChange={(e) => setOnboardForm({ ...onboardForm, email: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>BUSINESS EMAIL</label>
+                            <input className="hover-lift" type="email" value={onboardForm.email} onChange={(e) => setOnboardForm({ ...onboardForm, email: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>PASSWORD</label>
-                            <input type="password" value={onboardForm.password} onChange={(e) => setOnboardForm({ ...onboardForm, password: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>SECURITY KEY</label>
+                            <input className="hover-lift" type="password" value={onboardForm.password} onChange={(e) => setOnboardForm({ ...onboardForm, password: e.target.value })} required style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
-                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '5px 0' }}></div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '8px 0' }}>
+                            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                            <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: '0.1em' }}>ORGANIZATION SETUP</span>
+                            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                        </div>
+
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>TENANT NAME</label>
-                            <input value={onboardForm.orgName} onChange={(e) => setOnboardForm({ ...onboardForm, orgName: e.target.value })} required placeholder="e.g. Global Retail Inc" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>TENANT NAME</label>
+                            <input className="hover-lift" value={onboardForm.orgName} onChange={(e) => setOnboardForm({ ...onboardForm, orgName: e.target.value })} required placeholder="e.g. Quantum Dynamics Corp" style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>TENANT SLUG (URL ID)</label>
-                            <input value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. global-retail" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px', width: '100%', borderRadius: '8px' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>WORKSPACE URL SLUG</label>
+                            <input className="hover-lift" value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. quantum-hq" style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
 
                         <button className="btn btn-primary" style={{
-                            padding: '14px',
-                            marginTop: '10px',
-                            fontSize: '0.9rem',
-                            fontWeight: 700,
-                            borderRadius: '8px',
-                            cursor: 'pointer'
-                        }}>INITIATE ONBOARDING</button>
-                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: '5px' }}>CANCEL</button>
+                            padding: '16px',
+                            marginTop: '8px',
+                            fontSize: '0.85rem',
+                            fontWeight: 800,
+                            borderRadius: '12px',
+                            letterSpacing: '0.05em'
+                        }}>PROVISION WORKSPACE</button>
+
+                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'color 0.2s', marginTop: '4px' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}>&larr; BACK TO ACCESS TERMINAL</button>
                     </form>
                 )}
                 <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', lineHeight: '1.6' }}>

@@ -81,6 +81,20 @@ export const createProduct = async (req: AuthRequest, res: Response) => {
                         batchNumber: 'GENERAL'
                     }
                 });
+
+                // 3.1 Also create a ProductBatch for FIFO system
+                if (Number(stockQuantity) > 0) {
+                    await tx.productBatch.create({
+                        data: {
+                            batchNumber: 'GENERAL',
+                            productId: product.id,
+                            quantityReceived: Number(stockQuantity),
+                            quantityAvailable: Number(stockQuantity),
+                            costPrice: Number(costPrice),
+                            status: 'ACTIVE'
+                        }
+                    });
+                }
             }
 
             // 4. Audit Log (Compliance)

@@ -107,6 +107,20 @@ export const SalesService = {
                 include: { items: true }
             });
 
+            // 2.1 Post GST Output to Ledger
+            if (totalTax > 0) {
+                await tx.ledger.create({
+                    data: {
+                        title: `GST Output Liability: ${invoiceNo}`,
+                        type: 'CREDIT',
+                        amount: totalTax,
+                        category: 'GST_PAYABLE',
+                        description: `GST collected on Sale ${invoiceNo}`,
+                        tenantId: data.tenantId
+                    }
+                });
+            }
+
             // 3. Trigger Stock Deduction (FIFO)
             // We do this AFTER creating Sale so we have constraints checked, 
             // but inside the transaction so it rolls back if stock fails.

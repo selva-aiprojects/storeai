@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^7.3.0",
     "@types/node": "^25.0.10",
     "axios": "^1.13.3",
     "ts-node": "^10.9.2",

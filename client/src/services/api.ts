@@ -8,9 +8,39 @@ const api = axios.create({
 });
 
 const cache = new Map();
-const CACHE_TTL = 30000; // 30s cache for rapid navigation
+const CACHE_TTL = 60000; // Increased to 60s for better performance
+
+// --- Progress Control (Hourglass Fix) ---
+let activeRequests = 0;
+const updateProgress = (show: boolean) => {
+    let bar = document.getElementById('top-progress-bar');
+    if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'top-progress-bar';
+        document.body.appendChild(bar);
+    }
+
+    if (show) {
+        activeRequests++;
+        bar.style.opacity = '1';
+        bar.style.width = activeRequests > 1 ? '70%' : '30%';
+        setTimeout(() => { if (activeRequests > 0) bar!.style.width = '90%'; }, 200);
+    } else {
+        activeRequests = Math.max(0, activeRequests - 1);
+        if (activeRequests === 0) {
+            bar.style.width = '100%';
+            setTimeout(() => {
+                if (activeRequests === 0) {
+                    bar!.style.opacity = '0';
+                    setTimeout(() => { if (activeRequests === 0) bar!.style.width = '0%'; }, 400);
+                }
+            }, 300);
+        }
+    }
+};
 
 api.interceptors.request.use((config) => {
+    updateProgress(true);
     const token = localStorage.getItem('store_ai_token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -19,6 +49,7 @@ api.interceptors.request.use((config) => {
     if (config.method === 'get') {
         const cached = cache.get(config.url);
         if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
+            updateProgress(false); // Immediate finish for cache hit
             config.adapter = (cfg: any) => Promise.resolve({
                 data: cached.data,
                 status: 200,
@@ -30,9 +61,13 @@ api.interceptors.request.use((config) => {
         }
     }
     return config;
+}, (error) => {
+    updateProgress(false);
+    return Promise.reject(error);
 });
 
 api.interceptors.response.use((response) => {
+    updateProgress(false);
     if (response.config.method === 'get') {
         cache.set(response.config.url, {
             data: response.data,
@@ -40,6 +75,9 @@ api.interceptors.response.use((response) => {
         });
     }
     return response;
+}, (error) => {
+    updateProgress(false);
+    return Promise.reject(error);
 });
 
 // Auth

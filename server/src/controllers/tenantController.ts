@@ -110,8 +110,16 @@ export const getAllTenants = async (req: AuthRequest, res: Response) => {
         // In a real production system, you'd check if the user is a "System Admin"
         // For this demo/validation platform, we allow SUPER_ADMINs to see the directory
         const tenants = await prisma.tenant.findMany({
-            include: {
-                plan: true,
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                status: true,
+                logo: true,
+                createdAt: true,
+                plan: {
+                    select: { name: true }
+                },
                 _count: {
                     select: { users: true }
                 }

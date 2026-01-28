@@ -645,6 +645,10 @@ model Attendance {
   isLop         Boolean   @default(false)
   employeeId    String
   employee      Employee  @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([date])
+  @@index([employeeId, date])
 }
 
 model Payroll {
@@ -667,6 +671,9 @@ model Payroll {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   employee       Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([month])
 }
 
 model PurchaseRequisition {

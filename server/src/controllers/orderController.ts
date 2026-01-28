@@ -220,13 +220,23 @@ export const getOrders = async (req: AuthRequest, res: Response) => {
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
         const orders = await prisma.order.findMany({
-            where: { tenantId },
-            include: {
-                supplier: true,
-                items: { include: { product: true } },
-                goodsReceipts: { include: { items: true } } // Include GRNs for visibility
+            where: { tenantId, isDeleted: false },
+            select: {
+                id: true,
+                orderNumber: true,
+                status: true,
+                totalAmount: true,
+                taxAmount: true,
+                createdAt: true,
+                supplier: {
+                    select: { name: true }
+                },
+                _count: {
+                    select: { items: true, goodsReceipts: true }
+                }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            take: 50 // Performance guard: initial page limit
         });
         res.json(orders);
     } catch (error) {
