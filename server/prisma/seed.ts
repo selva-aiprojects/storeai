@@ -10,35 +10,39 @@ async function main() {
 
     // 1. Clean Database
     try {
-        await prisma.activity.deleteMany({});
+        await prisma.activityLog.deleteMany({});
+        await prisma.purchaseRequisitionItem.deleteMany({});
+        await prisma.purchaseQuotation.deleteMany({});
+        await prisma.purchaseRequisition.deleteMany({});
+        await prisma.stockLedger.deleteMany({});
+        await prisma.salesRegister.deleteMany({});
+        await prisma.stock.deleteMany({});
+        await prisma.saleItem.deleteMany({});
         await prisma.goodsReceiptItem.deleteMany({});
         await prisma.goodsReceipt.deleteMany({});
-        await prisma.payroll.deleteMany({});
-        await prisma.attendance.deleteMany({});
+        await prisma.inventoryDocumentItem.deleteMany({});
+        await prisma.inventoryDocument.deleteMany({});
         await prisma.dealItem.deleteMany({});
-        await prisma.salesRegister.deleteMany({});
+        await prisma.activity.deleteMany({});
         await prisma.salesOrderItem.deleteMany({});
         await prisma.salesOrder.deleteMany({});
         await prisma.deal.deleteMany({});
-        await prisma.payment.deleteMany({});
-        await prisma.ledger.deleteMany({});
-        await prisma.saleItem.deleteMany({});
-        await prisma.sale.deleteMany({});
         await prisma.orderItem.deleteMany({});
         await prisma.order.deleteMany({});
-        await prisma.inventoryDocumentItem.deleteMany({});
-        await prisma.inventoryDocument.deleteMany({});
-        await prisma.stockLedger.deleteMany({});
-        await prisma.stock.deleteMany({});
+        await prisma.payroll.deleteMany({});
+        await prisma.attendance.deleteMany({});
+        await prisma.payment.deleteMany({});
+        await prisma.sale.deleteMany({});
+        await prisma.ledger.deleteMany({});
+        await prisma.employee.deleteMany({});
+        await prisma.department.deleteMany({});
         await prisma.productBatch.deleteMany({});
-        await prisma.warehouse.deleteMany({});
         await prisma.pricingRule.deleteMany({});
         await prisma.product.deleteMany({});
         await prisma.category.deleteMany({});
         await prisma.supplier.deleteMany({});
         await prisma.customer.deleteMany({});
-        await prisma.employee.deleteMany({});
-        await prisma.department.deleteMany({});
+        await prisma.warehouse.deleteMany({});
         await prisma.userTenant.deleteMany({});
         await prisma.user.deleteMany({});
         await prisma.role.deleteMany({});
@@ -276,7 +280,8 @@ async function main() {
                 slug: org.slug,
                 logo: org.logo,
                 features: org.features,
-                planId: proPlan.id
+                planId: proPlan.id,
+                status: 'ACTIVE'
             }
         });
 

@@ -31,23 +31,16 @@ const Login = ({ setUser }: any) => {
         }
     };
 
-    const handleTenantSelect = (slug: string) => {
-        setAuthForm(prev => {
-            const newState = { ...prev, tenantSlug: slug };
-            // We can't immediately call handleLogin because state async update.
-            // But we can call api directly or use a temp var.
-            // Let's call API directly with new slug.
-            (async () => {
-                try {
-                    const resp = await loginApi({ ...newState });
-                    localStorage.setItem('store_ai_token', resp.data.token);
-                    setUser(resp.data.user);
-                } catch (e: any) {
-                    alert("Failed to switch tenant.");
-                }
-            })();
-            return newState;
-        });
+    const handleTenantSelect = async (slug: string) => {
+        const newState = { ...authForm, tenantSlug: slug };
+        setAuthForm(newState);
+        try {
+            const resp = await loginApi(newState);
+            localStorage.setItem('store_ai_token', resp.data.token);
+            setUser(resp.data.user);
+        } catch (e: any) {
+            alert(e.response?.data?.error || "Failed to switch tenant. Please try again.");
+        }
     };
 
     const handleOnboardRequest = async (e: React.FormEvent) => {
@@ -95,15 +88,19 @@ const Login = ({ setUser }: any) => {
                     zIndex: 10
                 }}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
-                        <Layers color="#818cf8" size={40} />
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <span style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '0.05em', color: '#fff' }}>STORE<span style={{ color: '#818cf8' }}>AI</span></span>
-                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600, marginTop: '5px' }}>
-                            {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Select Organization' : 'Tenant Onboarding'}
-                        </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px', marginTop: '40px' }}>
+                    <img
+                        src="/logo-storeai.png"
+                        alt="StoreAI Logo"
+                        style={{
+                            width: '180px',
+                            height: 'auto',
+                            objectFit: 'contain',
+                            filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.4))'
+                        }}
+                    />
+                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600, marginTop: '5px', textAlign: 'center' }}>
+                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Select Organization' : 'Tenant Onboarding'}
                     </div>
                 </div>
 

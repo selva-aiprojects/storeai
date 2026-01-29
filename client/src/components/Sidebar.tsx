@@ -1,11 +1,18 @@
-import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers, X, BarChart3, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers, X, BarChart3, ChevronDown, ChevronRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     const navigate = useNavigate();
     const location = useLocation();
     const currentPath = location.pathname;
+    const [collapsedSections, setCollapsedSections] = useState<string[]>([]);
+
+    const toggleSection = (section: string) => {
+        setCollapsedSections(prev =>
+            prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
+        );
+    };
 
     const handleNavigate = (path: string) => {
         navigate(path);
@@ -50,25 +57,28 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
             <div className="sidebar-header">
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%', marginBottom: '4px' }}>
-                    <div style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <Layers color="#818cf8" size={32} />
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '0.05em', color: '#fff' }}>
-                            STORE<span className="sidebar-brand-accent">AI</span>
-                        </span>
-                    </div>
-                    {mobileOpen && (
-                        <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-                            <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
-                        </div>
-                    )}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                    <img
+                        src="/logo-storeai.png"
+                        alt="StoreAI Logo"
+                        style={{
+                            width: '90px',
+                            height: 'auto',
+                            objectFit: 'contain',
+                            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                        }}
+                    />
                 </div>
+                {mobileOpen && (
+                    <div style={{ position: 'absolute', top: '24px', right: '20px' }}>
+                        <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
+                    </div>
+                )}
+            </div>
 
-                {/* Tenant Context Pill */}
+            <div className="sidebar-menu" style={{ paddingTop: '10px' }}>
                 <div style={{
-                    marginTop: '16px',
+                    marginBottom: '12px',
                     padding: '8px 12px',
                     background: 'rgba(255, 255, 255, 0.05)',
                     borderRadius: '8px',
@@ -76,33 +86,57 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: '44px'
+                    minHeight: '40px'
                 }}>
                     {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ maxHeight: '24px', objectFit: 'contain' }} alt="Tenant" />
+                        <img src={user.activeTenant.logo} style={{ maxHeight: '20px', objectFit: 'contain' }} alt="Tenant" />
                     ) : (
-                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.05em' }}>
                             {user?.activeTenant?.name || 'OPERANT CORE'}
                         </span>
                     )}
                 </div>
-            </div>
+                {(() => {
+                    let currentSection = '';
+                    return filteredMenuItems.map((item: any, index) => {
+                        if (item.divider) {
+                            currentSection = item.divider;
+                            const isCollapsed = collapsedSections.includes(currentSection);
+                            return (
+                                <div
+                                    key={index}
+                                    className="menu-divider"
+                                    onClick={() => toggleSection(currentSection)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        userSelect: 'none'
+                                    }}
+                                >
+                                    {item.divider}
+                                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                                </div>
+                            );
+                        }
 
-            <div className="sidebar-menu">
-                {filteredMenuItems.map((item: any, index) => (
-                    item.divider ? (
-                        <div key={index} className="menu-divider">{item.divider}</div>
-                    ) : (
-                        <button
-                            key={index}
-                            className={`menu-item ${currentPath === item.path ? 'active' : ''}`}
-                            onClick={() => handleNavigate(item.path)}
-                        >
-                            <item.icon size={18} style={{ marginRight: '12px', opacity: currentPath === item.path ? 1 : 0.7 }} />
-                            {item.label}
-                        </button>
-                    )
-                ))}
+                        if (currentSection && collapsedSections.includes(currentSection)) {
+                            return null;
+                        }
+
+                        return (
+                            <button
+                                key={index}
+                                className={`menu-item ${currentPath === item.path ? 'active' : ''}`}
+                                onClick={() => handleNavigate(item.path)}
+                            >
+                                <item.icon size={18} style={{ marginRight: '12px', opacity: currentPath === item.path ? 1 : 0.7 }} />
+                                {item.label}
+                            </button>
+                        );
+                    });
+                })()}
             </div>
 
             <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>

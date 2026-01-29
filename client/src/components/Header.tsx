@@ -32,8 +32,8 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     <Menu size={24} />
                 </button>
                 <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', lineHeight: 1.2 }}>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>{getPageTitle()}</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#5d03b1' }}>{getPageTitle()}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#5d03b1', fontWeight: 600, letterSpacing: '0.05em' }}>
                         {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'OPERATIONAL CORE'}
                     </span>
                 </div>

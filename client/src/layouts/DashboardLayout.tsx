@@ -1,13 +1,21 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }: any) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const location = useLocation();
+    const pageContainerRef = useRef<HTMLDivElement>(null);
 
     const handleSetSidebarOpen = useCallback((open: boolean) => setSidebarOpen(open), []);
+
+    useEffect(() => {
+        if (pageContainerRef.current) {
+            pageContainerRef.current.scrollTo(0, 0);
+        }
+    }, [location.pathname]);
 
     useEffect(() => {
         const handleGlobalDown = (e: KeyboardEvent) => {
@@ -47,7 +55,7 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }:
             <Sidebar user={user} logout={logout} mobileOpen={sidebarOpen} setMobileOpen={handleSetSidebarOpen} />
             <div className="main-content">
                 <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={handleSetSidebarOpen} user={user} />
-                <div className="page-container" style={{ position: 'relative' }}>
+                <div className="page-container" ref={pageContainerRef} style={{ position: 'relative' }}>
                     <AnimatePresence mode="popLayout">
                         <motion.div
                             key={window.location.pathname}

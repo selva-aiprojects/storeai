@@ -174,15 +174,13 @@ h6 {
 }
 
 .sidebar-header {
-  height: auto;
-  /* Allow growth for stacked elements */
-  min-height: var(--header-height);
+  height: var(--header-height);
   display: flex;
   flex-direction: column;
   /* Stack vertically */
   align-items: center;
   justify-content: center;
-  padding: 24px 22px;
+  padding: 0 22px;
   background: linear-gradient(90deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.2));
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.25rem;
@@ -199,17 +197,31 @@ h6 {
 
 .sidebar-menu {
   flex: 1;
-  padding: 20px 14px 24px;
+  padding: 8px 14px 24px;
   overflow-y: auto;
 }
 
 .sidebar-menu::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
 }
 
 .sidebar-menu::-webkit-scrollbar-thumb {
-  background: rgba(248, 250, 252, 0.3);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: all 0.2s ease;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid transparent;
+  background-clip: content-box;
 }
 
 .menu-divider {
@@ -218,7 +230,7 @@ h6 {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: rgba(226, 232, 240, 0.8);
-  margin: 22px 6px 10px;
+  margin: 12px 6px 6px;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -309,8 +321,8 @@ h6 {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   font-size: 1.25rem;
-  color: #818cf8;
-  /* Matching the 'AI' brand color */
+  color: #5d03b1;
+  /* Matching the Dashboard card header color */
 }
 
 .header-actions {
