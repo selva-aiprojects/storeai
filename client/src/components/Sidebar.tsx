@@ -18,7 +18,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
         { path: '/products', label: 'Product Catalog', icon: Layers, feature: 'RETAIL_MODULE', permission: 'inventory:read' },
         { path: '/inventory', label: 'Stock Master', icon: Package, feature: 'INVENTORY_MODULE', permission: 'inventory:read' },
         { divider: 'Trade & Logistics' },
-        { path: '/sales', label: 'Sales [POS]', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
+        { path: '/sales', label: 'Sales [POS]    ', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
         { path: '/purchases', label: 'Procurement Hub', icon: Truck, feature: 'PROCUREMENT_MODULE', permission: 'orders:read' },
         { divider: 'Organization' },
         { path: '/partners', label: 'Partners', icon: Building2, feature: 'PARTNER_MODULE', permission: 'crm:read' },
