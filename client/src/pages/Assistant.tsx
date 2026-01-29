@@ -117,9 +117,14 @@ const Assistant = () => {
                                 </div>
 
                                 {msg.context && (
-                                    <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 mt-2">
-                                        <div className="text-[10px] font-bold text-gray-500 uppercase mb-2">Retrieved Attributes</div>
-                                        <pre className="text-xs font-mono text-purple-300 whitespace-pre-wrap">{msg.context}</pre>
+                                    <div className="mt-3 bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                                        <div className="bg-gray-100 px-3 py-1.5 border-b border-gray-200 flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Analyst Context</span>
+                                        </div>
+                                        <div className="p-3 bg-white">
+                                            <pre className="text-[11px] font-mono text-gray-600 whitespace-pre-wrap leading-relaxed">{msg.context}</pre>
+                                        </div>
                                     </div>
                                 )}
                                 <span className="text-[10px] text-gray-400 font-semibold px-1 italic">
