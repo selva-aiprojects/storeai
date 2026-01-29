@@ -1,7 +1,8 @@
 
 import { PrismaClient } from '@prisma/client';
 import { addDays, subDays, format, isBefore } from 'date-fns';
-import { randomUUID } from 'crypto';
+// Use built-in crypto for UUIDs
+const { randomUUID } = require('crypto');
 
 const prisma = new PrismaClient();
 
