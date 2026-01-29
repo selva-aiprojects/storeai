@@ -56,8 +56,15 @@ async function main() {
             stockCache[tenant.id][p.id] = 50; // Start with some stock to avoid immediate blocking
             // Create a dummy initial batch in DB?
             // For speed, let's just create one generic initial batch for everyone
-            const initialBatch = await prisma.productBatch.create({
-                data: {
+            const initialBatch = await prisma.productBatch.upsert({
+                where: {
+                    productId_batchNumber: {
+                        productId: p.id,
+                        batchNumber: 'INIT-BATCH'
+                    }
+                },
+                update: {},
+                create: {
                     batchNumber: 'INIT-BATCH',
                     productId: p.id,
                     quantityReceived: 1000,
@@ -104,8 +111,8 @@ async function main() {
                     }));
 
                     if (poItems.length > 0) {
-                        // Creating PO is fast enough
-                        const p = prisma.order.create({
+                        // Creating PO
+                        const po = await prisma.order.create({
                             data: {
                                 orderNumber: `PO-${getRandomInt(100000, 999999)}`,
                                 status: 'APPROVED',
@@ -115,16 +122,15 @@ async function main() {
                                 createdAt: currentDate,
                                 items: { create: poItems }
                             }
-                        }).then(po => {
-                            pendingReceipts.push({
-                                tenantId: tenant.id,
-                                poId: po.id,
-                                warehouseId: warehouse.id,
-                                items: poItems,
-                                deliveryDate: addDays(currentDate, getRandomInt(3, 7))
-                            });
                         });
-                        dailyPromises.push(p);
+
+                        pendingReceipts.push({
+                            tenantId: tenant.id,
+                            poId: po.id,
+                            warehouseId: warehouse.id,
+                            items: poItems,
+                            deliveryDate: addDays(currentDate, getRandomInt(3, 7))
+                        });
                     }
                 }
             }
@@ -137,46 +143,43 @@ async function main() {
             for (const receipt of dueReceipts) {
                 pendingReceipts = pendingReceipts.filter(r => r !== receipt); // heavy?
 
-                const p = (async () => {
-                    const grn = await prisma.goodsReceipt.create({
-                        data: {
-                            grnNumber: `GRN-${getRandomInt(100000, 999999)}`,
-                            orderId: receipt.poId,
-                            warehouseId: receipt.warehouseId,
-                            items: {
-                                create: receipt.items.map((i: any) => ({
-                                    productId: i.productId,
-                                    quantity: i.quantity,
-                                    batchNumber: `BAT-${getRandomInt(10000, 99999)}`
-                                }))
-                            }
-                        },
-                        include: { items: true }
-                    });
+                const grn = await prisma.goodsReceipt.create({
+                    data: {
+                        grnNumber: `GRN-${getRandomInt(100000, 999999)}`,
+                        orderId: receipt.poId,
+                        warehouseId: receipt.warehouseId,
+                        items: {
+                            create: receipt.items.map((i: any) => ({
+                                productId: i.productId,
+                                quantity: i.quantity,
+                                batchNumber: `BAT-${getRandomInt(10000, 99999)}`
+                            }))
+                        }
+                    },
+                    include: { items: true }
+                });
 
-                    // Handle batches
-                    for (const item of grn.items) {
-                        const batch = await prisma.productBatch.create({
-                            data: {
-                                batchNumber: item.batchNumber!,
-                                productId: item.productId,
-                                quantityReceived: item.quantity,
-                                quantityAvailable: item.quantity,
-                                costPrice: 0,
-                                inwardDate: currentDate
-                            }
-                        });
-                        if (!batchCache[tenant.id][item.productId]) batchCache[tenant.id][item.productId] = [];
-                        batchCache[tenant.id][item.productId].push({
-                            id: batch.id,
-                            batchNumber: batch.batchNumber,
-                            quantity: item.quantity,
-                            expiry: null
-                        });
-                        stockCache[tenant.id][item.productId] = (stockCache[tenant.id][item.productId] || 0) + item.quantity;
-                    }
-                })();
-                dailyPromises.push(p);
+                // Handle batches
+                for (const item of grn.items) {
+                    const batch = await prisma.productBatch.create({
+                        data: {
+                            batchNumber: item.batchNumber!,
+                            productId: item.productId,
+                            quantityReceived: item.quantity,
+                            quantityAvailable: item.quantity,
+                            costPrice: 0,
+                            inwardDate: currentDate
+                        }
+                    });
+                    if (!batchCache[tenant.id][item.productId]) batchCache[tenant.id][item.productId] = [];
+                    batchCache[tenant.id][item.productId].push({
+                        id: batch.id,
+                        batchNumber: batch.batchNumber,
+                        quantity: item.quantity,
+                        expiry: null
+                    });
+                    stockCache[tenant.id][item.productId] = (stockCache[tenant.id][item.productId] || 0) + item.quantity;
+                }
             }
 
             // 3. Sales
@@ -197,52 +200,48 @@ async function main() {
                 if (!batch) continue;
                 batch.quantity -= qty;
 
-                // Create Sale Async
-                const p = (async () => {
-                    const total = qty * product.price;
-                    const sale = await prisma.sale.create({
-                        data: {
-                            invoiceNo: `INV-${getRandomInt(1000000, 9999999)}`,
-                            totalAmount: total,
-                            taxAmount: total * 0.1,
-                            status: 'COMPLETED',
-                            customerId: customer.id,
-                            tenantId: tenant.id,
-                            createdAt: currentDate,
-                            items: {
-                                create: {
-                                    productId: product.id,
-                                    quantity: qty,
-                                    unitPrice: product.price,
-                                    batchId: batch.id
-                                }
+                // Create Sale
+                const total = qty * product.price;
+                const sale = await prisma.sale.create({
+                    data: {
+                        invoiceNo: `INV-${getRandomInt(1000000, 9999999)}`,
+                        totalAmount: total,
+                        taxAmount: total * 0.1,
+                        status: 'COMPLETED',
+                        customerId: customer.id,
+                        tenantId: tenant.id,
+                        createdAt: currentDate,
+                        items: {
+                            create: {
+                                productId: product.id,
+                                quantity: qty,
+                                unitPrice: product.price,
+                                batchId: batch.id
                             }
                         }
-                    });
+                    }
+                });
 
-                    // Sales Register & Ledger - Batch these?
-                    // Just create them
-                    await prisma.stockLedger.create({
-                        data: {
-                            productId: product.id,
-                            batchId: batch.id,
-                            transactionType: 'SALE',
-                            referenceType: 'INV',
-                            referenceId: sale.id,
-                            quantityOut: qty,
-                            balanceQuantity: stockCache[tenant.id][product.id], // approx
-                            transactionDate: currentDate,
-                            tenantId: tenant.id
-                        }
-                    });
-                })();
-                dailyPromises.push(p);
+                // Sales Register & Ledger
+                await prisma.stockLedger.create({
+                    data: {
+                        productId: product.id,
+                        batchId: batch.id,
+                        transactionType: 'SALE',
+                        referenceType: 'INV',
+                        referenceId: sale.id,
+                        quantityOut: qty,
+                        balanceQuantity: stockCache[tenant.id][product.id], // approx
+                        transactionDate: currentDate,
+                        tenantId: tenant.id
+                    }
+                });
             }
         }
 
         // WAIT for all DB ops for this DAY to finish
         // to avoid overwhelming connection pool
-        await Promise.all(dailyPromises);
+        // await Promise.all(dailyPromises);
 
         currentDate = addDays(currentDate, 1);
     }

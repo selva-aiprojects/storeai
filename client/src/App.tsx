@@ -82,6 +82,8 @@ function App() {
             safeFetch('/dashboard/stats', 'stats'),
             safeFetchService(getProducts, 'products'),
             safeFetchService(getCategories, 'categories'),
+            safeFetchService(getDepartments, 'departments'),
+            safeFetchService(getUsers, 'users'),
         ];
 
         const salesTasks = [
