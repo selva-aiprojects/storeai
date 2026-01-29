@@ -275,24 +275,28 @@ h6 {
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  min-height: 100vh;
+  height: 100vh;
+  /* Fixed height for the main viewport */
+  overflow: hidden;
+  /* Prevent the main container from scrolling */
 }
 
 /* Header */
 .header {
   height: var(--header-height);
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.85);
+  /* Glassy background */
+  backdrop-filter: blur(12px);
   color: #0f172a;
-  border-bottom: 2px solid #7c3aed;
-  /* Vibrant purple accent */
+  border-bottom: 1px solid rgba(124, 58, 237, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  position: relative;
+  /* No longer needs sticky as parent is overflow: hidden */
+  z-index: 50;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .header-title {
