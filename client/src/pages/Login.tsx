@@ -56,10 +56,12 @@ const Login = ({ setUser }: any) => {
 
     return (
         <div className="modal-overlay" style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #312e81 100%)',
+            background: 'linear-gradient(180deg, #1e1a4d 0%, #2f0d68 100%)',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center'
+            padding: '60px 20px',
+            overflowY: 'auto'
         }}>
             <div style={{
                 position: 'absolute',
@@ -77,7 +79,7 @@ const Login = ({ setUser }: any) => {
                 className="card"
                 style={{
                     maxWidth: '420px',
-                    width: '90%',
+                    width: '100%',
                     padding: '40px',
                     background: 'rgba(255, 255, 255, 0.03)',
                     backdropFilter: 'blur(16px)',
@@ -85,22 +87,23 @@ const Login = ({ setUser }: any) => {
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                     color: '#fff',
-                    zIndex: 10
+                    zIndex: 10,
+                    margin: 'auto' // THE CENTER TRICK
                 }}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px', marginTop: '40px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '10px' }}>
                     <img
                         src="/logo-storeai.png"
                         alt="StoreAI Logo"
                         style={{
-                            width: '180px',
+                            width: '90px',
                             height: 'auto',
                             objectFit: 'contain',
-                            filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.4))'
+                            filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))'
                         }}
                     />
-                    <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600, marginTop: '5px', textAlign: 'center' }}>
-                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Select Organization' : 'Tenant Onboarding'}
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 700, marginTop: '16px', textAlign: 'center' }}>
+                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Identify Organization' : 'Provision Instance'}
                     </div>
                 </div>
 

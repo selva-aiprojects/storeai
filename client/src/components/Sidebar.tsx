@@ -56,16 +56,16 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen }: any) => {
 
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
-            <div className="sidebar-header">
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+            <div className="sidebar-header" style={{ height: 'auto', padding: '16px 10px 10px', background: 'transparent' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                     <img
                         src="/logo-storeai.png"
                         alt="StoreAI Logo"
                         style={{
-                            width: '90px',
+                            width: '60px',
                             height: 'auto',
                             objectFit: 'contain',
-                            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))'
                         }}
                     />
                 </div>
