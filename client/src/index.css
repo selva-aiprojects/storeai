@@ -725,18 +725,32 @@ tbody tr:nth-child(even) td {
 }
 
 .modal {
-  width: 100%;
+  width: 95%;
   max-width: 600px;
   background: #ffffff;
   border: 1px solid #4c1d95;
-  /* Dark Purple Border */
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   padding: 24px;
   position: relative;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  max-height: 90vh;
+  max-height: 95vh;
+  /* Allow slightly more height */
   overflow-y: auto;
+  z-index: 1000;
+  /* High z-index */
+}
+
+/* Wide modal variations */
+.modal-wide {
+  max-width: 900px;
+}
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 16px;
+    border-radius: 12px;
+  }
 }
 
 .modal-header {

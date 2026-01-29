@@ -228,7 +228,12 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: type === 'sales' || type === 'grn' || type === 'employees' || type === 'view_batches' ? '850px' : '500px' }}>
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className={`modal ${['sales', 'grn', 'employees', 'view_batches'].includes(type) ? 'modal-wide' : ''}`}
+                onClick={e => e.stopPropagation()}
+            >
                 <div className="modal-header">
                     <span>{type.toUpperCase()} PROTOCOL</span>
                     <X onClick={onClose} style={{ cursor: 'pointer' }} />
