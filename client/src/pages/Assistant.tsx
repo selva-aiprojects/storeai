@@ -73,124 +73,98 @@ const Assistant = () => {
     };
 
     return (
-        <div className="flex flex-col h-full w-full max-w-6xl mx-auto p-4 md:p-6 gap-6 overflow-hidden">
-            {/* Glassmorphism Header */}
-            <header className="relative overflow-hidden bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-950 rounded-3xl p-6 shadow-2xl border border-white/10">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-3xl -mr-32 -mt-32"></div>
-                <div className="relative flex items-center justify-between">
-                    <div className="flex items-center gap-5">
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-purple-500 blur-lg opacity-40 animate-pulse"></div>
-                            <div className="relative p-4 bg-purple-600 rounded-2xl shadow-xl">
-                                <Sparkles className="w-8 h-8 text-white" />
-                            </div>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-                                StoreAI <span className="text-purple-400">Intelligence</span>
-                            </h1>
-                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-300/60 mt-1">
-                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-                                RAG Pipeline Active
-                            </div>
-                        </div>
+        <div className="flex flex-col h-full w-full max-w-6xl mx-auto p-4 md:p-6 gap-5 overflow-hidden font-sans">
+            {/* Professional Header */}
+            <header className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-purple-50 rounded-xl border border-purple-100">
+                        <Sparkles className="w-6 h-6 text-purple-600" />
                     </div>
-                    <div className="hidden md:block text-right">
-                        <p className="text-sm font-medium text-white/40">Model Instance</p>
-                        <p className="text-lg font-bold text-white px-3 py-1 bg-white/5 rounded-lg border border-white/10">Gemini 1.5 Ultra</p>
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
+                            StoreAI <span className="text-purple-600">Intelligence</span>
+                        </h1>
+                        <p className="text-xs text-gray-500 font-medium">Enterprise Data Analysis Engine • Gemini 1.5</p>
                     </div>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span className="text-[10px] font-bold text-green-700 uppercase">Live Pipeline</span>
                 </div>
             </header>
 
-            {/* Chat Container */}
-            <main className="flex-1 flex flex-col bg-[#0b0e14]/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/5 relative">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-
-                <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 scroll-smooth scrollbar-thin scrollbar-thumb-purple-500/20">
+            {/* Main Chat Frame */}
+            <main className="flex-1 flex flex-col bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden relative">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 scrollbar-thin">
                     {messages.map((msg) => (
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
                             key={msg.id}
-                            className={`flex gap-4 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                            className={`flex gap-3 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                         >
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg 
-                                ${msg.sender === 'user' ? 'bg-gradient-to-br from-blue-600 to-indigo-700' : 'bg-gradient-to-br from-purple-600 to-fuchsia-700'}`}>
-                                {msg.sender === 'user' ? <User size={24} className="text-white" /> : <Bot size={24} className="text-white" />}
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 
+                                ${msg.sender === 'user' ? 'bg-indigo-600' : 'bg-purple-100'}`}>
+                                {msg.sender === 'user' ? <User size={20} className="text-white" /> : <Bot size={20} className="text-purple-600" />}
                             </div>
 
-                            <div className={`max-w-[85%] md:max-w-[75%] space-y-3`}>
-                                <div className={`relative p-5 rounded-3xl shadow-xl text-sm md:text-base border transition-all
+                            <div className={`max-w-[85%] md:max-w-[80%] space-y-2`}>
+                                <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed
                                     ${msg.sender === 'user'
-                                        ? 'bg-blue-600 text-white rounded-tr-none border-blue-500/50'
-                                        : 'bg-[#1a1f2e] text-gray-100 rounded-tl-none border-white/5'}`}>
-                                    <p className="whitespace-pre-wrap leading-relaxed font-medium">{msg.text}</p>
+                                        ? 'bg-indigo-600 text-white rounded-tr-none shadow-md shadow-indigo-200'
+                                        : 'bg-gray-50 text-gray-800 rounded-tl-none border border-gray-100'}`}>
+                                    <p className="whitespace-pre-wrap">{msg.text}</p>
                                 </div>
 
                                 {msg.context && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden">
-                                        <div className="px-4 py-2 border-b border-white/5 bg-white/5 flex items-center justify-between">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-purple-400">Deep Metadata Context</span>
-                                            <div className="flex gap-1">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500/50"></div>
-                                                <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/50"></div>
-                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 overflow-x-auto">
-                                            <pre className="text-xs font-mono text-gray-400 whitespace-pre-wrap">{msg.context}</pre>
-                                        </div>
-                                    </motion.div>
+                                    <div className="bg-gray-900 rounded-xl border border-gray-800 p-4 mt-2">
+                                        <div className="text-[10px] font-bold text-gray-500 uppercase mb-2">Retrieved Attributes</div>
+                                        <pre className="text-xs font-mono text-purple-300 whitespace-pre-wrap">{msg.context}</pre>
+                                    </div>
                                 )}
-                                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter px-2">
+                                <span className="text-[10px] text-gray-400 font-semibold px-1 italic">
                                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
                         </motion.div>
                     ))}
                     {loading && (
-                        <div className="flex gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-purple-600/50 flex items-center justify-center shrink-0">
-                                <Loader2 className="w-6 h-6 text-white animate-spin" />
+                        <div className="flex gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+                                <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
                             </div>
-                            <div className="bg-[#1a1f2e] border border-white/5 rounded-3xl rounded-tl-none p-5 flex items-center gap-3">
-                                <div className="flex gap-1.5">
-                                    <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                    <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                    <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                            <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-tl-none p-4 flex items-center gap-3">
+                                <div className="flex gap-1">
+                                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" />
+                                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+                                    <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce [animation-delay:0.4s]" />
                                 </div>
-                                <span className="text-xs font-bold text-purple-400/80 uppercase tracking-widest">Synthesizing...</span>
+                                <span className="text-[10px] font-bold text-gray-400 uppercase">Analyzing...</span>
                             </div>
                         </div>
                     )}
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Glass Input Area */}
-                <footer className="p-6 md:p-8 bg-gradient-to-t from-[#1a1f2e] to-transparent">
-                    <div className="relative flex items-center gap-4 max-w-4xl mx-auto bg-[#0b0e14] rounded-3xl border border-white/10 p-2 shadow-2xl focus-within:border-purple-500/50 transition-all group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-20 blur transition-all duration-500"></div>
+                {/* Input Area */}
+                <footer className="p-4 md:p-6 bg-gray-50 border-t border-gray-100">
+                    <div className="flex items-center gap-3 max-w-4xl mx-auto bg-white rounded-2xl border border-gray-200 p-2 focus-within:ring-2 focus-within:ring-purple-100 focus-within:border-purple-300 transition-all">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Interrogate the store data engine..."
-                            className="flex-1 bg-transparent text-white px-6 py-4 outline-none placeholder:text-gray-600 text-sm md:text-base font-medium"
+                            placeholder="Interrogate data engine (e.g., Show me low stock items)..."
+                            className="flex-1 bg-transparent text-gray-800 px-4 py-3 outline-none placeholder:text-gray-400 text-sm md:text-base font-normal"
                         />
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || loading}
-                            className="shrink-0 p-4 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl text-white hover:shadow-[0_0_20px_rgba(126,34,206,0.4)] active:scale-95 disabled:opacity-20 disabled:scale-100 transition-all flex items-center justify-center"
+                            className="shrink-0 p-3 bg-purple-600 rounded-xl text-white hover:bg-purple-700 active:scale-95 disabled:opacity-30 disabled:hover:bg-purple-600 transition-all shadow-md shadow-purple-100"
                         >
-                            <Send size={24} />
+                            <Send size={22} />
                         </button>
                     </div>
-                    <p className="text-center mt-4 text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em]">Secure Zero-Knowledge Analysis Engine</p>
                 </footer>
             </main>
         </div>

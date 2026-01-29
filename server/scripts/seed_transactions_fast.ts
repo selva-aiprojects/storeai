@@ -204,7 +204,7 @@ async function main() {
                 const total = qty * product.price;
                 const sale = await prisma.sale.create({
                     data: {
-                        invoiceNo: `INV-${getRandomInt(1000000, 9999999)}`,
+                        invoiceNo: `INV-${Date.now()}-${getRandomInt(1000, 9999)}`,
                         totalAmount: total,
                         taxAmount: total * 0.1,
                         status: 'COMPLETED',
