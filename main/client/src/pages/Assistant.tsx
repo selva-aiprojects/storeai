@@ -28,7 +28,7 @@ const Assistant = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 1,
-            text: "Welcome to StoreAI Intel Engine. I handle multi-modal analysis across inventory, sales, and supply chain telemetry. How can I assist your operations today?",
+            text: "Greetings. I am your StoreAI Support Assistant. I'm currently connected to your live inventory, sales, and procurement telemetry. I can provide real-time architectural insights and operational summaries. What business dimension shall we analyze first?",
             sender: 'ai',
             timestamp: new Date()
         }
@@ -56,16 +56,21 @@ const Assistant = () => {
             timestamp: new Date()
         };
 
+        const currentHistory = messages.map(m => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.text
+        }));
+
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setLoading(true);
 
         try {
-            const response = await chatWithAI(userMsg.text);
+            const response = await chatWithAI(userMsg.text, currentHistory);
 
             const aiMsg: Message = {
                 id: Date.now() + 1,
-                text: response.response || "I couldn't process that query at this time.",
+                text: response.response || "I'm analyzing the telemetry but didn't get a clear signal. Could you rephrase?",
                 sender: 'ai',
                 timestamp: new Date(),
                 context: response.context
@@ -106,10 +111,10 @@ const Assistant = () => {
                     </div>
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
-                            StoreAI <span className="text-purple-600">Intelligence</span>
+                            AI <span className="text-purple-600">Product Architect</span>
                         </h1>
                         <p className="text-xs text-gray-500 font-medium">
-                            Enterprise Data Analysis Engine • Gemini 1.5
+                            StoreAI Behavioral Engine • Gemini 1.5 Pro Context
                         </p>
                     </div>
                 </div>
@@ -172,6 +177,19 @@ const Assistant = () => {
                     )}
 
                     <div ref={messagesEndRef} />
+                </div>
+
+                {/* SUGGESTED */}
+                <div className="px-6 py-2 flex gap-2 overflow-x-auto no-scrollbar">
+                    {['Stock Health', 'Yesterday Sales', 'Resource Allocation', 'Top Customer'].map(label => (
+                        <button
+                            key={label}
+                            onClick={() => setInput(label)}
+                            className="whitespace-nowrap px-3 py-1.5 rounded-full border border-purple-200 bg-purple-50 text-purple-700 text-[11px] font-semibold hover:bg-purple-100 transition"
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
 
                 {/* INPUT */}

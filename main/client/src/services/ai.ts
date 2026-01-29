@@ -9,9 +9,9 @@ const aiApi = axios.create({
     }
 });
 
-export const chatWithAI = async (query: string) => {
+export const chatWithAI = async (query: string, history: any[] = []) => {
     try {
-        const response = await aiApi.post('/chat', { query });
+        const response = await aiApi.post('/chat', { query, history });
         return response.data;
     } catch (error) {
         console.error("AI Chat Error:", error);

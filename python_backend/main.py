@@ -23,11 +23,12 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 class QueryRequest(BaseModel):
     query: str
+    history: list = []
 
 @app.post("/api/chat")
 async def chat_endpoint(req: QueryRequest):
     try:
-        result = await rag_service.process_query(req.query)
+        result = await rag_service.process_query(req.query, req.history)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

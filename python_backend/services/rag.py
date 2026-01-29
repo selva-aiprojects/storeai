@@ -18,54 +18,90 @@ class RAGService:
     # -----------------------------
     # ENTRY POINT
     # -----------------------------
-    async def process_query(self, user_query: str):
+    async def process_query(self, user_query: str, history: list = []):
         query = user_query.lower().strip().replace("!", "")
-        print(f"[RAG] Processing Query: {query}")
+        print(f"[RAG] Processing Query: {query} (History Length: {len(history)})")
 
+        # Refine query for context if history exists
+        refined_query = await self._refine_query(query, history) if history else query
+        print(f"[RAG] Refined Query: {refined_query}")
+
+        # Greeting check on the RAW query to avoid refined queries triggering it
         greeting_response = self._handle_greetings(query)
         if greeting_response:
             return greeting_response
 
-        intent = self._route_intent(query)
+        intent = self._route_intent(refined_query)
 
         context_data = None
         source = None
 
         if intent == "SQL":
-            context_data, source = await self._handle_sql(query)
+            context_data, source = await self._handle_sql(refined_query)
 
             # SQL fallback to vector
             if not context_data:
-                context_data, source = await self._handle_vector(query)
+                context_data, source = await self._handle_vector(refined_query)
 
         else:
-            context_data, source = await self._handle_vector(query)
+            context_data, source = await self._handle_vector(refined_query)
 
         # SAFETY
         if not context_data or context_data.strip() == "":
+            # Fallback to pure conversational if no data found but it's a follow-up
+            if history:
+                 return await self._synthesize_answer(user_query, "No specific new data records found for this follow-up.", "CONVERSATION", history)
+
             return {
-                "response": "I couldn’t find matching data in your store records.",
+                "response": "I couldn’t find matching data in your store records. Could you please specify which products or dates you're interested in?",
                 "source": "NONE",
                 "context": ""
             }
 
-        return await self._synthesize_answer(user_query, context_data, source)
+        return await self._synthesize_answer(user_query, context_data, source, history)
+
+    # -----------------------------
+    # QUERY REFINEMENT
+    # -----------------------------
+    async def _refine_query(self, query: str, history: list) -> str:
+        try:
+            # We only need the last few messages for context
+            last_msgs = history[-4:]
+            prompt = f"""
+Given the conversation history and the newest question, rewrite the newest question into a standalone search query.
+The standalone query should contain all context (product names, timeframes, categories) mentioned previously.
+If the question is already standalone, return it as is.
+
+History:
+{last_msgs}
+
+New Question: {query}
+
+Standalone Query:"""
+            refined = await llm_service.generate_response(prompt)
+            if "[SYSTEM OVERLOAD]" in refined or not refined:
+                 return query
+            return refined.strip().replace('"', '')
+        except:
+            return query
 
     # -----------------------------
     # GREETING
     # -----------------------------
     def _handle_greetings(self, query: str):
-        greetings = {"hello", "hi", "hey", "greetings", "good morning", "good evening"}
-
-        if query in greetings:
+        greetings = ["hello", "hi", "hey", "greetings", "good morning", "good evening", "who are you"]
+        
+        # Check if query is EXACTLY a greeting (or very close)
+        if query in greetings or (len(query) < 4 and any(g in query for g in ["hi", "hey"])):
+            print(f"[DEBUG] Greeting matched for: {query}")
             return {
                 "response": (
-                    "Hello! I’m your StoreAI Intelligence Analyst. "
-                    "I can provide sales totals, inventory alerts, and product insights. "
-                    "Try 'Total sales this year' or 'Show low stock items'."
+                    "Greetings! I am your StoreAI Lead Product Architect [v2.0]. "
+                    "I am here to help you optimize your Inventory and Resource Management strategy through real-time telemetry and data-driven insights. "
+                    "How can I assist you in streamlining your operations or maximizing your resource efficiency today?"
                 ),
                 "source": "HEURISTIC",
-                "context": ""
+                "context": "Agent Persona: Inventory & Resource Management Architect"
             }
         return None
 
@@ -73,22 +109,23 @@ class RAGService:
     # ROUTER
     # -----------------------------
     def _route_intent(self, query: str) -> str:
+        # Keywords that strongly suggest data lookup
         sql_keywords = [
             "count", "total", "sum", "average", "avg",
-            "revenue", "sales", "profit", "loss",
-            "year", "month", "week", "today",
+            "revenue", "sales", "profit", "loss", "value",
+            "year", "month", "week", "today", "yesterday", "daily",
             "overspend", "spending", "expense",
             "how many", "how much",
-            "top", "best", "worst",
-            "salary", "payroll", "attendance",
-            "report", "analytics", "summary"
+            "top", "best", "worst", "highest", "lowest",
+            "salary", "payroll", "attendance", "employee", "staff", "department",
+            "report", "analytics", "summary", "stock level"
         ]
 
-        if any(k in query for k in sql_keywords):
-            print("[RAG] Intent → SQL")
+        if any(k in query.lower() for k in sql_keywords):
+            print("[RAG] Intent: SQL")
             return "SQL"
 
-        print("[RAG] Intent → VECTOR")
+        print("[RAG] Intent: VECTOR")
         return "VECTOR"
 
     # -----------------------------
@@ -97,10 +134,23 @@ class RAGService:
     async def _handle_sql(self, query: str):
         try:
             sql_prompt = self._build_sql_prompt(query)
-            sql = await llm_service.generate_response(sql_prompt)
-            sql = sql.replace("```sql", "").replace("```", "").strip()
+            raw_response = await llm_service.generate_response(sql_prompt)
+            
+            # Robust SQL extraction from Markdown
+            import re
+            sql_match = re.search(r"```sql\n?(.*?)\n?```", raw_response, re.DOTALL | re.IGNORECASE)
+            if sql_match:
+                sql = sql_match.group(1).strip()
+            else:
+                sql = raw_response.replace("```sql", "").replace("```", "").strip()
 
-            print(f"[RAG] Generated SQL → {sql}")
+            # Architecture Safety Check (Read Only)
+            forbidden = ["DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER"]
+            if any(word in sql.upper() for word in forbidden):
+                print(f"[SECURITY ALERT] LLM generated dangerous SQL: {sql}")
+                return None, None
+
+            print(f"[RAG] Generated SQL: {sql}")
 
             rows = await db.fetch_rows(sql)
             if not rows:
@@ -109,7 +159,7 @@ class RAGService:
             # ---- NUMERIC POLISH ----
             if len(rows) == 1 and len(rows[0]) == 1:
                 val = list(rows[0].values())[0]
-                context_data = f"Total Value: ${val}"
+                context_data = f"Value Found: {val}"
                 return context_data, "SQL"
 
             context_data = "\n".join([str(dict(r)) for r in rows[:15]])
@@ -125,7 +175,7 @@ class RAGService:
     async def _handle_vector(self, query: str):
 
         numeric_words = ["year", "total", "sum", "revenue", "sales", "profit"]
-        if any(w in query for w in numeric_words):
+        if any(w in query.lower() for w in numeric_words):
             return None, None
 
         embedding = await llm_service.get_embedding(query)
@@ -140,50 +190,68 @@ class RAGService:
         seen = set()
         lines = []
         for m in metas:
-            key = m["name"]
-            if key not in seen:
+            key = m.get("name")
+            if key and key not in seen:
                 seen.add(key)
                 lines.append(
-                    f"• {m['name']} ({m['category']}) - ${m['price']} | Stock: {m['stock']}"
+                    f"- {m['name']} ({m['category']}) - ${m['price']} | Stock: {m['stock']}"
                 )
+
+        if not lines:
+             return None, None
 
         return "\n".join(lines), "VECTOR"
 
     # -----------------------------
     # SYNTHESIS
     # -----------------------------
-    async def _synthesize_answer(self, user_query, context_data, source):
+    async def _synthesize_answer(self, user_query, context_data, source, history):
         try:
-            final_prompt = f"""
-You are StoreAI Intelligence Analyst.
+            # Format history for the prompt
+            history_str = ""
+            if history:
+                history_str = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in history[-5:]])
 
-Context Source: {source}
-Data:
+            final_prompt = f"""
+ROLE: You are the StoreAI Lead AI Product Architect. 
+You are an expert in Inventory Management, Resource Allocation, and Operational Telemetry.
+You are briefing a business owner with a tone that is professional, highly intelligent, yet warm and partner-like.
+
+CURRENT TASK: 
+Synthesize raw store data into a strategic business insight.
+
+CONTEXTUAL DATA ({source}):
 {context_data}
 
-User Question: "{user_query}"
+CONVERSATION HISTORY (FOR CONTINUITY):
+{history_str if history_str else "New conversation started."}
 
-Instructions:
-- Provide executive style answer.
-- If numeric → show totals.
-- If list → bullet list.
-- Avoid repeating raw rows.
-"""
+USER QUESTION: "{user_query}"
+
+CONSTRAINTS:
+1. DO NOT simply list the data. INTERPRET it for the business owner.
+2. If this is a follow-up, reference the previous context (e.g., "Building on our discussion about...")
+3. Use a "pleasing and professional" tone. Avoid being a generic chatbot.
+4. If no data is found (Source: NONE), explain specifically what resource data we're missing and suggest related metrics you CAN check.
+5. End every response with a "Strategic Next Step" question or suggestion.
+
+RESPONSE:"""
 
             response = await llm_service.generate_response(final_prompt)
 
             if "[SYSTEM OVERLOAD]" in response:
                 return {
-                    "response": "Here is the retrieved data:",
+                    "response": "Architectural alert: I'm currently processing complex data streams. Here is the raw telemetry signal I've intercepted for you.",
                     "source": source,
                     "context": context_data
                 }
 
             return {"response": response, "source": source, "context": context_data}
 
-        except Exception:
+        except Exception as e:
+            print(f"Synthesis Error: {e}")
             return {
-                "response": "Here is the matching data:",
+                "response": "Strategic Insight: I've retrieved the following telemetry from your inventory records. How shall we proceed with this allocation?",
                 "source": source,
                 "context": context_data
             }
@@ -193,23 +261,33 @@ Instructions:
     # -----------------------------
     def _build_sql_prompt(self, query: str) -> str:
         return f"""
-You are a PostgreSQL expert.
+You are the StoreAI Strategic Analysis Engine (PostgreSQL Expert).
 
-Generate SAFE READONLY SQL.
+Generate SAFE READONLY SQL based on this schema:
 
-Tables:
-Product(id, name, price, "stockQuantity")
-Sale(id, "totalAmount", "saleDate")
-SaleItem(id, "saleId", "productId", "quantity", "unitPrice")
+CORE TABLES:
+- "Product"(id, "sku", name, price, "stockQuantity", "lowStockThreshold")
+- "Category"(id, name)
+- "Sale"(id, "invoiceNo", "totalAmount", "taxAmount", "createdAt")
+- "SaleItem"(id, "saleId", "productId", "quantity", "unitPrice")
 
-Rules:
-- Sales/revenue/totals → SUM("totalAmount")
-- Month/year → GROUP BY
-- List → SELECT name
-- Never INSERT/UPDATE/DELETE
-- Return RAW SQL only
+HR & RESOURCE TABLES:
+- "Employee"(id, "employeeId", designation, salary, "departmentId")
+- "Department"(id, name)
 
-User Question: "{query}"
+CRM TABLES:
+- "Customer"(id, name, email)
+
+SQL RULES:
+1. Always use double quotes for table and column names (e.g., SELECT "totalAmount" FROM "Sale").
+2. Sales/Revenue → SUM("totalAmount").
+3. Inventory counts → SUM("stockQuantity").
+4. Payroll → SUM(salary).
+5. Joins: Link "Product" to "Category" via "categoryId"; "SaleItem" to "Product" via "productId"; "Employee" to "Department" via "departmentId".
+6. Return RAW SQL ONLY. No explanations.
+7. For string matching, use ILIKE for case-insensitivity (e.g., "name" ILIKE '%monitor%').
+
+Question: "{query}"
 """
 
 
