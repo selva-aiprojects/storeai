@@ -25,6 +25,7 @@ import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
 import Financials from './pages/Financials';
 import Products from './pages/Products';
+import Assistant from './pages/Assistant';
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -154,6 +155,7 @@ function App() {
                         <Route path="/accounts" element={<Accounts />} />
                         <Route path="/financials" element={<Financials />} />
                         <Route path="/settings" element={<Settings />} />
+                        <Route path="/assistant" element={<Assistant />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>
                 </Routes>

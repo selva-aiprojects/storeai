@@ -1,8 +1,9 @@
-import { RefreshCw, Plus, Menu } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { RefreshCw, Plus, Menu, Sparkles } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const getPageTitle = () => {
         const path = location.pathname;
@@ -48,6 +49,18 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     refreshData(scope);
                 }}>
                     <RefreshCw size={14} /> <span className="btn-text">SYNC</span>
+                </button>
+                <button
+                    className="btn"
+                    style={{
+                        background: 'linear-gradient(135deg, #6366f1, #d946ef)',
+                        border: 'none',
+                        color: 'white',
+                        boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.4)'
+                    }}
+                    onClick={() => navigate('/assistant')}
+                >
+                    <Sparkles size={16} /> <span className="btn-text">AI INTELLIGENCE</span>
                 </button>
                 {showNewButton && (
                     <button className="btn btn-primary" onClick={() => {
