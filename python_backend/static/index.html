@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoreAI RAG Test</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f3f4f6; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        #chat-box { height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 10px; margin-bottom: 20px; border-radius: 8px; }
+        .message { margin-bottom: 10px; padding: 10px; border-radius: 8px; white-space: pre-wrap; }
+        .user { background: #e0e7ff; color: #3730a3; text-align: right; margin-left: auto; max-width: 80%; }
+        .bot { background: #f3f4f6; color: #1f2937; margin-right: auto; max-width: 80%; }
+        .input-area { display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; }
+        button { padding: 10px 20px; background: #4f46e5; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        button:hover { background: #4338ca; }
+        .status { font-size: 0.8rem; color: #6b7280; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>StoreAI Intelligence Layer</h1>
+        <div id="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="query" placeholder="Ask about Inventory, Sales, or Finance..." onkeypress="handleKey(event)">
+            <button onclick="sendQuery()">Send</button>
+        </div>
+        <p class="status" id="status"></p>
+    </div>
+
+    <script>
+        function handleKey(e) {
+            if (e.key === 'Enter') sendQuery();
+        }
+
+        async function sendQuery() {
+            const input = document.getElementById('query');
+            const chatBox = document.getElementById('chat-box');
+            const status = document.getElementById('status');
+            const text = input.value.trim();
+            
+            if (!text) return;
+
+            // Add User Message
+            chatBox.innerHTML += `<div class="message user">${text}</div>`;
+            input.value = '';
+            status.innerText = 'Thinking...';
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text })
+                });
+                const data = await res.json();
+                
+                chatBox.innerHTML += `<div class="message bot">Note: Source=${data.source}\n${data.response}</div>`;
+                status.innerText = `Retrieved logic: ${data.source}`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (e) {
+                chatBox.innerHTML += `<div class="message bot">Error: ${e.message}</div>`;
+                status.innerText = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>

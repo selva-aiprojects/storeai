@@ -48,13 +48,3 @@ Thumbs.db
 *.mov
 *.wmv
 
-# AI / Backend
-chroma_db/
-python_backend/chroma_db/
-.env
-python_backend/.env
-venv/
-.venv/
-__pycache__/
-*.pyc
-
