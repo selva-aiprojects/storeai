@@ -185,7 +185,7 @@ const Assistant = () => {
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || loading}
-                            className="p-4 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl text-white hover:shadow-[0_0_20px_rgba(126,34,206,0.4)] active:scale-95 disabled:opacity-20 disabled:scale-100 transition-all flex items-center justify-center"
+                            className="shrink-0 p-4 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl text-white hover:shadow-[0_0_20px_rgba(126,34,206,0.4)] active:scale-95 disabled:opacity-20 disabled:scale-100 transition-all flex items-center justify-center"
                         >
                             <Send size={24} />
                         </button>
