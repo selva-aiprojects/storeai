@@ -119,7 +119,8 @@ Standalone Query:"""
             "top", "best", "worst", "highest", "lowest",
             "salary", "payroll", "attendance", "employee", "staff", "department",
             "return", "refund", "daybook", "ledger", "p&l", "profit", "loss", "liability", "aging", "gst", "tax",
-            "report", "analytics", "summary", "stock level", "financial health", "recurring", "rent", "electricity"
+            "report", "analytics", "summary", "stock level", "financial health", "recurring", "rent", "electricity",
+            "product", "item", "stock", "list", "inventory", "inward", "available", "who", "show"
         ]
 
         if any(k in query.lower() for k in sql_keywords):

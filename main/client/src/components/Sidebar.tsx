@@ -45,7 +45,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         { path: '/config-finance', label: 'Finance Policies', icon: Settings, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/reports', label: 'Strategic Reports', icon: TrendingUp, feature: 'REPORT_MODULE', permission: 'reports:view' },
         { divider: 'AI Intelligence' },
-        { path: '/assistant', label: 'Intelligence Engine', icon: Layers, feature: 'AI_MODULE', permission: 'dashboard:view' },
+        { path: '/assistant', label: 'AI Intelligence', icon: Layers, feature: 'AI_MODULE', permission: 'dashboard:view' },
     ];
 
     if (user?.role === 'SUPER_ADMIN') {
@@ -100,10 +100,11 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                             color: 'white',
                             cursor: 'pointer',
                             zIndex: 10,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                            transition: 'all 0.3s ease'
                         }}
                     >
-                        {isCollapsed ? <ChevronRight size={14} /> : <X size={14} />}
+                        {isCollapsed ? <ChevronRight size={14} /> : <ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} />}
                     </button>
                 )}
                 {mobileOpen && (
@@ -130,7 +131,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     ) : (
                         !isCollapsed && (
                             <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                                {user?.activeTenant?.name || 'OPERANT CORE'}
+                                {user?.activeTenant?.name || 'StoreAI Hub Platform'}
                             </span>
                         )
                     )}
@@ -139,9 +140,11 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     let sectionTracker = '';
                     return filteredMenuItems.map((item: any, index) => {
                         if (item.divider) {
+                            if (isCollapsed) return <div key={index} className="menu-divider-mini" style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '15px 10px' }}></div>;
+
                             sectionTracker = item.divider;
                             const sectionName = item.divider;
-                            const isCollapsed = collapsedSections.includes(sectionName);
+                            const isSectionCollapsed = collapsedSections.includes(sectionName);
                             return (
                                 <div
                                     key={index}
@@ -160,7 +163,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                     }}
                                 >
                                     {sectionName}
-                                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                                    {isSectionCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
                                 </div>
                             );
                         }

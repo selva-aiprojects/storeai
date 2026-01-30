@@ -487,6 +487,7 @@ model Customer {
   sales       Sale[]
   salesOrders SalesOrder[]
 
+  @@unique([tenantId, name])
   @@index([tenantId])
   @@index([isDeleted])
 }
@@ -840,6 +841,8 @@ model RecurringExpense {
   tenantId   String
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   createdAt  DateTime @default(now())
+
+  @@unique([tenantId, name])
 }
 
 model GSTLog {

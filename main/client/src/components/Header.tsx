@@ -7,9 +7,30 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
 
     const getPageTitle = () => {
         const path = location.pathname;
-        if (path === '/') return 'DASHBOARD';
-        const name = path.substring(1).toUpperCase();
-        return name || 'DASHBOARD';
+        const mapping: Record<string, string> = {
+            '/': 'DASHBOARD',
+            '/products': 'PRODUCT CATALOG',
+            '/inventory': 'STOCK MASTER',
+            '/sales': 'SALES [POS]',
+            '/returns': 'SALES RETURNS',
+            '/purchases': 'PROCUREMENT HUB',
+            '/partners': 'PARTNERS',
+            '/customers': 'CUSTOMERS',
+            '/hr-master': 'EMPLOYEE MASTER',
+            '/attendance': 'ATTENDANCE MASTER',
+            '/payroll': 'PAYROLL ENGINE',
+            '/hr-reports': 'STATUTORY REPORTS',
+            '/daybook': 'DAYBOOK (DAILY)',
+            '/ledger': 'GENERAL LEDGER',
+            '/liability': 'LIABILITY TRACKER',
+            '/gst': 'GST COMPLIANCE',
+            '/pl': 'PROFIT & LOSS (P&L)',
+            '/config-finance': 'FINANCE POLICIES',
+            '/reports': 'STRATEGIC REPORTS',
+            '/assistant': 'AI INTELLIGENCE',
+            '/settings': 'SYSTEM SETTINGS'
+        };
+        return mapping[path] || (path.substring(1).replace('-', ' ').toUpperCase() || 'DASHBOARD');
     };
 
     const showNewButton = ['/inventory', '/sales', '/purchases', '/hr', '/customers', '/accounts'].includes(location.pathname);
@@ -34,7 +55,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', lineHeight: 1.2 }}>
                     <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#5d03b1' }}>{getPageTitle()}</span>
                     <span style={{ fontSize: '0.75rem', color: '#5d03b1', fontWeight: 600, letterSpacing: '0.05em' }}>
-                        {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'OPERATIONAL CORE'}
+                        {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'STOREAI HUB PLATFORM'}
                     </span>
                 </div>
             </div>

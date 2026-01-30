@@ -39,12 +39,12 @@ async function main() {
             data: {
                 email: superAdminEmail,
                 password: commonPassword,
-                firstName: 'Super',
-                lastName: 'Admin',
+                firstName: 'Siddharth',
+                lastName: 'Malhotra',
                 role: 'SUPER_ADMIN'
             }
         });
-        console.log('✅ Created Super Admin User');
+        console.log('✅ Created Super Admin User: Siddharth Malhotra');
     }
 
     // Also ensure the old admin@storeai.com exists with the same password
@@ -191,27 +191,33 @@ async function main() {
             status: 'ACTIVE',
             features: { inventory: true, sales: true, crm: true, procurement: true },
             categories: [
-                { name: 'Computers', description: 'Laptops, Desktops and Servers' },
-                { name: 'Peripherals', description: 'Keyboards, Mice and Monitors' },
-                { name: 'Networking', description: 'Routers, Switches and Cabling' },
-                { name: 'Software Licenses', description: 'Enterprise software and cloud services' }
+                { name: 'Computing Devices', description: 'Enterprise Laptops, Desktops and Servers' },
+                { name: 'Input/Output Peripherals', description: 'High-end Keyboards, Mice and Ultra-wide Monitors' },
+                { name: 'Core Networking', description: 'Industrial Routers, Core Switches and Structured Cabling' },
+                { name: 'Cloud & Software', description: 'SaaS licenses and Cloud infrastructure services' }
             ],
             products: [
-                { sku: 'TNS-COM-001', name: 'ProBook 14" Laptop', price: 1299.00, cost: 850.00, brand: 'TechNova', unit: 'pcs' },
-                { sku: 'TNS-PER-002', name: 'Mechanical Keyboard', price: 120.00, cost: 45.00, brand: 'TechNova', unit: 'pcs' },
-                { sku: 'TNS-NET-003', name: 'Wi-Fi 6 Router', price: 199.00, cost: 85.00, brand: 'TechNova', unit: 'pcs' },
-                { sku: 'TNS-SFT-004', name: 'Cloud Storage 1TB (Annual)', price: 149.00, cost: 40.00, brand: 'TechNova', unit: 'license' },
-                { sku: 'TNS-PER-005', name: 'HD Web Camera', price: 85.00, cost: 30.00, brand: 'TechNova', unit: 'pcs' }
+                { sku: 'TNS-COM-001', name: 'Precision ProBook 14-inch G9', price: 1299.00, cost: 850.00, brand: 'HP Enterprise', unit: 'pcs' },
+                { sku: 'TNS-PER-002', name: 'Mechanical RGB Developer Keyboard', price: 120.00, cost: 45.00, brand: 'Keychron', unit: 'pcs' },
+                { sku: 'TNS-NET-003', name: 'OptiLink Wi-Fi 6E Mesh Router', price: 199.00, cost: 85.00, brand: 'TP-Link', unit: 'pcs' },
+                { sku: 'TNS-SFT-004', name: 'Office 365 Enterprise (1 Year)', price: 149.00, cost: 40.00, brand: 'Microsoft', unit: 'license' },
+                { sku: 'TNS-PER-005', name: '4K Ultra-Sync Conference Camera', price: 285.00, cost: 130.00, brand: 'Logitech', unit: 'pcs' }
             ],
             suppliers: [
-                { name: 'Silicon Valley Distrib', email: 'sales@svdistrib.com', contact: 'Gary Gates', address: 'Tech Park, Silicon Valley' },
-                { name: 'Global Tech Hub', email: 'orders@globaltechhub.com', contact: 'Susan Chip', address: 'Electronic Way, Shenzhen' },
-                { name: 'Network Solutions Inc', email: 'info@networksolutions.com', contact: 'Neil Link', address: 'Copper Drive, connectivity City' }
+                { name: 'Silicon Valley Distributions', email: 'sales@svdistrib.com', contact: 'Karthik Raman', address: 'Tech Park II, Bengaluru, KA' },
+                { name: 'Global Tech Source', email: 'orders@globaltechhub.com', contact: 'Sarah Zhang', address: 'Industrial Area, Shenzhen, CN' },
+                { name: 'Network Protocol Solutions', email: 'info@networksolutions.com', contact: 'Vikram Joshi', address: 'Cyber City, Gurugram, HR' }
             ],
             customers: [
-                { name: 'Startup Incubator', email: 'tech@incubator.com', phone: '+1-555-0501', city: 'Palo Alto', address: '500 Startup Way' },
-                { name: 'Global Corp IT', email: 'itprocurement@globalcorp.com', phone: '+1-555-0502', city: 'London', address: '25 Canary Wharf' },
-                { name: 'Tech Savvy Solutions', email: 'admin@techsavvy.com', phone: '+1-555-0503', city: 'Singapore', address: '10 Marina Blvd' }
+                { name: 'Startup Innovation Hub', email: 'procure@startupindia.gov.in', phone: '+91-9876543210', city: 'Mumbai', address: 'Bandra Kurla Complex' },
+                { name: 'Cognivectra IT Corp', email: 'it@cognivectra.com', phone: '+91-9988776655', city: 'Pune', address: 'Hinjewadi Tech Park' },
+                { name: 'Tech Savvy Solutions', email: 'admin@techsavvy.com', phone: '+91-1234567890', city: 'Singapore', address: '10 Marina Boulevard' }
+            ],
+            employees: [
+                { first: 'Sanjeev', last: 'Verma', role: 'Head of Operations', salary: 120000 },
+                { first: 'Priyanka', last: 'Chopra', role: 'Senior Sales Consultant', salary: 85000 },
+                { first: 'Arun', last: 'Jetley', role: 'Technician Lead', salary: 65000 },
+                { first: 'Meera', last: 'Nair', role: 'Accountant', salary: 75000 }
             ]
         }
     ];
@@ -306,17 +312,131 @@ async function main() {
         }
 
         // Create Customers
+        const createdCustomers = [];
         for (const c of t.customers) {
-            await prisma.customer.create({
-                data: {
-                    name: c.name,
-                    email: c.email,
-                    phone: c.phone,
-                    city: c.city,
-                    address: c.address,
-                    tenantId: tenant.id
-                }
+            const customer = await prisma.customer.upsert({
+                where: { tenantId_name: { tenantId: tenant.id, name: c.name } },
+                update: { email: c.email, phone: c.phone, city: c.city, address: c.address },
+                create: { name: c.name, email: c.email, phone: c.phone, city: c.city, address: c.address, tenantId: tenant.id }
             });
+            createdCustomers.push(customer);
+        }
+
+        // Create Employees (if defined)
+        const createdEmployees = [];
+        if (t.employees) {
+            let dept = await prisma.department.findFirst({ where: { tenantId: tenant.id } });
+            if (!dept) {
+                dept = await prisma.department.create({
+                    data: { name: 'Operations', tenantId: tenant.id }
+                });
+            }
+
+            for (const e of t.employees) {
+                const empId = `EMP-${tenant.slug.toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
+                const employee = await prisma.employee.upsert({
+                    where: { employeeId: empId },
+                    update: { firstName: e.first, lastName: e.last, designation: e.role, salary: e.salary },
+                    create: {
+                        employeeId: empId,
+                        firstName: e.first,
+                        lastName: e.last,
+                        designation: e.role,
+                        salary: e.salary,
+                        departmentId: dept.id,
+                        joiningDate: new Date('2025-01-01')
+                    }
+                });
+                createdEmployees.push(employee);
+            }
+        }
+
+        // --- HISTORICAL TRANSACTION DATA (AI INTELLIGENCE FUELLER) ---
+        console.log(`⏱️ Generating 12 months of historical data for ${t.name}...`);
+        const startDate = new Date();
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        const endDate = new Date();
+
+        const allProducts = await prisma.product.findMany({ where: { tenantId: tenant.id } });
+        const allSuppliers = await prisma.supplier.findMany({ where: { tenantId: tenant.id } });
+
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+            const currentDate = new Date(d);
+            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+            const txCount = isWeekend ? Math.floor(Math.random() * 5) : Math.floor(Math.random() * 15) + 5;
+
+            // Seed Sales
+            for (let i = 0; i < txCount; i++) {
+                const product = allProducts[Math.floor(Math.random() * allProducts.length)];
+                const customer = createdCustomers[Math.floor(Math.random() * createdCustomers.length)];
+                const salesman = createdEmployees.length > 0 ? createdEmployees[Math.floor(Math.random() * createdEmployees.length)] : null;
+                const qty = Math.floor(Math.random() * 3) + 1;
+                const price = product.price;
+                const total = qty * price;
+                const tax = total * 0.18;
+
+                const sale = await prisma.sale.create({
+                    data: {
+                        invoiceNo: `INV-${currentDate.getTime()}-${i}`,
+                        totalAmount: total + tax,
+                        taxAmount: tax,
+                        cgstAmount: tax / 2,
+                        sgstAmount: tax / 2,
+                        tenantId: tenant.id,
+                        customerId: customer.id,
+                        salesmanId: salesman?.id,
+                        createdAt: currentDate,
+                        status: 'COMPLETED',
+                        items: {
+                            create: {
+                                productId: product.id,
+                                quantity: qty,
+                                unitPrice: price,
+                                taxAmount: tax
+                            }
+                        }
+                    }
+                });
+
+                // Periodic Payments (80% collections)
+                if (Math.random() > 0.2) {
+                    await prisma.payment.create({
+                        data: {
+                            amount: total + tax,
+                            method: Math.random() > 0.5 ? 'UPI' : 'CASH',
+                            tenantId: tenant.id,
+                            saleId: sale.id,
+                            createdAt: currentDate
+                        }
+                    });
+                }
+            }
+
+            // Periodic Procurement (Orders)
+            if (currentDate.getDate() % 10 === 0) {
+                const supplier = allSuppliers[Math.floor(Math.random() * allSuppliers.length)];
+                const product = allProducts[Math.floor(Math.random() * allProducts.length)];
+                const poQty = 50;
+                const poTotal = poQty * product.costPrice;
+
+                await prisma.order.create({
+                    data: {
+                        orderNumber: `PO-${currentDate.getTime()}`,
+                        totalAmount: poTotal,
+                        status: 'RECEIVED',
+                        tenantId: tenant.id,
+                        supplierId: supplier.id,
+                        createdAt: currentDate,
+                        items: {
+                            create: {
+                                productId: product.id,
+                                quantity: poQty,
+                                unitPrice: product.costPrice
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 
