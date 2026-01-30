@@ -167,11 +167,20 @@ export const getProfitAndLoss = async (req: AuthRequest, res: Response) => {
         const totalIncome = income._sum.debit || 0;
         const totalExpenses = expenses._sum.credit || 0;
 
+        const saleItems = await prisma.saleItem.findMany({
+            where: { sale: { tenantId, isDeleted: false } },
+            include: { product: true }
+        });
+        const cogs = saleItems.reduce((acc, item) => acc + (item.quantity * item.product.costPrice), 0);
+
+        const netProfit = totalIncome - totalExpenses - cogs;
+
         res.json({
             totalIncome,
             totalExpenses,
-            netProfit: totalIncome - totalExpenses,
-            margin: totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0
+            cogs,
+            netProfit,
+            margin: totalIncome > 0 ? (netProfit / totalIncome) * 100 : 0
         });
     } catch (error) {
         res.status(500).json({ error: 'P&L calculation failed' });
@@ -238,7 +247,7 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
         });
         const inventoryValue = stocks
             .filter(s => (s as any).product.tenantId === tenantId)
-            .reduce((acc, s) => acc + (s.quantity * (s as any).product.price), 0);
+            .reduce((acc, s) => acc + (s.quantity * (s as any).product.costPrice), 0);
 
         // Accounts Receivable (Unpaid Sales)
         const ar = await prisma.sale.aggregate({
@@ -279,7 +288,14 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
             },
             _sum: { debit: true, credit: true }
         });
-        const retainedEarnings = (pnl._sum.debit || 0) - (pnl._sum.credit || 0);
+        // Calculate COGS for Retained Earnings
+        const saleItems = await prisma.saleItem.findMany({
+            where: { sale: { tenantId, isDeleted: false } }, // Include all sales (Accrual Basis)
+            include: { product: true }
+        });
+        const cogs = saleItems.reduce((acc, item) => acc + (item.quantity * item.product.costPrice), 0);
+
+        const retainedEarnings = (pnl._sum.debit || 0) - (pnl._sum.credit || 0) - cogs;
 
         const totalAssets = cashBalance + inventoryValue + (ar._sum.totalAmount || 0) + (gstInput._sum.amount || 0);
         const totalLiabilities = (ap._sum.totalAmount || 0) + (gstOutput._sum.amount || 0);
