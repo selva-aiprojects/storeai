@@ -58,3 +58,26 @@ venv/
 __pycache__/
 *.pyc
 
+# Temporary Diagnostic Scripts
+python_backend/automated_qa_finance.py
+python_backend/check_db.py
+python_backend/check_id_types.py
+python_backend/db_check.py
+python_backend/db_check_cols.py
+python_backend/db_check_daybook.py
+python_backend/db_check_order.py
+python_backend/db_check_returns.py
+python_backend/debug_finance_direct.py
+python_backend/inspect_daybook.py
+python_backend/inspect_employee.py
+python_backend/inspect_full_db.py
+python_backend/inspect_order_only.py
+python_backend/inspect_order_sale.py
+python_backend/migrate_configs.py
+python_backend/migrate_finance.py
+python_backend/migrate_finance_final.py
+python_backend/migrate_finance_resilient.py
+python_backend/migrate_hr.py
+python_backend/test_specific_ai_fail.py
+python_backend/tests/
+
