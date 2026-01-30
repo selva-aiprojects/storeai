@@ -74,21 +74,27 @@ const Login = ({ setUser }: any) => {
             }} />
 
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 className="card"
                 style={{
-                    maxWidth: '420px',
-                    width: '100%',
+                    maxWidth: '440px',
+                    width: '90%',
+                    aspectRatio: '1/1',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
                     padding: '40px',
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    background: 'linear-gradient(145deg, rgba(30, 26, 77, 0.98) 0%, rgba(47, 13, 104, 0.98) 100%)',
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                    border: '1px solid rgba(124, 58, 237, 0.3)',
+                    boxShadow: '0 40px 100px -20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(124, 58, 237, 0.1)',
+                    borderRadius: '32px',
                     color: '#fff',
                     zIndex: 10,
-                    margin: 'auto' // THE CENTER TRICK
+                    margin: 'auto',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.15)'
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '10px' }}>
@@ -118,16 +124,20 @@ const Login = ({ setUser }: any) => {
                                 required
                                 placeholder="admin@storeai.com"
                                 style={{
-                                    background: 'rgba(15, 23, 42, 0.6)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(15, 23, 42, 0.7)',
+                                    border: '1px solid rgba(124, 58, 237, 0.2)',
                                     color: '#fff',
-                                    fontSize: '0.95rem',
-                                    padding: '12px 16px'
+                                    fontSize: '0.9rem',
+                                    padding: '10px 14px',
+                                    borderRadius: '12px',
+                                    transition: 'all 0.2s'
                                 }}
+                                onFocus={(e) => { e.target.style.borderColor = '#818cf8'; e.target.style.boxShadow = '0 0 15px rgba(129, 140, 248, 0.2)'; }}
+                                onBlur={(e) => { e.target.style.borderColor = 'rgba(124, 58, 237, 0.2)'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontWeight: 600, fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>ACCESS KEY</label>
+                            <label style={{ fontWeight: 600, fontSize: '0.65rem', color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em', marginBottom: '8px', display: 'block' }}>ACCESS KEY</label>
                             <input
                                 type="password"
                                 value={authForm.password}
@@ -135,38 +145,46 @@ const Login = ({ setUser }: any) => {
                                 required
                                 placeholder="••••••••"
                                 style={{
-                                    background: 'rgba(15, 23, 42, 0.6)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(15, 23, 42, 0.7)',
+                                    border: '1px solid rgba(124, 58, 237, 0.2)',
                                     color: '#fff',
-                                    fontSize: '0.95rem',
-                                    padding: '12px 16px'
+                                    fontSize: '0.9rem',
+                                    padding: '10px 14px',
+                                    borderRadius: '12px',
+                                    transition: 'all 0.2s'
                                 }}
+                                onFocus={(e) => { e.target.style.borderColor = '#818cf8'; e.target.style.boxShadow = '0 0 15px rgba(129, 140, 248, 0.2)'; }}
+                                onBlur={(e) => { e.target.style.borderColor = 'rgba(124, 58, 237, 0.2)'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontWeight: 600, fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.05em', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                            <label style={{ fontWeight: 600, fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
                                 <span>TENANT ID (OPTIONAL)</span>
-                                <span style={{ opacity: 0.5 }}>For Multi-Tenant Access</span>
                             </label>
                             <input
                                 type="text"
                                 value={authForm.tenantSlug}
                                 onChange={(e) => setAuthForm({ ...authForm, tenantSlug: e.target.value.toLowerCase() })}
-                                placeholder="e.g. quantum"
+                                placeholder="e.g. technova"
                                 style={{
-                                    background: 'rgba(15, 23, 42, 0.6)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    background: 'rgba(15, 23, 42, 0.7)',
+                                    border: '1px solid rgba(124, 58, 237, 0.2)',
                                     color: '#fff',
-                                    fontSize: '0.95rem',
-                                    padding: '12px 16px'
+                                    fontSize: '0.9rem',
+                                    padding: '10px 14px',
+                                    borderRadius: '12px',
+                                    transition: 'all 0.2s'
                                 }}
+                                onFocus={(e) => { e.target.style.borderColor = '#818cf8'; e.target.style.boxShadow = '0 0 15px rgba(129, 140, 248, 0.2)'; }}
+                                onBlur={(e) => { e.target.style.borderColor = 'rgba(124, 58, 237, 0.2)'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
                         <button className="btn btn-primary" style={{
-                            padding: '14px',
-                            marginTop: '10px',
-                            fontSize: '0.9rem',
-                            fontWeight: 700
+                            padding: '12px',
+                            marginTop: '8px',
+                            fontSize: '0.85rem',
+                            fontWeight: 800,
+                            borderRadius: '12px'
                         }}>AUTHORIZE ACCESS</button>
 
                         <div style={{ textAlign: 'center', marginTop: '10px' }}>

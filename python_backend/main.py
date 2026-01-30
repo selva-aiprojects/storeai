@@ -7,6 +7,8 @@ from services.rag import rag_service
 from services.llm import llm_service
 import uvicorn
 import os
+import traceback
+from fastapi.responses import JSONResponse
 
 app = FastAPI(title="StoreAI Intelligence Layer")
 
@@ -25,8 +27,6 @@ async def catch_exceptions_middleware(request, call_next):
         print(f"CRITICAL ERROR: {e}")
         traceback.print_exc()
         return JSONResponse(status_code=500, content={"detail": str(e)})
-
-from fastapi.responses import JSONResponse
 
 # Serve Frontend
 static_dir = os.path.join(os.path.dirname(__file__), "static")

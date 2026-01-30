@@ -1,4 +1,8 @@
 import chromadb
+import json
+import uuid
+from datetime import datetime, date
+from decimal import Decimal
 from services.llm import llm_service
 from services.db import db
 
@@ -11,6 +15,16 @@ collection = chroma_client.get_or_create_collection(
     name="storeai_products",
     metadata={"hnsw:space": "cosine"}
 )
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        if isinstance(obj, uuid.UUID):
+            return str(obj)
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 class RAGService:
@@ -96,12 +110,12 @@ Standalone Query:"""
             print(f"[DEBUG] Greeting matched for: {query}")
             return {
                 "response": (
-                    "Greetings! I am your StoreAI Lead Product Architect [v2.0]. "
-                    "I am here to help you optimize your Inventory and Resource Management strategy through real-time telemetry and data-driven insights. "
-                    "How can I assist you in streamlining your operations or maximizing your resource efficiency today?"
+                    "Greetings! I am the StoreAI Strategic Intelligence Engine. "
+                    "I am currently synchronized with your live telemetry, providing real-time oversight of your Inventory, Sales, and Resource Allocation. "
+                    "Which business dimension shall we analyze for your strategic roadmap today?"
                 ),
                 "source": "HEURISTIC",
-                "context": "Agent Persona: Inventory & Resource Management Architect"
+                "context": "Agent Persona: Strategic Product Architect"
             }
         return None
 
@@ -120,7 +134,7 @@ Standalone Query:"""
             "salary", "payroll", "attendance", "employee", "staff", "department",
             "return", "refund", "daybook", "ledger", "p&l", "profit", "loss", "liability", "aging", "gst", "tax",
             "report", "analytics", "summary", "stock level", "financial health", "recurring", "rent", "electricity",
-            "product", "item", "stock", "list", "inventory", "inward", "available", "who", "show"
+            "product", "item", "stock", "list", "inventory", "inward", "available", "who", "show", "resource", "allocation"
         ]
 
         if any(k in query.lower() for k in sql_keywords):
@@ -161,10 +175,11 @@ Standalone Query:"""
             # ---- NUMERIC POLISH ----
             if len(rows) == 1 and len(rows[0]) == 1:
                 val = list(rows[0].values())[0]
-                context_data = f"Value Found: {val}"
+                # Still return as JSON list for the UI renderer to be consistent
+                context_data = json.dumps([{"value": val}], cls=CustomEncoder)
                 return context_data, "SQL"
 
-            context_data = "\n".join([str(dict(r)) for r in rows[:15]])
+            context_data = json.dumps([dict(r) for r in rows[:15]], cls=CustomEncoder)
             return context_data, "SQL"
 
         except Exception as e:
@@ -175,34 +190,37 @@ Standalone Query:"""
     # VECTOR HANDLER
     # -----------------------------
     async def _handle_vector(self, query: str):
+        try:
+            numeric_words = ["year", "total", "sum", "revenue", "sales", "profit"]
+            if any(w in query.lower() for w in numeric_words):
+                return None, None
 
-        numeric_words = ["year", "total", "sum", "revenue", "sales", "profit"]
-        if any(w in query.lower() for w in numeric_words):
+            embedding = await llm_service.get_embedding(query)
+            if not embedding:
+                return None, None
+
+            results = collection.query(query_embeddings=[embedding], n_results=5)
+
+            metas = results["metadatas"][0]
+
+            # ---- DUPLICATE CLEAN ----
+            seen = set()
+            lines = []
+            for m in metas:
+                key = m.get("name")
+                if key and key not in seen:
+                    seen.add(key)
+                    lines.append(
+                        f"- {m['name']} ({m['category']}) - ${m['price']} | Stock: {m['stock']}"
+                    )
+
+            if not lines:
+                 return None, None
+
+            return "\n".join(lines), "VECTOR"
+        except Exception as e:
+            print(f"[RAG] Vector query failed → {e}")
             return None, None
-
-        embedding = await llm_service.get_embedding(query)
-        if not embedding:
-            return None, None
-
-        results = collection.query(query_embeddings=[embedding], n_results=5)
-
-        metas = results["metadatas"][0]
-
-        # ---- DUPLICATE CLEAN ----
-        seen = set()
-        lines = []
-        for m in metas:
-            key = m.get("name")
-            if key and key not in seen:
-                seen.add(key)
-                lines.append(
-                    f"- {m['name']} ({m['category']}) - ${m['price']} | Stock: {m['stock']}"
-                )
-
-        if not lines:
-             return None, None
-
-        return "\n".join(lines), "VECTOR"
 
     # -----------------------------
     # SYNTHESIS

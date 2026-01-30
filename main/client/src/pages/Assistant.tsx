@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { chatWithAI } from '../services/ai';
 
 interface Message {
@@ -10,6 +12,69 @@ interface Message {
     timestamp: Date;
     context?: string;
 }
+
+const ContextRenderer = ({ data }: { data: string }) => {
+    try {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+
+        if (Array.isArray(parsed)) {
+            if (parsed.length === 0) return <div className="p-3 italic text-gray-400">No telemetry data matching this signal.</div>;
+
+            const headers = Object.keys(parsed[0]);
+            return (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50/50">
+                            <tr>
+                                {headers.map(h => (
+                                    <th key={h} className="px-3 py-2 text-left text-[9px] font-bold text-gray-500 uppercase tracking-wider border-r border-gray-200 last:border-r-0">
+                                        {h.replace(/_/g, ' ')}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                            {parsed.map((row, i) => (
+                                <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
+                                    {headers.map(h => (
+                                        <td key={h} className="px-3 py-2 whitespace-nowrap text-[10px] text-gray-600 border-r border-gray-100 last:border-r-0">
+                                            {String(row[h])}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        if (typeof parsed === 'object' && parsed !== null) {
+            return (
+                <div className="p-3 space-y-1">
+                    {Object.entries(parsed).map(([k, v]) => (
+                        <div key={k} className="flex gap-2 border-b border-gray-50 last:border-0 pb-1">
+                            <span className="font-bold text-purple-600 uppercase text-[9px] min-w-[80px]">{k.replace(/_/g, ' ')}:</span>
+                            <span className="text-[10px] text-gray-700">{String(v)}</span>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        return <div className="p-3 whitespace-pre-wrap">{String(data)}</div>;
+    } catch {
+        const lines = data.split('\n').filter(l => l.trim());
+        if (lines.length > 0 && lines[0].startsWith('- ')) {
+            return (
+                <ul className="p-3 space-y-1.5">
+                    {lines.map((l, i) => <li key={i} className="text-[10px] list-disc list-inside">{l.replace('- ', '')}</li>)}
+                </ul>
+            );
+        }
+        return <div className="p-3 whitespace-pre-wrap">{data}</div>;
+    }
+};
 
 const Assistant = () => {
 
@@ -144,20 +209,22 @@ const Assistant = () => {
                             </div>
 
                             <div className="max-w-[85%] space-y-2">
-                                <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed
+                                <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed assistant-markdown
                                     ${msg.sender === 'user'
                                         ? 'bg-indigo-600 text-white'
                                         : 'bg-gray-50 text-gray-800 border'}`}>
-                                    {msg.text}
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {msg.text}
+                                    </ReactMarkdown>
                                 </div>
 
                                 {msg.context && (
-                                    <div className="bg-gray-50 rounded-lg border">
-                                        <div className="bg-gray-100 px-3 py-1 text-[10px] font-bold uppercase">
-                                            Analyst Context
+                                    <div className="bg-gray-50 rounded-lg border overflow-hidden mt-3">
+                                        <div className="bg-gray-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 border-bottom">
+                                            Telemetry Data Signal
                                         </div>
-                                        <div className="p-3 text-[11px] text-gray-600 whitespace-pre-wrap">
-                                            {msg.context}
+                                        <div className="p-0 text-[11px] text-gray-700">
+                                            <ContextRenderer data={msg.context} />
                                         </div>
                                     </div>
                                 )}
@@ -166,6 +233,56 @@ const Assistant = () => {
                                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
+
+                            <style dangerouslySetInnerHTML={{
+                                __html: `
+                                .assistant-markdown table {
+                                    width: 100%;
+                                    border-collapse: separate;
+                                    border-spacing: 0;
+                                    margin: 12px 0;
+                                    border: 1px solid #e2e8f0;
+                                    border-radius: 8px;
+                                    overflow: hidden;
+                                }
+                                .assistant-markdown th {
+                                    background: #f8fafc;
+                                    padding: 10px 12px;
+                                    text-align: left;
+                                    font-size: 0.75rem;
+                                    font-weight: 700;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.05em;
+                                    color: #475569;
+                                    border-bottom: 1px solid #e2e8f0;
+                                }
+                                .assistant-markdown td {
+                                    padding: 10px 12px;
+                                    font-size: 0.85rem;
+                                    color: #1e293b;
+                                    border-bottom: 1px solid #f1f5f9;
+                                }
+                                .assistant-markdown tr:last-child td {
+                                    border-bottom: none;
+                                }
+                                .assistant-markdown p {
+                                    margin-bottom: 8px;
+                                }
+                                .assistant-markdown p:last-child {
+                                    margin-bottom: 0;
+                                }
+                                .assistant-markdown ul, .assistant-markdown ol {
+                                    padding-left: 20px;
+                                    margin: 8px 0;
+                                }
+                                .assistant-markdown li {
+                                    margin-bottom: 4px;
+                                }
+                                .assistant-markdown strong {
+                                    color: #4338ca;
+                                    font-weight: 700;
+                                }
+                            `}} />
                         </motion.div>
                     ))}
 
