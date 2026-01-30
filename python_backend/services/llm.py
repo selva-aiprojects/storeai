@@ -11,7 +11,7 @@ load_dotenv()
 # -----------------------------
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") # Keep for embeddings
-MODEL_NAME = "llama-3.3-70b-versatile"
+MODEL_NAME = "llama-3.1-8b-instant"
 EMBED_MODEL = "models/embedding-001"
 MAX_RETRIES = 2
 TIMEOUT_SECONDS = 25
@@ -58,6 +58,8 @@ class LLMService:
 
             except Exception as e:
                 print(f"[LLM ERROR] Attempt {attempt}: {e}")
+                if "rate_limit_exceeded" in str(e).lower() and attempt < MAX_RETRIES:
+                    await asyncio.sleep(2) # Wait a bit on rate limit
                 if attempt == MAX_RETRIES:
                     return "[SYSTEM OVERLOAD]"
 

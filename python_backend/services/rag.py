@@ -110,12 +110,12 @@ Standalone Query:"""
             print(f"[DEBUG] Greeting matched for: {query}")
             return {
                 "response": (
-                    "Greetings! I am the StoreAI Strategic Intelligence Engine. "
-                    "I am currently synchronized with your live telemetry, providing real-time oversight of your Inventory, Sales, and Resource Allocation. "
-                    "Which business dimension shall we analyze for your strategic roadmap today?"
+                    "Greetings! I am your StoreAI Assistant. "
+                    "I am currently synchronized with your store's live data to help you oversee Inventory, Sales, and Resource Allocation. "
+                    "What part of your business shall we look at together today?"
                 ),
                 "source": "HEURISTIC",
-                "context": "Agent Persona: Strategic Product Architect"
+                "context": "Persona: Supportive Business Assistant"
             }
         return None
 
@@ -125,19 +125,39 @@ Standalone Query:"""
     def _route_intent(self, query: str) -> str:
         # Keywords that strongly suggest data lookup
         sql_keywords = [
-            "count", "total", "sum", "average", "avg",
-            "revenue", "sales", "profit", "loss", "value",
-            "year", "month", "week", "today", "yesterday", "daily",
-            "overspend", "spending", "expense",
-            "how many", "how much",
-            "top", "best", "worst", "highest", "lowest",
-            "salary", "payroll", "attendance", "employee", "staff", "department",
-            "return", "refund", "daybook", "ledger", "p&l", "profit", "loss", "liability", "aging", "gst", "tax",
-            "report", "analytics", "summary", "stock level", "financial health", "recurring", "rent", "electricity",
-            "product", "item", "stock", "list", "inventory", "inward", "available", "who", "show", "resource", "allocation"
+            # Inventory
+            "low stock", "reorder", "minimum stock", "stock alert", "running out", "stock critical", "below threshold", "stockout",
+            "overstock", "excess stock", "surplus", "dead stock", "slow moving", "non moving",
+            "turnover", "days on hand", "stock coverage", "stock ageing", "inventory health",
+            "warehouse", "location", "variance", "mismatch",
+            # Expiry
+            "expired", "near expiry", "expiring soon", "batch expiry", "shelf life",
+            # Sales
+            "sales", "revenue", "profit", "loss", "margin", "top selling", "best seller", "growth", "trend",
+            # Purchase/Supplier
+            "purchase order", "po", "pending po", "approved po", "cancelled po", "supplier", "vendor", "on time delivery",
+            # Finance
+            "payment", "overdue", "invoice", "receivables", "payables", "cash flow", "balance sheet", "p&l", "expense", "cost",
+            "bank reconciliation", "gst", "tax", "liability",
+            # HR
+            "headcount", "joiners", "exits", "attrition", "attendance", "absenteeism", "late coming", "leave", "holiday",
+            "payroll", "salary", "overtime", "deductions", "reimbursements", "performance", "appraisal", "performer", "training",
+            # Ops
+            "anomaly", "spike", "drop", "outlier", "duplicate", "data issue", "missing data", "sync", "failed job", "background task",
+            "exception list",
+            # Executive/NLP
+            "business summary", "overview", "store health", "risks", "red flags", "watchlist", "bottlenecks", "kpi", "metrics",
+            "insights", "forecast", "demand", "attention", "changed"
         ]
 
-        if any(k in query.lower() for k in sql_keywords):
+        # Common SQL terms
+        core_sql_terms = [
+            "count", "total", "sum", "average", "avg", "how many", "how much", "top", "best", "worst", "highest", "lowest", "show", "list"
+        ]
+
+        combined_keywords = sql_keywords + core_sql_terms
+        
+        if any(k in query.lower() for k in combined_keywords):
             print("[RAG] Intent: SQL")
             return "SQL"
 
@@ -161,9 +181,9 @@ Standalone Query:"""
                 sql = raw_response.replace("```sql", "").replace("```", "").strip()
 
             # Architecture Safety Check (Read Only)
-            forbidden = ["DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER"]
-            if any(word in sql.upper() for word in forbidden):
-                print(f"[SECURITY ALERT] LLM generated dangerous SQL: {sql}")
+            forbidden = ["DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER", "[SYSTEM OVERLOAD]"]
+            if not sql or any(word in sql.upper() for word in forbidden):
+                print(f"[RAG] SQL Safety Blocked or Invalid: {sql}")
                 return None, None
 
             print(f"[RAG] Generated SQL: {sql}")
@@ -202,22 +222,11 @@ Standalone Query:"""
             results = collection.query(query_embeddings=[embedding], n_results=5)
 
             metas = results["metadatas"][0]
-
-            # ---- DUPLICATE CLEAN ----
-            seen = set()
-            lines = []
-            for m in metas:
-                key = m.get("name")
-                if key and key not in seen:
-                    seen.add(key)
-                    lines.append(
-                        f"- {m['name']} ({m['category']}) - ${m['price']} | Stock: {m['stock']}"
-                    )
-
-            if not lines:
+            if not metas:
                  return None, None
 
-            return "\n".join(lines), "VECTOR"
+            # Return as JSON string for consistent UI table rendering
+            return json.dumps(metas, cls=CustomEncoder), "VECTOR"
         except Exception as e:
             print(f"[RAG] Vector query failed → {e}")
             return None, None
@@ -249,12 +258,12 @@ CONVERSATION HISTORY (FOR CONTINUITY):
 USER QUESTION: "{user_query}"
 
 CONSTRAINTS:
-1. DO NOT simply list the data. INTERPRET it for the business owner.
-2. If this is a follow-up, reference the previous context (e.g., "Building on our discussion about...")
-3. Use a "pleasing and professional" tone. Avoid being a generic chatbot. Incorporate financial keywords like "Aging Analysis" or "GST Compliance" naturally where relevant.
-4. If no data is found (Source: NONE), explain specifically what resource data we're missing and suggest related metrics you CAN check (e.g., "I don't see Sales Returns yet, but I can check your overall sales health").
-5. End every response with a "Strategic Next Step" question or suggestion.
-6. FINANCIAL INTELLIGENCE: Always mention the impact on "Financial Health" if the query relates to costs, returns, or revenue.
+1. DO NOT simply list the data. Briefly interpret it for the business owner in a helpful, calm tone.
+2. If this is a follow-up, reference the previous context naturally.
+3. DATA VISIBILITY: If you are presenting a list of products, stock levels, or sales, use MARKDOWN TABLES for better readability.
+4. TONE: Be professional and reassuring. Avoid using words like "Critical," "Alert," "Alarming," or "Discrepancy" unless it's a genuine emergency. If stock is negative, suggest it might be a pending restock or data entry update.
+5. FINANCIAL CONTEXT: Mention the positive impact of data-driven decisions on "Financial Health."
+6. End with a "Strategic Next Step" suggesting a specific follow-up query.
 
 RESPONSE:"""
 
@@ -262,7 +271,7 @@ RESPONSE:"""
 
             if "[SYSTEM OVERLOAD]" in response:
                 return {
-                    "response": "Architectural alert: I'm currently processing complex data streams. Here is the raw telemetry signal I've intercepted for you.",
+                    "response": "I've retrieved the latest readings from your store telemetry. Here is the structured summary for your review.",
                     "source": source,
                     "context": context_data
                 }
@@ -299,7 +308,7 @@ FINANCE & ACCOUNTING:
 - "GSTLog"(id, "type", "amount", "isPaid")
 
 HR, PAYROLL & CRM:
-- "Employee"(id, "employeeId", designation, salary)
+- "Employee"(id, "employeeId", designation, salary, "joinedAt", "leftAt", "isDeleted")
 - "Attendance"(id, "employeeId", date, status)
 - "Payroll"(id, "employeeId", month, year, "totalPayout")
 - "Department"(id, name)
@@ -310,11 +319,13 @@ SQL RULES:
 2. Revenue → SUM(debit) FROM "Daybook" WHERE type='INCOME'.
 3. Expenses/Outflow → SUM(credit) FROM "Daybook" WHERE type='EXPENSE'.
 4. Returns → SUM("totalRefund") FROM "SalesReturn".
-5. Liability Aging → Count/Sum "totalAmount" FROM "Sale" WHERE "isPaid" = false.
+5. Liability Aging → Count/Sum "totalAmount" FROM "Sale" WHERE "isPaid" = false AND "dueDate" < CURRENT_DATE.
 6. GST Liability → Sum "gstAmount" (from Sale) vs Input tax.
-7. Return RAW SQL ONLY.
-8. Case-insensitive: Use ILIKE '%term%'.
-9. For Daybook, "debit" is money IN, "credit" is money OUT.
+7. Inventory Turnover → (COGS / Average Inventory) - use total sales / current stock value as proxy if needed.
+8. Attrition → Count "leftAt" / Count total employees.
+9. Top Performers → Employee with highest sales (Sale joined with Employee) or lowest absenteeism.
+10. Case-insensitive: Use ILIKE '%term%'.
+11. Return RAW SQL ONLY inside a code block.
 
 Question: "{query}"
 """
