@@ -38,6 +38,9 @@ import GSTCompliance from './pages/Finance/GSTCompliance';
 import ProfitLoss from './pages/Finance/ProfitLoss';
 import GeneralLedger from './pages/Finance/GeneralLedger';
 import ConfigSettings from './pages/Finance/ConfigSettings';
+import BalanceSheet from './pages/Finance/BalanceSheet';
+import IndividualLedger from './pages/Finance/IndividualLedger';
+import Administration from './pages/Administration';
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -156,7 +159,12 @@ function App() {
                 <Login setUser={setUser} />
             ) : (
                 <Routes>
-                    <Route element={<DashboardLayout user={user} logout={() => { localStorage.removeItem('store_ai_token'); setUser(null); }} refreshData={refreshData} setModal={setModal} data={data} loading={loading} />}>
+                    <Route element={<DashboardLayout user={user} logout={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = '/'; // Force hard reload to clear all react state
+                        setUser(null);
+                    }} refreshData={refreshData} setModal={setModal} data={data} loading={loading} />}>
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/products" element={<Products />} />
                         <Route path="/inventory" element={<Inventory />} />
@@ -165,6 +173,8 @@ function App() {
                         <Route path="/purchases" element={<Purchases />} />
                         <Route path="/daybook" element={<Daybook />} />
                         <Route path="/ledger" element={<GeneralLedger />} />
+                        <Route path="/ledger/:entityId" element={<IndividualLedger />} />
+                        <Route path="/balance-sheet" element={<BalanceSheet />} />
                         <Route path="/liability" element={<LiabilityTracker />} />
                         <Route path="/gst" element={<GSTCompliance />} />
                         <Route path="/pl" element={<ProfitLoss />} />
@@ -178,6 +188,7 @@ function App() {
                         <Route path="/hr-reports" element={<HRReports />} />
                         <Route path="/accounts" element={<Accounts />} />
                         <Route path="/settings" element={<Settings />} />
+                        <Route path="/administration" element={<Administration />} />
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>

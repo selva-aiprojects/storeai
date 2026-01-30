@@ -219,8 +219,8 @@ class FinanceService:
         r_val = await db.fetch_val("SELECT SUM(debit) FROM \"Daybook\" WHERE type = 'RETURN'")
         e_val = await db.fetch_val("SELECT SUM(debit) FROM \"Daybook\" WHERE type = 'EXPENSE'")
         
-        gst_out_val = await db.fetch_val("SELECT SUM(\"gstAmount\") FROM \"Sale\"")
-        gst_in_val = await db.fetch_val("SELECT SUM(\"gstAmount\") FROM \"Order\"")
+        gst_out_val = await db.fetch_val("SELECT SUM(\"taxAmount\") FROM \"Sale\"")
+        gst_in_val = await db.fetch_val("SELECT SUM(\"taxAmount\") FROM \"Order\"")
         
         sales = self._to_decimal(s_val)
         returns = self._to_decimal(r_val)

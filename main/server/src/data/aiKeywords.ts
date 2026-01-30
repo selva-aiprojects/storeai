@@ -83,6 +83,10 @@ export const AI_KEYWORDS = [
     { keyword: "bank reconciliation", category: "finance" },
     { keyword: "gst summary", category: "finance" },
     { keyword: "tax liability", category: "finance" },
+    { keyword: "capital investment", category: "finance" },
+    { keyword: "initial capital", category: "finance" },
+    { keyword: "equity", category: "finance" },
+    { keyword: "investment", category: "finance" },
 
     // HR – HEADCOUNT / MOVEMENT
     { keyword: "headcount", category: "hr" },

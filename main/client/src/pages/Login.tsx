@@ -280,7 +280,7 @@ const Login = ({ setUser }: any) => {
                     </form>
                 )}
                 <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', lineHeight: '1.6' }}>
-                    &copy; 2026 STOREAI INTELLIGENCE SYSTEMS. <br />
+                    &copy; 2026 COGNIVECTRA - STOREAI INTELLIGENCE PLATFORM. <br />
                     <span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>SECURE ENCLAVE ACTIVE</span>
                 </div>
             </motion.div >

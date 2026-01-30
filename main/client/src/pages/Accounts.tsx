@@ -1,8 +1,9 @@
-import { useOutletContext } from 'react-router-dom';
-import { DollarSign, ArrowUpRight, ArrowDownRight, Printer, Plus } from 'lucide-react';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import { DollarSign, ArrowUpRight, ArrowDownRight, Printer, Plus, TrendingUp } from 'lucide-react';
 
 const Accounts = () => {
     const { data, setModal } = useOutletContext<any>();
+    const navigate = useNavigate();
     const { ledger, financialSummary } = data || {};
 
     const summaryData = [
@@ -17,8 +18,11 @@ const Accounts = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="section-header">Financial Operations</div>
                 <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="btn btn-secondary" onClick={() => navigate('/balance-sheet')}>
+                        <TrendingUp size={16} style={{ marginRight: '8px' }} /> BALANCE SHEET
+                    </button>
                     <button className="btn btn-secondary" onClick={() => window.print()}>
-                        <Printer size={16} style={{ marginRight: '8px' }} /> PRINT STATEMENT
+                        <Printer size={16} style={{ marginRight: '8px' }} /> PRINT
                     </button>
                     <button className="btn btn-primary" onClick={() => setModal({ type: 'payment' })}>
                         <Plus size={16} style={{ marginRight: '8px' }} /> NEW TRANSACTION
@@ -55,7 +59,7 @@ const Accounts = () => {
                         </thead>
                         <tbody>
                             {ledger?.map((l: any) => (
-                                <tr key={l.id}>
+                                <tr key={l.id} className="clickable-row" onClick={() => navigate(`/ledger/${l.referenceId || l.id}`)} style={{ cursor: 'pointer' }}>
                                     <td>
                                         <div style={{ fontSize: '0.8rem' }}>{new Date(l.createdAt).toLocaleDateString()}</div>
                                         <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>{new Date(l.createdAt).toLocaleTimeString()}</div>

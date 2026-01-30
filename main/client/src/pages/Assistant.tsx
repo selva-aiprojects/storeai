@@ -15,7 +15,12 @@ interface Message {
 
 const ContextRenderer = ({ data }: { data: string }) => {
     try {
-        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        let parsed = typeof data === 'string' ? JSON.parse(data) : data;
+
+        // Handle double-stringified JSON from some backend responses
+        if (typeof parsed === 'string' && (parsed.startsWith('[') || parsed.startsWith('{'))) {
+            parsed = JSON.parse(parsed);
+        }
 
         if (Array.isArray(parsed)) {
             if (parsed.length === 0) return <div className="p-3 italic text-gray-400">No telemetry data matching this signal.</div>;
@@ -93,7 +98,7 @@ const Assistant = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 1,
-            text: "Greetings. I am your StoreAI Support Assistant. I'm currently connected to your live inventory, sales, and procurement telemetry. I can provide real-time architectural insights and operational summaries. What business dimension shall we analyze first?",
+            text: "Hello! I am your StoreAI Intelligence Platform Assistant from Cognivectra's product. I have live access to your inventory, sales, and resource records. What aspects of your store shall we analyze together today?",
             sender: 'ai',
             timestamp: new Date()
         }
@@ -176,10 +181,10 @@ const Assistant = () => {
                     </div>
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
-                            AI <span className="text-purple-600">Product Architect</span>
+                            StoreAI <span className="text-purple-600">Intelligence Platform</span>
                         </h1>
                         <p className="text-xs text-gray-500 font-medium">
-                            StoreAI Behavioral Engine • Gemini 1.5 Pro Context
+                            Intelligent Store Oversight • Operational Insights
                         </p>
                     </div>
                 </div>

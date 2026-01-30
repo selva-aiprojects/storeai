@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { logger, httpLogStream } from './utils/logger';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
@@ -19,18 +21,19 @@ import crmRoutes from './routes/crmRoutes';
 import tenantRoutes from './routes/tenantRoutes';
 import requisitionRoutes from './routes/requisitionRoutes';
 import financeRoutes from './routes/financeRoutes';
+import auditRoutes from './routes/auditRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 
-
-console.log('--- ENVIRONMENT CONFIG CHECK ---');
-console.log('PORT:', process.env.PORT);
+logger.info('--- ENVIRONMENT CONFIG CHECK ---');
+logger.info(`PORT: ${process.env.PORT}`);
 const dbUrl = process.env.DATABASE_URL || '';
 const maskedDbUrl = dbUrl.replace(/:([^:@]+)@/, ':****@');
-console.log('DATABASE_URL (Masked):', maskedDbUrl);
-console.log('--------------------------------');
+logger.info(`DATABASE_URL (Masked): ${maskedDbUrl}`);
+logger.info('--------------------------------');
 
 import compression from 'compression';
+import morgan from 'morgan';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -51,14 +54,22 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Request logger
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
+// HTTP Request logging with Morgan + Winston
+app.use(morgan('combined', { stream: httpLogStream }));
+
+// Initialize scheduled jobs (audit log archival, etc.)
+import initializeScheduledJobs from './utils/scheduler';
+if (process.env.NODE_ENV !== 'test') {
+    initializeScheduledJobs();
+}
+
 
 // Public Routes
 app.use('/api/v1/auth', authRoutes);
+
+// Audit middleware for protected routes (tracks all mutations)
+import auditMiddleware from './middleware/auditMiddleware';
+app.use('/api/v1', auditMiddleware);
 
 // Protected Routes
 app.use('/api/v1/users', userRoutes);
@@ -77,14 +88,19 @@ app.use('/api/v1/crm', authenticate, crmRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/requisitions', requisitionRoutes);
 app.use('/api/v1/finance', financeRoutes);
+app.use('/api/v1/audit-logs', auditRoutes);
 app.get('/api/v1/dashboard/stats', authenticate, getDashboardStats);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
 
+// Error handling middleware (must be last)
+app.use(notFoundHandler);
+app.use(errorHandler);
+
 // Only listen if NOT running on Vercel (Vercel handles binding automatically)
 if (process.env.VERCEL !== '1') {
     app.listen(PORT, () => {
-        console.log(`🚀 StoreAI Enterprise Server running on port ${PORT}`);
+        logger.info(`🚀 StoreAI Enterprise Server running on port ${PORT}`);
     });
 }
 

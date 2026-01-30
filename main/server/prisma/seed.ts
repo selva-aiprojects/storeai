@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('--- STARTING MULTI-TENANT SAAS SEED ---');
 
-    const hashedPassword = await bcrypt.hash('AdminPassword123!', 10);
+    const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
     // 1. Clean Database
     try {

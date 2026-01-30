@@ -38,6 +38,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         { path: '/hr-reports', label: 'Statutory Reports', icon: ShieldCheck, feature: 'HR_MODULE', permission: 'hr:read' },
         { divider: 'Finance & Intel' },
         { path: '/daybook', label: 'Daybook (Daily)', icon: History, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
+        { path: '/balance-sheet', label: 'Balance Sheet', icon: Landmark, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/ledger', label: 'General Ledger', icon: BookOpen, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/liability', label: 'Liability Tracker', icon: Receipt, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/gst', label: 'GST Compliance', icon: FileText, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
@@ -131,7 +132,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     ) : (
                         !isCollapsed && (
                             <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                                {user?.activeTenant?.name || 'StoreAI Hub Platform'}
+                                {user?.activeTenant?.name || 'StoreAI Intelligence Platform'}
                             </span>
                         )
                     )}

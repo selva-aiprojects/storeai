@@ -11,6 +11,26 @@ export const getLedger = async (req: AuthRequest, res: Response) => {
             where: { tenantId },
             orderBy: { createdAt: 'desc' }
         });
+
+        if (ledger.length === 0) {
+            // Fallback to Daybook for seeded expert data
+            const daybook = await prisma.daybook.findMany({
+                where: { tenantId },
+                orderBy: { date: 'desc' }
+            });
+            // Map Daybook to Ledger format for UI compatibility
+            const mapped = daybook.map(d => ({
+                id: d.id,
+                title: d.description,
+                description: d.type,
+                amount: Math.max(Number(d.debit), Number(d.credit)),
+                type: Number(d.debit) > 0 ? 'DEBIT' : 'CREDIT',
+                category: d.type,
+                createdAt: d.date
+            }));
+            return res.json(mapped);
+        }
+
         res.json(ledger);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch ledger' });
@@ -110,5 +130,44 @@ export const createPaymentEntry = async (req: AuthRequest, res: Response) => {
     } catch (error) {
         console.error("Payment Entry Error:", error);
         res.status(400).json({ error: 'Payment recording failed' });
+    }
+};
+export const getEntityLedger = async (req: AuthRequest, res: Response) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        const { entityId } = req.params;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
+        const [daybook, ledger] = await Promise.all([
+            prisma.daybook.findMany({
+                where: {
+                    tenantId,
+                    OR: [
+                        { referenceId: entityId },
+                        { description: { contains: entityId, mode: 'insensitive' } }
+                    ]
+                },
+                orderBy: { date: 'desc' }
+            }),
+            prisma.ledger.findMany({
+                where: {
+                    tenantId,
+                    OR: [
+                        { title: { contains: entityId, mode: 'insensitive' } },
+                        { description: { contains: entityId, mode: 'insensitive' } }
+                    ]
+                },
+                orderBy: { createdAt: 'desc' }
+            })
+        ]);
+
+        const combined = [
+            ...daybook.map(d => ({ ...d, source: 'DAYBOOK' })),
+            ...ledger.map(l => ({ ...l, date: l.createdAt, source: 'LEDGER' }))
+        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        res.json(combined);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch entity ledger' });
     }
 };

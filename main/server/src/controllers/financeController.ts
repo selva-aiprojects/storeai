@@ -204,7 +204,7 @@ export const processRecurringExpenses = async (req: AuthRequest, res: Response) 
                     data: {
                         type: 'EXPENSE',
                         description: `${expense.name} - ${currentMonth}`,
-                        credit: expense.baseAmount,
+                        credit: expense.amount,
                         tenantId,
                         status: 'PENDING_APPROVAL'
                     }
@@ -219,3 +219,94 @@ export const processRecurringExpenses = async (req: AuthRequest, res: Response) 
     }
 };
 
+export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
+    try {
+        const tenantId = req.user?.tenantId;
+        if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
+
+        // 1. ASSETS
+        // Cash/Bank: Only Capital, Paid Sales, minus Paid Purchases/Expenses
+        const daybookBalance = await prisma.daybook.aggregate({
+            where: { tenantId },
+            _sum: { debit: true, credit: true }
+        });
+        const cashBalance = (daybookBalance._sum.debit || 0) - (daybookBalance._sum.credit || 0);
+
+        // Inventory Value
+        const stocks = await prisma.stock.findMany({
+            include: { product: true }
+        });
+        const inventoryValue = stocks
+            .filter(s => (s as any).product.tenantId === tenantId)
+            .reduce((acc, s) => acc + (s.quantity * (s as any).product.price), 0);
+
+        // Accounts Receivable (Unpaid Sales)
+        const ar = await prisma.sale.aggregate({
+            where: { tenantId, isPaid: false, isDeleted: false },
+            _sum: { totalAmount: true }
+        });
+
+        // GST Input (Asset)
+        const gstInput = await prisma.gSTLog.aggregate({
+            where: { tenantId, type: 'INPUT' },
+            _sum: { amount: true }
+        });
+
+        // 2. LIABILITIES
+        // Accounts Payable (Pending Orders)
+        const ap = await prisma.order.aggregate({
+            where: { tenantId, status: { not: 'CANCELLED' } },
+            _sum: { totalAmount: true }
+        });
+
+        // GST Output (Liability)
+        const gstOutput = await prisma.gSTLog.aggregate({
+            where: { tenantId, type: 'OUTPUT' },
+            _sum: { amount: true }
+        });
+
+        // 3. EQUITY & PROFIT
+        const equity = await prisma.daybook.aggregate({
+            where: { tenantId, type: 'CAPITAL' },
+            _sum: { debit: true }
+        });
+
+        // Calculate Retained Earnings (Income - Expense - COGS)
+        const pnl = await prisma.daybook.aggregate({
+            where: {
+                tenantId,
+                type: { in: ['INCOME', 'EXPENSE', 'SALE', 'RETURN'] }
+            },
+            _sum: { debit: true, credit: true }
+        });
+        const retainedEarnings = (pnl._sum.debit || 0) - (pnl._sum.credit || 0);
+
+        const totalAssets = cashBalance + inventoryValue + (ar._sum.totalAmount || 0) + (gstInput._sum.amount || 0);
+        const totalLiabilities = (ap._sum.totalAmount || 0) + (gstOutput._sum.amount || 0);
+        const totalEquity = (equity._sum.debit || 0) + retainedEarnings;
+
+        res.json({
+            assets: {
+                cash: cashBalance,
+                inventory: inventoryValue,
+                receivables: ar._sum.totalAmount || 0,
+                gstInput: gstInput._sum.amount || 0,
+                total: totalAssets
+            },
+            liabilities: {
+                payables: ap._sum.totalAmount || 0,
+                gstOutput: gstOutput._sum.amount || 0,
+                total: totalLiabilities
+            },
+            equity: {
+                capital: equity._sum.debit || 0,
+                retainedEarnings: retainedEarnings,
+                total: totalEquity
+            },
+            isBalanced: Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 1
+        });
+    } catch (error) {
+        console.error("Balance Sheet Error:", error);
+        res.status(500).json({ error: 'Failed to generate balance sheet' });
+    }
+};

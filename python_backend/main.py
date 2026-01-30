@@ -5,12 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from services.rag import rag_service
 from services.llm import llm_service
+from utils.logger import logger, log_error, log_api_call
 import uvicorn
 import os
 import traceback
 from fastapi.responses import JSONResponse
 
-app = FastAPI(title="StoreAI Intelligence Layer")
+app = FastAPI(title="StoreAI Intelligence Platform (Cognivectra)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,9 +25,13 @@ async def catch_exceptions_middleware(request, call_next):
     try:
         return await call_next(request)
     except Exception as e:
-        print(f"CRITICAL ERROR: {e}")
-        traceback.print_exc()
+        log_error(e, {
+            'path': str(request.url.path),
+            'method': request.method,
+            'client_ip': request.client.host if request.client else None,
+        })
         return JSONResponse(status_code=500, content={"detail": str(e)})
+
 
 # Serve Frontend
 static_dir = os.path.join(os.path.dirname(__file__), "static")
@@ -93,7 +98,20 @@ from services.hr import hr_service
 
 @app.get("/api/hr/employees")
 async def get_employees():
-    return await db.fetch_rows("SELECT * FROM \"Employee\" WHERE \"isDeleted\" = false")
+    from services.db import db
+    from decimal import Decimal
+    rows = await db.fetch_rows("SELECT * FROM \"Employee\" WHERE \"isDeleted\" = false")
+    # Serialize rows to handle Decimal and date types  
+    result = []
+    for row in rows:
+        d = dict(row)
+        for k, v in d.items():
+            if isinstance(v, Decimal):
+                d[k] = float(v)
+            elif hasattr(v, 'isoformat'):
+                d[k] = v.isoformat()
+        result.append(d)
+    return result
 
 @app.post("/api/hr/attendance")
 async def log_attendance(req: dict):
@@ -122,7 +140,7 @@ async def get_yearly_report(year: int, type: str):
 
 @app.get("/")
 def read_root():
-    return {"status": "StoreAI Intelligence Layer Running"}
+    return {"status": "StoreAI Intelligence Platform Running"}
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))

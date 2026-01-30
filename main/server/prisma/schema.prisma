@@ -9,41 +9,42 @@ datasource db {
 }
 
 model Tenant {
-  id            String              @id @default(uuid())
-  name          String
-  slug          String              @unique
-  logo          String?
-  status        String              @default("PENDING")
-  planId        String?
-  features      Json?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  categories    Category[]
-  customers     Customer[]
-  deals         Deal[]
-  departments   Department[]
-  inventoryDocs InventoryDocument[]
-  ledgers       Ledger[]
-  orders        Order[]
-  payments      Payment[]
-  pricingRules  PricingRule[]
-  products      Product[]
-  sales         Sale[]
-  salesOrders   SalesOrder[]
-  suppliers     Supplier[]
-  plan          Plan?               @relation(fields: [planId], references: [id])
-  users         UserTenant[]
-  warehouses          Warehouse[]
-  purchaseRequisitions PurchaseRequisition[]
-  purchaseQuotations   PurchaseQuotation[]
-  supplierAgreements   SupplierAgreement[]
-  stockLedgers         StockLedger[]
-  salesRegisters       SalesRegister[]
+  id                   String                @id @default(uuid())
+  name                 String
+  slug                 String                @unique
+  logo                 String?
+  status               String                @default("PENDING")
+  planId               String?
+  features             Json?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
   activityLogs         ActivityLog[]
-  salesReturns         SalesReturn[]
+  categories           Category[]
+  customers            Customer[]
   daybooks             Daybook[]
-  recurringExpenses    RecurringExpense[]
+  deals                Deal[]
+  departments          Department[]
   gstLogs              GSTLog[]
+  inventoryDocs        InventoryDocument[]
+  ledgers              Ledger[]
+  orders               Order[]
+  payments             Payment[]
+  pricingRules         PricingRule[]
+  products             Product[]
+  purchaseQuotations   PurchaseQuotation[]
+  purchaseRequisitions PurchaseRequisition[]
+  recurringExpenses    RecurringExpense[]
+  sales                Sale[]
+  salesOrders          SalesOrder[]
+  salesRegisters       SalesRegister[]
+  salesReturns         SalesReturn[]
+  stockLedgers         StockLedger[]
+  suppliers            Supplier[]
+  supplierAgreements   SupplierAgreement[]
+  plan                 Plan?                 @relation(fields: [planId], references: [id])
+  users                UserTenant[]
+  warehouses           Warehouse[]
+  auditLogs            AuditLog[]
 }
 
 model Plan {
@@ -88,21 +89,22 @@ model Permission {
 }
 
 model User {
-  id             String       @id @default(uuid())
-  email          String       @unique
+  id             String        @id @default(uuid())
+  email          String        @unique
   password       String
   firstName      String
   lastName       String
-  role           String       @default("STAFF")
-  isActive       Boolean      @default(true)
-  isDeleted      Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  role           String        @default("STAFF")
+  isActive       Boolean       @default(true)
+  isDeleted      Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  activityLogs   ActivityLog[]
   deals          Deal[]
   employee       Employee?
-  approvedOrders Order[]      @relation("OrderApprover")
+  approvedOrders Order[]       @relation("OrderApprover")
   tenants        UserTenant[]
-  activityLogs   ActivityLog[]
+  auditLogs      AuditLog[]
 }
 
 model Category {
@@ -119,45 +121,45 @@ model Category {
 }
 
 model Product {
-  id                 String                  @id @default(uuid())
-  sku                String                  // Product Code (Part Number)
+  id                 String                    @id @default(uuid())
+  sku                String
   name               String
   description        String?
   brand              String?
-  image              String?                 // Product Visual URL/Base64
-  price              Float                   // Selling Price
-  costPrice          Float                   // Standard Cost
-  transportationCost Float                   @default(0.0)
-  gstRate            Float                   @default(0.0) // Percentage
-  otherTaxRate       Float                   @default(0.0) // Percentage
-  stockQuantity      Int                     @default(0)
-  unit               String                  @default("pcs") // UOM
-  isBatchTracked     Boolean                 @default(false)
-  lowStockThreshold  Int                     @default(10)
-  reorderPoint       Int                     @default(10)
-  reorderQuantity    Int                     @default(50)
-  leadTimeDays       Int                     @default(7)
-  avgDailySales      Float                   @default(0.0)
+  image              String?
+  price              Float
+  costPrice          Float
+  transportationCost Float                     @default(0.0)
+  gstRate            Float                     @default(0.0)
+  otherTaxRate       Float                     @default(0.0)
+  stockQuantity      Int                       @default(0)
+  unit               String                    @default("pcs")
+  isBatchTracked     Boolean                   @default(false)
+  lowStockThreshold  Int                       @default(10)
+  reorderPoint       Int                       @default(10)
+  reorderQuantity    Int                       @default(50)
+  leadTimeDays       Int                       @default(7)
+  avgDailySales      Float                     @default(0.0)
   categoryId         String
   tenantId           String
-  isDeleted          Boolean                 @default(false)
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
+  isDeleted          Boolean                   @default(false)
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
   dealItems          DealItem[]
   receiptItems       GoodsReceiptItem[]
   inventoryItems     InventoryDocumentItem[]
   orderItems         OrderItem[]
   pricingRules       PricingRule[]
-  category           Category                @relation(fields: [categoryId], references: [id])
-  tenant             Tenant                  @relation(fields: [tenantId], references: [id])
+  category           Category                  @relation(fields: [categoryId], references: [id])
+  tenant             Tenant                    @relation(fields: [tenantId], references: [id])
+  batches            ProductBatch[]
+  requisitionItems   PurchaseRequisitionItem[]
   saleItems          SaleItem[]
   salesOrderItems    SalesOrderItem[]
-  batches            ProductBatch[]
-  stocks             Stock[]
-  supplierAgreements SupplierAgreement[]
-  requisitionItems   PurchaseRequisitionItem[]
-  stockLedgers       StockLedger[]
   salesRegisters     SalesRegister[]
+  stocks             Stock[]
+  stockLedgers       StockLedger[]
+  supplierAgreements SupplierAgreement[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
@@ -200,46 +202,46 @@ model Stock {
 }
 
 model ProductBatch {
-  id                String      @id @default(uuid())
+  id                String          @id @default(uuid())
   batchNumber       String
   slotNumber        String?
   productId         String
-  inwardDate        DateTime    @default(now())
+  inwardDate        DateTime        @default(now())
   expiryDate        DateTime?
   poId              String?
   quantityReceived  Int
   quantityAvailable Int
   warehouseLocation String?
   costPrice         Float
-  status            String      @default("ACTIVE")
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  product           Product     @relation(fields: [productId], references: [id])
-  ledgerEntries     StockLedger[]
-  salesRegisters    SalesRegister[]
+  status            String          @default("ACTIVE")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  product           Product         @relation(fields: [productId], references: [id])
   saleItems         SaleItem[]
+  salesRegisters    SalesRegister[]
+  ledgerEntries     StockLedger[]
 
   @@unique([productId, batchNumber])
   @@index([productId])
 }
 
 model StockLedger {
-  id              String      @id @default(uuid())
+  id              String        @id @default(uuid())
   productId       String
   batchId         String?
-  transactionType String      // INWARD, SALE, ADJUSTMENT, RETURN
-  referenceType   String      // PO, SALES_INVOICE, STOCK_ADJUSTMENT
+  transactionType String
+  referenceType   String
   referenceId     String?
-  quantityIn      Int         @default(0)
-  quantityOut     Int         @default(0)
+  quantityIn      Int           @default(0)
+  quantityOut     Int           @default(0)
   balanceQuantity Int
-  transactionDate DateTime    @default(now())
+  transactionDate DateTime      @default(now())
   remarks         String?
   createdBy       String?
   tenantId        String
-  product         Product     @relation(fields: [productId], references: [id])
   batch           ProductBatch? @relation(fields: [batchId], references: [id])
-  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  product         Product       @relation(fields: [productId], references: [id])
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
 
   @@index([productId])
   @@index([transactionDate])
@@ -247,19 +249,19 @@ model StockLedger {
 }
 
 model SalesRegister {
-  id                   String       @id @default(uuid())
+  id                   String        @id @default(uuid())
   invoiceId            String
   productId            String
   batchId              String?
   quantitySold         Int
   stockBefore          Int
   stockAfter           Int
-  transactionTimestamp DateTime     @default(now())
+  transactionTimestamp DateTime      @default(now())
   tenantId             String
-  product              Product      @relation(fields: [productId], references: [id])
   batch                ProductBatch? @relation(fields: [batchId], references: [id])
-  sale                 Sale         @relation(fields: [invoiceId], references: [id])
-  tenant               Tenant       @relation(fields: [tenantId], references: [id])
+  sale                 Sale          @relation(fields: [invoiceId], references: [id])
+  product              Product       @relation(fields: [productId], references: [id])
+  tenant               Tenant        @relation(fields: [tenantId], references: [id])
 
   @@index([invoiceId])
   @@index([productId])
@@ -284,8 +286,8 @@ model Supplier {
   updatedAt         DateTime            @updatedAt
   orders            Order[]
   quotations        PurchaseQuotation[]
-  pricingAgreements SupplierAgreement[]
   tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  pricingAgreements SupplierAgreement[]
 
   @@unique([tenantId, email])
 }
@@ -310,9 +312,9 @@ model Order {
   updatedAt            DateTime           @updatedAt
   goodsReceipts        GoodsReceipt[]
   approvedBy           User?              @relation("OrderApprover", fields: [approvedById], references: [id])
+  purchaseQuotation    PurchaseQuotation? @relation(fields: [quotationId], references: [id])
   supplier             Supplier           @relation(fields: [supplierId], references: [id])
   tenant               Tenant             @relation(fields: [tenantId], references: [id])
-  purchaseQuotation    PurchaseQuotation? @relation(fields: [quotationId], references: [id])
   items                OrderItem[]
 
   @@unique([tenantId, orderNumber])
@@ -343,9 +345,9 @@ model GoodsReceipt {
   warehouseId  String
   receivedById String?
   notes        String?
-  receivedBy   Employee?    @relation("ReceivedByEmployee", fields: [receivedById], references: [id])
-  order        Order        @relation(fields: [orderId], references: [id])
-  warehouse    Warehouse    @relation(fields: [warehouseId], references: [id])
+  order        Order              @relation(fields: [orderId], references: [id])
+  receivedBy   Employee?          @relation("ReceivedByEmployee", fields: [receivedById], references: [id])
+  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id])
   items        GoodsReceiptItem[]
 
   @@unique([orderId, grnNumber])
@@ -493,39 +495,39 @@ model Customer {
 }
 
 model Sale {
-  id                String     @id @default(uuid())
+  id                String          @id @default(uuid())
   invoiceNo         String
   totalAmount       Float
   taxAmount         Float
-  cgstAmount        Float      @default(0.0)
-  sgstAmount        Float      @default(0.0)
-  igstAmount        Float      @default(0.0)
-  discountAmount    Float      @default(0.0)
-  roundOff          Float      @default(0.0)
-  isHomeDelivery    Boolean    @default(false)
+  cgstAmount        Float           @default(0.0)
+  sgstAmount        Float           @default(0.0)
+  igstAmount        Float           @default(0.0)
+  discountAmount    Float           @default(0.0)
+  roundOff          Float           @default(0.0)
+  isHomeDelivery    Boolean         @default(false)
   deliveryAddress   String?
   deliveryCity      String?
   estimatedDelivery DateTime?
-  team              String     @default("SALES")
-  status            String     @default("PENDING")
+  team              String          @default("SALES")
+  status            String          @default("PENDING")
   trackingNumber    String?
   shippingCarrier   String?
   shippedAt         DateTime?
   customerId        String?
   salesmanId        String?
   tenantId          String
-  isDeleted         Boolean    @default(false)
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  isDeleted         Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  dueDate           DateTime?
+  isPaid            Boolean         @default(true)
   payment           Payment?
-  customer          Customer?  @relation(fields: [customerId], references: [id])
-  salesman          Employee?  @relation(fields: [salesmanId], references: [id])
-  tenant            Tenant     @relation(fields: [tenantId], references: [id])
+  customer          Customer?       @relation(fields: [customerId], references: [id])
+  salesman          Employee?       @relation(fields: [salesmanId], references: [id])
+  tenant            Tenant          @relation(fields: [tenantId], references: [id])
   items             SaleItem[]
   salesRegisters    SalesRegister[]
   salesReturns      SalesReturn[]
-  dueDate           DateTime?
-  isPaid            Boolean    @default(true)
 
   @@unique([tenantId, invoiceNo])
   @@index([tenantId])
@@ -534,21 +536,20 @@ model Sale {
   @@index([tenantId, createdAt])
 }
 
-
 model SaleItem {
-  id        String  @id @default(uuid())
+  id        String        @id @default(uuid())
   quantity  Int
   unitPrice Float
-  taxAmount Float   @default(0.0)
-  cgst      Float   @default(0.0)
-  sgst      Float   @default(0.0)
-  igst      Float   @default(0.0)
+  taxAmount Float         @default(0.0)
+  cgst      Float         @default(0.0)
+  sgst      Float         @default(0.0)
+  igst      Float         @default(0.0)
   saleId    String
   productId String
-  product   Product @relation(fields: [productId], references: [id])
-  sale      Sale    @relation(fields: [saleId], references: [id])
   batchId   String?
   batch     ProductBatch? @relation(fields: [batchId], references: [id])
+  product   Product       @relation(fields: [productId], references: [id])
+  sale      Sale          @relation(fields: [saleId], references: [id])
 
   @@index([saleId])
   @@index([productId])
@@ -621,12 +622,12 @@ model Employee {
   attendances         Attendance[]
   department          Department            @relation(fields: [departmentId], references: [id])
   user                User?                 @relation(fields: [userId], references: [id])
-  payrolls            Payroll[]
-  salaryStructure     SalaryStructure?
-  requisitions        PurchaseRequisition[]
-  sales               Sale[]
+  goodsReceipts       GoodsReceipt[]        @relation("ReceivedByEmployee")
   leaves              Leave[]
-  goodsReceipts       GoodsReceipt[]      @relation("ReceivedByEmployee")
+  payrolls            Payroll[]
+  requisitions        PurchaseRequisition[]
+  salaryStructure     SalaryStructure?
+  sales               Sale[]
 }
 
 model PricingRule {
@@ -685,20 +686,20 @@ model Payroll {
 }
 
 model PurchaseRequisition {
-  id             String                    @id @default(uuid())
-  requisitionNo  String                    @unique
-  requestDate    DateTime                  @default(now())
-  status         String                    @default("PENDING") // PENDING, APPROVED, REJECTED, ORDERED
-  priority       String                    @default("MEDIUM")
-  requestedById  String
-  tenantId       String
-  notes          String?
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
-  requestedBy    Employee                  @relation(fields: [requestedById], references: [id])
-  tenant         Tenant                    @relation(fields: [tenantId], references: [id])
-  items          PurchaseRequisitionItem[]
-  quotations     PurchaseQuotation[]
+  id            String                    @id @default(uuid())
+  requisitionNo String                    @unique
+  requestDate   DateTime                  @default(now())
+  status        String                    @default("PENDING")
+  priority      String                    @default("MEDIUM")
+  requestedById String
+  tenantId      String
+  notes         String?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+  quotations    PurchaseQuotation[]
+  requestedBy   Employee                  @relation(fields: [requestedById], references: [id])
+  tenant        Tenant                    @relation(fields: [tenantId], references: [id])
+  items         PurchaseRequisitionItem[]
 }
 
 model PurchaseRequisitionItem {
@@ -706,26 +707,26 @@ model PurchaseRequisitionItem {
   requisitionId String
   productId     String
   quantity      Int
-  requisition   PurchaseRequisition @relation(fields: [requisitionId], references: [id])
   product       Product             @relation(fields: [productId], references: [id])
+  requisition   PurchaseRequisition @relation(fields: [requisitionId], references: [id])
 }
 
 model PurchaseQuotation {
-  id            String              @id @default(uuid())
+  id            String               @id @default(uuid())
   quotationNo   String
   supplierId    String
   requisitionId String?
   totalAmount   Float
   validUntil    DateTime?
-  status        String              @default("RECEIVED") // RECEIVED, ACCEPTED, REJECTED
+  status        String               @default("RECEIVED")
   tenantId      String
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  items         Json?               // Store items snapshot or create a separate table if needed
-  supplier      Supplier            @relation(fields: [supplierId], references: [id])
-  requisition   PurchaseRequisition? @relation(fields: [requisitionId], references: [id])
-  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  items         Json?
   orders        Order[]
+  requisition   PurchaseRequisition? @relation(fields: [requisitionId], references: [id])
+  supplier      Supplier             @relation(fields: [supplierId], references: [id])
+  tenant        Tenant               @relation(fields: [tenantId], references: [id])
 }
 
 model SupplierAgreement {
@@ -738,53 +739,52 @@ model SupplierAgreement {
   isActive    Boolean  @default(true)
   tenantId    String
   createdAt   DateTime @default(now())
-  supplier    Supplier @relation(fields: [supplierId], references: [id])
   product     Product  @relation(fields: [productId], references: [id])
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }
 
 model SalaryStructure {
-  id            String   @id @default(uuid())
-  employeeId    String   @unique
-  basic         Float
-  hra           Float    @default(0.0)
-  da            Float    @default(0.0)
-  medical       Float    @default(0.0)
-  transport     Float    @default(0.0)
-  special       Float    @default(0.0)
-  providentFund Float    @default(0.0)
-  professionalTax Float  @default(0.0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  employee      Employee @relation(fields: [employeeId], references: [id])
+  id              String   @id @default(uuid())
+  employeeId      String   @unique
+  basic           Float
+  hra             Float    @default(0.0)
+  da              Float    @default(0.0)
+  medical         Float    @default(0.0)
+  transport       Float    @default(0.0)
+  special         Float    @default(0.0)
+  providentFund   Float    @default(0.0)
+  professionalTax Float    @default(0.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  employee        Employee @relation(fields: [employeeId], references: [id])
 }
 
 model Leave {
-  id          String   @id @default(uuid())
-  type        String   // SICK, CASUAL, EARNED
-  startDate   DateTime
-  endDate     DateTime
-  reason      String?
-  status      String   @default("PENDING")
-  employeeId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  employee    Employee @relation(fields: [employeeId], references: [id])
+  id         String   @id @default(uuid())
+  type       String
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  status     String   @default("PENDING")
+  employeeId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  employee   Employee @relation(fields: [employeeId], references: [id])
 }
 
 model ActivityLog {
-  id          String   @id @default(uuid())
-  action      String   // CREATE, UPDATE, DELETE, LOGIN
-  entityType  String   // PRODUCT, ORDER, USER
-  entityId    String?
-  details     Json?    // Snapshot of changes
-  ipAddress   String?
-  userId      String
-  tenantId    String
-  createdAt   DateTime @default(now())
-  
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+  id         String   @id @default(uuid())
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  userId     String
+  tenantId   String
+  createdAt  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 
   @@index([tenantId])
   @@index([entityType])
@@ -793,61 +793,86 @@ model ActivityLog {
 }
 
 model SalesReturn {
-  id                 String             @id @default(uuid())
+  id                 String            @id @default(uuid())
   saleId             String
-  returnDate         DateTime           @default(now())
+  returnDate         DateTime          @default(now())
   totalRefund        Float
-  transportDeduction Float              @default(0.0)
-  packagingDeduction Float              @default(0.0)
-  gstDeduction       Float              @default(0.0)
-  condition          String             @default("EXCELLENT")
+  transportDeduction Float             @default(0.0)
+  packagingDeduction Float             @default(0.0)
+  gstDeduction       Float             @default(0.0)
+  condition          String            @default("EXCELLENT")
   notes              String?
-  createdAt          DateTime           @default(now())
-  sale               Sale               @relation(fields: [saleId], references: [id])
-  items              SalesReturnItem[]
+  createdAt          DateTime          @default(now())
   tenantId           String
-  tenant             Tenant             @relation(fields: [tenantId], references: [id])
+  sale               Sale              @relation(fields: [saleId], references: [id])
+  tenant             Tenant            @relation(fields: [tenantId], references: [id])
+  items              SalesReturnItem[]
 }
 
 model SalesReturnItem {
-  id             String      @id @default(uuid())
-  salesReturnId  String
-  productId      String
-  quantity       Int
-  refundAmount   Float
-  salesReturn    SalesReturn @relation(fields: [salesReturnId], references: [id])
+  id            String      @id @default(uuid())
+  salesReturnId String
+  productId     String
+  quantity      Int
+  refundAmount  Float
+  salesReturn   SalesReturn @relation(fields: [salesReturnId], references: [id])
 }
 
 model Daybook {
   id          String   @id @default(uuid())
   date        DateTime @default(now())
-  type        String   // INCOME, EXPENSE, ASSET, LIABILITY
+  type        String
   description String?
   debit       Float    @default(0.0)
   credit      Float    @default(0.0)
   referenceId String?
   status      String   @default("PENDING_APPROVAL")
   tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
   createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }
 
 model RecurringExpense {
-  id         String   @id @default(uuid())
-  name       String
-  baseAmount Float
-  category   String?
-  isActive   Boolean  @default(true)
-  tenantId   String
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  createdAt  DateTime @default(now())
+  id          String   @id @default(uuid())
+  name        String
+  frequency   String
+  amount      Float
+  category    String
+  nextDueDate DateTime
+  isActive    Boolean  @default(true)
+  tenantId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, name])
 }
 
+// Audit Trail for Compliance
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  action      String   // e.g., "CREATE_PRODUCT", "UPDATE_SALE", "DELETE_EMPLOYEE"
+  module      String   // e.g., "INVENTORY", "FINANCE", "HR"
+  entityType  String?  // e.g., "Product", "Sale", "Employee"
+  entityId    String?  // ID of the affected record
+  oldValue    Json?    // Previous state (for updates/deletes)
+  newValue    Json?    // New state (for creates/updates)
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  @@index([userId, tenantId, timestamp])
+  @@index([module, action, timestamp])
+  @@index([entityType, entityId])
+}
+
 model GSTLog {
   id          String   @id @default(uuid())
-  type        String   // INPUT, OUTPUT
+  type        String
   amount      Float
   referenceId String?
   date        DateTime @default(now())
