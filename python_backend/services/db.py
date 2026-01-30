@@ -37,4 +37,10 @@ class Database:
         async with self.pool.acquire() as connection:
             return await connection.fetchval(query, *args)
 
+    async def execute(self, query: str, *args):
+        if not self.pool:
+            await self.connect()
+        async with self.pool.acquire() as connection:
+            return await connection.execute(query, *args)
+
 db = Database()

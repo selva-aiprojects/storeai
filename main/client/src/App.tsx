@@ -20,12 +20,24 @@ import Purchases from './pages/Purchases';
 import Reports from './pages/Reports';
 import Partners from './pages/Partners';
 import Customers from './pages/Customers';
-import HR from './pages/HR';
+import EmployeeMaster from './pages/HR/EmployeeMaster';
+import AttendanceMaster from './pages/HR/AttendanceMaster';
+import PayrollEngine from './pages/HR/PayrollEngine';
+import HRReports from './pages/HR/HRReports';
 import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
 import Financials from './pages/Financials';
 import Products from './pages/Products';
 import Assistant from './pages/Assistant';
+
+// Finance Pages
+import Daybook from './pages/Finance/Daybook';
+import Returns from './pages/Finance/Returns';
+import LiabilityTracker from './pages/Finance/LiabilityTracker';
+import GSTCompliance from './pages/Finance/GSTCompliance';
+import ProfitLoss from './pages/Finance/ProfitLoss';
+import GeneralLedger from './pages/Finance/GeneralLedger';
+import ConfigSettings from './pages/Finance/ConfigSettings';
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -149,13 +161,22 @@ function App() {
                         <Route path="/products" element={<Products />} />
                         <Route path="/inventory" element={<Inventory />} />
                         <Route path="/sales" element={<Sales />} />
+                        <Route path="/returns" element={<Returns />} />
                         <Route path="/purchases" element={<Purchases />} />
+                        <Route path="/daybook" element={<Daybook />} />
+                        <Route path="/ledger" element={<GeneralLedger />} />
+                        <Route path="/liability" element={<LiabilityTracker />} />
+                        <Route path="/gst" element={<GSTCompliance />} />
+                        <Route path="/pl" element={<ProfitLoss />} />
+                        <Route path="/config-finance" element={<ConfigSettings />} />
                         <Route path="/reports" element={<Reports />} />
                         <Route path="/partners" element={<Partners />} />
                         <Route path="/customers" element={<Customers />} />
-                        <Route path="/hr" element={<HR />} />
+                        <Route path="/hr-master" element={<EmployeeMaster />} />
+                        <Route path="/attendance" element={<AttendanceMaster />} />
+                        <Route path="/payroll" element={<PayrollEngine />} />
+                        <Route path="/hr-reports" element={<HRReports />} />
                         <Route path="/accounts" element={<Accounts />} />
-                        <Route path="/financials" element={<Financials />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="*" element={<Navigate to="/" replace />} />

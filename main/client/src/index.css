@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 /* =========================================================
    STORE AI - ENTERPRISE SAAS THEME (Dark Purple + White)
@@ -171,6 +171,11 @@ h6 {
   box-shadow: 6px 0 28px rgba(15, 23, 42, 0.45);
   border-right: 1px solid rgba(148, 163, 184, 0.3);
   z-index: 100;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.collapsed {
+  width: 80px;
 }
 
 .sidebar-header {
@@ -197,7 +202,7 @@ h6 {
 
 .sidebar-menu {
   flex: 1;
-  padding: 8px 14px 24px;
+  padding: 8px 10px 24px;
   overflow-y: auto;
 }
 
@@ -232,6 +237,16 @@ h6 {
   color: rgba(226, 232, 240, 0.8);
   margin: 12px 6px 6px;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .menu-divider {
+  font-size: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 20px 10px;
+  letter-spacing: 0;
 }
 
 /* Menu items */
@@ -297,6 +312,11 @@ h6 {
   /* Fixed height for the main viewport */
   overflow: hidden;
   /* Prevent the main container from scrolling */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 80px;
 }
 
 /* Header */
@@ -310,7 +330,7 @@ h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 24px;
   position: relative;
   /* No longer needs sticky as parent is overflow: hidden */
   z-index: 50;
@@ -675,7 +695,7 @@ tbody tr:nth-child(even) td {
   }
 
   .header {
-    padding: 0 16px;
+    padding: 0 14px;
   }
 }
 

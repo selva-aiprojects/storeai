@@ -2,8 +2,10 @@
 
 -- ENUMS
 CREATE TYPE "Role" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'MANAGER', 'STAFF');
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'RECEIVED', 'CANCELLED');
-CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'CARD', 'TRANSFER');
+CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'RECEIVED', 'CANCELLED', 'RETURNED');
+CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'CARD', 'TRANSFER', 'CREDIT');
+CREATE TYPE "ReturnCondition" AS ENUM ('EXCELLENT', 'GOOD', 'DAMAGED', 'DEFECTIVE');
+CREATE TYPE "TransactionStatus" AS ENUM ('DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'POSTED');
 
 -- 1. Users & Auth
 CREATE TABLE "User" (
@@ -58,6 +60,8 @@ CREATE TABLE "Product" (
     "lowStockThreshold" INTEGER DEFAULT 10,
     "unit" TEXT DEFAULT 'pcs',
     "categoryId" UUID NOT NULL REFERENCES "Category"("id"),
+    "gstPercentage" DECIMAL(5,2) DEFAULT 18.00,
+    "isReturnable" BOOLEAN DEFAULT true,
     "createdAt" TIMESTAMP DEFAULT now(),
     "updatedAt" TIMESTAMP DEFAULT now()
 );
@@ -79,6 +83,7 @@ CREATE TABLE "Order" (
     "status" "OrderStatus" DEFAULT 'PENDING',
     "totalAmount" DECIMAL(10,2) NOT NULL,
     "supplierId" UUID NOT NULL REFERENCES "Supplier"("id"),
+    "gstAmount" DECIMAL(10,2) DEFAULT 0,
     "createdAt" TIMESTAMP DEFAULT now(),
     "updatedAt" TIMESTAMP DEFAULT now()
 );
@@ -106,7 +111,9 @@ CREATE TABLE "Sale" (
     "invoiceNo" TEXT UNIQUE NOT NULL,
     "totalAmount" DECIMAL(10,2) NOT NULL,
     "taxAmount" DECIMAL(10,2) NOT NULL,
+    "gstAmount" DECIMAL(10,2) DEFAULT 0,
     "customerId" UUID REFERENCES "Customer"("id"),
+    "dueDate" TIMESTAMP, -- For Liability Aging (max 50 days)
     "createdAt" TIMESTAMP DEFAULT now(),
     "updatedAt" TIMESTAMP DEFAULT now()
 );
@@ -136,4 +143,56 @@ CREATE TABLE "Ledger" (
     "amount" DECIMAL(10,2) NOT NULL,
     "description" TEXT,
     "createdAt" TIMESTAMP DEFAULT now()
+);
+
+-- 7. Advanced Finance (New Features)
+CREATE TABLE "SalesReturn" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "saleId" UUID NOT NULL REFERENCES "Sale"("id") ON DELETE CASCADE,
+    "returnDate" TIMESTAMP DEFAULT now(),
+    "totalRefund" DECIMAL(10,2) NOT NULL,
+    "transportDeduction" DECIMAL(10,2) DEFAULT 0,
+    "packagingDeduction" DECIMAL(10,2) DEFAULT 0,
+    "gstDeduction" DECIMAL(10,2) DEFAULT 0,
+    "condition" "ReturnCondition" DEFAULT 'EXCELLENT',
+    "notes" TEXT,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "SalesReturnItem" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "salesReturnId" UUID NOT NULL REFERENCES "SalesReturn"("id") ON DELETE CASCADE,
+    "productId" UUID NOT NULL REFERENCES "Product"("id"),
+    "quantity" INTEGER NOT NULL,
+    "refundAmount" DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE "Daybook" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "date" TIMESTAMP DEFAULT now(),
+    "type" TEXT NOT NULL, -- 'SALE', 'PURCHASE', 'EXPENSE', 'RETURN'
+    "description" TEXT,
+    "debit" DECIMAL(10,2) DEFAULT 0,
+    "credit" DECIMAL(10,2) DEFAULT 0,
+    "referenceId" UUID,
+    "status" "TransactionStatus" DEFAULT 'PENDING_APPROVAL',
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "RecurringExpense" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL, -- e.g., 'Rent', 'Staff Salary'
+    "baseAmount" DECIMAL(10,2) NOT NULL,
+    "category" TEXT,
+    "isActive" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "GSTLog" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "type" TEXT NOT NULL, -- 'INPUT' (Purchases) or 'OUTPUT' (Sales)
+    "amount" DECIMAL(10,2) NOT NULL,
+    "referenceId" UUID, -- Link to Sale or Order
+    "date" TIMESTAMP DEFAULT now(),
+    "isPaid" BOOLEAN DEFAULT false
 );

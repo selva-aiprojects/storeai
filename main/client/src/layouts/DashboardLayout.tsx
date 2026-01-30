@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }: any) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const location = useLocation();
     const pageContainerRef = useRef<HTMLDivElement>(null);
 
@@ -52,8 +53,15 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }:
                 className={`sidebar-overlay ${sidebarOpen ? 'mobile-open' : ''}`}
                 onClick={() => handleSetSidebarOpen(false)}
             ></div>
-            <Sidebar user={user} logout={logout} mobileOpen={sidebarOpen} setMobileOpen={handleSetSidebarOpen} />
-            <div className="main-content">
+            <Sidebar
+                user={user}
+                logout={logout}
+                mobileOpen={sidebarOpen}
+                setMobileOpen={handleSetSidebarOpen}
+                isCollapsed={sidebarCollapsed}
+                setIsCollapsed={setSidebarCollapsed}
+            />
+            <div className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
                 <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={handleSetSidebarOpen} user={user} />
                 <div className="page-container" ref={pageContainerRef} style={{ position: 'relative' }}>
                     <AnimatePresence mode="popLayout">

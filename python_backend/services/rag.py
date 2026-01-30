@@ -118,7 +118,8 @@ Standalone Query:"""
             "how many", "how much",
             "top", "best", "worst", "highest", "lowest",
             "salary", "payroll", "attendance", "employee", "staff", "department",
-            "report", "analytics", "summary", "stock level"
+            "return", "refund", "daybook", "ledger", "p&l", "profit", "loss", "liability", "aging", "gst", "tax",
+            "report", "analytics", "summary", "stock level", "financial health", "recurring", "rent", "electricity"
         ]
 
         if any(k in query.lower() for k in sql_keywords):
@@ -231,9 +232,10 @@ USER QUESTION: "{user_query}"
 CONSTRAINTS:
 1. DO NOT simply list the data. INTERPRET it for the business owner.
 2. If this is a follow-up, reference the previous context (e.g., "Building on our discussion about...")
-3. Use a "pleasing and professional" tone. Avoid being a generic chatbot.
-4. If no data is found (Source: NONE), explain specifically what resource data we're missing and suggest related metrics you CAN check.
+3. Use a "pleasing and professional" tone. Avoid being a generic chatbot. Incorporate financial keywords like "Aging Analysis" or "GST Compliance" naturally where relevant.
+4. If no data is found (Source: NONE), explain specifically what resource data we're missing and suggest related metrics you CAN check (e.g., "I don't see Sales Returns yet, but I can check your overall sales health").
 5. End every response with a "Strategic Next Step" question or suggestion.
+6. FINANCIAL INTELLIGENCE: Always mention the impact on "Financial Health" if the query relates to costs, returns, or revenue.
 
 RESPONSE:"""
 
@@ -268,24 +270,32 @@ Generate SAFE READONLY SQL based on this schema:
 CORE TABLES:
 - "Product"(id, "sku", name, price, "stockQuantity", "lowStockThreshold")
 - "Category"(id, name)
-- "Sale"(id, "invoiceNo", "totalAmount", "taxAmount", "createdAt")
+- "Sale"(id, "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "dueDate", "isPaid", "createdAt")
 - "SaleItem"(id, "saleId", "productId", "quantity", "unitPrice")
 
-HR & RESOURCE TABLES:
-- "Employee"(id, "employeeId", designation, salary, "departmentId")
-- "Department"(id, name)
+FINANCE & ACCOUNTING:
+- "SalesReturn"(id, "saleId", "totalRefund", "transportDeduction", "gstDeduction", "condition")
+- "Daybook"(id, "date", "type", "description", "debit", "credit", "status")
+- "RecurringExpense"(id, name, "baseAmount", "category", "isActive")
+- "GSTLog"(id, "type", "amount", "isPaid")
 
-CRM TABLES:
+HR, PAYROLL & CRM:
+- "Employee"(id, "employeeId", designation, salary)
+- "Attendance"(id, "employeeId", date, status)
+- "Payroll"(id, "employeeId", month, year, "totalPayout")
+- "Department"(id, name)
 - "Customer"(id, name, email)
 
 SQL RULES:
-1. Always use double quotes for table and column names (e.g., SELECT "totalAmount" FROM "Sale").
-2. Sales/Revenue → SUM("totalAmount").
-3. Inventory counts → SUM("stockQuantity").
-4. Payroll → SUM(salary).
-5. Joins: Link "Product" to "Category" via "categoryId"; "SaleItem" to "Product" via "productId"; "Employee" to "Department" via "departmentId".
-6. Return RAW SQL ONLY. No explanations.
-7. For string matching, use ILIKE for case-insensitivity (e.g., "name" ILIKE '%monitor%').
+1. Double quotes for ALL identifiers: SELECT "totalAmount" FROM "Sale".
+2. Revenue → SUM(debit) FROM "Daybook" WHERE type='INCOME'.
+3. Expenses/Outflow → SUM(credit) FROM "Daybook" WHERE type='EXPENSE'.
+4. Returns → SUM("totalRefund") FROM "SalesReturn".
+5. Liability Aging → Count/Sum "totalAmount" FROM "Sale" WHERE "isPaid" = false.
+6. GST Liability → Sum "gstAmount" (from Sale) vs Input tax.
+7. Return RAW SQL ONLY.
+8. Case-insensitive: Use ILIKE '%term%'.
+9. For Daybook, "debit" is money IN, "credit" is money OUT.
 
 Question: "{query}"
 """

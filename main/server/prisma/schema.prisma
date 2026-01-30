@@ -40,6 +40,10 @@ model Tenant {
   stockLedgers         StockLedger[]
   salesRegisters       SalesRegister[]
   activityLogs         ActivityLog[]
+  salesReturns         SalesReturn[]
+  daybooks             Daybook[]
+  recurringExpenses    RecurringExpense[]
+  gstLogs              GSTLog[]
 }
 
 model Plan {
@@ -518,6 +522,9 @@ model Sale {
   tenant            Tenant     @relation(fields: [tenantId], references: [id])
   items             SaleItem[]
   salesRegisters    SalesRegister[]
+  salesReturns      SalesReturn[]
+  dueDate           DateTime?
+  isPaid            Boolean    @default(true)
 
   @@unique([tenantId, invoiceNo])
   @@index([tenantId])
@@ -782,4 +789,66 @@ model ActivityLog {
   @@index([entityType])
   @@index([userId])
   @@index([createdAt])
+}
+
+model SalesReturn {
+  id                 String             @id @default(uuid())
+  saleId             String
+  returnDate         DateTime           @default(now())
+  totalRefund        Float
+  transportDeduction Float              @default(0.0)
+  packagingDeduction Float              @default(0.0)
+  gstDeduction       Float              @default(0.0)
+  condition          String             @default("EXCELLENT")
+  notes              String?
+  createdAt          DateTime           @default(now())
+  sale               Sale               @relation(fields: [saleId], references: [id])
+  items              SalesReturnItem[]
+  tenantId           String
+  tenant             Tenant             @relation(fields: [tenantId], references: [id])
+}
+
+model SalesReturnItem {
+  id             String      @id @default(uuid())
+  salesReturnId  String
+  productId      String
+  quantity       Int
+  refundAmount   Float
+  salesReturn    SalesReturn @relation(fields: [salesReturnId], references: [id])
+}
+
+model Daybook {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  type        String   // INCOME, EXPENSE, ASSET, LIABILITY
+  description String?
+  debit       Float    @default(0.0)
+  credit      Float    @default(0.0)
+  referenceId String?
+  status      String   @default("PENDING_APPROVAL")
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model RecurringExpense {
+  id         String   @id @default(uuid())
+  name       String
+  baseAmount Float
+  category   String?
+  isActive   Boolean  @default(true)
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model GSTLog {
+  id          String   @id @default(uuid())
+  type        String   // INPUT, OUTPUT
+  amount      Float
+  referenceId String?
+  date        DateTime @default(now())
+  isPaid      Boolean  @default(false)
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }

@@ -18,6 +18,7 @@ import inventoryRoutes from './routes/inventoryRoutes';
 import crmRoutes from './routes/crmRoutes';
 import tenantRoutes from './routes/tenantRoutes';
 import requisitionRoutes from './routes/requisitionRoutes';
+import financeRoutes from './routes/financeRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 
@@ -40,6 +41,7 @@ app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:3001',
+        'http://localhost:3002',
         'http://localhost:5173',
         'https://store-ai-prd.onrender.com',
         process.env.CLIENT_URL || ''
@@ -74,6 +76,7 @@ app.use('/api/v1/inventory', authenticate, inventoryRoutes);
 app.use('/api/v1/crm', authenticate, crmRoutes);
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/requisitions', requisitionRoutes);
+app.use('/api/v1/finance', financeRoutes);
 app.get('/api/v1/dashboard/stats', authenticate, getDashboardStats);
 
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
