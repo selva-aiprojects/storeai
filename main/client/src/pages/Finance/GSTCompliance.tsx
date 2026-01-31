@@ -23,6 +23,7 @@ const GSTCompliance = () => {
     };
 
     if (loading) return <div className="page-container">Calculating tax liabilities...</div>;
+    if (!stats) return <div className="page-container text-red-500">Failed to load tax data.</div>;
 
     return (
         <div className="page-container">

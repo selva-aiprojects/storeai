@@ -23,6 +23,7 @@ const LiabilityTracker = () => {
     };
 
     if (loading) return <div className="page-container">Analyzing payment aging...</div>;
+    if (!aging) return <div className="page-container text-red-500">Failed to load aging data.</div>;
 
     const totalLiability = Object.values(aging || {}).reduce((a: any, b: any) => a + b, 0) as number;
 
