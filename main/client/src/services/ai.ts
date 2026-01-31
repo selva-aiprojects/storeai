@@ -10,6 +10,15 @@ const aiApi = axios.create({
     }
 });
 
+// Add Auth Token Interceptor
+aiApi.interceptors.request.use((config) => {
+    const token = localStorage.getItem('store_ai_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 export const chatWithAI = async (query: string, history: any[] = []) => {
     try {
         const response = await aiApi.post('/chat', { query, history });
