@@ -56,7 +56,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 
 security = HTTPBearer()
-JWT_SECRET = "storeai_super_secret_key_2024" # Should match auth service
+JWT_SECRET = os.getenv("JWT_SECRET", "your_super_secret_jwt_key")  # Must match Node.js backend
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
     try:

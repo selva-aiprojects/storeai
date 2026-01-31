@@ -1,5 +1,5 @@
 services:
-  # Backend Service (Docker)
+  # Node.js Backend Service (Docker)
   - type: web
     name: store-ai-server
     env: docker
@@ -13,6 +13,31 @@ services:
         generateValue: true
       - key: PORT
         value: 5000
+      - key: NODE_ENV
+        value: production
+
+  # Python AI Backend Service
+  - type: web
+    name: store-ai-python
+    env: python
+    rootDir: ../python_backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: store-ai-server
+          envVarKey: JWT_SECRET
+      - key: PORT
+        value: 8000
 
   # Frontend Service (Static Site)
   - type: static
@@ -25,4 +50,9 @@ services:
         fromService:
           type: web
           name: store-ai-server
+          property: url
+      - key: VITE_AI_API_URL
+        fromService:
+          type: web
+          name: store-ai-python
           property: url
