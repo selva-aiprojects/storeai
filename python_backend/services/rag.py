@@ -553,13 +553,13 @@ class RAGService:
         """
         # Fallback to default if no tenant provided (for backward compat/testing)
         # In production this should come from the request
-        target_tenant_id = tenant_id or self.tenant_slug 
-
-        if not target_tenant_id:
-             # Try to resolve default slug to UUID if we only have slug
-             # For now let's assume if it's not a UUID it's a slug and resolve it
-             # But main.py should pass the UUID.
-             pass
+        if not tenant_id:
+            # Resolve default slug to UUID
+            await self._ensure_tenant_id()
+            target_tenant_id = self.tenant_id
+        else:
+            # Use provided tenant_id (should be UUID from JWT)
+            target_tenant_id = tenant_id
 
         if history is None:
             history = []
