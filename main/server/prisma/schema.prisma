@@ -45,6 +45,10 @@ model Tenant {
   users                UserTenant[]
   warehouses           Warehouse[]
   auditLogs            AuditLog[]
+  chartOfAccounts      ChartOfAccounts[]
+  ledgerEntries        LedgerEntry[]
+  purchaseReturns      PurchaseReturn[]
+  incentiveLedgers     IncentiveLedger[]
 }
 
 model Plan {
@@ -288,6 +292,7 @@ model Supplier {
   quotations        PurchaseQuotation[]
   tenant            Tenant              @relation(fields: [tenantId], references: [id])
   pricingAgreements SupplierAgreement[]
+  purchaseReturns   PurchaseReturn[]
 
   @@unique([tenantId, email])
 }
@@ -316,6 +321,7 @@ model Order {
   supplier             Supplier           @relation(fields: [supplierId], references: [id])
   tenant               Tenant             @relation(fields: [tenantId], references: [id])
   items                OrderItem[]
+  purchaseReturns      PurchaseReturn[]
 
   @@unique([tenantId, orderNumber])
   @@index([tenantId])
@@ -602,32 +608,34 @@ model Department {
 }
 
 model Employee {
-  id                  String                @id @default(uuid())
-  userId              String?               @unique
-  employeeId          String                @unique
-  firstName           String
-  lastName            String
-  designation         String
-  joiningDate         DateTime
-  status              String                @default("ACTIVE")
-  pan                 String?
-  bankAccountNo       String?
-  salary              Float
-  performanceRating   Int?
-  incentivePercentage Float                 @default(0.0)
-  departmentId        String
-  isDeleted           Boolean               @default(false)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
-  attendances         Attendance[]
-  department          Department            @relation(fields: [departmentId], references: [id])
-  user                User?                 @relation(fields: [userId], references: [id])
-  goodsReceipts       GoodsReceipt[]        @relation("ReceivedByEmployee")
-  leaves              Leave[]
-  payrolls            Payroll[]
-  requisitions        PurchaseRequisition[]
-  salaryStructure     SalaryStructure?
-  sales               Sale[]
+  id                   String            @id @default(uuid())
+  userId               String?           @unique
+  employeeId           String            @unique
+  firstName            String
+  lastName             String
+  designation          String
+  joiningDate          DateTime
+  status               String            @default("ACTIVE")
+  pan                  String?
+  bankAccountNo        String?
+  salary               Float
+  performanceRating    Int?
+  incentivePercentage  Float             @default(0.0)
+  eligibleForIncentive Boolean           @default(false)
+  departmentId         String
+  isDeleted            Boolean           @default(false)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  attendances          Attendance[]
+  department           Department        @relation(fields: [departmentId], references: [id])
+  user                 User?             @relation(fields: [userId], references: [id])
+  goodsReceipts        GoodsReceipt[]    @relation("ReceivedByEmployee")
+  leaves               Leave[]
+  payrolls             Payroll[]
+  requisitions         PurchaseRequisition[]
+  salaryStructure      SalaryStructure?
+  sales                Sale[]
+  incentiveLedgers     IncentiveLedger[]
 }
 
 model PricingRule {
@@ -879,4 +887,116 @@ model GSTLog {
   isPaid      Boolean  @default(false)
   tenantId    String
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+// ========================================
+// NEW ACCOUNTING & ERP MODELS
+// ========================================
+
+// Chart of Accounts - Foundation for Double-Entry Accounting
+model ChartOfAccounts {
+  id              String         @id @default(uuid())
+  code            String
+  name            String
+  accountGroup    String         // ASSETS, LIABILITIES, EQUITY, INCOME, EXPENSES
+  accountType     String         // CASH, BANK, AR, AP, INVENTORY, SALES, PURCHASE, COGS, etc.
+  parentId        String?
+  isSystemAccount Boolean        @default(false) // Prevents deletion
+  openingBalance  Float          @default(0.0)
+  currentBalance  Float          @default(0.0)
+  tenantId        String
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  parent          ChartOfAccounts? @relation("AccountHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children        ChartOfAccounts[] @relation("AccountHierarchy")
+  tenant          Tenant         @relation(fields: [tenantId], references: [id])
+  ledgerEntries   LedgerEntry[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([accountGroup])
+}
+
+// Ledger Entry - Double-Entry Bookkeeping
+model LedgerEntry {
+  id            String          @id @default(uuid())
+  entryDate     DateTime        @default(now())
+  accountId     String
+  debitAmount   Float           @default(0.0)
+  creditAmount  Float           @default(0.0)
+  referenceType String          // SALE, PURCHASE, GRN, PAYMENT, RECEIPT, JOURNAL, PAYROLL, INCENTIVE
+  referenceId   String?
+  description   String?
+  voucherNumber String?         // Groups related entries
+  tenantId      String
+  createdBy     String?
+  createdAt     DateTime        @default(now())
+  account       ChartOfAccounts @relation(fields: [accountId], references: [id])
+  tenant        Tenant          @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, entryDate])
+  @@index([accountId])
+  @@index([referenceType, referenceId])
+  @@index([voucherNumber])
+}
+
+// Purchase Return - Debit Note
+model PurchaseReturn {
+  id              String               @id @default(uuid())
+  returnNumber    String
+  orderId         String
+  supplierId      String
+  returnDate      DateTime             @default(now())
+  totalRefund     Float
+  gstRefund       Float                @default(0.0)
+  transportCharge Float                @default(0.0)
+  reason          String?              // DAMAGED, DEFECTIVE, WRONG_ITEM, EXCESS
+  status          String               @default("PENDING") // PENDING, APPROVED, COMPLETED
+  notes           String?
+  tenantId        String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  order           Order                @relation(fields: [orderId], references: [id])
+  supplier        Supplier             @relation(fields: [supplierId], references: [id])
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
+  items           PurchaseReturnItem[]
+
+  @@unique([tenantId, returnNumber])
+  @@index([tenantId])
+  @@index([orderId])
+}
+
+model PurchaseReturnItem {
+  id               String         @id @default(uuid())
+  purchaseReturnId String
+  productId        String
+  quantity         Int
+  refundAmount     Float
+  reason           String?
+  purchaseReturn   PurchaseReturn @relation(fields: [purchaseReturnId], references: [id])
+}
+
+// Incentive Ledger - Employee Incentive Tracking
+model IncentiveLedger {
+  id              String   @id @default(uuid())
+  employeeId      String
+  referenceType   String   // SALES, PURCHASE
+  referenceId     String
+  baseAmount      Float    // Transaction amount (excl tax for sales)
+  incentiveRate   Float    // Employee's incentive percentage
+  incentiveAmount Float    // Calculated amount
+  status          String   @default("PENDING") // PENDING, APPROVED, PAID
+  calculatedDate  DateTime @default(now())
+  paidDate        DateTime?
+  payrollId       String?  // Link to payroll when paid
+  tenantId        String
+  createdAt       DateTime @default(now())
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([employeeId])
+  @@index([tenantId, calculatedDate])
+  @@index([status])
+  @@index([referenceType, referenceId])
 }

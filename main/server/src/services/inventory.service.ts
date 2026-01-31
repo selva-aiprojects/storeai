@@ -9,8 +9,8 @@ const prisma = new PrismaClient();
 export const InventoryService = {
 
     /**
-     * Process Inward Stock (Goods Receipt)
-     * Creates Batches, Updates Stock, Entries in Ledger
+     * Process Inward Stock (Goods Receipt) - ENHANCED VERSION WITH ACCOUNTING
+     * Creates Batches, Updates Stock, Creates Ledger Entries, Calculates Incentives
      */
     async processInwardStock(data: {
         tenantId: string;
@@ -22,6 +22,8 @@ export const InventoryService = {
         expiryDate?: Date;
         poId?: string;
         receivedBy: string;
+        supplierId?: string;
+        gstAmount?: number;
     }, tx?: any) {
         // Use provided transaction or start a new one
         const runLogic = async (prismaTx: any) => {
@@ -82,6 +84,136 @@ export const InventoryService = {
                     transactionDate: new Date()
                 }
             });
+
+            // === ACCOUNTING INTEGRATION ===
+            // Only create accounting entries if Chart of Accounts is set up
+            try {
+                const totalAmount = data.costPrice * data.quantity;
+                const gstAmount = data.gstAmount || 0;
+                const baseAmount = totalAmount - gstAmount;
+
+                // Find relevant accounts
+                const inventoryAccount = await prismaTx.chartOfAccounts.findFirst({
+                    where: {
+                        tenantId: data.tenantId,
+                        accountType: 'INVENTORY'
+                    }
+                });
+
+                const gstInputAccount = await prismaTx.chartOfAccounts.findFirst({
+                    where: {
+                        tenantId: data.tenantId,
+                        accountType: 'GST_INPUT'
+                    }
+                });
+
+                const apAccount = await prismaTx.chartOfAccounts.findFirst({
+                    where: {
+                        tenantId: data.tenantId,
+                        accountType: 'AP'
+                    }
+                });
+
+                if (inventoryAccount && apAccount) {
+                    const voucherNumber = `GRN-${Date.now()}`;
+
+                    // Dr Inventory (at base cost)
+                    await prismaTx.ledgerEntry.create({
+                        data: {
+                            accountId: inventoryAccount.id,
+                            debitAmount: baseAmount,
+                            creditAmount: 0,
+                            referenceType: 'GRN',
+                            referenceId: batch.id,
+                            description: `Stock received - ${data.batchNumber}`,
+                            voucherNumber,
+                            tenantId: data.tenantId,
+                            createdBy: data.receivedBy
+                        }
+                    });
+
+                    // Dr GST Input Tax Credit (if applicable)
+                    if (gstInputAccount && gstAmount > 0) {
+                        await prismaTx.ledgerEntry.create({
+                            data: {
+                                accountId: gstInputAccount.id,
+                                debitAmount: gstAmount,
+                                creditAmount: 0,
+                                referenceType: 'GRN',
+                                referenceId: batch.id,
+                                description: `GST Input on GRN - ${data.batchNumber}`,
+                                voucherNumber,
+                                tenantId: data.tenantId,
+                                createdBy: data.receivedBy
+                            }
+                        });
+                    }
+
+                    // Cr Accounts Payable
+                    await prismaTx.ledgerEntry.create({
+                        data: {
+                            accountId: apAccount.id,
+                            debitAmount: 0,
+                            creditAmount: totalAmount,
+                            referenceType: 'GRN',
+                            referenceId: batch.id,
+                            description: `Supplier liability for GRN - ${data.batchNumber}`,
+                            voucherNumber,
+                            tenantId: data.tenantId,
+                            createdBy: data.receivedBy
+                        }
+                    });
+
+                    //  Create Daybook Entry
+                    await prismaTx.daybook.create({
+                        data: {
+                            type: 'PURCHASE',
+                            description: `Goods Receipt - ${data.batchNumber}`,
+                            credit: totalAmount,
+                            referenceId: batch.id,
+                            status: 'APPROVED',
+                            tenantId: data.tenantId
+                        }
+                    });
+
+                    console.log(`✓ Ledger postings created for GRN: ₹${totalAmount}`);
+                }
+
+                // === INCENTIVE CALCULATION ===
+                // Calculate purchase facilitation incentive if employee is eligible
+                if (data.poId && data.receivedBy && data.supplierId) {
+                    // Import IncentiveService dynamically to avoid circular dependencies
+                    const { IncentiveService } = await import('./incentive.service');
+
+                    // Get order details to fetch total order amount
+                    const order = await prismaTx.order.findUnique({
+                        where: { id: data.poId }
+                    });
+
+                    if (order) {
+                        // Find employee record for receivedBy user
+                        const employee = await prismaTx.employee.findFirst({
+                            where: {
+                                userId: data.receivedBy
+                            }
+                        });
+
+                        if (employee?.eligibleForIncentive) {
+                            await IncentiveService.calculatePurchaseIncentive({
+                                orderId: data.poId,
+                                employeeId: employee.id,
+                                tenantId: data.tenantId,
+                                orderAmount: order.totalAmount,
+                                tx: prismaTx
+                            });
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.warn('Chart of Accounts not set up or incentive calculation failed:', error);
+                // Continue without accounting entries
+            }
 
             return batch;
         };
