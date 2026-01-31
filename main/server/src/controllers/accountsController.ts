@@ -71,19 +71,20 @@ export const getTaxSummary = async (req: AuthRequest, res: Response) => {
         const tenantId = req.user?.tenantId;
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
-        const [outputTax, inputTax] = await Promise.all([
-            prisma.ledger.aggregate({
-                where: { category: 'GST_PAYABLE', tenantId },
-                _sum: { amount: true }
-            }),
-            prisma.ledger.aggregate({
-                where: { category: 'GST_INPUT', tenantId },
-                _sum: { amount: true }
-            })
-        ]);
+        // GST Output (Sales Tax - collected from customers)
+        const salesTax = await prisma.sale.aggregate({
+            where: { tenantId, isDeleted: false },
+            _sum: { taxAmount: true }
+        });
 
-        const gstOutput = outputTax?._sum?.amount || 0;
-        const gstInput = inputTax?._sum?.amount || 0;
+        // GST Input (Purchase Tax - paid to suppliers)
+        const purchaseTax = await prisma.order.aggregate({
+            where: { tenantId, status: { not: 'CANCELLED' } },
+            _sum: { taxAmount: true }
+        });
+
+        const gstOutput = salesTax._sum.taxAmount || 0;
+        const gstInput = purchaseTax._sum.taxAmount || 0;
 
         res.json({
             gstOutput,
