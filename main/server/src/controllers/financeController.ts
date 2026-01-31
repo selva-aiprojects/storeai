@@ -255,9 +255,9 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
             _sum: { totalAmount: true }
         });
 
-        // GST Input (Asset)
-        const gstInput = await prisma.gSTLog.aggregate({
-            where: { tenantId, type: 'INPUT' },
+        // GST Input (Asset) - Read from Ledger
+        const gstInput = await prisma.ledger.aggregate({
+            where: { tenantId, category: 'GST_INPUT' },
             _sum: { amount: true }
         });
 
@@ -268,9 +268,9 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
             _sum: { totalAmount: true }
         });
 
-        // GST Output (Liability)
-        const gstOutput = await prisma.gSTLog.aggregate({
-            where: { tenantId, type: 'OUTPUT' },
+        // GST Output (Liability) - Read from Ledger
+        const gstOutput = await prisma.ledger.aggregate({
+            where: { tenantId, category: 'GST_PAYABLE' },
             _sum: { amount: true }
         });
 
