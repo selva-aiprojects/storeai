@@ -157,7 +157,7 @@ class IntentRouter:
         "stock critical", "below threshold", "stockout", "overstock", "excess stock",
         "surplus", "dead stock", "slow moving", "non moving", "turnover",
         "days on hand", "stock coverage", "stock ageing", "inventory health",
-        "warehouse", "location", "variance", "mismatch",
+        "warehouse", "location", "variance", "mismatch", "stock health",
         
         # Expiry terms
         "expired", "near expiry", "expiring soon", "batch expiry", "shelf life",
@@ -174,12 +174,14 @@ class IntentRouter:
         "payment", "overdue", "invoice", "receivables", "payables", "cash flow",
         "balance sheet", "p&l", "expense", "cost", "bank reconciliation",
         "gst", "tax", "liability", "investment", "capital", "equity",
+        "daybook", "ledger", "transactions", "financial", "debit", "credit",
         
         # HR & Resource terms
         "resource", "allocation", "headcount", "joiners", "exits", "attrition",
         "attendance", "absenteeism", "late coming", "leave", "holiday",
         "payroll", "salary", "overtime", "deductions", "reimbursements",
         "performance", "appraisal", "performer", "training",
+        "employee", "employees", "staff", "department", "designation",
         
         # Operations terms
         "anomaly", "spike", "drop", "outlier", "duplicate", "data issue",
@@ -193,6 +195,13 @@ class IntentRouter:
         # Aggregation terms
         "count", "total", "sum", "average", "avg", "how many", "how much",
         "top", "best", "worst", "highest", "lowest", "show", "list",
+        
+        # Time-based terms (critical for date queries)
+        "yesterday", "today", "this week", "this month", "last week", "last month",
+        "daily", "weekly", "monthly", "yearly", "recent", "latest",
+        
+        # Customer terms
+        "customer", "customers", "top customer", "buyer", "client",
     }
     
     GREETING_PATTERNS = {
@@ -265,12 +274,12 @@ Generate SAFE READONLY SQL based on this schema:
 CORE TABLES:
 - "Product"("id", "sku", "name", "price", "stockQuantity", "lowStockThreshold", "tenantId")
 - "Category"("id", "name", "tenantId")
-- "Sale"("id", "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "dueDate", "isPaid", "createdAt", "tenantId")
+- "Sale"("id", "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "dueDate", "isPaid", "createdAt", "customerId", "tenantId")
 - "SaleItem"("id", "saleId", "productId", "quantity", "unitPrice", "tenantId")
 - "Order"("id", "orderNumber", "totalAmount", "taxAmount", "supplierId", "status", "createdAt", "tenantId")
 - "OrderItem"("id", "orderId", "productId", "quantity", "unitPrice", "tenantId")
 - "Supplier"("id", "name", "email", "tenantId")
-- "Customer"("id", "name", "email", "tenantId")
+- "Customer"("id", "name", "email", "phone", "tenantId")
 - "Daybook"("id", "date", "type", "description", "debit", "credit", "referenceId", "tenantId")
 - "Employee"("id", "employeeId", "firstName", "lastName", "designation", "salary", "performanceRating", "departmentId", "tenantId")
 - "Department"("id", "name", "tenantId")
@@ -281,11 +290,21 @@ SQL RULES:
 2. STRING VALUES: ALWAYS use SINGLE QUOTES (e.g., WHERE "type" = 'SALE').
 3. PURCHASE DATA: Table is "Order" (NOT "PurchaseOrder").
 4. REVENUE: SUM("credit") FROM "Daybook" WHERE "type" = 'SALE'.
-5. DATES: For "Yesterday", use (CURRENT_DATE - INTERVAL '1 day'). For "Today", use CURRENT_DATE.
-6. RESOURCE ALLOCATION: Query "Employee" and "Attendance" tables.
+5. DATES:
+   - "Yesterday" = (CURRENT_DATE - INTERVAL '1 day')
+   - "Today" = CURRENT_DATE
+   - "This week" = date_trunc('week', CURRENT_DATE)
+   - "This month" = date_trunc('month', CURRENT_DATE)
+6. RESOURCE ALLOCATION: Query "Employee" joined with "Department". For employee counts by department: SELECT D."name", COUNT(E.*) FROM "Employee" E JOIN "Department" D ON E."departmentId" = D."id".
 7. ATTENDANCE JOIN: To filter Attendance by tenant, join with Employee: "Attendance" A JOIN "Employee" E ON A."employeeId" = E."id" WHERE E."tenantId" = '{tenant_id}'.
 8. TENANT FILTER: Always include WHERE "tenantId" = '{tenant_id}' (or JOIN for Attendance).
 9. OUTPUT: Return RAW SQL ONLY. No explanations.
+
+EXAMPLES:
+- "Yesterday sales": SELECT SUM("totalAmount") as total FROM "Sale" WHERE "createdAt"::date = CURRENT_DATE - INTERVAL '1 day' AND "tenantId" = '{tenant_id}'
+- "Low stock": SELECT "name", "stockQuantity", "lowStockThreshold" FROM "Product" WHERE "stockQuantity" < "lowStockThreshold" AND "tenantId" = '{tenant_id}'
+- "Resource allocation": SELECT D."name" as department, COUNT(E."id") as employees FROM "Employee" E JOIN "Department" D ON E."departmentId" = D."id" WHERE E."tenantId" = '{tenant_id}' GROUP BY D."name"
+- "Top customer": SELECT C."name", SUM(S."totalAmount") as total_spent FROM "Sale" S JOIN "Customer" C ON S."customerId" = C."id" WHERE S."tenantId" = '{tenant_id}' GROUP BY C."name" ORDER BY total_spent DESC LIMIT 5
 
 Question: "{query}"
 """
@@ -684,11 +703,27 @@ class RAGService:
                 history
             )
         
+        # Provide more helpful guidance based on query type
+        query_lower = user_query.lower()
+        suggestions = []
+        
+        if any(term in query_lower for term in ["stock", "product", "inventory"]):
+            suggestions.append("Try asking for 'low stock products' or 'stock health overview'")
+        elif any(term in query_lower for term in ["sale", "revenue", "transaction"]):
+            suggestions.append("Try asking for 'yesterday sales' or 'this month revenue'")
+        elif any(term in query_lower for term in ["employee", "staff", "resource", "department"]):
+            suggestions.append("Try asking for 'resource allocation by department' or 'employee count'")
+        elif any(term in query_lower for term in ["customer", "buyer", "client"]):
+            suggestions.append("Try asking for 'top customers' or 'customer list'")
+        else:
+            suggestions.append("Try being more specific, e.g., 'yesterday sales', 'low stock', or 'top customers'")
+        
         # Default no-data response
         return QueryResult(
             response=(
-                "I couldn't find matching records in your store telemetry for this query. "
-                "Could you please specify a product name, date, or category?"
+                f"I couldn't find specific data matching your query in the current database. "
+                f"{suggestions[0]}. "
+                f"You can also ask about stock health, sales trends, or resource allocation."
             ),
             source=DataSource.NONE.value,
             context=None

@@ -81,3 +81,6 @@ python_backend/migrate_hr.py
 python_backend/test_specific_ai_fail.py
 python_backend/tests/
 
+# Internal Design Documents (Confidential)
+main/docs/design/TECHNICAL_DESIGN_DOCUMENT_LLD.md
+
