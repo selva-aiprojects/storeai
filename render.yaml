@@ -3,7 +3,7 @@ services:
   - type: web
     name: store-ai-server
     env: docker
-    rootDir: server
+    rootDir: main/server
     dockerfilePath: Dockerfile
     plan: free
     envVars:
@@ -20,7 +20,7 @@ services:
   - type: web
     name: store-ai-python
     env: python
-    rootDir: ../python_backend
+    rootDir: python_backend
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
     plan: free
@@ -42,7 +42,7 @@ services:
   # Frontend Service (Static Site)
   - type: static
     name: store-ai-client
-    rootDir: client
+    rootDir: main/client
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
