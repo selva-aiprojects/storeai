@@ -62,7 +62,20 @@ export const createPayroll = async (req: AuthRequest, res: Response) => {
                 include: { employee: true }
             });
 
-            // Log total payout as an expense in the Ledger
+            // === ACCOUNTING INTEGRATION ===
+
+            // 1. Daybook Entry - Salary Payment (Expense)
+            await tx.daybook.create({
+                data: {
+                    type: 'EXPENSE',
+                    description: `Salary Payment: ${month} - ${employee.firstName} ${employee.lastName}`,
+                    credit: totalPayout, // Money going out
+                    referenceId: newPayroll.id,
+                    tenantId
+                }
+            });
+
+            // 2. Ledger - Salary Expense
             await tx.ledger.create({
                 data: {
                     title: `Payroll: ${month} (${employee.employeeId})`,

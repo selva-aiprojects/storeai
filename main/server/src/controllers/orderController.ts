@@ -35,6 +35,57 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
                 include: { items: true }
             });
 
+            // === ACCOUNTING INTEGRATION ===
+
+            // 1. Daybook Entry - Purchase (Expense/Liability)
+            await tx.daybook.create({
+                data: {
+                    type: 'EXPENSE',
+                    description: `Purchase Order ${newOrder.orderNumber}`,
+                    credit: grandTotal, // Money going out (Credit AP for now)
+                    referenceId: newOrder.id,
+                    tenantId
+                }
+            });
+
+            // 2. Ledger - Purchase Expense Account
+            await tx.ledger.create({
+                data: {
+                    title: `Purchase Expense: ${newOrder.orderNumber}`,
+                    type: 'DEBIT',
+                    amount: subTotal, // Base amount without tax
+                    category: 'PURCHASE',
+                    description: `Purchases for PO ${newOrder.orderNumber}`,
+                    tenantId
+                }
+            });
+
+            // 3. Ledger - GST Input Tax Credit (Asset)
+            if (taxAmount > 0) {
+                await tx.ledger.create({
+                    data: {
+                        title: `GST Input Credit: ${newOrder.orderNumber}`,
+                        type: 'DEBIT',
+                        amount: taxAmount,
+                        category: 'GST_INPUT',
+                        description: `Input tax on PO ${newOrder.orderNumber}`,
+                        tenantId
+                    }
+                });
+            }
+
+            // 4. Ledger - Supplier Account (Accounts Payable)
+            await tx.ledger.create({
+                data: {
+                    title: `Supplier AP: ${newOrder.orderNumber}`,
+                    type: 'CREDIT',
+                    amount: grandTotal,
+                    category: 'ACCOUNTS_PAYABLE',
+                    description: `Payable to supplier for ${newOrder.orderNumber}`,
+                    tenantId
+                }
+            });
+
             return newOrder;
         });
         res.status(201).json(order);
@@ -59,33 +110,8 @@ export const approveOrder = async (req: AuthRequest, res: Response) => {
             }
         });
 
-        // Log financial commitment (Soft Ledger)
-        const taxAmount = order.taxAmount || 0;
-        const baseAmount = order.totalAmount - taxAmount;
-
-        // 1. Base Purchase Cost
-        await prisma.ledger.create({
-            data: {
-                title: `PO Commitment: ${order.orderNumber}`,
-                type: 'DEBIT', // Pending debit
-                amount: baseAmount,
-                category: 'PURCHASE',
-                description: `Approved PO for Supplier`,
-                tenantId: tenantId!
-            }
-        });
-
-        // 2. Input Tax Credit (Asset)
-        await prisma.ledger.create({
-            data: {
-                title: `GST Input Credit: ${order.orderNumber}`,
-                type: 'DEBIT',
-                amount: taxAmount,
-                category: 'GST_INPUT',
-                description: `18% Input Tax on PO`,
-                tenantId: tenantId!
-            }
-        });
+        // Note: Accounting entries are now created on order creation, not approval
+        // Approval just changes status
 
         res.json(order);
     } catch (error) {

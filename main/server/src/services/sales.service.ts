@@ -107,7 +107,47 @@ export const SalesService = {
                 include: { items: true }
             });
 
-            // 2.1 Post GST Output to Ledger
+            // === ACCOUNTING INTEGRATION ===
+
+            // 1. Daybook Entry - Sales (Income)
+            await tx.daybook.create({
+                data: {
+                    type: 'INCOME',
+                    description: `Sale Invoice ${invoiceNo}`,
+                    debit: totalAmount, // Money coming in (Debit AR if unpaid, Debit Cash if paid)
+                    referenceId: sale.id,
+                    tenantId: data.tenantId
+                }
+            });
+
+            // 2. Ledger - Sales Revenue Account
+            await tx.ledger.create({
+                data: {
+                    title: `Sales Revenue: ${invoiceNo}`,
+                    type: 'CREDIT',
+                    amount: totalAmount - totalTax, // Base amount without tax
+                    category: 'SALES_REVENUE',
+                    description: `Revenue from Sale ${invoiceNo}`,
+                    tenantId: data.tenantId
+                }
+            });
+
+            // 3. Ledger - Customer Account (Accounts Receivable)
+            if (data.customerId) {
+                const isPaid = data.amountPaid >= totalAmount;
+                await tx.ledger.create({
+                    data: {
+                        title: `Customer AR: ${invoiceNo}`,
+                        type: 'DEBIT',
+                        amount: totalAmount,
+                        category: isPaid ? 'CASH_SALES' : 'ACCOUNTS_RECEIVABLE',
+                        description: `Customer account for ${invoiceNo}`,
+                        tenantId: data.tenantId
+                    }
+                });
+            }
+
+            // 4. Ledger - GST Output Liability (Already exists below, keep it)
             if (totalTax > 0) {
                 await tx.ledger.create({
                     data: {
@@ -121,7 +161,7 @@ export const SalesService = {
                 });
             }
 
-            // 3. Trigger Stock Deduction (FIFO)
+            // 5. Trigger Stock Deduction (FIFO)
             // We do this AFTER creating Sale so we have constraints checked, 
             // but inside the transaction so it rolls back if stock fails.
             for (const item of data.items) {
