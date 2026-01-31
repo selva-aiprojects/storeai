@@ -1,6 +1,6 @@
 """
 LLM Service for StoreAI Intelligence Platform
-Handles text generation (Groq) and embeddings (Google Gemini)
+Handles text generation (Groq) and embeddings (Local ONNX via ChromaDB)
 with robust error handling, retry logic, and monitoring
 """
 
@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 import logging
 
 from groq import AsyncGroq
-import google.generativeai as genai
+# Use ChromaDB's default embedding function (ONNX-based, local, free)
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from dotenv import load_dotenv
 
 
@@ -28,11 +29,11 @@ load_dotenv()
 class ModelProvider(Enum):
     """LLM providers"""
     GROQ = "groq"
-    GOOGLE = "google"
+    LOCAL = "local"
 
 
 class TaskType(Enum):
-    """Embedding task types"""
+    """Embedding task types (Kept for compatibility, though not used by local model)"""
     RETRIEVAL_QUERY = "retrieval_query"
     RETRIEVAL_DOCUMENT = "retrieval_document"
     SEMANTIC_SIMILARITY = "semantic_similarity"
@@ -41,11 +42,10 @@ class TaskType(Enum):
 
 # API Configuration
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Model Configuration
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
-DEFAULT_EMBED_MODEL = "models/embedding-001"
+DEFAULT_EMBED_MODEL = "all-MiniLM-L6-v2"  # Standard local model
 
 # Generation Parameters
 DEFAULT_MAX_TOKENS = 2048
@@ -151,15 +151,6 @@ class RetryStrategy:
     ):
         """
         Execute function with exponential backoff retry
-        
-        Args:
-            func: Async function to execute
-            max_retries: Maximum number of retries
-            base_delay: Base delay in seconds
-            should_retry_fn: Optional function to determine if error is retryable
-        
-        Returns:
-            Function result or raises exception
         """
         last_error = None
         
@@ -252,19 +243,7 @@ class InputValidator:
     
     @staticmethod
     def validate_prompt(prompt: str, max_length: int = MAX_PROMPT_LENGTH) -> str:
-        """
-        Validate and sanitize prompt
-        
-        Args:
-            prompt: Input prompt
-            max_length: Maximum allowed length
-        
-        Returns:
-            Sanitized prompt
-        
-        Raises:
-            InvalidInputError: If prompt is invalid
-        """
+        """Validate and sanitize prompt"""
         if not prompt:
             raise InvalidInputError("Prompt cannot be empty")
         
@@ -314,19 +293,7 @@ class GroqClient:
         prompt: str, 
         config: GenerationConfig
     ) -> LLMResponse:
-        """
-        Generate text completion
-        
-        Args:
-            prompt: Input prompt
-            config: Generation configuration
-        
-        Returns:
-            LLMResponse with generated content
-        
-        Raises:
-            ProviderError: If generation fails
-        """
+        """Generate text completion"""
         # Rate limiting
         if self.rate_limiter:
             await self.rate_limiter.acquire()
@@ -369,75 +336,54 @@ class GroqClient:
 
 
 # ============================================================================
-# GOOGLE GEMINI CLIENT
+# LOCAL EMBEDDING CLIENT (REPLACEMENT FOR GEMINI)
 # ============================================================================
 
-class GeminiClient:
-    """Handles Google Gemini API interactions (embeddings only)"""
+class LocalEmbeddingClient:
+    """Handles Local Embedding generation using ChromaDB's default function"""
     
-    def __init__(self, api_key: str):
-        if not api_key:
-            raise ValueError("Google API key is required")
-        
-        genai.configure(api_key=api_key)
-        self.configured = True
+    def __init__(self):
+        try:
+            # Default is all-MiniLM-L6-v2 (ONNX)
+            self.embed_fn = DefaultEmbeddingFunction()
+            self.configured = True
+            logging.info("Local Embedding Model initialized (all-MiniLM-L6-v2)")
+        except Exception as e:
+            logging.error(f"Failed to initialize local embedding model: {e}")
+            self.configured = False
     
+    def generate_embedding_sync(self, text: str) -> Optional[List[float]]:
+        """Synchronous embedding generation"""
+        if not self.configured:
+            return None
+        try:
+            # DefaultEmbeddingFunction expects a list of documents
+            embeddings = self.embed_fn([text])
+            if embeddings and len(embeddings) > 0:
+                return embeddings[0]
+            return None
+        except Exception as e:
+            logging.error(f"Local embedding generation failed: {e}")
+            return None
+
     async def generate_embedding(
         self,
         text: str,
         config: EmbeddingConfig
     ) -> Optional[List[float]]:
         """
-        Generate embedding vector
-        
-        Args:
-            text: Input text
-            config: Embedding configuration
-        
-        Returns:
-            Embedding vector or None if failed
+        Generate embedding vector (Async wrapper)
         """
         try:
-            # Run synchronous SDK in thread pool
+            # Run synchronous CPU-bound task in thread pool
             result = await asyncio.to_thread(
-                genai.embed_content,
-                model=config.model,
-                content=text,
-                task_type=config.task_type,
+                self.generate_embedding_sync,
+                text
             )
-            
-            # Handle different SDK versions
-            return self._extract_embedding(result)
-            
+            return result
         except Exception as e:
-            logging.error(f"Gemini embedding failed: {e}")
+            logging.error(f"Embedding async wrapper failed: {e}")
             return None
-    
-    @staticmethod
-    def _extract_embedding(result) -> Optional[List[float]]:
-        """Extract embedding from various SDK response formats"""
-        # Legacy SDK format
-        if isinstance(result, dict) and "embedding" in result:
-            return result["embedding"]
-        
-        # Object with embedding attribute
-        if hasattr(result, "embedding"):
-            embedding = result.embedding
-            if isinstance(embedding, list):
-                return embedding
-            if hasattr(embedding, "values"):
-                return embedding.values
-        
-        # New SDK format with embeddings list
-        if hasattr(result, "embeddings") and result.embeddings:
-            first_embedding = result.embeddings[0]
-            if hasattr(first_embedding, "values"):
-                return first_embedding.values
-            if isinstance(first_embedding, list):
-                return first_embedding
-        
-        logging.error(f"Unknown embedding format: {type(result)}")
-        return None
 
 
 # ============================================================================
@@ -446,38 +392,21 @@ class GeminiClient:
 
 class LLMService:
     """
-    Unified LLM service for text generation and embeddings
-    
-    Features:
-    - Groq for text generation
-    - Google Gemini for embeddings
-    - Retry logic with exponential backoff
-    - Rate limiting
-    - Input validation
-    - Health checks
-    - Comprehensive error handling
+    Unified LLM service for text generation (Groq) and embeddings (Local)
     """
     
     def __init__(
         self,
         groq_api_key: Optional[str] = None,
-        google_api_key: Optional[str] = None,
+        google_api_key: Optional[str] = None, # Kept for signature compatibility but ignored
         enable_rate_limiting: bool = True
     ):
-        """
-        Initialize LLM service
-        
-        Args:
-            groq_api_key: Groq API key (defaults to env var)
-            google_api_key: Google API key (defaults to env var)
-            enable_rate_limiting: Whether to enable rate limiting
-        """
+        """Initialize LLM service"""
         # Setup logging
         self._setup_logging()
         
         # API keys
         self.groq_api_key = groq_api_key or GROQ_API_KEY
-        self.google_api_key = google_api_key or GOOGLE_API_KEY
         
         # Validate required keys
         if not self.groq_api_key:
@@ -493,16 +422,8 @@ class LLMService:
             rate_limiter=self.rate_limiter
         )
         
-        # Gemini client (optional, only for embeddings)
-        self.gemini_client = None
-        if self.google_api_key:
-            try:
-                self.gemini_client = GeminiClient(self.google_api_key)
-                logging.info("Gemini client initialized for embeddings")
-            except Exception as e:
-                logging.warning(f"Gemini client initialization failed: {e}")
-        else:
-            logging.info("Google API key not provided. Embeddings will not be available.")
+        # Initialize Local Embedding Client (Mocking Gemini interface)
+        self.embedding_client = LocalEmbeddingClient()
     
     # ========================================================================
     # PUBLIC API - TEXT GENERATION
@@ -513,16 +434,7 @@ class LLMService:
         prompt: str,
         config: Optional[GenerationConfig] = None
     ) -> str:
-        """
-        Generate text response from prompt
-        
-        Args:
-            prompt: Input prompt
-            config: Optional generation configuration
-        
-        Returns:
-            Generated text or OVERLOAD_SIGNAL on failure
-        """
+        """Generate text response from prompt"""
         config = config or GenerationConfig()
         
         try:
@@ -554,20 +466,7 @@ class LLMService:
         prompt: str,
         config: Optional[GenerationConfig] = None
     ) -> LLMResponse:
-        """
-        Generate text with full response metadata
-        
-        Args:
-            prompt: Input prompt
-            config: Optional generation configuration
-        
-        Returns:
-            LLMResponse with metadata
-        
-        Raises:
-            InvalidInputError: If input is invalid
-            ProviderError: If generation fails
-        """
+        """Generate text with full response metadata"""
         config = config or GenerationConfig()
         
         # Validate input
@@ -588,18 +487,9 @@ class LLMService:
         text: str,
         config: Optional[EmbeddingConfig] = None
     ) -> Optional[List[float]]:
-        """
-        Generate embedding vector for text
-        
-        Args:
-            text: Input text
-            config: Optional embedding configuration
-        
-        Returns:
-            Embedding vector or None if failed/unavailable
-        """
-        if not self.gemini_client:
-            logging.warning("Gemini client not available. Cannot generate embeddings.")
+        """Generate embedding vector for text"""
+        if not self.embedding_client.configured:
+            logging.warning("Embedding client not available.")
             return None
         
         config = config or EmbeddingConfig()
@@ -609,7 +499,7 @@ class LLMService:
             text = InputValidator.validate_text(text)
             
             # Generate embedding
-            embedding = await self.gemini_client.generate_embedding(text, config)
+            embedding = await self.embedding_client.generate_embedding(text, config)
             
             if embedding:
                 logging.info(f"Generated embedding with {len(embedding)} dimensions")
@@ -633,17 +523,7 @@ class LLMService:
         config: Optional[GenerationConfig] = None,
         max_concurrent: int = 5
     ) -> List[str]:
-        """
-        Generate responses for multiple prompts concurrently
-        
-        Args:
-            prompts: List of input prompts
-            config: Optional generation configuration
-            max_concurrent: Maximum concurrent requests
-        
-        Returns:
-            List of generated responses (same order as prompts)
-        """
+        """Generate responses for multiple prompts concurrently"""
         semaphore = asyncio.Semaphore(max_concurrent)
         
         async def generate_with_semaphore(prompt: str) -> str:
@@ -659,17 +539,7 @@ class LLMService:
         config: Optional[EmbeddingConfig] = None,
         max_concurrent: int = 10
     ) -> List[Optional[List[float]]]:
-        """
-        Generate embeddings for multiple texts concurrently
-        
-        Args:
-            texts: List of input texts
-            config: Optional embedding configuration
-            max_concurrent: Maximum concurrent requests
-        
-        Returns:
-            List of embedding vectors (same order as texts)
-        """
+        """Generate embeddings for multiple texts concurrently"""
         semaphore = asyncio.Semaphore(max_concurrent)
         
         async def embed_with_semaphore(text: str) -> Optional[List[float]]:
@@ -684,30 +554,19 @@ class LLMService:
     # ========================================================================
     
     async def health_check(self) -> Dict[str, HealthStatus]:
-        """
-        Check health of all providers
-        
-        Returns:
-            Dict mapping provider name to health status
-        """
+        """Check health of all providers"""
         results = {}
         
         # Check Groq
         results["groq"] = await self._check_groq_health()
         
-        # Check Gemini
-        if self.gemini_client:
-            results["gemini"] = await self._check_gemini_health()
+        # Check Local Embedding
+        results["embedding"] = await self._check_embedding_health()
         
         return results
     
     async def ping(self) -> bool:
-        """
-        Simple health check for backward compatibility
-        
-        Returns:
-            True if service is healthy
-        """
+        """Simple health check"""
         try:
             response = await self.generate_response("Ping")
             return response != OVERLOAD_SIGNAL
@@ -749,26 +608,23 @@ class LLMService:
                 error=str(e)
             )
     
-    async def _check_gemini_health(self) -> HealthStatus:
-        """Check Gemini service health"""
+    async def _check_embedding_health(self) -> HealthStatus:
+        """Check local embedding health"""
         try:
             start_time = datetime.now()
-            embedding = await self.gemini_client.generate_embedding(
-                "Health check",
-                EmbeddingConfig()
-            )
+            embedding = await self.get_embedding("Health check")
             latency = (datetime.now() - start_time).total_seconds() * 1000
             
             return HealthStatus(
                 is_healthy=embedding is not None,
-                provider=ModelProvider.GOOGLE.value,
+                provider=ModelProvider.LOCAL.value,
                 latency_ms=latency if embedding else None,
                 error=None if embedding else "No embedding returned"
             )
         except Exception as e:
             return HealthStatus(
                 is_healthy=False,
-                provider=ModelProvider.GOOGLE.value,
+                provider=ModelProvider.LOCAL.value,
                 error=str(e)
             )
 
@@ -777,7 +633,7 @@ class LLMService:
 # MODULE EXPORTS
 # ============================================================================
 
-# Singleton instance for backward compatibility
+# Singleton instance
 llm_service = LLMService()
 
 __all__ = [
