@@ -284,6 +284,11 @@ h6 {
   transition: opacity 0.22s ease;
 }
 
+.menu-item:active {
+  transform: scale(0.97) translateX(4px);
+  background: rgba(88, 28, 135, 0.5);
+}
+
 .menu-item:hover {
   background: rgba(88, 28, 135, 0.35);
   /* close to purple-900 [web:6] */

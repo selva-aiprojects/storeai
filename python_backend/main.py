@@ -50,13 +50,177 @@ class ReturnRequest(BaseModel):
     transport: float = 0
     packaging: float = 0
 
-@app.post("/api/chat")
-async def chat_endpoint(req: QueryRequest):
+# Auth Utils
+from fastapi import Depends, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt
+
+security = HTTPBearer()
+JWT_SECRET = "storeai_super_secret_key_2024" # Should match auth service
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
     try:
-        result = await rag_service.process_query(req.query, req.history)
+        token = credentials.credentials
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return payload
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
+
+@app.post("/api/chat")
+async def chat_endpoint(req: QueryRequest, user: dict = Depends(get_current_user)):
+    try:
+        # Extract tenant from token
+        # Our JWT payload structure: { id, email, role, tenantId, ... }
+        tenant_id = user.get('tenantId')
+        
+        # If tenantId is missing (e.g. super admin specific case), fallback to default
+        if not tenant_id:
+            # Try to resolve based on user role or default
+            # For now, if no tenantId, we might default to technova (the seed)
+            # But the token SHOULD have it.
+            pass
+
+        result = await rag_service.process_query(req.query, req.history, tenant_id=tenant_id)
         return result
     except Exception as e:
+        logger.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+class StockRequest(BaseModel):
+    ticker: str
+
+@app.post("/api/ai/stock-analyze")
+async def analyze_stock(req: StockRequest):
+    try:
+        if not req.ticker:
+            raise HTTPException(status_code=400, detail="Ticker is required")
+            
+        prompt = f"""Role: Institutional Quantitative Analyst AI.
+Task: Perform a deep-dive analysis of {req.ticker} for an institutional investment memo.
+Input Data: Simulate real-time market data, technical indicators (RSI, MACD, Bollinger, Moving Averages), fundamental data (P/E, EPS, Revenue Growth), and scan recent news/sentiment.
+
+Output: STRICT JSON ONLY. No markdown. No conversational text.
+Target JSON Structure (AiAnalysis Interface):
+
+{{
+    "meta": {{
+        "ticker": "{req.ticker}",
+        "company_name": "<Full Company Name>",
+        "sector": "<Sector>",
+        "last_price": <number>,
+        "currency": "USD",
+        "time_range": "6M"
+    }},
+    "core_signals": {{
+        "ai_overall_rating": "Strong Buy" | "Buy" | "Hold" | "Sell" | "Avoid",
+        "technical_score": <0-100>,
+        "fundamental_score": <0-100>,
+        "news_score": <0-100>,
+        "risk_score": <0-100>, 
+        "confidence": <0-100>
+    }},
+    "ai_rationale": {{
+        "thesis": "<Executive summary thesis (2-3 sentences)>",
+        "time_horizon": "short_term" | "medium_term" | "long_term",
+        "bull_case": "<Optimistic scenario>",
+        "bear_case": "<Downside risks>",
+        "base_case": "<Most likely outcome>"
+    }},
+    "explanations": {{
+        "technical_explain": "<Specific levels, indicators>",
+        "fundamental_explain": "<Valuation, growth stats>",
+        "news_explain": "<Key narratives driving price>",
+        "risk_explain": "<Key headwinds>"
+    }},
+    "history_context": {{
+        "previous_calls": [
+            {{ "date": "YYYY-MM-DD", "rating": "Buy", "confidence": 85, "outcome": "outperformed" }},
+            {{ "date": "YYYY-MM-DD", "rating": "Hold", "confidence": 70, "outcome": "neutral" }}
+        ],
+        "model_confidence_trend": [
+            {{ "date": "YYYY-MM-DD", "confidence": 75 }},
+            {{ "date": "YYYY-MM-DD", "confidence": 80 }}
+        ]
+    }},
+    "charts": {{
+        "price_series": [ 
+            {{ "date": "2024-01-01", "close": 150.00 }},
+            ... (Generate ~15 data points matching the trend)
+        ]
+    }},
+    "recent_news": [
+        {{
+            "headline": "<Headline>",
+            "source": "Bloomberg" | "Reuters" | "WSJ",
+            "published_at": "<Relative Date>",
+            "sentiment": "Positive" | "Negative" | "Neutral",
+            "impact": "High" | "Medium" | "Low",
+            "why_it_matters": "<One concise sentence insight>"
+        }}
+    ]
+}}
+
+Instructions:
+1. Be specific with numbers (Price, P/E, RSI).
+2. Ensure `core_signals` scores are consistent with the `ai_overall_rating`.
+3. Simulate a realistic `price_series` array that visually correlates with your technical analysis.
+4. Provide "Insider" level insight in `why_it_matters` for news.
+"""
+        
+        response = await llm_service.generate_response(prompt)
+        
+        # Clean response if it contains markdown code blocks
+        import re
+        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        if json_match:
+            response = json_match.group(0)
+            
+        import json
+        return json.loads(response)
+        
+    except Exception as e:
+        logger.error(f"Stock analysis failed: {e}")
+        # Return mock data on failure to prevent UI crash
+        return {
+            "meta": {
+                "ticker": req.ticker,
+                "company_name": f"{req.ticker} Corp (Simulation)",
+                "sector": "Technology",
+                "last_price": 150.00,
+                "currency": "USD",
+                "time_range": "6M"
+            },
+            "core_signals": {
+                "ai_overall_rating": "Hold",
+                "technical_score": 50,
+                "fundamental_score": 60,
+                "news_score": 50,
+                "risk_score": 40,
+                "confidence": 50
+            },
+            "ai_rationale": {
+                "thesis": "Service unavailable. Showing placeholder data.",
+                "time_horizon": "medium_term",
+                "bull_case": "Service restored.",
+                "bear_case": "Continued outage.",
+                "base_case": "Retry shortly."
+            },
+            "explanations": {
+                "technical_explain": "N/A",
+                "fundamental_explain": "N/A",
+                "news_explain": "N/A",
+                "risk_explain": "N/A"
+            },
+            "history_context": {
+                "previous_calls": [],
+                "model_confidence_trend": []
+            },
+            "charts": {
+                "price_series": []
+            },
+            "recent_news": []
+        }
 
 # --- FINANCE ENDPOINTS ---
 

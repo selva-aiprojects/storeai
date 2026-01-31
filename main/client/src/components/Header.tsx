@@ -1,4 +1,4 @@
-import { RefreshCw, Plus, Menu, Sparkles } from 'lucide-react';
+import { RefreshCw, Plus, Menu, Sparkles, TrendingUp } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
@@ -70,6 +70,19 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     refreshData(scope);
                 }}>
                     <RefreshCw size={14} /> <span className="btn-text">SYNC</span>
+                </button>
+                <button
+                    className="btn"
+                    style={{
+                        background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+                        border: 'none',
+                        color: 'white',
+                        boxShadow: '0 4px 14px 0 rgba(14, 165, 233, 0.4)',
+                        marginRight: '8px'
+                    }}
+                    onClick={() => navigate('/stock-analyzer')}
+                >
+                    <TrendingUp size={16} /> <span className="btn-text">MARKET</span>
                 </button>
                 <button
                     className="btn"

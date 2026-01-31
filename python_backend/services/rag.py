@@ -41,7 +41,7 @@ class DataSource(Enum):
 
 # Constants
 NO_DATA_SIGNAL = "NO_NEW_DATA_SIGNAL"
-DEFAULT_TENANT_ID = "storeai"  # Changed from 'technova' to match actual tenant data
+DEFAULT_TENANT_ID = "storeai"  # Reverted back to storeai which has the seeded data
 MAX_CONTEXT_MESSAGES = 4
 MAX_SQL_RESULTS = 15
 MAX_VECTOR_RESULTS = 5
@@ -514,24 +514,34 @@ class RAGService:
     # PUBLIC API
     # ========================================================================
     
+    # ========================================================================
+    # PUBLIC API
+    # ========================================================================
+    
     async def process_query(
         self, 
         user_query: str, 
-        history: List[Dict] = None
+        history: List[Dict] = None,
+        tenant_id: str = None
     ) -> QueryResult:
         """
         Main entry point for query processing
         
         Args:
             user_query: User's question
-            history: Conversation history (list of {role, content} dicts)
-        
-        Returns:
-            QueryResult with response, source, and optional telemetry
+            history: Conversation history
+            tenant_id: UUID of the tenant to query (context)
         """
-        # Ensure tenant ID is resolved to UUID
-        await self._ensure_tenant_id()
-        
+        # Fallback to default if no tenant provided (for backward compat/testing)
+        # In production this should come from the request
+        target_tenant_id = tenant_id or self.tenant_slug 
+
+        if not target_tenant_id:
+             # Try to resolve default slug to UUID if we only have slug
+             # For now let's assume if it's not a UUID it's a slug and resolve it
+             # But main.py should pass the UUID.
+             pass
+
         if history is None:
             history = []
         
@@ -539,17 +549,15 @@ class RAGService:
             try:
                 # Normalize query
                 query = self._normalize_query(user_query)
-                print(f"[RAG] Processing: '{query}' (History: {len(history)} msgs)")
+                print(f"[RAG] Processing for tenant {target_tenant_id}: '{query}'")
                 
-                # Refine with context if meaningful history exists
+                # Refine with context
                 if len(history) >= 2:
                     refined_query = await self._refine_query(query, history)
                 else:
                     refined_query = query
                 
-                print(f"[RAG] Refined: '{refined_query}'")
-                
-                # Handle greetings (check original query)
+                # Handle greetings
                 greeting_result = self._handle_greeting(query)
                 if greeting_result:
                     return greeting_result
@@ -561,7 +569,8 @@ class RAGService:
                 # Retrieve context data
                 context_data, source = await self._retrieve_context(
                     refined_query, 
-                    intent
+                    intent,
+                    target_tenant_id
                 )
                 
                 # Handle no data found
@@ -614,9 +623,8 @@ class RAGService:
             return QueryResult(
                 response=(
                     "Greetings! I am the StoreAI Intelligence Platform Assistant. "
-                    "I am currently synchronized with your store's live telemetry to "
-                    "help you oversee Inventory, Sales, and Resource Allocation. "
-                    "What specific aspect of your business shall we analyze today?"
+                    "I am currently synchronized with your live store telemetry. "
+                    "How can I assist you with Inventory, Sales, or Resource insights today?"
                 ),
                 source=DataSource.HEURISTIC.value,
                 context="Persona: Strategic Business Analyst"
@@ -626,23 +634,23 @@ class RAGService:
     async def _retrieve_context(
         self, 
         query: str, 
-        intent: IntentClassification
+        intent: IntentClassification,
+        tenant_id: str
     ) -> Tuple[Optional[str], Optional[str]]:
         """
         Retrieve context data based on intent
-        Returns: (context_data, source) tuple
         """
         if intent.intent_type == IntentType.SQL:
             # Try SQL first
             context_data, source = await self.sql_handler.execute(
                 query, 
-                self.tenant_id
+                tenant_id
             )
             
             # Fallback to vector if SQL fails
             if not context_data:
                 print("[RAG] SQL failed, trying vector fallback")
-                await asyncio.sleep(0.2)  # Rate limiting
+                await asyncio.sleep(0.2)
                 context_data, source = await self.vector_handler.execute(query)
             
             return context_data, source

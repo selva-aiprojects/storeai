@@ -53,18 +53,55 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         menuItems.push({ path: '/settings', label: 'Settings', icon: Settings, permission: 'tenants:manage' });
     }
 
-    // Filter menu items based on features and permissions
-    const filteredMenuItems = menuItems.filter(item => {
+    // 1. First pass: Filter items by permission/feature (keep dividers for now)
+    const accessibleItems = menuItems.filter(item => {
+        if (user?.role === 'SUPER_ADMIN') return true; // Power User Override
         if (item.divider) return true;
-
-        // 1. Check Feature Flag
+        // Check Feature Flag
         if (item.feature && user?.features?.[item.feature] === false) return false;
-
-        // 2. Check Permission
+        // Check Permission
         if (item.permission && !user?.permissions?.includes(item.permission)) return false;
-
         return true;
     });
+
+    // 2. Second pass: Remove dividers that have no visible children
+    const filteredMenuItems = accessibleItems.reduce((acc: any[], item: any) => {
+        if (item.divider) {
+            // It's a divider, verify if there are any actual items in this section
+            // We look ahead in the ORIGINAL 'accessibleItems' array from the current index
+            // But 'reduce' doesn't give us easy lookahead. 
+            // EASIER STRATEGY: 
+            // We buffer the divider. We only push the buffer if we encounter a non-divider item.
+            // If we encounter another divider before an item, we drop the previous buffer.
+
+            // However, since we are iterating the *already filtered* list, we can just use a helper.
+            return [...acc, item]; // Placeholder, we'll fix logic below
+        }
+        return [...acc, item];
+    }, []);
+
+    // Correct Logic: 
+    // We recreate the array. We hold the 'current divider' in a variable. 
+    // When we see an item, we push the 'current divider' (if pending) then the item.
+    // If we see a divider, we set 'current divider'.
+    const smartFilteredItems: any[] = [];
+    let pendingDivider: any = null;
+
+    accessibleItems.forEach(item => {
+        if (item.divider) {
+            pendingDivider = item;
+        } else {
+            // It's a real item
+            if (pendingDivider) {
+                smartFilteredItems.push(pendingDivider);
+                pendingDivider = null; // Consumed
+            }
+            smartFilteredItems.push(item);
+        }
+    });
+
+    // Override the variable used in render
+    const finalMenuItems = smartFilteredItems;
 
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
@@ -139,7 +176,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                 </div>
                 {(() => {
                     let sectionTracker = '';
-                    return filteredMenuItems.map((item: any, index) => {
+                    return finalMenuItems.map((item: any, index) => {
                         if (item.divider) {
                             if (isCollapsed) return <div key={index} className="menu-divider-mini" style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '15px 10px' }}></div>;
 

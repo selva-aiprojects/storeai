@@ -1,0 +1,30 @@
+{
+  "tenants": [
+    {
+      "id": "d648adeb-cb77-4678-912d-0a5f6122e5dd",
+      "name": "StoreAI Corporate Hub",
+      "slug": "storeai"
+    },
+    {
+      "id": "d3a0f064-2ee6-4a53-9f1c-f88e84ebd0ce",
+      "name": "Quantum Retail Solutions",
+      "slug": "quantum"
+    },
+    {
+      "id": "d9aa57a8-2350-41e6-9840-5957e8a3cf23",
+      "name": "Nexus Logistics Group",
+      "slug": "nexus"
+    },
+    {
+      "id": "d3b14363-d908-4323-a1ec-660596455f5a",
+      "name": "Horizon Dynamics",
+      "slug": "horizon"
+    }
+  ],
+  "product_counts": [
+    {
+      "tenantId": "d648adeb-cb77-4678-912d-0a5f6122e5dd",
+      "count": 4
+    }
+  ]
+}
