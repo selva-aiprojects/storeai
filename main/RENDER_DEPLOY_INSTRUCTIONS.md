@@ -13,7 +13,7 @@ StoreAI requires **3 services** on Render: Node.js Backend, Python AI Backend, a
 2.  Connect your **`Store-AI`** repository.
 3.  **Configure Details**:
     *   **Name**: `store-ai-server`
-    *   **Root Directory**: `main/server`
+    *   **Root Directory**: `main/server`  <-- IMPORTANT: Must be main/server
     *   **Runtime**: `Node`
     *   **Build Command**: `npm install && npx prisma generate && npm run build`
     *   **Start Command**: `npm start`
@@ -28,6 +28,8 @@ StoreAI requires **3 services** on Render: Node.js Backend, Python AI Backend, a
 ---
 
 ### Part 2: Deploy the Python AI Backend (Web Service)
+**Do this if you haven't already!**
+
 1.  On Dashboard, Click **"New +"** -> **"Web Service"**.
 2.  Connect the same repository.
 3.  **Configure Details**:
@@ -39,7 +41,7 @@ StoreAI requires **3 services** on Render: Node.js Backend, Python AI Backend, a
     *   **Instance Type**: `Free`
 4.  **Environment Variables**:
     *   `DATABASE_URL`: Same as Node.js backend
-    *   `JWT_SECRET`: **SAME** as Node.js backend!
+    *   `JWT_SECRET`: **Current Value**: `MqOqO1LLP8PK8DRwe9NenNZfmquJz1POzdcbDJ+gbL4=` (Must match Node.js!)
     *   `GROQ_API_KEY`: Your Groq API key
     *   `GOOGLE_API_KEY`: Your Google Gemini API key
     *   `PORT`: `8000`
@@ -48,18 +50,15 @@ StoreAI requires **3 services** on Render: Node.js Backend, Python AI Backend, a
 
 ---
 
-### Part 3: Deploy the Frontend (Static Site)
-1.  On Dashboard, Click **"New +"** -> **"Static Site"**.
-2.  Connect the same repository.
-3.  **Configure Details**:
-    *   **Name**: `store-ai-client`
-    *   **Root Directory**: `main/client`
-    *   **Build Command**: `npm install && npm run build`
-    *   **Publish Directory**: `dist`
-4.  **Environment Variables**:
+### Part 3: Update Frontend Configuration
+**The Frontend needs to know where the AI lives.**
+
+1.  Go to **`store-ai-client`** service settings.
+2.  **Environment Variables**:
     *   `VITE_API_URL`: `https://store-ai-server.onrender.com/api/v1`
-    *   `VITE_AI_API_URL`: `https://store-ai-python.onrender.com/api`
-5.  Click **Create Static Site**.
+    *   `VITE_AI_API_URL`: **Paste your Python Service URL here** + `/api`
+        *   Example: `https://store-ai-python.onrender.com/api`
+3.  **Save and Redeploy** the Client.
 
 ---
 

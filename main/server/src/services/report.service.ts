@@ -331,7 +331,7 @@ export const ReportService = {
                 isDeleted: false,
                 createdAt: {
                     gte: startDate,
-                    lte: end Date
+                    lte: endDate
                 }
             },
             include: {
