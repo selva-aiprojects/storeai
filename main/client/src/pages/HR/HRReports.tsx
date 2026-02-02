@@ -29,7 +29,7 @@ const HRReports = () => {
             <header className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">HR & Compliance Reports</h1>
-                    <p className="text-gray-500 text-sm">Yearly consolidated salary and statutory collection telemetry</p>
+                    <p className="text-gray-500 text-sm">Yearly consolidated salary and tax collection records</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="btn btn-secondary"><Download size={16} /> EXPORT PDF</button>

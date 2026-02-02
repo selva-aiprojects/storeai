@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 /**
  * End-to-End Test Script
@@ -101,6 +99,7 @@ async function runEndToEndTest() {
             }
         });
         console.log(`✓ PO Created: ${po.orderNumber}`);
+        console.log('--- Phase 3.1: PO Created ---');
 
         // Process GRN
         console.log('Processing Goods Receipt (GRN)...');
@@ -119,6 +118,7 @@ async function runEndToEndTest() {
             gstAmount: 1800
         });
         console.log(`✓ GRN Processed: Batch ${batch.batchNumber}`);
+        console.log('--- Phase 3.2: GRN Processed ---');
 
         // Verify Stock
         const updatedProduct = await prisma.product.findUnique({
@@ -137,6 +137,7 @@ async function runEndToEndTest() {
             }
         });
         console.log(`✓ Ledger Entries Created: ${purchaseLedgerEntries.length}`);
+        console.log('--- Phase 3.3: Ledger Entries Verified ---');
         purchaseLedgerEntries.forEach(entry => {
             console.log(`   - ${entry.account.name}: Dr ${entry.debitAmount} Cr ${entry.creditAmount}`);
         });

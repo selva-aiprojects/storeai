@@ -41,7 +41,7 @@ class DataSource(Enum):
 
 # Constants
 NO_DATA_SIGNAL = "NO_NEW_DATA_SIGNAL"
-DEFAULT_TENANT_ID = "storeai"  # Reverted back to storeai which has the seeded data
+DEFAULT_TENANT_ID = "technova"  # Updated to technova which has the seeded data
 MAX_CONTEXT_MESSAGES = 4
 MAX_SQL_RESULTS = 15
 MAX_VECTOR_RESULTS = 5
@@ -201,7 +201,12 @@ class IntentRouter:
         "daily", "weekly", "monthly", "yearly", "recent", "latest",
         
         # Customer terms
+        # Customer terms
         "customer", "customers", "top customer", "buyer", "client",
+        
+        # Additional operational terms
+        "health", "audit", "compliance", "unpaid", "pending", "overdue",
+        "aging", "returns", "refunds", "stock movement", "valuation"
     }
     
     GREETING_PATTERNS = {
@@ -210,17 +215,38 @@ class IntentRouter:
     }
     
     @classmethod
-    def classify(cls, query: str) -> IntentClassification:
-        """Classify query intent"""
+    async classify(cls, query: str, llm_service=None) -> IntentClassification:
+        """Classify query intent with LLM fallback for high accuracy"""
         normalized_query = query.lower().strip()
         
-        # Check for greetings (exact match or very short)
+        # 1. Check for greetings
         if cls._is_greeting(normalized_query):
             return IntentClassification(IntentType.GREETING)
         
-        # Check for SQL keywords
+        # 2. Heuristic keyword matching (Fast path)
         if cls._contains_sql_keywords(normalized_query):
             return IntentClassification(IntentType.SQL)
+            
+        # 3. LLM Fallback (Slow path - Intelligence path)
+        if llm_service:
+            try:
+                prompt = f"""Classify the intent of the following user query for an ERP system.
+Query: "{query}"
+
+Intent Types:
+- SQL: Querying structured database (sales, stock, accounting, attendance)
+- VECTOR: Semantic product search, descriptions, or general knowledge
+- GREETING: Simple hello, help, or who are you
+
+Return ONLY the Intent Type (SQL/VECTOR/GREETING). No explanation."""
+                response = await llm_service.generate_response(prompt)
+                intent_str = response.strip().upper()
+                
+                if "SQL" in intent_str: return IntentClassification(IntentType.SQL)
+                if "GREETING" in intent_str: return IntentClassification(IntentType.GREETING)
+                return IntentClassification(IntentType.VECTOR)
+            except:
+                pass
         
         return IntentClassification(IntentType.VECTOR)
     
@@ -266,48 +292,28 @@ Standalone Query:"""
     
     @staticmethod
     def sql_generation(query: str, tenant_id: str = DEFAULT_TENANT_ID) -> str:
-        """Prompt for SQL generation"""
-        return f"""You are the Strategic Analysis Engine for StoreAI Intelligence Platform (PostgreSQL Expert).
+        """Prompt for SQL generation with deep accounting context"""
+        return f"""You are the Advanced StoreAI Business Assistant (PostgreSQL Specialist).
+Generate EXECUTION-READY, READONLY SQL for the "{tenant_id}" environment.
 
-Generate SAFE READONLY SQL based on this schema:
+SCHEMA CONTEXT:
+- "Product"("id", "sku", "name", "price", "stockQuantity", "tenantId")
+- "Sale"("id", "invoiceNo", "totalAmount", "taxAmount", "tenantId", "createdAt")
+- "Payment"("id", "amount", "method", "saleId", "tenantId") -> Links to "Sale"
+- "LedgerEntry"("id", "accountId", "debitAmount", "creditAmount", "referenceType", "referenceId", "tenantId")
+- "ChartOfAccounts"("id", "name", "accountType", "accountGroup", "tenantId")
+- "Employee"("id", "firstName", "lastName", "designation", "tenantId")
+- "Attendance"("id", "employeeId", "status", "date")
 
-CORE TABLES:
-- "Product"("id", "sku", "name", "price", "stockQuantity", "lowStockThreshold", "tenantId")
-- "Category"("id", "name", "tenantId")
-- "Sale"("id", "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "dueDate", "isPaid", "createdAt", "customerId", "tenantId")
-- "SaleItem"("id", "saleId", "productId", "quantity", "unitPrice", "tenantId")
-- "Order"("id", "orderNumber", "totalAmount", "taxAmount", "supplierId", "status", "createdAt", "tenantId")
-- "OrderItem"("id", "orderId", "productId", "quantity", "unitPrice", "tenantId")
-- "Supplier"("id", "name", "email", "tenantId")
-- "Customer"("id", "name", "email", "phone", "tenantId")
-- "Daybook"("id", "date", "type", "description", "debit", "credit", "referenceId", "tenantId")
-- "Employee"("id", "employeeId", "firstName", "lastName", "designation", "salary", "performanceRating", "departmentId", "tenantId")
-- "Department"("id", "name", "tenantId")
-- "Attendance"("id", "employeeId", "date", "status", "checkIn", "checkOut")
+CRITICAL RULES:
+1. TENANT ISOLATION: Use (T."tenantId" = '{tenant_id}') for every table.
+2. ACCOUNTING: Joins "LedgerEntry" with "ChartOfAccounts" to filter by accountGroup ('INCOME', 'EXPENSES', 'ASSETS', 'LIABILITIES').
+3. QUOTING: Use DOUBLE QUOTES for ALL table and column names.
+4. AGGREGATION: Use SUM(), COUNT(), or AVG() as requested.
+5. NO MARKDOWN: Return only the SQL string.
 
-SQL RULES:
-1. IDENTIFIERS: DOUBLE QUOTES for ALL tables and columns (e.g., SELECT "name" FROM "Product").
-2. STRING VALUES: ALWAYS use SINGLE QUOTES (e.g., WHERE "type" = 'SALE').
-3. PURCHASE DATA: Table is "Order" (NOT "PurchaseOrder").
-4. REVENUE: SUM("credit") FROM "Daybook" WHERE "type" = 'SALE'.
-5. DATES:
-   - "Yesterday" = (CURRENT_DATE - INTERVAL '1 day')
-   - "Today" = CURRENT_DATE
-   - "This week" = date_trunc('week', CURRENT_DATE)
-   - "This month" = date_trunc('month', CURRENT_DATE)
-6. RESOURCE ALLOCATION: Query "Employee" joined with "Department". For employee counts by department: SELECT D."name", COUNT(E.*) FROM "Employee" E JOIN "Department" D ON E."departmentId" = D."id".
-7. ATTENDANCE JOIN: To filter Attendance by tenant, join with Employee: "Attendance" A JOIN "Employee" E ON A."employeeId" = E."id" WHERE E."tenantId" = '{tenant_id}'.
-8. TENANT FILTER: Always include WHERE "tenantId" = '{tenant_id}' (or JOIN for Attendance).
-9. OUTPUT: Return RAW SQL ONLY. No explanations.
-
-EXAMPLES:
-- "Yesterday sales": SELECT SUM("totalAmount") as total FROM "Sale" WHERE "createdAt"::date = CURRENT_DATE - INTERVAL '1 day' AND "tenantId" = '{tenant_id}'
-- "Low stock": SELECT "name", "stockQuantity", "lowStockThreshold" FROM "Product" WHERE "stockQuantity" < "lowStockThreshold" AND "tenantId" = '{tenant_id}'
-- "Resource allocation": SELECT D."name" as department, COUNT(E."id") as employees FROM "Employee" E JOIN "Department" D ON E."departmentId" = D."id" WHERE E."tenantId" = '{tenant_id}' GROUP BY D."name"
-- "Top customer": SELECT C."name", SUM(S."totalAmount") as total_spent FROM "Sale" S JOIN "Customer" C ON S."customerId" = C."id" WHERE S."tenantId" = '{tenant_id}' GROUP BY C."name" ORDER BY total_spent DESC LIMIT 5
-
-Question: "{query}"
-"""
+QUERY: "{query}"
+SQL:"""
     
     @staticmethod
     def answer_synthesis(
@@ -323,27 +329,25 @@ Question: "{query}"
                 for m in history[-5:]
             ])
         
-        return f"""ROLE: You are the Lead AI Architect for the StoreAI Intelligence Platform.
-TONE: Concise, Professional, Data-Driven.
-DISTRUST: Do NOT hallucinate data. If the CONTEXTUAL DATA is empty or says "No specific new data records found", inform the user that no specific records match their query in the current database.
+        return f"""ROLE: Lead StoreAI Assistant.
+CONTEXT: Business Intelligence Guide.
 
-CURRENT TASK: 
-Respond to the user's query based ONLY on the provided CONTEXTUAL DATA.
+Respond to "{user_query}" based on the telemetry below.
 
-CONTEXTUAL DATA:
+TELEMETRY DATA:
 {context_data}
 
 CONVERSATION HISTORY:
-{history_str if history_str else "N/A - Start of session."}
+{history_str if history_str else "N/A"}
 
-USER QUESTION: "{user_query}"
-
-CONSTRAINTS:
-1. NO HALLUCINATION: Never invent product names (like Product A/B/C) or stock levels. Use ONLY what is in CONTEXTUAL DATA.
-2. NO REPETITION: Do not repeat greetings like "Hello again" or references to "yesterday" unless the conversation actually spanned multiple days.
-3. DATA FORMAT: Use MARKDOWN TABLES for any tabular data.
-4. ACTIONABLE: End with a single, concise "Strategic Next Step" question relevant to the user's query.
-5. NO FLUFF: Keep the response under {SYNTHESIS_MAX_WORDS} words.
+INSTRUCTIONS:
+1. DATA-DRIVEN: Use specific numbers from telemetry.
+2. NO HALLUCINATION: If telemetry is empty or null, state "No specific data found for this period/category."
+3. PROFESSIONAL TONE: Reassuring and insightful.
+4. MARKDOWN: Use tables for product lists or financial breakdowns.
+5. INSIGHT: Add one "Smart Observation" based on the data trends.
+6. CALL TO ACTION: End with a highly relevant follow-up question.
+7. MAX WORDS: {SYNTHESIS_MAX_WORDS}
 
 RESPONSE:"""
 
@@ -582,7 +586,7 @@ class RAGService:
                     return greeting_result
                 
                 # Route intent
-                intent = IntentRouter.classify(refined_query)
+                intent = await IntentRouter.classify(refined_query, self.llm)
                 print(f"[RAG] Intent: {intent.intent_type.value}")
                 
                 # Retrieve context data
@@ -641,12 +645,12 @@ class RAGService:
         if IntentRouter._is_greeting(query):
             return QueryResult(
                 response=(
-                    "Greetings! I am the StoreAI Intelligence Platform Assistant. "
-                    "I am currently synchronized with your live store telemetry. "
-                    "How can I assist you with Inventory, Sales, or Resource insights today?"
+                    "Greetings! I am the StoreAI Assistant. "
+                    "I am currently synchronized with your live store data. "
+                    "How can I assist you with Inventory, Sales, or Staff insights today?"
                 ),
                 source=DataSource.HEURISTIC.value,
-                context="Persona: Strategic Business Analyst"
+                context="Persona: Helpful Store Assistant"
             )
         return None
     
@@ -719,12 +723,18 @@ class RAGService:
             suggestions.append("Try being more specific, e.g., 'yesterday sales', 'low stock', or 'top customers'")
         
         # Default no-data response
+        response = (
+            f"I couldn't find specific data matching your query in the current database. "
+            f"{suggestions[0]}. "
+        )
+        
+        if "yesterday" in query_lower or "today" in query_lower:
+            response += "Try asking for a broader range, like 'this week' or 'this month' to see if there is any data."
+        else:
+            response += "You can also ask about stock health, sales trends, or resource allocation."
+
         return QueryResult(
-            response=(
-                f"I couldn't find specific data matching your query in the current database. "
-                f"{suggestions[0]}. "
-                f"You can also ask about stock health, sales trends, or resource allocation."
-            ),
+            response=response,
             source=DataSource.NONE.value,
             context=None
         )

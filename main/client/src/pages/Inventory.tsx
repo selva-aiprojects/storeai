@@ -6,7 +6,7 @@ const Inventory = () => {
     const { products } = data || {};
 
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to decommission this artifact? This action is immutable in the audit logs.')) {
+        if (window.confirm('Are you sure you want to remove this item? This action will be permanent in the business logs.')) {
             try {
                 const { deleteProduct } = await import('../services/api');
                 await deleteProduct(id);

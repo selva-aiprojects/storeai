@@ -23,7 +23,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
         }
 
         if (Array.isArray(parsed)) {
-            if (parsed.length === 0) return <div className="p-3 italic text-gray-400">No telemetry data matching this signal.</div>;
+            if (parsed.length === 0) return <div className="p-3 italic text-gray-400">No data records found for this request.</div>;
 
             const headers = Object.keys(parsed[0]);
             return (
@@ -140,7 +140,7 @@ const Assistant = () => {
 
             const aiMsg: Message = {
                 id: Date.now() + 1,
-                text: response.response || "I'm analyzing the telemetry but didn't get a clear signal. Could you rephrase?",
+                text: response.response || "I'm checking the data but couldn't find a clear answer. Could you rephrase?",
                 sender: 'ai',
                 timestamp: new Date(),
                 context: response.context

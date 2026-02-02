@@ -159,7 +159,7 @@ const Products = () => {
                                 overflow: 'hidden',
                                 margin: 0
                             }}>
-                                {p.description || "Premium enterprise artifact. Engineered for high-performance retail operations."}
+                                {p.description || "Quality inventory item. Designed for efficient retail operations."}
                             </p>
 
                             <div style={{ marginTop: 'auto', paddingTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

@@ -1,6 +1,5 @@
-import { PrismaClient, Product, ProductBatch, StockLedger, Stock, InventoryDocument } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Product } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 /**
  * Inventory Service
@@ -219,7 +218,7 @@ export const InventoryService = {
         };
 
         if (tx) return runLogic(tx);
-        return prisma.$transaction(runLogic);
+        return prisma.$transaction(runLogic, { timeout: 30000 });
     },
 
     /**
@@ -320,7 +319,7 @@ export const InventoryService = {
         };
 
         if (tx) return runLogic(tx);
-        return prisma.$transaction(runLogic);
+        return prisma.$transaction(runLogic, { timeout: 30000 });
     },
 
     /**

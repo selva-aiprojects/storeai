@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 /**
  * Report Service
@@ -15,8 +13,12 @@ export const ReportService = {
      */
     async generateTrialBalance(tenantId: string, startDate?: Date, endDate?: Date) {
         try {
-            // Default to current financial year if no dates provided
-            const start = startDate || new Date(new Date().getFullYear(), 3, 1); // April 1st
+            // Default to current financial year if no dates provided (April 1st)
+            let startYear = new Date().getFullYear();
+            if (new Date().getMonth() < 3) { // Jan, Feb, Mar belong to previous year's FY
+                startYear--;
+            }
+            const start = startDate || new Date(startYear, 3, 1);
             const end = endDate || new Date();
 
             // Get all accounts
@@ -94,7 +96,11 @@ export const ReportService = {
      */
     async generateProfitAndLoss(tenantId: string, startDate?: Date, endDate?: Date) {
         try {
-            const start = startDate || new Date(new Date().getFullYear(), 3, 1);
+            let startYear = new Date().getFullYear();
+            if (new Date().getMonth() < 3) {
+                startYear--;
+            }
+            const start = startDate || new Date(startYear, 3, 1);
             const end = endDate || new Date();
 
             // Get all income and expense accounts

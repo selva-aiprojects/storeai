@@ -166,7 +166,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text("PROTOCOL ACKNOWLEDGED: StoreAI SECURE BILLING ENGINE", 105, 285, { align: 'center' });
-        doc.text("This document is a legally binding artifact of organization sales records.", 105, 290, { align: 'center' });
+        doc.text("This document is an official record of your business sales.", 105, 290, { align: 'center' });
 
         doc.save(`Receipt_${sale.invoiceNo}.pdf`);
     };
@@ -504,7 +504,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                                             </div>
                                                         );
                                                     })}
-                                                    {(!formData.items || formData.items.every((i: any) => !i.productId)) && <div style={{ textAlign: 'center', opacity: 0.4, padding: '15px', fontSize: '0.8rem' }}>Awaiting artifact selection...</div>}
+                                                    {(!formData.items || formData.items.every((i: any) => !i.productId)) && <div style={{ textAlign: 'center', opacity: 0.4, padding: '15px', fontSize: '0.8rem' }}>Please select an item...</div>}
                                                 </div>
                                             </div>
 

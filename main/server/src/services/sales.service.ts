@@ -1,169 +1,160 @@
-import { PrismaClient } from '@prisma/client';
 import { InventoryService } from './inventory.service';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 export const SalesService = {
 
     /**
-     * Create New Sale Invoice
-     * - Calculates Taxes (CGST/SGST vs IGST)
-     * - Creates Sale Record
-     * - Triggers Stock Deduction (FIFO) via InventoryService
+     * Create Sale with Accounting Integration
      */
     async createSale(data: {
         tenantId: string;
         customerId?: string;
         salesmanId?: string;
-        items: { productId: string; quantity: number; unitPrice: number; discount?: number }[];
-        paymentMethod: string; // CASH, CARD, UPI
+        items: Array<{
+            productId: string;
+            quantity: number;
+            unitPrice: number;
+            discount: number;
+        }>;
+        paymentMethod: string;
         amountPaid: number;
-        isHomeDelivery?: boolean;
-        deliveryAddress?: string;
     }) {
         return await prisma.$transaction(async (tx) => {
-            let totalAmount = 0;
+            const invoiceNo = `INV-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+
+            let totalBaseAmount = 0;
             let totalTax = 0;
-            let totalCGST = 0;
-            let totalSGST = 0;
-            let totalIGST = 0;
-            let totalDiscount = 0;
 
-            // 1. Fetch Tenant (Company) State for Tax Logic
-            // Assuming Tenant has 'address' field which contains state, or we default to 'MH' for example.
-            // For now, we assume INTRA-STATE (CGST+SGST) is default unless Customer is from different state.
-            const isInterState = false; // Logic to derive from Customer Address vs Tenant Address
-
-            const saleItemsData = [];
-
+            // 1. Calculate totals
             for (const item of data.items) {
-                const product = await tx.product.findUnique({ where: { id: item.productId } });
-                if (!product) throw new Error(`Product ${item.productId} not found`);
+                const subtotal = item.quantity * item.unitPrice;
+                const tax = subtotal * 0.18; // 18% GST default
 
-                // Tax Calculation (Inclusive or Exclusive? Let's assume Exclusive for B2B, Inclusive for Retail usually. 
-                // Prompt says "Calculate GST dynamically", implying strictly calculating it)
-
-                const taxableValue = (item.unitPrice * item.quantity) - (item.discount || 0);
-                const gstRate = product.gstRate || 18; // Default 18%
-
-                const taxAmount = (taxableValue * gstRate) / 100;
-                let cgst = 0, sgst = 0, igst = 0;
-
-                if (isInterState) {
-                    igst = taxAmount;
-                    totalIGST += igst;
-                } else {
-                    cgst = taxAmount / 2;
-                    sgst = taxAmount / 2;
-                    totalCGST += cgst;
-                    totalSGST += sgst;
-                }
-
-                totalTax += taxAmount;
-                totalDiscount += (item.discount || 0);
-                totalAmount += (taxableValue + taxAmount);
-
-                saleItemsData.push({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    unitPrice: item.unitPrice,
-                    taxAmount: taxAmount,
-                    cgst,
-                    sgst,
-                    igst
-                });
+                totalBaseAmount += subtotal;
+                totalTax += tax;
             }
 
-            // Generate Invoice No
-            const count = await tx.sale.count({ where: { tenantId: data.tenantId } });
-            const invoiceNo = `INV-${new Date().getFullYear()}-${(count + 1).toString().padStart(5, '0')}`;
+            const totalAmount = totalBaseAmount + totalTax;
 
             // 2. Create Sale Record
             const sale = await tx.sale.create({
                 data: {
-                    tenantId: data.tenantId,
                     invoiceNo,
+                    tenantId: data.tenantId,
                     customerId: data.customerId || null,
                     salesmanId: data.salesmanId || null,
                     totalAmount,
                     taxAmount: totalTax,
-                    cgstAmount: totalCGST,
-                    sgstAmount: totalSGST,
-                    igstAmount: totalIGST,
-                    discountAmount: totalDiscount,
-                    status: 'COMPLETED', // POS usually immediate
+                    status: 'COMPLETED',
+                    items: {
+                        create: data.items.map(item => ({
+                            productId: item.productId,
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice,
+                            taxAmount: item.quantity * item.unitPrice * 0.18
+                            // Note: 'discount' and 'tax' fields are not in current SaleItem schema
+                        }))
+                    },
                     payment: {
                         create: {
                             amount: data.amountPaid,
                             method: data.paymentMethod,
-                            tenantId: data.tenantId,
-                            type: 'RECEIVABLE'
+                            type: 'RECEIVABLE',
+                            tenantId: data.tenantId
                         }
-                    },
-                    items: {
-                        create: saleItemsData
                     }
                 },
-                include: { items: true }
+                include: { items: true, payment: true }
             });
 
-            // === ACCOUNTING INTEGRATION ===
-
-            // 1. Daybook Entry - Sales (Income)
-            await tx.daybook.create({
-                data: {
-                    type: 'INCOME',
-                    description: `Sale Invoice ${invoiceNo}`,
-                    debit: totalAmount, // Money coming in (Debit AR if unpaid, Debit Cash if paid)
-                    referenceId: sale.id,
-                    tenantId: data.tenantId
-                }
-            });
-
-            // 2. Ledger - Sales Revenue Account
-            await tx.ledger.create({
-                data: {
-                    title: `Sales Revenue: ${invoiceNo}`,
-                    type: 'CREDIT',
-                    amount: totalAmount - totalTax, // Base amount without tax
-                    category: 'SALES_REVENUE',
-                    description: `Revenue from Sale ${invoiceNo}`,
-                    tenantId: data.tenantId
-                }
-            });
-
-            // 3. Ledger - Customer Account (Accounts Receivable)
-            if (data.customerId) {
-                const isPaid = data.amountPaid >= totalAmount;
-                await tx.ledger.create({
-                    data: {
-                        title: `Customer AR: ${invoiceNo}`,
-                        type: 'DEBIT',
-                        amount: totalAmount,
-                        category: isPaid ? 'CASH_SALES' : 'ACCOUNTS_RECEIVABLE',
-                        description: `Customer account for ${invoiceNo}`,
-                        tenantId: data.tenantId
-                    }
+            // === ACCOUNTING INTEGRATION (NEW SYSTEM) ===
+            try {
+                // Find relevant accounts
+                const salesAccount = await tx.chartOfAccounts.findFirst({
+                    where: { tenantId: data.tenantId, accountType: 'SALES' }
                 });
+
+                const gstOutputAccount = await tx.chartOfAccounts.findFirst({
+                    where: { tenantId: data.tenantId, accountType: 'GST_OUTPUT' }
+                });
+
+                const cashAccount = await tx.chartOfAccounts.findFirst({
+                    where: { tenantId: data.tenantId, accountType: 'CASH' }
+                });
+
+                const arAccount = await tx.chartOfAccounts.findFirst({
+                    where: { tenantId: data.tenantId, accountType: 'AR' }
+                });
+
+                if (salesAccount && gstOutputAccount && (cashAccount || arAccount)) {
+                    const voucherNumber = `SALE-${Date.now()}`;
+
+                    // Cr Sales Revenue (Base amount)
+                    await tx.ledgerEntry.create({
+                        data: {
+                            accountId: salesAccount.id,
+                            debitAmount: 0,
+                            creditAmount: totalBaseAmount,
+                            referenceType: 'SALE',
+                            referenceId: sale.id,
+                            description: `Sales Revenue - ${invoiceNo}`,
+                            voucherNumber,
+                            tenantId: data.tenantId
+                        }
+                    });
+
+                    // Cr GST Output Tax
+                    await tx.ledgerEntry.create({
+                        data: {
+                            accountId: gstOutputAccount.id,
+                            debitAmount: 0,
+                            creditAmount: totalTax,
+                            referenceType: 'SALE',
+                            referenceId: sale.id,
+                            description: `GST Output on Sale - ${invoiceNo}`,
+                            voucherNumber,
+                            tenantId: data.tenantId
+                        }
+                    });
+
+                    // Dr Cash or Accounts Receivable
+                    const isCash = data.paymentMethod === 'CASH';
+                    const targetAccount = (isCash && cashAccount) ? cashAccount : arAccount;
+
+                    if (targetAccount) {
+                        await tx.ledgerEntry.create({
+                            data: {
+                                accountId: targetAccount.id,
+                                debitAmount: totalAmount,
+                                creditAmount: 0,
+                                referenceType: 'SALE',
+                                referenceId: sale.id,
+                                description: `Payment received for ${invoiceNo}`,
+                                voucherNumber,
+                                tenantId: data.tenantId
+                            }
+                        });
+                    }
+
+                    // Create Daybook Entry
+                    await tx.daybook.create({
+                        data: {
+                            type: 'SALE',
+                            description: `Sale - ${invoiceNo}`,
+                            debit: totalAmount,
+                            referenceId: sale.id,
+                            status: 'APPROVED',
+                            tenantId: data.tenantId
+                        }
+                    });
+
+                    console.log(`✓ Ledger entries created for sale ${invoiceNo}: ₹${totalAmount}`);
+                }
+            } catch (accountingError) {
+                console.warn('Accounting integration failed for sale:', accountingError);
             }
 
-            // 4. Ledger - GST Output Liability (Already exists below, keep it)
-            if (totalTax > 0) {
-                await tx.ledger.create({
-                    data: {
-                        title: `GST Output Liability: ${invoiceNo}`,
-                        type: 'CREDIT',
-                        amount: totalTax,
-                        category: 'GST_PAYABLE',
-                        description: `GST collected on Sale ${invoiceNo}`,
-                        tenantId: data.tenantId
-                    }
-                });
-            }
-
-            // 5. Trigger Stock Deduction (FIFO)
-            // We do this AFTER creating Sale so we have constraints checked, 
-            // but inside the transaction so it rolls back if stock fails.
+            // 3. Trigger Stock Deduction (FIFO)
             for (const item of data.items) {
                 await InventoryService.deductStockForSale({
                     tenantId: data.tenantId,
@@ -171,7 +162,24 @@ export const SalesService = {
                     quantityRequired: item.quantity,
                     invoiceId: sale.id,
                     salesmanId: data.salesmanId
-                }, tx); // Pass tx
+                }, tx);
+            }
+
+            // 4. Calculate Sales Incentive
+            if (data.salesmanId) {
+                try {
+                    const { IncentiveService } = await import('./incentive.service');
+                    await IncentiveService.calculateSalesIncentive({
+                        saleId: sale.id,
+                        salesmanId: data.salesmanId,
+                        tenantId: data.tenantId,
+                        saleAmount: totalAmount,
+                        taxAmount: totalTax,
+                        tx
+                    });
+                } catch (incentiveError) {
+                    console.warn('Sales incentive calculation failed:', incentiveError);
+                }
             }
 
             return sale;

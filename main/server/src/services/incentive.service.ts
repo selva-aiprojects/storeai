@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 /**
  * Incentive Service
@@ -128,7 +126,7 @@ export const IncentiveService = {
         };
 
         if (data.tx) return runLogic(data.tx);
-        return prisma.$transaction(runLogic);
+        return prisma.$transaction(runLogic, { timeout: 30000 });
     },
 
     /**
@@ -251,7 +249,7 @@ export const IncentiveService = {
         };
 
         if (data.tx) return runLogic(data.tx);
-        return prisma.$transaction(runLogic);
+        return prisma.$transaction(runLogic, { timeout: 30000 });
     },
 
     /**

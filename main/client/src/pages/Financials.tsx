@@ -113,7 +113,7 @@ const Financials = () => {
                                 <div style={{ fontSize: '0.7rem', color: 'var(--warning-color)', fontWeight: 800, marginBottom: '5px' }}>AI FISCAL INSIGHT</div>
                                 <div style={{ fontSize: '0.8rem', opacity: 0.8, lineHeight: 1.5 }}>
                                     Based on current trends, your expenditure is forecast to increase by 10% next month.
-                                    We recommend optimizing procurement orders for high-turnover artifacts to maintain operating margins.
+                                    We recommend ordering more of your high-demand items to keep your business running smoothly.
                                 </div>
                             </div>
                         </div>
