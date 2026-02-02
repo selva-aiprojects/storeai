@@ -15,19 +15,26 @@ app = FastAPI(title="StoreAI Intelligence Platform (Cognivectra)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://store-ai-prd.onrender.com"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False, # Bearer tokens don't need credentials; allows wildcard origin
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "OK", "service": "storeai-ai-intelligence"}
+    return {"status": "UP", "version": "1.0.2", "service": "storeai-ai-engine"}
+
+@app.get("/api")
+def api_root():
+    return {"status": "AI Hub Active", "endpoints": ["/chat", "/health", "/ai/stock-analyze"]}
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"🚀 AI API Request: {request.method} {request.url.path}")
+    response = await call_next(request)
+    logger.info(f"✅ AI API Response: {response.status_code}")
+    return response
 
 @app.middleware("http")
 async def catch_exceptions_middleware(request, call_next):
@@ -65,7 +72,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
 
 security = HTTPBearer()
-JWT_SECRET = os.getenv("JWT_SECRET", "your_super_secret_jwt_key")  # Must match Node.js backend
+JWT_SECRET = os.getenv("JWT_SECRET", "your_super_secret_jwt_key")
+logger.info(f"🔑 Initializing with JWT_SECRET: {JWT_SECRET[:4]}...{JWT_SECRET[-2:]}")
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
     try:
@@ -76,6 +84,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 
+@app.post("/chat")
 @app.post("/api/chat")
 async def chat_endpoint(req: QueryRequest, user: dict = Depends(get_current_user)):
     try:
