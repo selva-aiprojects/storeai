@@ -453,13 +453,15 @@ class VectorHandler:
                 print("[Vector Handler] Failed to generate embedding")
                 return None, None
             
-            # Query both collections
-            product_results = self.product_collection.query(
+            # Query both collections in thread pool (non-blocking)
+            product_results = await asyncio.to_thread(
+                self.product_collection.query,
                 query_embeddings=[embedding],
                 n_results=MAX_VECTOR_RESULTS
             )
             
-            knowledge_results = self.knowledge_collection.query(
+            knowledge_results = await asyncio.to_thread(
+                self.knowledge_collection.query,
                 query_embeddings=[embedding],
                 n_results=MAX_VECTOR_RESULTS
             )
@@ -516,41 +518,47 @@ class RAGService:
         llm_service=None,
         tenant_id: str = DEFAULT_TENANT_ID
     ):
-        # Initialize ChromaDB
-        self.chroma_client = chroma_client or chromadb.PersistentClient(
-            path=CHROMA_DB_PATH
-        )
-        self.product_collection = self.chroma_client.get_or_create_collection(
-            name=COLLECTION_NAME,
-            metadata={"hnsw:space": "cosine"},
-        )
-        self.knowledge_collection = self.chroma_client.get_or_create_collection(
-            name="storeai_knowledge",
-            metadata={"hnsw:space": "cosine"},
-        )
-        
-        # Services
-        self.db = db_service or db
-        # Import and initialize LLM service if not provided
-        if llm_service is None:
-            from services.llm import llm_service as default_llm
-            self.llm = default_llm
-        else:
-            self.llm = llm_service
-        self.tenant_slug = tenant_id  # Store the slug
-        self.tenant_id = None  # Will be resolved to UUID
-        
-        # Intent router and handlers
-        self.intent_router = IntentRouter()
-        self.sql_handler = SQLHandler(self.db, self.llm)
-        self.vector_handler = VectorHandler(
-            self.product_collection, 
-            self.knowledge_collection, 
-            self.llm
-        )
-        
-        # Concurrency control
-        self._semaphore = asyncio.Semaphore(1)
+        try:
+            # Initialize ChromaDB
+            self.chroma_client = chroma_client or chromadb.PersistentClient(
+                path=CHROMA_DB_PATH
+            )
+            self.product_collection = self.chroma_client.get_or_create_collection(
+                name=COLLECTION_NAME,
+                metadata={"hnsw:space": "cosine"},
+            )
+            self.knowledge_collection = self.chroma_client.get_or_create_collection(
+                name="storeai_knowledge",
+                metadata={"hnsw:space": "cosine"},
+            )
+            
+            # Services
+            self.db = db_service or db
+            # Import and initialize LLM service if not provided
+            if llm_service is None:
+                from services.llm import llm_service as default_llm
+                self.llm = default_llm
+            else:
+                self.llm = llm_service
+            self.tenant_slug = tenant_id  # Store the slug
+            self.tenant_id = None  # Will be resolved to UUID
+            
+            # Intent router and handlers
+            self.intent_router = IntentRouter()
+            self.sql_handler = SQLHandler(self.db, self.llm)
+            self.vector_handler = VectorHandler(
+                self.product_collection, 
+                self.knowledge_collection, 
+                self.llm
+            )
+            
+            # Concurrency control
+            self._semaphore = asyncio.Semaphore(1)
+        except Exception as e:
+            print(f"CRITICAL ERROR in RAGService.__init__: {e}")
+            import traceback
+            traceback.print_exc()
+            raise e
 
     async def _ensure_tenant_id(self):
         """Resolve tenant slug to UUID if not already done"""

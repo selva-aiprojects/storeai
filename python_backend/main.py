@@ -1,4 +1,11 @@
 
+import os
+from dotenv import load_dotenv
+
+# Load .env from main directory ASAP
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'main', '.env')
+load_dotenv(dotenv_path)
+
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +14,6 @@ from services.rag import rag_service
 from services.llm import llm_service
 from utils.logger import logger, log_error, log_api_call
 import uvicorn
-import os
 import traceback
 from fastapi.responses import JSONResponse
 
@@ -330,4 +336,4 @@ async def startup_event():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
