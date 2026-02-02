@@ -91,7 +91,12 @@ app.use('/api/v1/finance', financeRoutes);
 app.use('/api/v1/audit-logs', auditRoutes);
 app.get('/api/v1/dashboard/stats', authenticate, getDashboardStats);
 
-app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
+app.get('/', (req, res) => res.send('🚀 StoreAI API Gateway is Active. Access versioned endpoints at /api/v1'));
+app.get('/api/health', (req, res) => res.json({
+    status: 'UP',
+    timestamp: new Date().toISOString(),
+    service: 'storeai-backend'
+}));
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

@@ -158,7 +158,11 @@ const Assistant = () => {
                 errorMessage = 'AUTHENTICATION EXPIRED';
                 details = 'Please re-login to restore secure AI access.';
             } else if (errorMessage === 'Network Error') {
-                details = 'Connection to AI Engine failed. Check VITE_AI_API_URL configuration.';
+                details = `Connection failed to URL: ${import.meta.env.VITE_AI_API_URL || 'localhost:8000/api'}. Ensure VITE_AI_API_URL is set in Render for site: ${window.location.origin}`;
+                console.error("AI Network Failure Context:", {
+                    origin: window.location.origin,
+                    api: import.meta.env.VITE_AI_API_URL
+                });
             }
 
             setMessages(prev => [...prev, {

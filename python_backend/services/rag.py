@@ -201,7 +201,6 @@ class IntentRouter:
         "daily", "weekly", "monthly", "yearly", "recent", "latest",
         
         # Customer terms
-        # Customer terms
         "customer", "customers", "top customer", "buyer", "client",
         
         # Additional operational terms
@@ -431,15 +430,16 @@ class SQLHandler:
 
 
 class VectorHandler:
-    """Handles vector-based semantic search"""
+    """Handles vector-based semantic search across multiple collections"""
     
-    def __init__(self, collection, llm_service):
-        self.collection = collection
+    def __init__(self, product_collection, knowledge_collection, llm_service):
+        self.product_collection = product_collection
+        self.knowledge_collection = knowledge_collection
         self.llm = llm_service
     
     async def execute(self, query: str) -> Tuple[Optional[str], Optional[str]]:
         """
-        Perform vector similarity search
+        Perform hybrid vector similarity search
         Returns: (context_data, source) tuple
         """
         try:
@@ -453,18 +453,39 @@ class VectorHandler:
                 print("[Vector Handler] Failed to generate embedding")
                 return None, None
             
-            # Query collection
-            results = self.collection.query(
+            # Query both collections
+            product_results = self.product_collection.query(
                 query_embeddings=[embedding],
                 n_results=MAX_VECTOR_RESULTS
             )
             
-            metadatas = results.get("metadatas", [[]])[0]
-            if not metadatas:
-                print("[Vector Handler] No results found")
+            knowledge_results = self.knowledge_collection.query(
+                query_embeddings=[embedding],
+                n_results=MAX_VECTOR_RESULTS
+            )
+            
+            # Combine results with text
+            context_items = []
+            
+            # Add products
+            for i in range(len(product_results.get("ids", [[]])[0])):
+                context_items.append({
+                    "content": product_results["documents"][0][i],
+                    "metadata": product_results["metadatas"][0][i]
+                })
+            
+            # Add knowledge
+            for i in range(len(knowledge_results.get("ids", [[]])[0])):
+                context_items.append({
+                    "content": knowledge_results["documents"][0][i],
+                    "metadata": knowledge_results["metadatas"][0][i]
+                })
+            
+            if not context_items:
+                print("[Vector Handler] No results found in any collection")
                 return None, None
             
-            context_data = json.dumps(metadatas, cls=CustomJSONEncoder)
+            context_data = json.dumps(context_items, cls=CustomJSONEncoder)
             return context_data, DataSource.VECTOR.value
             
         except Exception as e:
@@ -499,8 +520,12 @@ class RAGService:
         self.chroma_client = chroma_client or chromadb.PersistentClient(
             path=CHROMA_DB_PATH
         )
-        self.collection = self.chroma_client.get_or_create_collection(
+        self.product_collection = self.chroma_client.get_or_create_collection(
             name=COLLECTION_NAME,
+            metadata={"hnsw:space": "cosine"},
+        )
+        self.knowledge_collection = self.chroma_client.get_or_create_collection(
+            name="storeai_knowledge",
             metadata={"hnsw:space": "cosine"},
         )
         
@@ -518,12 +543,15 @@ class RAGService:
         # Intent router and handlers
         self.intent_router = IntentRouter()
         self.sql_handler = SQLHandler(self.db, self.llm)
-        self.vector_handler = VectorHandler(self.collection, self.llm)
+        self.vector_handler = VectorHandler(
+            self.product_collection, 
+            self.knowledge_collection, 
+            self.llm
+        )
         
         # Concurrency control
         self._semaphore = asyncio.Semaphore(1)
 
-        
     async def _ensure_tenant_id(self):
         """Resolve tenant slug to UUID if not already done"""
         if self.tenant_id is None:
@@ -545,10 +573,6 @@ class RAGService:
     # PUBLIC API
     # ========================================================================
     
-    # ========================================================================
-    # PUBLIC API
-    # ========================================================================
-    
     async def process_query(
         self, 
         user_query: str, 
@@ -558,20 +582,12 @@ class RAGService:
     ) -> QueryResult:
         """
         Main entry point for query processing
-        
-        Args:
-            user_query: User's question
-            history: Conversation history
-            tenant_id: UUID of the tenant to query (context)
         """
-        # Fallback to default if no tenant provided (for backward compat/testing)
-        # In production this should come from the request
+        # Fallback to default if no tenant provided
         if not tenant_id:
-            # Resolve default slug to UUID
             await self._ensure_tenant_id()
             target_tenant_id = self.tenant_id
         else:
-            # Use provided tenant_id (should be UUID from JWT)
             target_tenant_id = tenant_id
 
         if history is None:
@@ -719,31 +735,11 @@ class RAGService:
                 history
             )
         
-        # Provide more helpful guidance based on query type
-        query_lower = user_query.lower()
-        suggestions = []
-        
-        if any(term in query_lower for term in ["stock", "product", "inventory"]):
-            suggestions.append("Try asking for 'low stock products' or 'stock health overview'")
-        elif any(term in query_lower for term in ["sale", "revenue", "transaction"]):
-            suggestions.append("Try asking for 'yesterday sales' or 'this month revenue'")
-        elif any(term in query_lower for term in ["employee", "staff", "resource", "department"]):
-            suggestions.append("Try asking for 'resource allocation by department' or 'employee count'")
-        elif any(term in query_lower for term in ["customer", "buyer", "client"]):
-            suggestions.append("Try asking for 'top customers' or 'customer list'")
-        else:
-            suggestions.append("Try being more specific, e.g., 'yesterday sales', 'low stock', or 'top customers'")
-        
-        # Default no-data response
+        # Provide helpful guidance
         response = (
             f"I couldn't find specific data matching your query in the current database. "
-            f"{suggestions[0]}. "
+            f"Try asking about stock health, sales trends, or resource allocation."
         )
-        
-        if "yesterday" in query_lower or "today" in query_lower:
-            response += "Try asking for a broader range, like 'this week' or 'this month' to see if there is any data."
-        else:
-            response += "You can also ask about stock health, sales trends, or resource allocation."
 
         return QueryResult(
             response=response,
@@ -789,7 +785,7 @@ class RAGService:
             return QueryResult(
                 response=(
                     "I've retrieved the following telemetry from your records. "
-                    "How shall we proceed with this analysis?"
+                    "How shall we proceed?"
                 ),
                 source=source,
                 context=context_data if context_data != NO_DATA_SIGNAL else None
@@ -812,7 +808,7 @@ class RAGService:
 # MODULE EXPORTS
 # ============================================================================
 
-# Singleton instance for backward compatibility
+# Singleton instance
 rag_service = RAGService()
 
 __all__ = [
