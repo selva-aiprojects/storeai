@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Loader2, RotateCcw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { chatWithAI } from '../services/ai';
@@ -215,7 +215,7 @@ const Assistant = () => {
                         className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         title="Clear Conversation History"
                     >
-                        <RefreshCw size={18} />
+                        <RotateCcw size={18} />
                     </button>
                     <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
