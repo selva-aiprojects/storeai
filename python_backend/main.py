@@ -104,10 +104,33 @@ async def chat_endpoint(req: QueryRequest, user: dict = Depends(get_current_user
             tenant_id=tenant_id,
             role=user_role
         )
-        return result
+        return {
+            "response": result.response,
+            "source": result.source,
+            "context": result.context,
+            "intent": result.intent,
+            "progress": result.intent == "SQL" and "Analyzing" or "Processing"
+        }
+        
     except Exception as e:
-        logger.error(f"Chat error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Chat Error: {e}")
+        return JSONResponse(status_code=500, content={"detail": str(e)})
+
+@app.post("/api/admin/reindex")
+async def reindex_data(request: Request):
+    """Trigger full re-indexing of vector store"""
+    auth_header = request.headers.get("X-Admin-Key")
+    if auth_header != os.getenv("ADMIN_API_KEY", "storeai_admin_secret"):
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    from indexer import index_products
+    from knowledge_indexer import index_knowledge
+    
+    # Run in background to avoid timeout
+    asyncio.create_task(index_products())
+    asyncio.create_task(index_knowledge())
+    
+    return {"status": "accepted", "message": "Re-indexing started in background"}
 
 class StockRequest(BaseModel):
     ticker: str
