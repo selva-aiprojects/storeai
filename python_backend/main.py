@@ -15,7 +15,11 @@ app = FastAPI(title="StoreAI Intelligence Platform (Cognivectra)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, replace with specific origins for tighter security
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://store-ai-prd.onrender.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
