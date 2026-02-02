@@ -46,8 +46,14 @@ MAX_CONTEXT_MESSAGES = 4
 MAX_SQL_RESULTS = 15
 MAX_VECTOR_RESULTS = 5
 SYNTHESIS_MAX_WORDS = 150
-CHROMA_DB_PATH = "./chroma_db"
+CHROMA_DB_PATH = "./chroma_db_v2"
 COLLECTION_NAME = "storeai_products"
+
+# Initialize Settings to disable telemetry
+from chromadb.config import Settings
+CHROMA_SETTINGS = Settings(
+    anonymized_telemetry=False
+)
 
 
 # ============================================================================
@@ -521,7 +527,8 @@ class RAGService:
         try:
             # Initialize ChromaDB
             self.chroma_client = chroma_client or chromadb.PersistentClient(
-                path=CHROMA_DB_PATH
+                path=CHROMA_DB_PATH,
+                settings=CHROMA_SETTINGS
             )
             self.product_collection = self.chroma_client.get_or_create_collection(
                 name=COLLECTION_NAME,
@@ -708,14 +715,17 @@ class RAGService:
             
             # Fallback to vector if SQL fails
             if not context_data:
-                print("[RAG] SQL failed, trying vector fallback")
+                print(f"[RAG] SQL failed for '{query}', trying vector fallback")
                 await asyncio.sleep(0.2)
                 context_data, source = await self.vector_handler.execute(query)
+                print(f"[RAG] Vector Fallback Result Length: {len(context_data) if context_data else 0}")
             
             return context_data, source
         
         else:  # VECTOR
-            return await self.vector_handler.execute(query)
+            context_data, source = await self.vector_handler.execute(query)
+            print(f"[RAG] Direct Vector Result Length: {len(context_data) if context_data else 0}")
+            return context_data, source
     
     @staticmethod
     def _is_valid_context(context_data: Optional[str]) -> bool:

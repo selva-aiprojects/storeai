@@ -50,7 +50,9 @@ Thumbs.db
 
 # AI / Backend
 chroma_db/
+chroma_db_v2/
 python_backend/chroma_db/
+python_backend/chroma_db_v2/
 .env
 python_backend/.env
 venv/
@@ -80,6 +82,10 @@ python_backend/migrate_finance_resilient.py
 python_backend/migrate_hr.py
 python_backend/test_specific_ai_fail.py
 python_backend/tests/
+python_backend/debug_retrieval.py
+python_backend/verify_fix.py
+python_backend/server.log
+temp_token.txt
 
 # Internal Design Documents (Confidential)
 main/docs/design/TECHNICAL_DESIGN_DOCUMENT_LLD.md

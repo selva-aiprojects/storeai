@@ -9,13 +9,16 @@ import re
 from services.llm import llm_service
 
 # Configuration
-CHROMA_DB_PATH = "./chroma_db"
+CHROMA_DB_PATH = "./chroma_db_v2"
 COLLECTION_NAME = "storeai_knowledge"
 DOCS_ROOT = "../main/docs"
 SCHEMA_PATH = "../main/server/prisma/schema.prisma"
 
 # Initialize Chroma
-chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+chroma_client = chromadb.PersistentClient(
+    path=CHROMA_DB_PATH,
+    settings=chromadb.config.Settings(anonymized_telemetry=False)
+)
 collection = chroma_client.get_or_create_collection(
     name=COLLECTION_NAME,
     metadata={"hnsw:space": "cosine"}

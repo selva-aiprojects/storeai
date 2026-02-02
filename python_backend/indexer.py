@@ -6,7 +6,10 @@ from services.db import db
 from services.llm import llm_service
 
 # Initialize Chroma (Persistent)
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
+chroma_client = chromadb.PersistentClient(
+    path="./chroma_db_v2",
+    settings=Settings(anonymized_telemetry=False)
+)
 collection = chroma_client.get_or_create_collection(
     name="storeai_products",
     metadata={"hnsw:space": "cosine"}
