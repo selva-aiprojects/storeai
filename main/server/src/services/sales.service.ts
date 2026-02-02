@@ -18,6 +18,8 @@ export const SalesService = {
         }>;
         paymentMethod: string;
         amountPaid: number;
+        isHomeDelivery?: boolean;
+        deliveryAddress?: string;
     }) {
         return await prisma.$transaction(async (tx) => {
             const invoiceNo = `INV-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
@@ -46,6 +48,8 @@ export const SalesService = {
                     totalAmount,
                     taxAmount: totalTax,
                     status: 'COMPLETED',
+                    isHomeDelivery: data.isHomeDelivery || false,
+                    deliveryAddress: data.deliveryAddress || null,
                     items: {
                         create: data.items.map(item => ({
                             productId: item.productId,

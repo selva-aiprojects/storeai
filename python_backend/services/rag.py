@@ -215,7 +215,7 @@ class IntentRouter:
     }
     
     @classmethod
-    async classify(cls, query: str, llm_service=None) -> IntentClassification:
+    async def classify(cls, query: str, llm_service=None) -> IntentClassification:
         """Classify query intent with LLM fallback for high accuracy"""
         normalized_query = query.lower().strip()
         
