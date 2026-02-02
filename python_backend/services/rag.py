@@ -224,17 +224,21 @@ class IntentRouter:
             return IntentClassification(IntentType.GREETING)
         
         # 2. Heuristic keyword matching (Fast path)
-        if cls._contains_sql_keywords(normalized_query):
+        if cls._contains_sql_keywords(normalized_query) or "health" in normalized_query:
             return IntentClassification(IntentType.SQL)
             
         # 3. LLM Fallback (Slow path - Intelligence path)
         if llm_service:
             try:
+                # Force SQL for store/business health queries
+                if any(x in normalized_query for x in ["health", "stock", "sales", "revenue"]):
+                    return IntentClassification(IntentType.SQL)
+
                 prompt = f"""Classify the intent of the following user query for an ERP system.
 Query: "{query}"
 
 Intent Types:
-- SQL: Querying structured database (sales, stock, accounting, attendance)
+- SQL: Querying structured database (sales, stock, accounting, attendance, health reports)
 - VECTOR: Semantic product search, descriptions, or general knowledge
 - GREETING: Simple hello, help, or who are you
 
@@ -291,8 +295,12 @@ New Question: {query}
 Standalone Query:"""
     
     @staticmethod
-    def sql_generation(query: str, tenant_id: str = DEFAULT_TENANT_ID) -> str:
+    def sql_generation(query: str, tenant_id: str = DEFAULT_TENANT_ID, role: str = None) -> str:
         """Prompt for SQL generation with deep accounting context"""
+        tenant_filter = f'TENANT ISOLATION: Use (T."tenantId" = \'{tenant_id}\') for every table.'
+        if role == 'SUPER_ADMIN':
+            tenant_filter = 'SUPERADMIN MODE: OMIT tenantId filters. Query across ALL tenants to provide a global view.'
+
         return f"""You are the Advanced StoreAI Business Assistant (PostgreSQL Specialist).
 Generate EXECUTION-READY, READONLY SQL for the "{tenant_id}" environment.
 
@@ -306,7 +314,7 @@ SCHEMA CONTEXT:
 - "Attendance"("id", "employeeId", "status", "date")
 
 CRITICAL RULES:
-1. TENANT ISOLATION: Use (T."tenantId" = '{tenant_id}') for every table.
+1. {tenant_filter}
 2. ACCOUNTING: Joins "LedgerEntry" with "ChartOfAccounts" to filter by accountGroup ('INCOME', 'EXPENSES', 'ASSETS', 'LIABILITIES').
 3. QUOTING: Use DOUBLE QUOTES for ALL table and column names.
 4. AGGREGATION: Use SUM(), COUNT(), or AVG() as requested.
@@ -363,14 +371,14 @@ class SQLHandler:
         self.db = db_service
         self.llm = llm_service
     
-    async def execute(self, query: str, tenant_id: str = DEFAULT_TENANT_ID) -> Tuple[Optional[str], Optional[str]]:
+    async def execute(self, query: str, tenant_id: str = DEFAULT_TENANT_ID, role: str = None) -> Tuple[Optional[str], Optional[str]]:
         """
         Generate and execute SQL query
         Returns: (context_data, source) tuple
         """
         try:
             # Generate SQL
-            sql_prompt = PromptTemplates.sql_generation(query, tenant_id)
+            sql_prompt = PromptTemplates.sql_generation(query, tenant_id, role)
             llm_response = await self.llm.generate_response(sql_prompt)
             
             if not llm_response or "[SYSTEM OVERLOAD]" in llm_response:
@@ -545,7 +553,8 @@ class RAGService:
         self, 
         user_query: str, 
         history: List[Dict] = None,
-        tenant_id: str = None
+        tenant_id: str = None,
+        role: str = None
     ) -> QueryResult:
         """
         Main entry point for query processing
@@ -593,7 +602,8 @@ class RAGService:
                 context_data, source = await self._retrieve_context(
                     refined_query, 
                     intent,
-                    target_tenant_id
+                    target_tenant_id,
+                    role
                 )
                 
                 # Handle no data found
@@ -658,7 +668,8 @@ class RAGService:
         self, 
         query: str, 
         intent: IntentClassification,
-        tenant_id: str
+        tenant_id: str,
+        role: str = None
     ) -> Tuple[Optional[str], Optional[str]]:
         """
         Retrieve context data based on intent
@@ -667,7 +678,8 @@ class RAGService:
             # Try SQL first
             context_data, source = await self.sql_handler.execute(
                 query, 
-                tenant_id
+                tenant_id,
+                role
             )
             
             # Fallback to vector if SQL fails

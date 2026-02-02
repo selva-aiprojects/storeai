@@ -88,18 +88,16 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
 @app.post("/api/chat")
 async def chat_endpoint(req: QueryRequest, user: dict = Depends(get_current_user)):
     try:
-        # Extract tenant from token
-        # Our JWT payload structure: { id, email, role, tenantId, ... }
+        # Extract user details from token
         tenant_id = user.get('tenantId')
+        user_role = user.get('role')
         
-        # If tenantId is missing (e.g. super admin specific case), fallback to default
-        if not tenant_id:
-            # Try to resolve based on user role or default
-            # For now, if no tenantId, we might default to technova (the seed)
-            # But the token SHOULD have it.
-            pass
-
-        result = await rag_service.process_query(req.query, req.history, tenant_id=tenant_id)
+        result = await rag_service.process_query(
+            req.query, 
+            req.history, 
+            tenant_id=tenant_id,
+            role=user_role
+        )
         return result
     except Exception as e:
         logger.error(f"Chat error: {e}")
