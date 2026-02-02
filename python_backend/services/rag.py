@@ -41,7 +41,7 @@ class DataSource(Enum):
 
 # Constants
 NO_DATA_SIGNAL = "NO_NEW_DATA_SIGNAL"
-DEFAULT_TENANT_ID = "technova"  # Updated to technova which has the seeded data
+DEFAULT_TENANT_ID = "storeai"  # Updated to storeai (owner of seeded data)
 MAX_CONTEXT_MESSAGES = 4
 MAX_SQL_RESULTS = 15
 MAX_VECTOR_RESULTS = 5
