@@ -56,7 +56,7 @@ const Login = ({ setUser }: any) => {
 
     return (
         <div className="modal-overlay" style={{
-            background: 'linear-gradient(180deg, #2a265f 0%, #3e1b7e 100%)', // Lighter gradient
+            background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', // Vibrant Indigo to Violet (Much lighter)
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -85,16 +85,16 @@ const Login = ({ setUser }: any) => {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     padding: '40px',
-                    background: 'linear-gradient(145deg, rgba(42, 38, 95, 0.95) 0%, rgba(55, 20, 115, 0.95) 100%)', // Brighter background
-                    backdropFilter: 'blur(30px)',
-                    WebkitBackdropFilter: 'blur(30px)',
-                    border: '1px solid rgba(139, 92, 246, 0.4)', // Lighter border
-                    boxShadow: '0 40px 100px -20px rgba(0, 0, 0, 0.6), 0 0 50px rgba(139, 92, 246, 0.2)', // Softer shadow
+                    background: 'rgba(255, 255, 255, 0.15)', // Glassmorphism with more transparency
+                    backdropFilter: 'blur(40px)',
+                    WebkitBackdropFilter: 'blur(40px)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)', // Whiter border
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', // Softer shadow
                     borderRadius: '32px',
                     color: '#fff',
                     zIndex: 10,
                     margin: 'auto',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.25)'
+                    borderTop: '1px solid rgba(255, 255, 255, 0.4)'
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '10px' }}>
@@ -124,8 +124,8 @@ const Login = ({ setUser }: any) => {
                                 required
                                 placeholder="admin@storeai.com"
                                 style={{
-                                    background: 'rgba(30, 41, 59, 0.6)', // Lighter input bg
-                                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                                    background: 'rgba(0, 0, 0, 0.2)', // Semi-transparent dark for contrast on bright bg
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
                                     color: '#fff',
                                     fontSize: '0.9rem',
                                     padding: '12px 16px',
@@ -145,8 +145,8 @@ const Login = ({ setUser }: any) => {
                                 required
                                 placeholder="••••••••"
                                 style={{
-                                    background: 'rgba(30, 41, 59, 0.6)', // Lighter input bg
-                                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                                    background: 'rgba(0, 0, 0, 0.2)', // Semi-transparent dark for contrast on bright bg
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
                                     color: '#fff',
                                     fontSize: '0.9rem',
                                     padding: '12px 16px',
@@ -167,8 +167,8 @@ const Login = ({ setUser }: any) => {
                                 onChange={(e) => setAuthForm({ ...authForm, tenantSlug: e.target.value.toLowerCase() })}
                                 placeholder="e.g. technova"
                                 style={{
-                                    background: 'rgba(30, 41, 59, 0.6)', // Lighter input bg
-                                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                                    background: 'rgba(0, 0, 0, 0.2)', // Semi-transparent dark for contrast on bright bg
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
                                     color: '#fff',
                                     fontSize: '0.9rem',
                                     padding: '12px 16px',
