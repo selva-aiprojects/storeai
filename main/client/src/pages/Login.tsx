@@ -56,7 +56,7 @@ const Login = ({ setUser }: any) => {
 
     return (
         <div className="modal-overlay" style={{
-            background: 'linear-gradient(180deg, #1e1a4d 0%, #2f0d68 100%)',
+            background: 'linear-gradient(180deg, #2a265f 0%, #3e1b7e 100%)', // Lighter gradient
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -85,16 +85,16 @@ const Login = ({ setUser }: any) => {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     padding: '40px',
-                    background: 'linear-gradient(145deg, rgba(30, 26, 77, 0.98) 0%, rgba(47, 13, 104, 0.98) 100%)',
-                    backdropFilter: 'blur(24px)',
-                    WebkitBackdropFilter: 'blur(24px)',
-                    border: '1px solid rgba(124, 58, 237, 0.3)',
-                    boxShadow: '0 40px 100px -20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(124, 58, 237, 0.1)',
+                    background: 'linear-gradient(145deg, rgba(42, 38, 95, 0.95) 0%, rgba(55, 20, 115, 0.95) 100%)', // Brighter background
+                    backdropFilter: 'blur(30px)',
+                    WebkitBackdropFilter: 'blur(30px)',
+                    border: '1px solid rgba(139, 92, 246, 0.4)', // Lighter border
+                    boxShadow: '0 40px 100px -20px rgba(0, 0, 0, 0.6), 0 0 50px rgba(139, 92, 246, 0.2)', // Softer shadow
                     borderRadius: '32px',
                     color: '#fff',
                     zIndex: 10,
                     margin: 'auto',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.15)'
+                    borderTop: '1px solid rgba(255, 255, 255, 0.25)'
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px', marginTop: '10px' }}>
@@ -124,11 +124,11 @@ const Login = ({ setUser }: any) => {
                                 required
                                 placeholder="admin@storeai.com"
                                 style={{
-                                    background: 'rgba(15, 23, 42, 0.7)',
-                                    border: '1px solid rgba(124, 58, 237, 0.2)',
+                                    background: 'rgba(30, 41, 59, 0.6)', // Lighter input bg
+                                    border: '1px solid rgba(139, 92, 246, 0.3)',
                                     color: '#fff',
                                     fontSize: '0.9rem',
-                                    padding: '10px 14px',
+                                    padding: '12px 16px',
                                     borderRadius: '12px',
                                     transition: 'all 0.2s'
                                 }}
@@ -145,11 +145,11 @@ const Login = ({ setUser }: any) => {
                                 required
                                 placeholder="••••••••"
                                 style={{
-                                    background: 'rgba(15, 23, 42, 0.7)',
-                                    border: '1px solid rgba(124, 58, 237, 0.2)',
+                                    background: 'rgba(30, 41, 59, 0.6)', // Lighter input bg
+                                    border: '1px solid rgba(139, 92, 246, 0.3)',
                                     color: '#fff',
                                     fontSize: '0.9rem',
-                                    padding: '10px 14px',
+                                    padding: '12px 16px',
                                     borderRadius: '12px',
                                     transition: 'all 0.2s'
                                 }}
@@ -167,11 +167,11 @@ const Login = ({ setUser }: any) => {
                                 onChange={(e) => setAuthForm({ ...authForm, tenantSlug: e.target.value.toLowerCase() })}
                                 placeholder="e.g. technova"
                                 style={{
-                                    background: 'rgba(15, 23, 42, 0.7)',
-                                    border: '1px solid rgba(124, 58, 237, 0.2)',
+                                    background: 'rgba(30, 41, 59, 0.6)', // Lighter input bg
+                                    border: '1px solid rgba(139, 92, 246, 0.3)',
                                     color: '#fff',
                                     fontSize: '0.9rem',
-                                    padding: '10px 14px',
+                                    padding: '12px 16px',
                                     borderRadius: '12px',
                                     transition: 'all 0.2s'
                                 }}

@@ -149,9 +149,16 @@ const Assistant = () => {
             setMessages(prev => [...prev, aiMsg]);
 
         } catch (error) {
+            let errorMessage = (error as any)?.message || 'Unknown error';
+            let details = (error as any)?.response?.data?.detail || 'No backend details';
+
+            if (errorMessage === 'Network Error') {
+                details = 'Connection to AI Engine failed. Check VITE_AI_API_URL configuration.';
+            }
+
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
-                text: `CRITICAL: Intelligence Engine Link Failure. [Error: ${(error as any)?.message || 'Unknown'}] [Details: ${(error as any)?.response?.data?.detail || 'No backend details'}]`,
+                text: `CRITICAL: Intelligence Engine Link Failure. [Error: ${errorMessage}] [Details: ${details}]`,
                 sender: 'ai',
                 timestamp: new Date()
             }]);

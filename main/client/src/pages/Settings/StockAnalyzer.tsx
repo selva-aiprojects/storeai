@@ -90,7 +90,9 @@ const StockAnalyzer: React.FC = () => {
             setAnalysis(response.data as AiAnalysis);
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Failed to analyze stock. Please try again.');
+            setError(err.message === 'Network Error'
+                ? 'Connection failed. Please verify AI Service URL configuration.'
+                : (err.message || 'Failed to analyze stock. Please try again.'));
         } finally {
             setLoading(false);
         }
