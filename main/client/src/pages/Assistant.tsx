@@ -11,6 +11,7 @@ interface Message {
     sender: 'user' | 'ai';
     timestamp: Date;
     context?: string;
+    source?: string;
 }
 
 const ContextRenderer = ({ data }: { data: string }) => {
@@ -143,7 +144,8 @@ const Assistant = () => {
                 text: response.response || "I'm checking the data but couldn't find a clear answer. Could you rephrase?",
                 sender: 'ai',
                 timestamp: new Date(),
-                context: response.context
+                context: response.context,
+                source: response.source
             };
 
             setMessages(prev => [...prev, aiMsg]);
@@ -152,7 +154,10 @@ const Assistant = () => {
             let errorMessage = (error as any)?.message || 'Unknown error';
             let details = (error as any)?.response?.data?.detail || 'No backend details';
 
-            if (errorMessage === 'Network Error') {
+            if ((error as any)?.response?.status === 401) {
+                errorMessage = 'AUTHENTICATION EXPIRED';
+                details = 'Please re-login to restore secure AI access.';
+            } else if (errorMessage === 'Network Error') {
                 details = 'Connection to AI Engine failed. Check VITE_AI_API_URL configuration.';
             }
 
@@ -165,6 +170,15 @@ const Assistant = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const clearHistory = () => {
+        setMessages([{
+            id: 1,
+            text: "Context cleared. Assistant ready for new analysis. What shall we look into?",
+            sender: 'ai',
+            timestamp: new Date()
+        }]);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -195,9 +209,18 @@ const Assistant = () => {
                         </p>
                     </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="text-[10px] font-bold text-green-700 uppercase">Live Pipeline</span>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={clearHistory}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        title="Clear Conversation History"
+                    >
+                        <RefreshCw size={18} />
+                    </button>
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span className="text-[10px] font-bold text-green-700 uppercase">Live Pipeline</span>
+                    </div>
                 </div>
             </header>
 
@@ -221,6 +244,14 @@ const Assistant = () => {
                             </div>
 
                             <div className="max-w-[85%] space-y-2">
+                                {msg.source && (
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${msg.source === 'SQL' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                                            }`}>
+                                            {msg.source === 'SQL' ? '✓ Structured Data' : '✓ Knowledge Base'}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed assistant-markdown
                                     ${msg.sender === 'user'
                                         ? 'bg-indigo-600 text-white'

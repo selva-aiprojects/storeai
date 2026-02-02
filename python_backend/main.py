@@ -15,10 +15,15 @@ app = FastAPI(title="StoreAI Intelligence Platform (Cognivectra)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # In production, replace with specific origins for tighter security
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "OK", "service": "storeai-ai-intelligence"}
 
 @app.middleware("http")
 async def catch_exceptions_middleware(request, call_next):
@@ -91,7 +96,7 @@ class StockRequest(BaseModel):
     ticker: str
 
 @app.post("/api/ai/stock-analyze")
-async def analyze_stock(req: StockRequest):
+async def analyze_stock(req: StockRequest, user: dict = Depends(get_current_user)):
     try:
         if not req.ticker:
             raise HTTPException(status_code=400, detail="Ticker is required")
@@ -305,6 +310,12 @@ async def get_yearly_report(year: int, type: str):
 @app.get("/")
 def read_root():
     return {"status": "StoreAI Intelligence Platform Running"}
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Startup: Listing Routes")
+    for route in app.routes:
+        logger.info(f"Route: {route.path} [{route.name}]")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
