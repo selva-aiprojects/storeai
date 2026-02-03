@@ -96,24 +96,17 @@ const Login = ({ setUser }: any) => {
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
-                    <div style={{
-                        background: '#3b82f6',
-                        padding: '12px',
-                        borderRadius: '16px',
-                        boxShadow: '0 8px 16px rgba(59, 130, 246, 0.2)',
-                        marginBottom: '16px'
-                    }}>
-                        <img
-                            src="/logo-storeai.png"
-                            alt="StoreAI Logo"
-                            style={{
-                                width: '60px',
-                                height: 'auto',
-                                objectFit: 'contain',
-                                filter: 'brightness(0) invert(1)' // Make logo white on blue square
-                            }}
-                        />
-                    </div>
+                    <img
+                        src="/logo-storeai.png"
+                        alt="StoreAI Logo"
+                        style={{
+                            width: '140px',
+                            height: 'auto',
+                            objectFit: 'contain',
+                            marginBottom: '16px',
+                            filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))'
+                        }}
+                    />
                     <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, textAlign: 'center' }}>
                         {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Identify Organization' : 'Provision Instance'}
                     </div>
