@@ -56,19 +56,19 @@ const Dashboard = () => {
                 <div className="card glass-effect" style={{ borderLeft: '4px solid var(--success)' }}>
                     <div className="card-header">TOTAL REVENUE (SALES)</div>
                     <div className="metric-value" style={{ fontSize: '2.2rem', color: 'var(--success)' }}>
-                        ${totalRevenue.toLocaleString()}
+                        ₹{totalRevenue.toLocaleString()}
                     </div>
                 </div>
                 <div className="card glass-effect" style={{ borderLeft: '4px solid var(--danger)' }}>
                     <div className="card-header">TOTAL PROCUREMENT (COSTS)</div>
                     <div className="metric-value" style={{ fontSize: '2.2rem', color: 'var(--danger)' }}>
-                        -${totalProcurement.toLocaleString()}
+                        -₹{totalProcurement.toLocaleString()}
                     </div>
                 </div>
                 <div className="card glass-effect" style={{ borderLeft: '4px solid var(--primary-500)', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(255,255,255,0) 100%)' }}>
                     <div className="card-header">OPERATIONAL NET BALANCE</div>
                     <div className="metric-value" style={{ color: netStatus >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                        {netStatus >= 0 ? '+' : '-'}${Math.abs(netStatus).toLocaleString()}
+                        {netStatus >= 0 ? '+' : '-'}₹{Math.abs(netStatus).toLocaleString()}
                     </div>
                 </div>
             </div>

@@ -12,8 +12,13 @@ const Login = ({ setUser }: any) => {
         email: '', password: '', firstName: '', lastName: '', orgName: '', orgSlug: ''
     });
 
+    const [loading, setLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
+
     const handleLogin = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+        setLoading(true);
+        setLoadingMessage('Authorizing Enterprise Access...');
         try {
             const resp = await loginApi(authForm);
 
@@ -28,29 +33,39 @@ const Login = ({ setUser }: any) => {
             setUser(resp.data.user);
         } catch (e: any) {
             alert(e.response?.data?.error || "Login failed. Check credentials or Tenant ID.");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleTenantSelect = async (slug: string) => {
         const newState = { ...authForm, tenantSlug: slug };
         setAuthForm(newState);
+        setLoading(true);
+        setLoadingMessage(`Initializing ${slug.toUpperCase()} workspace...`);
         try {
             const resp = await loginApi(newState);
             localStorage.setItem('store_ai_token', resp.data.token);
             setUser(resp.data.user);
         } catch (e: any) {
             alert(e.response?.data?.error || "Failed to switch tenant. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleOnboardRequest = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+        setLoadingMessage('Provisioning New Organization Instance...');
         try {
             const resp = await api.post('/auth/onboard', onboardForm);
             alert(resp.data.message);
             setMode('LOGIN');
         } catch (e: any) {
             alert(e.response?.data?.error || "Onboarding request failed.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -72,6 +87,34 @@ const Login = ({ setUser }: any) => {
                 backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 40%)',
                 pointerEvents: 'none'
             }} />
+
+            {loading && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    backdropFilter: 'blur(8px)',
+                    zIndex: 1000,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '20px'
+                }}>
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        style={{
+                            width: '40px',
+                            height: '40px',
+                            border: '3px solid #e2e8f0',
+                            borderTop: '3px solid #3b82f6',
+                            borderRadius: '50%'
+                        }}
+                    />
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#3b82f6', letterSpacing: '0.1em' }}>{loadingMessage}</div>
+                </div>
+            )}
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
