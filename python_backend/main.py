@@ -88,7 +88,8 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+        logger.error(f"🔑 Auth Failed: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 
 @app.post("/chat")

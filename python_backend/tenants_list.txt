@@ -1,0 +1,29 @@
+d3a0f064-2ee6-4a53-9f1c-f88e84ebd0ce | quantum | Quantum Retail Solutions
+d9aa57a8-2350-41e6-9840-5957e8a3cf23 | nexus | Nexus Logistics Group
+d3b14363-d908-4323-a1ec-660596455f5a | horizon | Horizon Dynamics
+d648adeb-cb77-4678-912d-0a5f6122e5dd | storeai | StoreAI Corporate Hub
+33497ce5-f8a5-40de-8dee-5c8e09e1b9f5 | verify-corp | Verification Corp
+dc5fb8b9-41e5-4770-ad4f-366d6c4c2e74 | verify-corp-1770085743 | Verification Corp
+25fb46fd-3cd1-4d03-9112-f3afdc4412d2 | verify-corp-1770085799 | Verification Corp
+cd8d9569-2601-40cb-92b1-0003a32f41d3 | verify-corp-1770085818 | Verification Corp
+3f9a6e1e-d856-44b3-8115-5db98553e318 | verify-corp-903cab66 | Verification Corp
+fec03f1a-5a29-4718-8f08-ac1fce614729 | verify-corp-b1085dbe | Verification Corp
+47724dc1-a492-429b-9684-5b5f202f7a69 | v-corp-3bed68ec-c4c | Verification Corp
+0e9def72-d756-4bf7-8784-b0ff016c5daf | v-corp-cfbbc2ac-25a | Verification Corp
+2744ec27-faf3-4fdf-8655-9401cffdb0a0 | v-corp-a9de7698-683 | Verification Corp
+35c203eb-6407-4c71-88db-aa3df8844ba6 | v-corp-c96377ff-022 | Verification Corp
+1fdb4bdf-c7c6-4901-805a-0fac93f0c480 | slug-v1770086223 | VCorp v1770086223
+cbb0acb2-1819-468a-95b5-8e07176eae86 | slug-v1770086241 | VCorp v1770086241
+9b40f328-fa63-4f05-8fe6-b77c9d174328 | s-v1770086374 | T-v1770086374
+05131d10-6597-4506-b0f0-5a0a77183a55 | s-v1770086403 | T-v1770086403
+c139d55a-be0c-41ae-8d98-b44ef13d30c7 | s-v1770086712 | T-v1770086712
+b4ad1045-7767-4a50-a25d-e90ab632fa46 | s-v1770086904 | T-v1770086904
+5ce18890-b516-4d61-963f-38b3109db345 | s-v1770086981 | T-v1770086981
+faae5ccc-dd80-4a42-b0af-60763e2c8781 | s-v1770087020 | T-v1770087020
+12aa0beb-b797-40b8-9bc7-6be13f8d2fab | s-v1770087080 | T-v1770087080
+d716d7c7-9983-4ca9-8257-ae86f402f604 | s-v1770087526 | T-v1770087526
+619f0bf8-4af2-45d0-acae-e6b7bc5651a3 | s-v1770087559 | T-v1770087559
+5b04600e-f128-4f7e-8544-bd8b4e506d85 | s-v1770087589 | T-v1770087589
+ac4eed14-5b71-4301-ad40-11facadbb11e | s-v1770087618 | T-v1770087618
+e2b0ae30-3de9-4e19-8b04-09ddba954e38 | s-v1770087681 | T-v1770087681
+dcb8bb0f-71ae-4843-b1e3-e8e24dbe89e2 | s-v1770087734 | T-v1770087734

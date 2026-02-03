@@ -1,0 +1,100 @@
+﻿1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\click\core.p
+y", line 1269, in invoke
+    return ctx.invoke(self.callback, 
+**ctx.params)
+  File "C:\Users\HP\AppData\Local\Packa
+ges\PythonSoftwareFoundation.Python.3.1
+1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\click\core.p
+y", line 824, in invoke
+    return callback(*args, **kwargs)
+  File "C:\Users\HP\AppData\Local\Packa
+ges\PythonSoftwareFoundation.Python.3.1
+1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\uvicorn\main
+.py", line 418, in main
+    run(
+  File "C:\Users\HP\AppData\Local\Packa
+ges\PythonSoftwareFoundation.Python.3.1
+1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\uvicorn\main
+.py", line 587, in run
+    server.run()
+  File "C:\Users\HP\AppData\Local\Packa
+ges\PythonSoftwareFoundation.Python.3.1
+1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\uvicorn\serv
+er.py", line 62, in run
+    return asyncio.run(self.serve(socke
+ts=sockets))
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+runners.py", line 190, in run
+    return runner.run(main)
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+runners.py", line 118, in run
+    return 
+self._loop.run_until_complete(task)
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+base_events.py", line 641, in 
+run_until_complete
+    self.run_forever()
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+windows_events.py", line 321, in 
+run_forever
+    super().run_forever()
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+base_events.py", line 608, in 
+run_forever
+    self._run_once()
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+base_events.py", line 1936, in 
+_run_once
+    handle._run()
+  File "C:\Program Files\WindowsApps\Py
+thonSoftwareFoundation.Python.3.11_3.11
+.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\
+events.py", line 84, in _run
+    self._context.run(self._callback, 
+*self._args)
+  File "C:\Users\HP\AppData\Local\Packa
+ges\PythonSoftwareFoundation.Python.3.1
+1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\starlette\mi
+ddleware\base.py", line 151, in coro
+    await self.app(scope, 
+receive_or_disconnect, send_no_error)
+  File "C:\Users\HP\AppData\Local\Packa
+ges\PythonSoftwareFoundation.Python.3.1
+1_qbz5n2kfra8p0\LocalCache\local-packag
+es\Python311\site-packages\starlette\mi
+ddleware\base.py", line 191, in 
+__call__
+    response = await 
+self.dispatch_func(request, call_next)
+  File "D:\Training\working\Store-AI\py
+thon_backend\main.py", line 42, in 
+log_requests
+    logger.info(f"\u2705 AI API 
+Response: {response.status_code}")
+Message: '\u2705 AI API Response: 200'
+Arguments: ()
+[2026-02-02 20:02:14] INFO 
+[storeai_python] \u2705 AI API 
+Response: 200
+[RAG] Processing for tenant technova: 'wireless mouse'
+[RAG] Intent: VECTOR
+[RAG] Direct Vector Result Length: 6392
+INFO:     127.0.0.1:56756 - "POST /api/chat HTTP/1.1" 200 OK

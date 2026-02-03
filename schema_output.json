@@ -1,0 +1,327 @@
+{
+  "tables": [
+    "Employee",
+    "IncentiveLedger",
+    "ChartOfAccounts",
+    "LedgerEntry",
+    "PurchaseReturn",
+    "PurchaseReturnItem",
+    "_prisma_migrations",
+    "Plan",
+    "Tenant",
+    "Role",
+    "UserTenant",
+    "User",
+    "Category",
+    "Product",
+    "Warehouse",
+    "Stock",
+    "ProductBatch",
+    "StockLedger",
+    "SalesRegister",
+    "Sale",
+    "Supplier",
+    "Order",
+    "PurchaseQuotation",
+    "OrderItem",
+    "GoodsReceipt",
+    "GoodsReceiptItem",
+    "InventoryDocument",
+    "InventoryDocumentItem",
+    "Deal",
+    "Customer",
+    "Activity",
+    "DealItem",
+    "SalesOrder",
+    "SalesOrderItem",
+    "SaleItem",
+    "Payment",
+    "Ledger",
+    "Department",
+    "PricingRule",
+    "Attendance",
+    "Payroll",
+    "PurchaseRequisition",
+    "PurchaseRequisitionItem",
+    "SupplierAgreement",
+    "SalaryStructure",
+    "Leave",
+    "ActivityLog",
+    "SalesReturn",
+    "SalesReturnItem",
+    "Daybook",
+    "RecurringExpense",
+    "AuditLog",
+    "GSTLog",
+    "Permission",
+    "_PermissionToRole"
+  ],
+  "Product": [
+    {
+      "name": "reorderPoint",
+      "type": "integer"
+    },
+    {
+      "name": "reorderQuantity",
+      "type": "integer"
+    },
+    {
+      "name": "leadTimeDays",
+      "type": "integer"
+    },
+    {
+      "name": "avgDailySales",
+      "type": "double precision"
+    },
+    {
+      "name": "costPrice",
+      "type": "double precision"
+    },
+    {
+      "name": "transportationCost",
+      "type": "double precision"
+    },
+    {
+      "name": "isDeleted",
+      "type": "boolean"
+    },
+    {
+      "name": "createdAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "updatedAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "gstRate",
+      "type": "double precision"
+    },
+    {
+      "name": "otherTaxRate",
+      "type": "double precision"
+    },
+    {
+      "name": "stockQuantity",
+      "type": "integer"
+    },
+    {
+      "name": "price",
+      "type": "double precision"
+    },
+    {
+      "name": "isBatchTracked",
+      "type": "boolean"
+    },
+    {
+      "name": "lowStockThreshold",
+      "type": "integer"
+    },
+    {
+      "name": "unit",
+      "type": "text"
+    },
+    {
+      "name": "sku",
+      "type": "text"
+    },
+    {
+      "name": "name",
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "type": "text"
+    },
+    {
+      "name": "brand",
+      "type": "text"
+    },
+    {
+      "name": "image",
+      "type": "text"
+    },
+    {
+      "name": "id",
+      "type": "text"
+    },
+    {
+      "name": "categoryId",
+      "type": "text"
+    },
+    {
+      "name": "tenantId",
+      "type": "text"
+    }
+  ],
+  "Category": [
+    {
+      "name": "createdAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "updatedAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "id",
+      "type": "text"
+    },
+    {
+      "name": "name",
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "type": "text"
+    },
+    {
+      "name": "tenantId",
+      "type": "text"
+    }
+  ],
+  "Tenant": [
+    {
+      "name": "features",
+      "type": "jsonb"
+    },
+    {
+      "name": "createdAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "updatedAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "logo",
+      "type": "text"
+    },
+    {
+      "name": "id",
+      "type": "text"
+    },
+    {
+      "name": "planId",
+      "type": "text"
+    },
+    {
+      "name": "status",
+      "type": "text"
+    },
+    {
+      "name": "name",
+      "type": "text"
+    },
+    {
+      "name": "slug",
+      "type": "text"
+    }
+  ],
+  "Sale": [
+    {
+      "name": "igstAmount",
+      "type": "double precision"
+    },
+    {
+      "name": "discountAmount",
+      "type": "double precision"
+    },
+    {
+      "name": "shippedAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "roundOff",
+      "type": "double precision"
+    },
+    {
+      "name": "isHomeDelivery",
+      "type": "boolean"
+    },
+    {
+      "name": "totalAmount",
+      "type": "double precision"
+    },
+    {
+      "name": "isDeleted",
+      "type": "boolean"
+    },
+    {
+      "name": "createdAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "updatedAt",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "dueDate",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "isPaid",
+      "type": "boolean"
+    },
+    {
+      "name": "taxAmount",
+      "type": "double precision"
+    },
+    {
+      "name": "estimatedDelivery",
+      "type": "timestamp without time zone"
+    },
+    {
+      "name": "cgstAmount",
+      "type": "double precision"
+    },
+    {
+      "name": "sgstAmount",
+      "type": "double precision"
+    },
+    {
+      "name": "team",
+      "type": "text"
+    },
+    {
+      "name": "invoiceNo",
+      "type": "text"
+    },
+    {
+      "name": "deliveryAddress",
+      "type": "text"
+    },
+    {
+      "name": "deliveryCity",
+      "type": "text"
+    },
+    {
+      "name": "id",
+      "type": "text"
+    },
+    {
+      "name": "status",
+      "type": "text"
+    },
+    {
+      "name": "trackingNumber",
+      "type": "text"
+    },
+    {
+      "name": "shippingCarrier",
+      "type": "text"
+    },
+    {
+      "name": "customerId",
+      "type": "text"
+    },
+    {
+      "name": "salesmanId",
+      "type": "text"
+    },
+    {
+      "name": "tenantId",
+      "type": "text"
+    }
+  ]
+}

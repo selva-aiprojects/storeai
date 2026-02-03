@@ -1,0 +1,2762 @@
+{
+  "Employee": [
+    {
+      "column_name": "salary",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "performanceRating",
+      "data_type": "integer",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "incentivePercentage",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "joiningDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "eligibleForIncentive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "departmentId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "bankAccountNo",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "employeeId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "firstName",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "lastName",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "designation",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "pan",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "IncentiveLedger": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "baseAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "incentiveRate",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "incentiveAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "calculatedDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "paidDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "payrollId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "employeeId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceType",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "ChartOfAccounts": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isSystemAccount",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "openingBalance",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "currentBalance",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "code",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "accountGroup",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "accountType",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "parentId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "LedgerEntry": [
+    {
+      "column_name": "entryDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "debitAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "creditAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "voucherNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdBy",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "referenceId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "accountId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceType",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "PurchaseReturn": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "returnDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "totalRefund",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "gstRefund",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "transportCharge",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reason",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "returnNumber",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "orderId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "supplierId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "PurchaseReturnItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "refundAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "purchaseReturnId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reason",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "_prisma_migrations": [
+    {
+      "column_name": "finished_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "rolled_back_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "started_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "applied_steps_count",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "logs",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "checksum",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "migration_name",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    }
+  ],
+  "Plan": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "maxUsers",
+      "data_type": "integer",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "maxProducts",
+      "data_type": "integer",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "price",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "features",
+      "data_type": "jsonb",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "billingCycle",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Tenant": [
+    {
+      "column_name": "features",
+      "data_type": "jsonb",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "logo",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "planId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "slug",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Role": [
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "code",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "UserTenant": [
+    {
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "roleId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "User": [
+    {
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "lastName",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "role",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "password",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "firstName",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Category": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Product": [
+    {
+      "column_name": "reorderPoint",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reorderQuantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "leadTimeDays",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "avgDailySales",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "costPrice",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "transportationCost",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "gstRate",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "otherTaxRate",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "stockQuantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "price",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isBatchTracked",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "lowStockThreshold",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "unit",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "sku",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "brand",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "image",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "categoryId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Warehouse": [
+    {
+      "column_name": "isDefault",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "location",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Stock": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reserved",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "expiryDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "warehouseId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "batchNumber",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "ProductBatch": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "inwardDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "expiryDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "quantityReceived",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quantityAvailable",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "costPrice",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "batchNumber",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "slotNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "warehouseLocation",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "poId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "StockLedger": [
+    {
+      "column_name": "transactionDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quantityIn",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quantityOut",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "balanceQuantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceType",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "remarks",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "createdBy",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "batchId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "transactionType",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SalesRegister": [
+    {
+      "column_name": "stockBefore",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "stockAfter",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "transactionTimestamp",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quantitySold",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "invoiceId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "batchId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "Sale": [
+    {
+      "column_name": "igstAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "discountAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "shippedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "roundOff",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isHomeDelivery",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "totalAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "dueDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "isPaid",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "taxAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "estimatedDelivery",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "cgstAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "sgstAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "team",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "invoiceNo",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "deliveryAddress",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "deliveryCity",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "trackingNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "shippingCarrier",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "customerId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "salesmanId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Supplier": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "rating",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reliabilityScore",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "paymentTerms",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "taxId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "gstNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "contact",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "Order": [
+    {
+      "column_name": "expectedDeliveryDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "totalAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "taxAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "shippedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "supplierId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quotationId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "shippingCarrier",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "orderNumber",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "approvalStatus",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "approvedById",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "trackingNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "PurchaseQuotation": [
+    {
+      "column_name": "items",
+      "data_type": "jsonb",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "totalAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "validUntil",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quotationNo",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "supplierId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "requisitionId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "OrderItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "receivedQuantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "unitPrice",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "orderId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "GoodsReceipt": [
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "grnNumber",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "orderId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "warehouseId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "receivedById",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "GoodsReceiptItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "expiryDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "batchNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "goodsReceiptId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "InventoryDocument": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reference",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "sourceWarehouseId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "performedBy",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "targetWarehouseId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "InventoryDocumentItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "documentId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Deal": [
+    {
+      "column_name": "value",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "probability",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "expectedCloseDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "assignedToId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "stage",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "customerId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Customer": [
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "phone",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "city",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "gstNumber",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "zipCode",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "Activity": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "subject",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "content",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "dealId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "DealItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "price",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "dealId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SalesOrder": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "dealId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "customerId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "orderNumber",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SalesOrderItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reserved",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "salesOrderId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SaleItem": [
+    {
+      "column_name": "igst",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "unitPrice",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "taxAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "cgst",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "sgst",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "batchId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "saleId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Payment": [
+    {
+      "column_name": "amount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "saleId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "transactionId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "method",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Ledger": [
+    {
+      "column_name": "amount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "category",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Department": [
+    {
+      "column_name": "isDeleted",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "PricingRule": [
+    {
+      "column_name": "minQuantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "discountPercent",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Attendance": [
+    {
+      "column_name": "lateMinutes",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isLop",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "date",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "checkIn",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "checkOut",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "overtimeHours",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "employeeId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Payroll": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "amount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "basicSalary",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "hra",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "allowances",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "grossSalary",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "deductions",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "netSalary",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "taxAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "incentive",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "overtimeAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "totalPayout",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "paymentDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "employeeId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "month",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "PurchaseRequisition": [
+    {
+      "column_name": "requestDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "priority",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "requestedById",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "requisitionNo",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "PurchaseRequisitionItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "requisitionId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SupplierAgreement": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "agreedPrice",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "startDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "endDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "supplierId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SalaryStructure": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "professionalTax",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "basic",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "hra",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "da",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "medical",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "transport",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "special",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "providentFund",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "employeeId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Leave": [
+    {
+      "column_name": "endDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "startDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "employeeId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "reason",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "ActivityLog": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "details",
+      "data_type": "jsonb",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "entityType",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "entityId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "ipAddress",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "action",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SalesReturn": [
+    {
+      "column_name": "gstDeduction",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "returnDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "totalRefund",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "transportDeduction",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "packagingDeduction",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "saleId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "condition",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "SalesReturnItem": [
+    {
+      "column_name": "quantity",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "refundAmount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "salesReturnId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "productId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Daybook": [
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "date",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "debit",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "credit",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES"
+    }
+  ],
+  "RecurringExpense": [
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "amount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "nextDueDate",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "frequency",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "category",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "AuditLog": [
+    {
+      "column_name": "oldValue",
+      "data_type": "jsonb",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "newValue",
+      "data_type": "jsonb",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "timestamp",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "action",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "module",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "entityType",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "ipAddress",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "userAgent",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "entityId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "userId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "GSTLog": [
+    {
+      "column_name": "date",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "isPaid",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "amount",
+      "data_type": "double precision",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "tenantId",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "referenceId",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "column_name": "type",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "Permission": [
+    {
+      "column_name": "id",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "code",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "category",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ],
+  "_PermissionToRole": [
+    {
+      "column_name": "A",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "column_name": "B",
+      "data_type": "text",
+      "is_nullable": "NO"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import prisma from '../lib/prisma';
 import { AuthRequest } from '../middleware/authMiddleware';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key';
-const JWT_EXPIRES_IN = '1d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
 
 export const requestOnboarding = async (req: Request, res: Response) => {
     try {
@@ -114,6 +114,11 @@ export const login = async (req: Request, res: Response) => {
             ...(activeTenant.features as object || {})
         };
 
+        const tokenOptions: any = {};
+        if (JWT_EXPIRES_IN && JWT_EXPIRES_IN !== 'never') {
+            tokenOptions.expiresIn = JWT_EXPIRES_IN;
+        }
+
         const token = jwt.sign(
             {
                 id: user.id,
@@ -126,7 +131,7 @@ export const login = async (req: Request, res: Response) => {
                 features
             },
             JWT_SECRET,
-            { expiresIn: JWT_EXPIRES_IN }
+            tokenOptions
         );
 
         res.json({
