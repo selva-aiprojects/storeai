@@ -37,6 +37,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         { path: '/payroll', label: 'Payroll Engine', icon: Wallet, feature: 'HR_MODULE', permission: 'hr:read' },
         { path: '/hr-reports', label: 'Statutory Reports', icon: ShieldCheck, feature: 'HR_MODULE', permission: 'hr:read' },
         { divider: 'Finance & Intel' },
+        { path: '/accounts', label: 'Finance Hub', icon: Landmark, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/daybook', label: 'Daybook (Daily)', icon: History, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/balance-sheet', label: 'Balance Sheet', icon: Landmark, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/ledger', label: 'General Ledger', icon: BookOpen, feature: 'FINANCE_MODULE', permission: 'accounts:read' },

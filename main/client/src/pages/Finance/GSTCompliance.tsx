@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { FileText, Calculator, Landmark, ShieldCheck, ArrowRight } from 'lucide-react';
 
 const GSTCompliance = () => {
@@ -13,7 +13,7 @@ const GSTCompliance = () => {
     const fetchTax = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/v1/accounts/tax-summary');
+            const res = await api.get('/accounts/tax-summary');
             setStats(res.data);
         } catch (error) {
             console.error("Tax fetch error", error);

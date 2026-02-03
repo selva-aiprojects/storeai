@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { Receipt, AlertCircle, Clock, CheckCircle2, TrendingDown } from 'lucide-react';
 
 const LiabilityTracker = () => {
@@ -13,7 +13,7 @@ const LiabilityTracker = () => {
     const fetchAging = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/v1/finance/aging');
+            const res = await api.get('/finance/aging');
             setAging(res.data);
         } catch (error) {
             console.error("Aging fetch error", error);

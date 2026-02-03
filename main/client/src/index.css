@@ -689,6 +689,10 @@ tbody tr:nth-child(even) td {
     transform: translateX(-100%);
   }
 
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
   .main-content {
     margin-left: 0;
   }

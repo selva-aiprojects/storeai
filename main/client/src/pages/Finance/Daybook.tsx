@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { History, Search, Download, Calendar, Filter, CheckCircle, Clock } from 'lucide-react';
 
 const Daybook = () => {
@@ -14,7 +14,7 @@ const Daybook = () => {
     const fetchDaybook = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/v1/finance/daybook', {
+            const res = await api.get('/finance/daybook', {
                 params: {
                     startDate: dateRange.start,
                     endDate: dateRange.end
@@ -30,7 +30,7 @@ const Daybook = () => {
 
     const handleProcessRecurring = async () => {
         try {
-            await axios.post('/api/v1/finance/recurring-auto');
+            await api.post('/finance/recurring-auto');
             fetchDaybook();
             alert('Recurring expenses processed for current month.');
         } catch (error) {

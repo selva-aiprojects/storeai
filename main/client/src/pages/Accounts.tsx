@@ -38,7 +38,7 @@ const Accounts = () => {
                         </div>
                         <div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>{item.label}</div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>${item.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>₹{item.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
                         </div>
                     </div>
                 ))}
@@ -75,7 +75,7 @@ const Accounts = () => {
                                         </span>
                                     </td>
                                     <td style={{ fontWeight: 800, color: l.type === 'CREDIT' ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
-                                        {l.type === 'CREDIT' ? '+' : '-'}${l.amount.toFixed(2)}
+                                        {l.type === 'CREDIT' ? '+' : '-'}₹{l.amount.toFixed(2)}
                                     </td>
                                 </tr>
                             ))}

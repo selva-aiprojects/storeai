@@ -68,8 +68,8 @@ const GeneralLedger = () => {
                             <th>Transaction Date</th>
                             <th>Entry Details</th>
                             <th>Account Type</th>
-                            <th>Debit ($)</th>
-                            <th>Credit ($)</th>
+                            <th>Debit (₹)</th>
+                            <th>Credit (₹)</th>
                             <th>Impact</th>
                         </tr>
                     </thead>

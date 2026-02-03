@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { RotateCcw, Search, Package, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 const SalesReturns = () => {
@@ -17,7 +17,7 @@ const SalesReturns = () => {
         try {
             setLoading(true);
             setSuccess(false);
-            const res = await axios.get(`/api/v1/sales`, { params: { invoiceNo } });
+            const res = await api.get(`/sales`, { params: { invoiceNo } });
             // The search might return an array
             const foundSale = Array.isArray(res.data) ? res.data[0] : res.data;
             if (foundSale) {
@@ -50,7 +50,7 @@ const SalesReturns = () => {
 
         try {
             setSubmitting(true);
-            await axios.post('/api/v1/finance/returns', {
+            await api.post('/finance/returns', {
                 saleId: sale.id,
                 items: itemsToReturn.map(it => ({ productId: it.productId, quantity: it.returnQty })),
                 condition,
