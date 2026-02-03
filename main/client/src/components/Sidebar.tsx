@@ -50,7 +50,10 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
     ];
 
     if (user?.role === 'SUPER_ADMIN') {
-        menuItems.push({ path: '/settings', label: 'Settings', icon: Settings, permission: 'tenants:manage' });
+        menuItems.push({ divider: 'Platform Control' });
+        menuItems.push({ path: '/global-inventory', label: 'Global Stock Master', icon: Layers, permission: 'tenants:manage' });
+        menuItems.push({ path: '/administration', label: 'Audit Trail', icon: ShieldCheck, permission: 'tenants:manage' });
+        menuItems.push({ path: '/settings', label: 'Tenant Settings', icon: Settings, permission: 'tenants:manage' });
     }
 
     // 1. First pass: Filter items by permission/feature (keep dividers for now)

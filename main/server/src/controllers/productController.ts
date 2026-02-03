@@ -2,6 +2,27 @@ import { Response } from 'express';
 import prisma from '../lib/prisma';
 import { AuthRequest } from '../middleware/authMiddleware';
 
+export const getGlobalProducts = async (req: AuthRequest, res: Response) => {
+    try {
+        // Security: Ensure only super admins or storeai staff can access global data
+        if (req.user?.role !== 'SUPER_ADMIN' && req.user?.tenantSlug !== 'storeai') {
+            return res.status(403).json({ error: 'Global access denied' });
+        }
+
+        const products = await prisma.product.findMany({
+            where: { isDeleted: false },
+            include: {
+                category: true,
+                tenant: { select: { name: true, slug: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch global products' });
+    }
+};
+
 export const getProducts = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;

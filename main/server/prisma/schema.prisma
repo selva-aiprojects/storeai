@@ -19,20 +19,25 @@ model Tenant {
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   activityLogs         ActivityLog[]
+  auditLogs            AuditLog[]
   categories           Category[]
+  chartOfAccounts      ChartOfAccounts[]
   customers            Customer[]
   daybooks             Daybook[]
   deals                Deal[]
   departments          Department[]
   gstLogs              GSTLog[]
+  incentiveLedgers     IncentiveLedger[]
   inventoryDocs        InventoryDocument[]
   ledgers              Ledger[]
+  ledgerEntries        LedgerEntry[]
   orders               Order[]
   payments             Payment[]
   pricingRules         PricingRule[]
   products             Product[]
   purchaseQuotations   PurchaseQuotation[]
   purchaseRequisitions PurchaseRequisition[]
+  purchaseReturns      PurchaseReturn[]
   recurringExpenses    RecurringExpense[]
   sales                Sale[]
   salesOrders          SalesOrder[]
@@ -44,11 +49,6 @@ model Tenant {
   plan                 Plan?                 @relation(fields: [planId], references: [id])
   users                UserTenant[]
   warehouses           Warehouse[]
-  auditLogs            AuditLog[]
-  chartOfAccounts      ChartOfAccounts[]
-  ledgerEntries        LedgerEntry[]
-  purchaseReturns      PurchaseReturn[]
-  incentiveLedgers     IncentiveLedger[]
 }
 
 model Plan {
@@ -104,11 +104,11 @@ model User {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   activityLogs   ActivityLog[]
+  auditLogs      AuditLog[]
   deals          Deal[]
   employee       Employee?
   approvedOrders Order[]       @relation("OrderApprover")
   tenants        UserTenant[]
-  auditLogs      AuditLog[]
 }
 
 model Category {
@@ -290,9 +290,9 @@ model Supplier {
   updatedAt         DateTime            @updatedAt
   orders            Order[]
   quotations        PurchaseQuotation[]
+  purchaseReturns   PurchaseReturn[]
   tenant            Tenant              @relation(fields: [tenantId], references: [id])
   pricingAgreements SupplierAgreement[]
-  purchaseReturns   PurchaseReturn[]
 
   @@unique([tenantId, email])
 }
@@ -608,34 +608,34 @@ model Department {
 }
 
 model Employee {
-  id                   String            @id @default(uuid())
-  userId               String?           @unique
-  employeeId           String            @unique
+  id                   String                @id @default(uuid())
+  userId               String?               @unique
+  employeeId           String                @unique
   firstName            String
   lastName             String
   designation          String
   joiningDate          DateTime
-  status               String            @default("ACTIVE")
+  status               String                @default("ACTIVE")
   pan                  String?
   bankAccountNo        String?
   salary               Float
   performanceRating    Int?
-  incentivePercentage  Float             @default(0.0)
-  eligibleForIncentive Boolean           @default(false)
+  incentivePercentage  Float                 @default(0.0)
   departmentId         String
-  isDeleted            Boolean           @default(false)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  isDeleted            Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  eligibleForIncentive Boolean               @default(false)
   attendances          Attendance[]
-  department           Department        @relation(fields: [departmentId], references: [id])
-  user                 User?             @relation(fields: [userId], references: [id])
-  goodsReceipts        GoodsReceipt[]    @relation("ReceivedByEmployee")
+  department           Department            @relation(fields: [departmentId], references: [id])
+  user                 User?                 @relation(fields: [userId], references: [id])
+  goodsReceipts        GoodsReceipt[]        @relation("ReceivedByEmployee")
+  incentiveLedgers     IncentiveLedger[]
   leaves               Leave[]
   payrolls             Payroll[]
   requisitions         PurchaseRequisition[]
   salaryStructure      SalaryStructure?
   sales                Sale[]
-  incentiveLedgers     IncentiveLedger[]
 }
 
 model PricingRule {
@@ -856,22 +856,21 @@ model RecurringExpense {
   @@unique([tenantId, name])
 }
 
-// Audit Trail for Compliance
 model AuditLog {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  action      String   // e.g., "CREATE_PRODUCT", "UPDATE_SALE", "DELETE_EMPLOYEE"
-  module      String   // e.g., "INVENTORY", "FINANCE", "HR"
-  entityType  String?  // e.g., "Product", "Sale", "Employee"
-  entityId    String?  // ID of the affected record
-  oldValue    Json?    // Previous state (for updates/deletes)
-  newValue    Json?    // New state (for creates/updates)
-  ipAddress   String?
-  userAgent   String?
-  timestamp   DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String
+  tenantId   String
+  action     String
+  module     String
+  entityType String?
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 
   @@index([userId, tenantId, timestamp])
   @@index([module, action, timestamp])
@@ -889,28 +888,23 @@ model GSTLog {
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ========================================
-// NEW ACCOUNTING & ERP MODELS
-// ========================================
-
-// Chart of Accounts - Foundation for Double-Entry Accounting
 model ChartOfAccounts {
-  id              String         @id @default(uuid())
+  id              String            @id @default(uuid())
   code            String
   name            String
-  accountGroup    String         // ASSETS, LIABILITIES, EQUITY, INCOME, EXPENSES
-  accountType     String         // CASH, BANK, AR, AP, INVENTORY, SALES, PURCHASE, COGS, etc.
+  accountGroup    String
+  accountType     String
   parentId        String?
-  isSystemAccount Boolean        @default(false) // Prevents deletion
-  openingBalance  Float          @default(0.0)
-  currentBalance  Float          @default(0.0)
+  isSystemAccount Boolean           @default(false)
+  openingBalance  Float             @default(0.0)
+  currentBalance  Float             @default(0.0)
   tenantId        String
-  isActive        Boolean        @default(true)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  parent          ChartOfAccounts? @relation("AccountHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  parent          ChartOfAccounts?  @relation("AccountHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
   children        ChartOfAccounts[] @relation("AccountHierarchy")
-  tenant          Tenant         @relation(fields: [tenantId], references: [id])
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
   ledgerEntries   LedgerEntry[]
 
   @@unique([tenantId, code])
@@ -918,17 +912,16 @@ model ChartOfAccounts {
   @@index([accountGroup])
 }
 
-// Ledger Entry - Double-Entry Bookkeeping
 model LedgerEntry {
   id            String          @id @default(uuid())
   entryDate     DateTime        @default(now())
   accountId     String
   debitAmount   Float           @default(0.0)
   creditAmount  Float           @default(0.0)
-  referenceType String          // SALE, PURCHASE, GRN, PAYMENT, RECEIPT, JOURNAL, PAYROLL, INCENTIVE
+  referenceType String
   referenceId   String?
   description   String?
-  voucherNumber String?         // Groups related entries
+  voucherNumber String?
   tenantId      String
   createdBy     String?
   createdAt     DateTime        @default(now())
@@ -941,7 +934,6 @@ model LedgerEntry {
   @@index([voucherNumber])
 }
 
-// Purchase Return - Debit Note
 model PurchaseReturn {
   id              String               @id @default(uuid())
   returnNumber    String
@@ -951,8 +943,8 @@ model PurchaseReturn {
   totalRefund     Float
   gstRefund       Float                @default(0.0)
   transportCharge Float                @default(0.0)
-  reason          String?              // DAMAGED, DEFECTIVE, WRONG_ITEM, EXCESS
-  status          String               @default("PENDING") // PENDING, APPROVED, COMPLETED
+  reason          String?
+  status          String               @default("PENDING")
   notes           String?
   tenantId        String
   createdAt       DateTime             @default(now())
@@ -977,23 +969,22 @@ model PurchaseReturnItem {
   purchaseReturn   PurchaseReturn @relation(fields: [purchaseReturnId], references: [id])
 }
 
-// Incentive Ledger - Employee Incentive Tracking
 model IncentiveLedger {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   employeeId      String
-  referenceType   String   // SALES, PURCHASE
+  referenceType   String
   referenceId     String
-  baseAmount      Float    // Transaction amount (excl tax for sales)
-  incentiveRate   Float    // Employee's incentive percentage
-  incentiveAmount Float    // Calculated amount
-  status          String   @default("PENDING") // PENDING, APPROVED, PAID
-  calculatedDate  DateTime @default(now())
+  baseAmount      Float
+  incentiveRate   Float
+  incentiveAmount Float
+  status          String    @default("PENDING")
+  calculatedDate  DateTime  @default(now())
   paidDate        DateTime?
-  payrollId       String?  // Link to payroll when paid
+  payrollId       String?
   tenantId        String
-  createdAt       DateTime @default(now())
-  employee        Employee @relation(fields: [employeeId], references: [id])
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt       DateTime  @default(now())
+  employee        Employee  @relation(fields: [employeeId], references: [id])
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
 
   @@index([employeeId])
   @@index([tenantId, calculatedDate])

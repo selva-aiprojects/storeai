@@ -91,6 +91,7 @@ export const markDailyAttendance = (data: any) => api.post('/attendance', data);
 
 // Products
 export const getProducts = () => api.get('/products');
+export const getGlobalProducts = () => api.get('/products/all');
 export const createProduct = (data: any) => api.post('/products', data);
 export const updateProduct = (id: string, data: any) => api.patch(`/products/${id}`, data);
 export const deleteProduct = (id: string) => api.delete(`/products/${id}`);

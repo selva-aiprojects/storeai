@@ -42,6 +42,7 @@ import BalanceSheet from './pages/Finance/BalanceSheet';
 import IndividualLedger from './pages/Finance/IndividualLedger';
 import Administration from './pages/Administration';
 import StockAnalyzer from './pages/Settings/StockAnalyzer';
+import GlobalInventory from './pages/GlobalInventory';
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -192,6 +193,7 @@ function App() {
                         <Route path="/administration" element={<Administration />} />
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="/stock-analyzer" element={<StockAnalyzer />} />
+                        <Route path="/global-inventory" element={<GlobalInventory />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>
                 </Routes>

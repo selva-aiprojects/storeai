@@ -10,6 +10,7 @@ export interface AuthRequest extends Request {
         firstName: string;
         lastName: string;
         tenantId: string;
+        tenantSlug: string;
         role: string;
         permissions: string[];
         features: any;

@@ -126,6 +126,7 @@ export const login = async (req: Request, res: Response) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 tenantId: activeTenant.id,
+                tenantSlug: activeTenant.slug,
                 role: activeRole.code,
                 permissions,
                 features
