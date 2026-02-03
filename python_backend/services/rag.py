@@ -66,6 +66,7 @@ class QueryResult:
     response: str
     source: str
     context: Optional[Any] = None
+    intent: Optional[str] = None
 
 
 @dataclass
@@ -664,30 +665,33 @@ class RAGService:
                 # Handle greetings
                 greeting_result = self._handle_greeting(query)
                 if greeting_result:
+                    greeting_result.intent = "GREETING"
                     return greeting_result
                 
                 # Route intent
-                intent = await IntentRouter.classify(refined_query, self.llm)
-                print(f"[RAG] Intent: {intent.intent_type.value}")
+                intent_classification = await IntentRouter.classify(refined_query, self.llm)
+                intent_type = intent_classification.intent_type.value
+                print(f"[RAG] Intent: {intent_type}")
                 
                 # Retrieve context data
                 context_data, source = await self._retrieve_context(
                     refined_query, 
-                    intent,
+                    intent_classification,
                     target_tenant_id,
                     role
                 )
                 
                 # Handle no data found
                 if not self._is_valid_context(context_data):
-                    return await self._handle_no_data(history, user_query)
+                    return await self._handle_no_data(history, user_query, intent=intent_type)
                 
                 # Synthesize final answer
                 return await self._synthesize_answer(
                     user_query, 
                     context_data, 
                     source, 
-                    history
+                    history,
+                    intent=intent_type
                 )
                 
             except Exception as e:
@@ -732,7 +736,8 @@ class RAGService:
                     "How can I assist you with Inventory, Sales, or Staff insights today?"
                 ),
                 source=DataSource.HEURISTIC.value,
-                context="Persona: Helpful Store Assistant"
+                context="Persona: Helpful Store Assistant",
+                intent="GREETING"
             )
         return None
     
@@ -782,7 +787,8 @@ class RAGService:
     async def _handle_no_data(
         self, 
         history: List[Dict], 
-        user_query: str
+        user_query: str,
+        intent: str = None
     ) -> QueryResult:
         """Handle cases where no data is found"""
         # If in conversation, try conversational response
@@ -791,7 +797,8 @@ class RAGService:
                 user_query, 
                 NO_DATA_SIGNAL, 
                 DataSource.CONVERSATION.value, 
-                history
+                history,
+                intent=intent
             )
         
         # Provide helpful guidance
@@ -803,7 +810,8 @@ class RAGService:
         return QueryResult(
             response=response,
             source=DataSource.NONE.value,
-            context=None
+            context=None,
+            intent=intent or DataSource.NONE.value
         )
     
     async def _synthesize_answer(
@@ -811,7 +819,8 @@ class RAGService:
         user_query: str,
         context_data: str,
         source: str,
-        history: List[Dict]
+        history: List[Dict],
+        intent: str = None
     ) -> QueryResult:
         """Synthesize final answer using LLM"""
         try:
@@ -836,7 +845,8 @@ class RAGService:
             return QueryResult(
                 response=response,
                 source=source,
-                context=ui_context
+                context=ui_context,
+                intent=intent
             )
             
         except Exception as e:
@@ -847,7 +857,8 @@ class RAGService:
                     "How shall we proceed?"
                 ),
                 source=source,
-                context=context_data if context_data != NO_DATA_SIGNAL else None
+                context=context_data if context_data != NO_DATA_SIGNAL else None,
+                intent=intent
             )
     
     @staticmethod
@@ -859,7 +870,8 @@ class RAGService:
                 "Please try rephrasing your request."
             ),
             source=DataSource.ERROR.value,
-            context=error_msg
+            context=error_msg,
+            intent=DataSource.ERROR.value
         )
 
 
