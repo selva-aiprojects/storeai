@@ -1,4 +1,4 @@
-import { RefreshCw, Plus, Menu, Sparkles, TrendingUp } from 'lucide-react';
+import { RefreshCw, Plus, Menu, Sparkles, TrendingUp, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
@@ -60,6 +60,14 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </div>
             </div>
             <div className="header-actions">
+                <button
+                    className="btn btn-secondary"
+                    title="Help Guide"
+                    onClick={() => setModal({ type: 'help' })}
+                    style={{ marginRight: '4px', background: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+                >
+                    <HelpCircle size={14} /> <span className="btn-text">HELP</span>
+                </button>
                 <button className="btn btn-secondary" onClick={() => {
                     const path = location.pathname;
                     let scope = 'essential';

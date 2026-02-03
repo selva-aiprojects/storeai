@@ -691,6 +691,66 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 </>
                             )}
 
+                            {type === 'help' && (
+                                <div style={{ padding: '10px' }}>
+                                    <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--border-color)', pb: '10px' }}>
+                                        <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--accent-primary)', marginBottom: '5px' }}>STOREAI SYSTEM GUIDE</h2>
+                                        <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>Master the platform workflows and optimize your operations.</p>
+                                    </div>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                                        {/* Row 1: Procurement */}
+                                        <section>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                <div style={{ background: '#3b82f6', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900 }}>1</div>
+                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800 }}>PROCUREMENT & STOCK INBOUND</h3>
+                                            </div>
+                                            <div style={{ marginLeft: '34px', fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>
+                                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                                    <li style={{ marginBottom: '8px' }}>🚀 <b>Step A:</b> Create a <b>Supplier</b> in Partners section if not already present.</li>
+                                                    <li style={{ marginBottom: '8px' }}>📝 <b>Step B:</b> Post a <b>Purchase Order (PO)</b> via Procurement Hub including required artifact quantities.</li>
+                                                    <li style={{ marginBottom: '8px' }}>✅ <b>Step C:</b> Once goods arrive, the <b>Procurement Team</b> (e.g. James Wilson) verifies shipment.</li>
+                                                    <li style={{ marginBottom: '8px' }}>📦 <b>Step D:</b> Click <b>GENERATE GRN</b> on the PO. This updates <b>Stock Master</b> and creates a trackable <b>Batch</b>.</li>
+                                                </ul>
+                                            </div>
+                                        </section>
+
+                                        {/* Row 2: Sales */}
+                                        <section>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                <div style={{ background: '#10b981', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900 }}>2</div>
+                                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800 }}>SALES & POS EXECUTION</h3>
+                                            </div>
+                                            <div style={{ marginLeft: '34px', fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>
+                                                <ul style={{ listStyle: 'none', padding: 0 }}>
+                                                    <li style={{ marginBottom: '8px' }}>🛒 <b>Step A:</b> Open <b>Sales [POS]</b> and add items to the Virtual Cart.</li>
+                                                    <li style={{ marginBottom: '8px' }}>🧠 <b>Step B:</b> Use <b>FIFO Batch Advisor</b> (on the right) to identify which batch to sell first based on expiry.</li>
+                                                    <li style={{ marginBottom: '8px' }}>🖨️ <b>Step C:</b> Press <b>F9</b> or Execute to finalize. System generates a professional <b>PDF Invoice</b> automatically.</li>
+                                                </ul>
+                                            </div>
+                                        </section>
+
+                                        {/* Row 3: Admin */}
+                                        {user?.role === 'SUPER_ADMIN' && (
+                                            <section>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                    <div style={{ background: '#6366f1', color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 900 }}>3</div>
+                                                    <h3 style={{ fontSize: '0.9rem', fontWeight: 800 }}>SUPER ADMIN PLATFORM CONTROL</h3>
+                                                </div>
+                                                <div style={{ marginLeft: '34px', fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>
+                                                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                                                        <li style={{ marginBottom: '8px' }}>🌍 <b>Global View:</b> Use <b>Global Stock Master</b> to audit inventory across all 29+ tenants simultaneously.</li>
+                                                        <li style={{ marginBottom: '8px' }}>🔍 <b>Audit Logs:</b> Monitor platform-wide behavior in the Audit Trail section.</li>
+                                                    </ul>
+                                                </div>
+                                            </section>
+                                        )}
+                                    </div>
+                                    <div style={{ marginTop: '30px', padding: '15px', background: 'var(--bg-hover)', borderRadius: '12px', fontSize: '0.75rem', textAlign: 'center', opacity: 0.8 }}>
+                                        Need Technical Support? Contact <b>support@storeai.com</b> or use the <b>AI Intelligence</b> assistant for real-time analysis.
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -700,8 +760,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <Pause size={18} /> PARK
                             </button>
                         )}
-                        <button className="btn btn-primary" type="submit" style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
-                            {type === 'payment_feature' ? `AUTHORIZE $${formData.price}` : (type === 'sales' ? 'EXECUTE & PRINT [F9]' : 'EXECUTE PROTOCOL')}
+                        <button className="btn btn-primary" type={type === 'help' ? 'button' : 'submit'} onClick={type === 'help' ? onClose : undefined} style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
+                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'payment_feature' ? `AUTHORIZE $${formData.price}` : (type === 'sales' ? 'EXECUTE & PRINT [F9]' : 'EXECUTE PROTOCOL'))}
                         </button>
                     </div>
                 </form>
