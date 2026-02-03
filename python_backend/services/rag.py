@@ -346,7 +346,7 @@ SQL:"""
         return f"""ROLE: Lead StoreAI Assistant.
 CONTEXT: Business Intelligence Guide.
 
-Respond to "{user_query}" based on the telemetry below.
+Respond to "{user_query}" based ONLY on the telemetry provided.
 
 TELEMETRY DATA:
 {context_data}
@@ -354,13 +354,13 @@ TELEMETRY DATA:
 CONVERSATION HISTORY:
 {history_str if history_str else "N/A"}
 
-INSTRUCTIONS:
-1. DATA-DRIVEN: Use specific numbers from telemetry.
-2. NO HALLUCINATION: If telemetry is empty or null, state "No specific data found for this period/category."
-3. PROFESSIONAL TONE: Reassuring and insightful.
-4. MARKDOWN: Use tables for product lists or financial breakdowns.
-5. INSIGHT: Add one "Smart Observation" based on the data trends.
-6. CALL TO ACTION: End with a highly relevant follow-up question.
+CRITICAL INSTRUCTIONS:
+1. STRICT DATA ADHERENCE: Use ONLY the specific numbers from the TELEMETRY DATA section.
+2. NO DATA FALLBACK: If TELEMETRY DATA contains "{NO_DATA_SIGNAL}" or is empty/null, you MUST state: "I've reviewed the store records for your request, but no specific data was found for this period/category." DO NOT invent categories, numbers, or trends.
+3. NO PLACEHOLDERS: NEVER use example data (like Fashion, Electronics, 500 units) unless they are explicitly in the telemetry.
+4. FORMATTING: Use Markdown tables ONLY if you have real telemetry data to list.
+5. INSIGHT: If (and only if) data exists, add one "Smart Observation" based on the trends. If no data, skip this.
+6. CALL TO ACTION: End with a relevant follow-up question.
 7. MAX WORDS: {SYNTHESIS_MAX_WORDS}
 
 RESPONSE:"""
