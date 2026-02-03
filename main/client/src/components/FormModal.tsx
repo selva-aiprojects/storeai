@@ -693,7 +693,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
 
                             {type === 'help' && (
                                 <div style={{ padding: '10px' }}>
-                                    <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--border-color)', pb: '10px' }}>
+                                    <div style={{ marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
                                         <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--accent-primary)', marginBottom: '5px' }}>STOREAI SYSTEM GUIDE</h2>
                                         <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>Master the platform workflows and optimize your operations.</p>
                                     </div>
