@@ -354,6 +354,11 @@ def read_root():
 
 @app.on_event("startup")
 async def startup_event():
+    logger.info("🚀 AI Hub: Fast Startup Mode Active")
+    # Trigger RAG and LLM initialization in the background
+    # This allows the server to bind to PORT and pass health checks immediately
+    asyncio.create_task(rag_service.init())
+    
     logger.info("Startup: Listing Routes")
     for route in app.routes:
         logger.info(f"Route: {route.path} [{route.name}]")

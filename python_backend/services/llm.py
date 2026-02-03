@@ -343,29 +343,31 @@ class LocalEmbeddingClient:
     """Handles Local Embedding generation using ChromaDB's default function"""
     
     def __init__(self):
-        try:
-            # Default is all-MiniLM-L6-v2 (ONNX)
-            self.embed_fn = DefaultEmbeddingFunction()
-            self.configured = True
-            logging.info("Local Embedding Model initialized (all-MiniLM-L6-v2)")
-        except Exception as e:
-            logging.error(f"Failed to initialize local embedding model: {e}")
-            self.configured = False
+        self.embed_fn = None
+        self.configured = False
+        self._init_lock = asyncio.Lock()
     
-    def generate_embedding_sync(self, text: str) -> Optional[List[float]]:
-        """Synchronous embedding generation"""
-        if not self.configured:
-            return None
-        try:
-            # DefaultEmbeddingFunction expects a list of documents
-            embeddings = self.embed_fn([text])
-            if embeddings and len(embeddings) > 0:
-                return embeddings[0]
-            return None
-        except Exception as e:
-            logging.error(f"Local embedding generation failed: {e}")
-            return None
-
+    async def _lazy_init(self):
+        """Initialize model only when needed"""
+        if self.configured:
+            return
+            
+        async with self._init_lock:
+            if self.configured:
+                return
+            try:
+                # Running this in a thread because it's CPU/IO heavy
+                def setup():
+                    # Default is all-MiniLM-L6-v2 (ONNX)
+                    return DefaultEmbeddingFunction()
+                
+                self.embed_fn = await asyncio.to_thread(setup)
+                self.configured = True
+                logging.info("Local Embedding Model initialized lazily (all-MiniLM-L6-v2)")
+            except Exception as e:
+                logging.error(f"Failed to initialize local embedding model: {e}")
+                self.configured = False
+    
     async def generate_embedding(
         self,
         text: str,
@@ -375,14 +377,21 @@ class LocalEmbeddingClient:
         Generate embedding vector (Async wrapper)
         """
         try:
+            # Ensure initialized
+            await self._lazy_init()
+            
+            if not self.configured:
+                return None
+
             # Run synchronous CPU-bound task in thread pool
-            result = await asyncio.to_thread(
-                self.generate_embedding_sync,
-                text
-            )
+            def get_emb():
+                embeddings = self.embed_fn([text])
+                return embeddings[0] if embeddings else None
+                
+            result = await asyncio.to_thread(get_emb)
             return result
         except Exception as e:
-            logging.error(f"Embedding async wrapper failed: {e}")
+            logging.error(f"Embedding generation failed: {e}")
             return None
 
 
@@ -422,7 +431,7 @@ class LLMService:
             rate_limiter=self.rate_limiter
         )
         
-        # Initialize Local Embedding Client (Mocking Gemini interface)
+        # Initialize Local Embedding Client (Lazy)
         self.embedding_client = LocalEmbeddingClient()
     
     # ========================================================================

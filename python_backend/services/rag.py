@@ -524,48 +524,86 @@ class RAGService:
         llm_service=None,
         tenant_id: str = DEFAULT_TENANT_ID
     ):
-        try:
-            # Initialize ChromaDB
-            self.chroma_client = chroma_client or chromadb.PersistentClient(
-                path=CHROMA_DB_PATH,
-                settings=CHROMA_SETTINGS
-            )
-            self.product_collection = self.chroma_client.get_or_create_collection(
-                name=COLLECTION_NAME,
-                metadata={"hnsw:space": "cosine"},
-            )
-            self.knowledge_collection = self.chroma_client.get_or_create_collection(
-                name="storeai_knowledge",
-                metadata={"hnsw:space": "cosine"},
-            )
+        # Configuration
+        self.chroma_path = CHROMA_DB_PATH
+        self.chroma_settings = CHROMA_SETTINGS
+        self.collection_name = COLLECTION_NAME
+        
+        # Services
+        self.db = db_service or db
+        
+        # Delayed initialization
+        self.chroma_client = chroma_client
+        self.product_collection = None
+        self.knowledge_collection = None
+        self.llm = llm_service
+        self.tenant_slug = tenant_id
+        self.tenant_id = None
+        
+        # Handlers (will be created in init)
+        self.intent_router = IntentRouter()
+        self.sql_handler = None
+        self.vector_handler = None
+        
+        # Concurrency & Init state
+        self._semaphore = asyncio.Semaphore(1)
+        self._initialized = False
+        self._init_lock = asyncio.Lock()
+
+    async def init(self):
+        """Initialize ChromaDB and handlers lazily"""
+        if self._initialized:
+            return
             
-            # Services
-            self.db = db_service or db
-            # Import and initialize LLM service if not provided
-            if llm_service is None:
-                from services.llm import llm_service as default_llm
-                self.llm = default_llm
-            else:
-                self.llm = llm_service
-            self.tenant_slug = tenant_id  # Store the slug
-            self.tenant_id = None  # Will be resolved to UUID
-            
-            # Intent router and handlers
-            self.intent_router = IntentRouter()
-            self.sql_handler = SQLHandler(self.db, self.llm)
-            self.vector_handler = VectorHandler(
-                self.product_collection, 
-                self.knowledge_collection, 
-                self.llm
-            )
-            
-            # Concurrency control
-            self._semaphore = asyncio.Semaphore(1)
-        except Exception as e:
-            print(f"CRITICAL ERROR in RAGService.__init__: {e}")
-            import traceback
-            traceback.print_exc()
-            raise e
+        async with self._init_lock:
+            if self._initialized:
+                return
+                
+            try:
+                print(f"[RAG] Initializing ChromaDB at {self.chroma_path}...")
+                
+                # Initialize ChromaDB client if not provided
+                if not self.chroma_client:
+                    self.chroma_client = await asyncio.to_thread(
+                        chromadb.PersistentClient,
+                        path=self.chroma_path,
+                        settings=self.chroma_settings
+                    )
+                
+                # Get or create collections
+                self.product_collection = await asyncio.to_thread(
+                    self.chroma_client.get_or_create_collection,
+                    name=self.collection_name,
+                    metadata={"hnsw:space": "cosine"}
+                )
+                
+                self.knowledge_collection = await asyncio.to_thread(
+                    self.chroma_client.get_or_create_collection,
+                    name="storeai_knowledge",
+                    metadata={"hnsw:space": "cosine"}
+                )
+                
+                # Resolve LLM service
+                if self.llm is None:
+                    from services.llm import llm_service as default_llm
+                    self.llm = default_llm
+                
+                # Initialize handlers
+                self.sql_handler = SQLHandler(self.db, self.llm)
+                self.vector_handler = VectorHandler(
+                    self.product_collection, 
+                    self.knowledge_collection, 
+                    self.llm
+                )
+                
+                self._initialized = True
+                print("[RAG] Initialization complete.")
+            except Exception as e:
+                print(f"[RAG] Failed to initialize: {e}")
+                import traceback
+                traceback.print_exc()
+                raise e
+    
 
     async def _ensure_tenant_id(self):
         """Resolve tenant slug to UUID if not already done"""
@@ -598,6 +636,9 @@ class RAGService:
         """
         Main entry point for query processing
         """
+        # Ensure initialized
+        await self.init()
+
         # Fallback to default if no tenant provided
         if not tenant_id:
             await self._ensure_tenant_id()
