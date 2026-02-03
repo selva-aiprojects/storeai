@@ -120,7 +120,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
         doc.setFontSize(9);
         doc.text(`INVOICE NUMBER: ${sale.invoiceNo}`, 20, 50);
         doc.text(`DATE OF ISSUE: ${new Date().toLocaleString()}`, 20, 55);
-        doc.text(`CURRENCY: INR (₹)`, 20, 60);
+        doc.text(`CURRENCY: ₹ (INR)`, 20, 60);
 
         doc.text(`CUSTOMER: ${customers?.find((c: any) => c.id === formData.customerId)?.name || 'WALK-IN CUSTOMER'}`, 190, 50, { align: 'right' });
         doc.text(`PAYMENT: ${formData.paymentMethod || 'CASH'}`, 190, 55, { align: 'right' });
@@ -275,8 +275,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                             {categories?.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                                         </select>
                                     </div>
-                                    <div className="form-group"><label>SALES PRICE (INR)</label><input type="number" step="0.01" value={formData.price} onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })} required /></div>
-                                    <div className="form-group"><label>COST PRICE (INR)</label><input type="number" step="0.01" value={formData.costPrice} onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) })} required /></div>
+                                    <div className="form-group"><label>SALES PRICE (₹)</label><input type="number" step="0.01" value={formData.price} onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })} required /></div>
+                                    <div className="form-group"><label>COST PRICE (₹)</label><input type="number" step="0.01" value={formData.costPrice} onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) })} required /></div>
                                     <div className="form-group"><label>INITIAL STOCK</label><input type="number" value={formData.stockQuantity} onChange={e => setFormData({ ...formData, stockQuantity: parseInt(e.target.value) })} required /></div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', gridColumn: 'span 2' }}>
                                         <div className="form-group"><label>TRANSPORT (₹)</label><input type="number" value={formData.transportationCost} onChange={e => setFormData({ ...formData, transportationCost: parseFloat(e.target.value) })} step="0.01" /></div>
@@ -385,11 +385,11 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                         <div style={{ fontWeight: 700 }}>{metadata.firstName} {metadata.lastName}</div>
                                     </div>
 
-                                    <div className="form-group"><label>Base Salary (INR)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })} required /></div>
+                                    <div className="form-group"><label>Base Salary (₹)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })} required /></div>
 
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                        <div className="form-group"><label>Incentive/Commission (INR)</label><input type="number" value={formData.incentive} onChange={e => setFormData({ ...formData, incentive: parseFloat(e.target.value) || 0 })} /></div>
-                                        <div className="form-group"><label>Overtime Pay (INR)</label><input type="number" value={formData.overtimeAmount} onChange={e => setFormData({ ...formData, overtimeAmount: parseFloat(e.target.value) || 0 })} /></div>
+                                        <div className="form-group"><label>Incentive/Commission (₹)</label><input type="number" value={formData.incentive} onChange={e => setFormData({ ...formData, incentive: parseFloat(e.target.value) || 0 })} /></div>
+                                        <div className="form-group"><label>Overtime Pay (₹)</label><input type="number" value={formData.overtimeAmount} onChange={e => setFormData({ ...formData, overtimeAmount: parseFloat(e.target.value) || 0 })} /></div>
                                     </div>
 
                                     <div style={{
@@ -629,7 +629,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <>
                                     <div className="form-group"><label>Payment Title</label><input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required /></div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                        <div className="form-group"><label>Amount (INR)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} required /></div>
+                                        <div className="form-group"><label>Amount (₹)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} required /></div>
                                         <div className="form-group"><label>Category</label><select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}><option value="GENERAL">General</option><option value="OPERATIONAL">Operational</option><option value="SALARY">Salary</option></select></div>
                                     </div>
                                     <div className="form-group"><label>Flow Type</label><select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}><option value="RECEIVABLE">Receivable (Credit)</option><option value="PAYABLE">Payable (Debit)</option></select></div>

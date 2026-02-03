@@ -24,7 +24,7 @@ const IndividualLedger = () => {
     }, [entityId]);
 
     const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
     };
 
     if (loading) return <div className="loading-state">Accessing Account Ledger...</div>;

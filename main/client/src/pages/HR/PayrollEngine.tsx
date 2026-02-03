@@ -73,7 +73,7 @@ const PayrollEngine = () => {
                                         </div>
                                         <div>
                                             <div className="font-bold text-gray-900">{emp.firstName} {emp.lastName}</div>
-                                            <div className="text-xs text-gray-500">{emp.designation} • Base: ${emp.salary?.toLocaleString()}</div>
+                                            <div className="text-xs text-gray-500">{emp.designation} • Base: ₹{emp.salary?.toLocaleString()}</div>
                                         </div>
                                     </div>
 
@@ -81,7 +81,7 @@ const PayrollEngine = () => {
                                         {slip ? (
                                             <div className="text-right mr-4">
                                                 <div className="text-xs text-gray-400">Net Payable</div>
-                                                <div className="text-lg font-black text-green-600">${slip.netAmount?.toLocaleString()}</div>
+                                                <div className="text-lg font-black text-green-600">₹{slip.netAmount?.toLocaleString()}</div>
                                             </div>
                                         ) : null}
 
@@ -121,7 +121,7 @@ const PayrollEngine = () => {
                             </div>
                             <div className="flex justify-between text-xs border-b border-white/10 pb-2">
                                 <span>Professional Tax</span>
-                                <span className="font-bold">$200 Fixed</span>
+                                <span className="font-bold">₹200 Fixed</span>
                             </div>
                             <div className="mt-6 p-3 bg-white/10 rounded-lg">
                                 <p className="text-[10px] leading-relaxed">

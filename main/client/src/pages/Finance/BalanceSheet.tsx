@@ -25,7 +25,7 @@ const BalanceSheet = () => {
     const { assets, liabilities, equity } = data || {};
 
     const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
     };
 
     return (

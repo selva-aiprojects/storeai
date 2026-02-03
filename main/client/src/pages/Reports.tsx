@@ -56,7 +56,7 @@ const Reports = () => {
                 </div>
                 <div className="table-container">
                     <table>
-                        <thead><tr><th>ARTIFACT</th><th>BURN RATE</th><th>DAYS LEFT</th><th>STOCK-OUT DATE</th><th>STATUS</th><th>AI SUGGESTION</th></tr></thead>
+                        <thead><tr><th>ITEM</th><th>BURN RATE</th><th>DAYS LEFT</th><th>STOCK-OUT DATE</th><th>STATUS</th><th>AI SUGGESTION</th></tr></thead>
                         <tbody>{predictions.map((p: any) => (
                             <tr key={p.id}>
                                 <td><b>{p.name}</b></td>

@@ -76,7 +76,7 @@ const GlobalInventory = () => {
                     <thead>
                         <tr>
                             <th>ORGANIZATION</th>
-                            <th>ARTIFACT</th>
+                            <th>ITEM</th>
                             <th>CATEGORY</th>
                             <th>STOCK (UOM)</th>
                             <th>UNIT COST</th>
@@ -106,8 +106,8 @@ const GlobalInventory = () => {
                                 </td>
                                 <td><span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>{p.category?.name || 'Uncategorized'}</span></td>
                                 <td><b>{p.stockQuantity}</b> <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{p.unit}</span></td>
-                                <td>${p.costPrice?.toFixed(2)}</td>
-                                <td><b>${p.price?.toFixed(2)}</b></td>
+                                <td>₹{p.costPrice?.toFixed(2)}</td>
+                                <td><b>₹{p.price?.toFixed(2)}</b></td>
                                 <td>
                                     <span className={`badge ${p.stockQuantity <= (p.lowStockThreshold || 10) ? 'badge-danger' : 'badge-success'}`}>
                                         {p.stockQuantity <= (p.lowStockThreshold || 10) ? 'REORDER' : 'OPTIMAL'}

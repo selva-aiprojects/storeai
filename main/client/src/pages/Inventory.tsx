@@ -22,7 +22,7 @@ const Inventory = () => {
             <table>
                 <thead>
                     <tr>
-                        <th>ARTIFACT</th>
+                        <th>ITEM</th>
                         <th>CATEGORY</th>
                         <th>PRICING & TAX</th>
                         <th>COST & LOGISTICS</th>
@@ -40,12 +40,12 @@ const Inventory = () => {
                             </td>
                             <td><span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>{p.category?.name || 'Uncategorized'}</span></td>
                             <td>
-                                <div><b>${p.price?.toFixed(2)}</b></div>
+                                <div><b>₹{p.price?.toFixed(2)}</b></div>
                                 <div style={{ fontSize: '0.65rem', opacity: 0.6 }}>GST: {p.gstRate}% | Other: {p.otherTaxRate}%</div>
                             </td>
                             <td>
-                                <div><b>${p.costPrice?.toFixed(2)}</b></div>
-                                <div style={{ fontSize: '0.65rem', opacity: 0.6 }}>Transport: ${p.transportationCost?.toFixed(2)}</div>
+                                <div><b>₹{p.costPrice?.toFixed(2)}</b></div>
+                                <div style={{ fontSize: '0.65rem', opacity: 0.6 }}>Transport: ₹{p.transportationCost?.toFixed(2)}</div>
                             </td>
                             <td><b>{p.stockQuantity}</b> <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{p.unit}</span></td>
                             <td>

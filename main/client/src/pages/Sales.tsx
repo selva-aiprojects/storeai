@@ -49,7 +49,7 @@ const Sales = () => {
                     {parked.length > 0 ? parked.map((p: any, idx: number) => (
                         <div key={idx} style={{ minWidth: '200px', background: 'var(--bg-card)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', position: 'relative' }}>
                             <div style={{ fontSize: '0.6rem', color: 'var(--accent-secondary)', fontWeight: 800 }}>PARKED: {p.label}</div>
-                            <div style={{ fontSize: '0.8rem', fontWeight: 600, marginTop: '4px' }}>${p.items.reduce((s: number, i: any) => s + (i.quantity * i.unitPrice), 0).toFixed(2)}</div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600, marginTop: '4px' }}>₹{p.items.reduce((s: number, i: any) => s + (i.quantity * i.unitPrice), 0).toFixed(2)}</div>
                             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                                 <button className="btn btn-primary" style={{ padding: '4px 8px', fontSize: '0.6rem' }} onClick={() => resumeOrder(p, idx)}><Play size={10} /> RESUME</button>
                                 <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.6rem' }} onClick={() => clearParked(idx)}><Trash2 size={10} /></button>
@@ -86,7 +86,7 @@ const Sales = () => {
                                     </span>
                                 </td>
                                 <td><span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>{s.team}</span></td>
-                                <td><b>${s.totalAmount.toFixed(2)}</b></td>
+                                <td><b>₹{s.totalAmount.toFixed(2)}</b></td>
                                 <td>
                                     {s.isHomeDelivery ? (
                                         <div style={{ fontSize: '0.7rem' }}>

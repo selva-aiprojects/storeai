@@ -144,9 +144,8 @@ const Products = () => {
                                 borderBottom: '1px solid rgba(0,0,0,0.05)'
                             }}>
                                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#7c3aed', letterSpacing: '-0.05em' }}> {/* Purple Price */}
-                                    ${p.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                    ₹{p.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </span>
-                                <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>USD</span>
                             </div>
 
                             <p style={{

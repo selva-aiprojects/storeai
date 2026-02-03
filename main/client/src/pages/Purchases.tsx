@@ -73,7 +73,7 @@ const Purchases = () => {
                                     <td><b>{o.orderNumber}</b><div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{new Date(o.createdAt).toLocaleDateString()}</div></td>
                                     <td style={{ fontWeight: 700 }}>{o.supplier?.name}</td>
                                     <td><StatusBadge status={o.status} /></td>
-                                    <td>${o.totalAmount.toFixed(2)}</td>
+                                    <td>₹{o.totalAmount.toFixed(2)}</td>
                                     <td>{o.trackingNumber ? <div style={{ fontSize: '0.7rem' }}><b>{o.shippingCarrier}:</b> {o.trackingNumber}</div> : <span style={{ color: 'var(--text-muted)' }}>--</span>}</td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '5px' }}>
@@ -97,7 +97,7 @@ const Purchases = () => {
                                 <th>REQUISITION #</th>
                                 <th>PRIORITY</th>
                                 <th>REQUESTED BY</th>
-                                <th>ARTIFACTS</th>
+                                <th>ITEMS</th>
                                 <th>STATUS</th>
                                 <th>ACTION</th>
                             </tr>
