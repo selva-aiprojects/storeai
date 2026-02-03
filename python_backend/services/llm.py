@@ -285,7 +285,15 @@ class GroqClient:
         if not api_key:
             raise ValueError("Groq API key is required")
         
-        self.client = AsyncGroq(api_key=api_key, timeout=timeout)
+        import httpx
+        self.client = AsyncGroq(
+            api_key=api_key, 
+            timeout=timeout,
+            http_client=httpx.AsyncClient(
+                base_url="https://api.groq.com/openai/v1",
+                follow_redirects=True,
+            )
+        )
         self.rate_limiter = rate_limiter
     
     async def generate(

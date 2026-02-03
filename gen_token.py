@@ -16,7 +16,7 @@ def generate_token():
         "id": "test-admin-id",
         "email": "admin@storeai.com",
         "role": "SUPER_ADMIN",
-        "tenantId": "technova",
+        "tenantId": "d648adeb-cb77-4678-912d-0a5f6122e5dd",
         "exp": exp_time
     }
     return jwt.encode(payload, secret, algorithm="HS256")
