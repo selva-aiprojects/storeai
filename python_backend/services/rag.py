@@ -27,6 +27,7 @@ class IntentType(Enum):
     SQL = "SQL"
     VECTOR = "VECTOR"
     GREETING = "GREETING"
+    GENERAL = "GENERAL"
 
 
 class DataSource(Enum):
@@ -219,6 +220,11 @@ class IntentRouter:
         "hello", "hi", "hey", "greetings", "good morning", 
         "good evening", "good afternoon", "who are you", "help"
     }
+
+    GENERAL_KEYWORDS = {
+        "weather", "time", "joke", "news", "how are you", 
+        "tell me about", "what is", "calculate", "math"
+    }
     
     @classmethod
     async def classify(cls, query: str, llm_service=None) -> IntentClassification:
@@ -233,6 +239,9 @@ class IntentRouter:
         if cls._contains_sql_keywords(normalized_query) or "health" in normalized_query:
             return IntentClassification(IntentType.SQL)
             
+        if any(kw in normalized_query for kw in cls.GENERAL_KEYWORDS):
+            return IntentClassification(IntentType.GENERAL)
+
         # 3. LLM Fallback (Slow path - Intelligence path)
         if llm_service:
             try:
@@ -247,13 +256,15 @@ Intent Types:
 - SQL: Querying structured database (sales, stock, accounting, attendance, health reports)
 - VECTOR: Semantic product search, descriptions, or general knowledge
 - GREETING: Simple hello, help, or who are you
+- GENERAL: General conversation, weather, jokes, or non-platform specific general knowledge
 
-Return ONLY the Intent Type (SQL/VECTOR/GREETING). No explanation."""
+Return ONLY the Intent Type (SQL/VECTOR/GREETING/GENERAL). No explanation."""
                 response = await llm_service.generate_response(prompt)
                 intent_str = response.strip().upper()
                 
                 if "SQL" in intent_str: return IntentClassification(IntentType.SQL)
                 if "GREETING" in intent_str: return IntentClassification(IntentType.GREETING)
+                if "GENERAL" in intent_str: return IntentClassification(IntentType.GENERAL)
                 return IntentClassification(IntentType.VECTOR)
             except:
                 pass
@@ -362,6 +373,32 @@ CRITICAL INSTRUCTIONS:
 5. INSIGHT: If (and only if) data exists, add one "Smart Observation" based on the trends. If no data, skip this.
 6. CALL TO ACTION: End with a relevant follow-up question.
 7. MAX WORDS: {SYNTHESIS_MAX_WORDS}
+
+    @staticmethod
+    def general_synthesis(user_query: str, history: List[Dict]) -> str:
+        """Prompt for general, non-platform specific conversation"""
+        history_str = ""
+        if history:
+            history_str = "\n".join([
+                f"{m['role'].upper()}: {m['content']}" 
+                for m in history[-5:]
+            ])
+
+        return f"""ROLE: Helpful StoreAI General Assistant.
+CONTEXT: You are an AI assistant integrated into the StoreAI Platform. 
+While your primary job is store operations, you can help with general questions like weather, facts, or casual chat.
+
+CONVERSATION HISTORY:
+{history_str if history_str else "N/A"}
+
+USER QUERY: "{user_query}"
+
+CRITICAL INSTRUCTIONS:
+1. BE HELPFUL: Answer the general question politely and accurately.
+2. SCOPE AWARENESS: If the question is about weather, mention you are checking based on general data.
+3. SECURITY: NEVER disclose internal system paths, environment variables, or database structures.
+4. TONE: Professional yet friendly.
+5. SHORT: Keep it under 100 words.
 
 RESPONSE:"""
 
@@ -686,6 +723,10 @@ class RAGService:
                 intent_type = intent_classification.intent_type.value
                 print(f"[RAG] Intent: {intent_type}")
                 
+                # Handle General Intent (New)
+                if intent_classification.intent_type == IntentType.GENERAL:
+                    return await self._handle_general_query(user_query, history)
+
                 # Retrieve context data
                 context_data, source = await self._retrieve_context(
                     refined_query, 
@@ -712,6 +753,18 @@ class RAGService:
                 import traceback
                 traceback.print_exc()
                 return self._error_response(str(e))
+    
+    async def _handle_general_query(self, user_query: str, history: List[Dict]) -> QueryResult:
+        """Handle general/out-of-scope queries"""
+        prompt = PromptTemplates.general_synthesis(user_query, history)
+        response = await self.llm.generate_response(prompt)
+        
+        return QueryResult(
+            response=response,
+            source=DataSource.CONVERSATION.value,
+            context="General Intelligence Mode",
+            intent=IntentType.GENERAL.value
+        )
     
     # ========================================================================
     # PRIVATE METHODS
