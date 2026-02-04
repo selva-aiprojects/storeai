@@ -73,8 +73,22 @@ const StockAnalyzer: React.FC = () => {
     const [analysis, setAnalysis] = useState<AiAnalysis | null>(null);
     const [error, setError] = useState('');
     const [animate, setAnimate] = useState(false);
+    const [healthStatus, setHealthStatus] = useState<'Checking' | 'Connected' | 'Error'>('Checking');
 
-    useEffect(() => setAnimate(true), []);
+    useEffect(() => {
+        setAnimate(true);
+        checkAiHealth();
+    }, []);
+
+    const checkAiHealth = async () => {
+        try {
+            await aiApi.get('/health');
+            setHealthStatus('Connected');
+        } catch (e) {
+            console.error("AI Health Check Failed:", e);
+            setHealthStatus('Error');
+        }
+    };
 
     const analyzeStock = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,13 +100,17 @@ const StockAnalyzer: React.FC = () => {
 
         try {
             const response = await aiApi.post('/ai/stock-analyze', { ticker });
+            // The backend returns an error field if it fails but catches
             if (response.data?.error) throw new Error(response.data.error);
+            // If it returns mock data because of an exception, it might look successful but have placeholders
             setAnalysis(response.data as AiAnalysis);
         } catch (err: any) {
-            console.error(err);
-            setError(err.message === 'Network Error'
-                ? 'Connection failed. Please verify AI Service URL configuration.'
-                : (err.message || 'Failed to analyze stock. Please try again.'));
+            console.error("Stock Analysis Error:", err);
+            setError(err.response?.status === 404
+                ? 'AI Analysis endpoint not found. Please verify back-end version.'
+                : err.message === 'Network Error'
+                    ? 'Connection failed. Please verify AI Service URL configuration.'
+                    : (err.response?.data?.detail || err.message || 'Failed to analyze stock. Please try again.'));
         } finally {
             setLoading(false);
         }
@@ -101,10 +119,10 @@ const StockAnalyzer: React.FC = () => {
     const ratingColor = (rating?: AiRating) => {
         switch (rating) {
             case 'Strong Buy': return 'bg-emerald-600 text-white';
-            case 'Buy': return 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
-            case 'Sell': return 'bg-red-500/20 text-red-300 border border-red-500/40';
-            case 'Avoid': return 'bg-red-700 text-white';
-            default: return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/40';
+            case 'Buy': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+            case 'Sell': return 'bg-rose-100 text-rose-700 border border-rose-200';
+            case 'Avoid': return 'bg-rose-600 text-white';
+            default: return 'bg-amber-100 text-amber-700 border border-amber-200';
         }
     };
 
@@ -138,17 +156,27 @@ const StockAnalyzer: React.FC = () => {
                             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
                                 QUANTUM <span style={{ color: 'var(--primary-500)' }}>AI</span> MARKET BRAIN
                             </h1>
-                            <p className="text-slate-500 text-xs tracking-widest uppercase mt-2 font-bold opacity-70">
-                                Predictive Intelligence • Multi-Signal Analysis
-                            </p>
+                            <div className="flex items-center gap-3 mt-2">
+                                <p className="text-slate-500 text-[10px] tracking-widest uppercase font-bold opacity-70">
+                                    Predictive Intelligence Hub
+                                </p>
+                                <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${healthStatus === 'Connected' ? 'bg-emerald-50 text-emerald-600' : healthStatus === 'Error' ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-400'
+                                    }`}>
+                                    <div className={`w-1.5 h-1.5 rounded-full ${healthStatus === 'Connected' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : healthStatus === 'Error' ? 'bg-rose-500' : 'bg-slate-400'}`} />
+                                    {healthStatus === 'Connected' ? 'AI Link Active' : healthStatus === 'Error' ? 'AI Engine Offline' : 'Verifying Link...'}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full">
-                        <Activity size={14} className="text-indigo-600" />
-                        <span className="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider">
-                            Real-time GPU Reasoning
-                        </span>
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Node Instance</span>
+                            <span className="text-xs font-black text-slate-700">STOREAI-V3-HYPERION</span>
+                        </div>
+                        <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl">
+                            <Activity size={20} className="text-indigo-600" />
+                        </div>
                     </div>
                 </header>
 
@@ -236,82 +264,83 @@ const StockAnalyzer: React.FC = () => {
                 {analysis && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-700">
                         {/* High-Level Intelligence Matrix */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="dashboard-grid">
                             {/* AI Signal */}
-                            <div className="card" style={{ borderLeft: '4px solid var(--primary-500)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">AI Verdict</span>
-                                    <Brain size={16} className="text-indigo-500 opacity-40" />
+                            <div className="metric-card" style={{ borderTop: '4px solid var(--primary-500)' }}>
+                                <div className="metric-card-header">
+                                    <span>AI VERDICT</span>
+                                    <Brain size={14} className="text-muted" />
                                 </div>
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <span className={`text-xs font-extrabold px-3 py-1 rounded-lg uppercase tracking-wider ${ratingColor(analysis.core_signals.ai_overall_rating)}`} style={{ borderRadius: '6px' }}>
+                                <div className="flex items-center gap-3">
+                                    <span className={`text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider ${ratingColor(analysis.core_signals.ai_overall_rating)}`}>
                                         {analysis.core_signals.ai_overall_rating}
                                     </span>
-                                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded">
+                                    <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-bold bg-slate-50 px-2 py-0.5 rounded border">
                                         <Clock size={10} />
                                         {analysis.ai_rationale.time_horizon.replace('_', ' ').toUpperCase()}
                                     </div>
                                 </div>
-                                <div className="text-sm font-bold text-slate-800">
+                                <div className="metric-card-value" style={{ fontSize: '1.25rem', marginTop: '4px' }}>
                                     {analysis.meta.company_name}
-                                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">{analysis.meta.sector}</div>
                                 </div>
+                                <div className="metric-card-footer">{analysis.meta.sector} • {analysis.meta.currency} {analysis.meta.last_price}</div>
                             </div>
 
                             {/* Scoring Engine */}
-                            <div className="card" style={{ borderLeft: '4px solid var(--secondary-500)' }}>
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">Model Confidence</span>
-                                    <Target size={16} className="text-sky-500 opacity-40" />
+                            <div className="metric-card" style={{ borderTop: '4px solid var(--secondary-500)' }}>
+                                <div className="metric-card-header">
+                                    <span>MODEL CONFIDENCE</span>
+                                    <Target size={14} className="text-muted" />
                                 </div>
-                                <div className="text-4xl font-black text-slate-900">
-                                    {analysis.core_signals.confidence}<span className="text-lg opacity-40">%</span>
+                                <div className="metric-card-value text-sky-600">
+                                    {analysis.core_signals.confidence}%
                                 </div>
-                                <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2">
                                     <div
-                                        className="h-full bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full"
+                                        className="h-full bg-gradient-to-r from-sky-400 to-blue-600 rounded-full"
                                         style={{ width: `${analysis.core_signals.confidence}%` }}
                                     />
                                 </div>
+                                <div className="metric-card-footer">Statistical Reliability Score</div>
                             </div>
 
                             {/* Signal Decomposition */}
-                            <div className="card col-span-1 md:col-span-1">
-                                <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest block mb-4">Decomposition</span>
-                                <div className="space-y-3">
+                            <div className="metric-card" style={{ borderTop: '4px solid var(--success)' }}>
+                                <div className="metric-card-header">
+                                    <span>SIGNAL QUALITY</span>
+                                    <TrendingUp size={14} className="text-muted" />
+                                </div>
+                                <div className="space-y-2 mt-1">
                                     {[
-                                        { label: 'Technical', val: analysis.core_signals.technical_score, color: 'var(--primary-500)' },
-                                        { label: 'Fundamental', val: analysis.core_signals.fundamental_score, color: '#10b981' },
-                                        { label: 'Sentiment', val: analysis.core_signals.news_score, color: 'var(--secondary-500)' }
+                                        { label: 'TECH', val: analysis.core_signals.technical_score, color: 'var(--primary-400)' },
+                                        { label: 'FUND', val: analysis.core_signals.fundamental_score, color: '#10b981' },
+                                        { label: 'SENT', val: analysis.core_signals.news_score, color: 'var(--secondary-400)' }
                                     ].map((s, i) => (
-                                        <div key={i} className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold">
-                                                <span className="text-slate-500">{s.label}</span>
-                                                <span className="text-slate-900">{s.val}%</span>
-                                            </div>
-                                            <div className="h-1 bg-slate-100 rounded">
+                                        <div key={i} className="flex items-center gap-3">
+                                            <span className="text-[9px] font-black text-slate-400 w-8">{s.label}</span>
+                                            <div className="flex-1 h-1 bg-slate-50 rounded">
                                                 <div className="h-full rounded" style={{ width: `${s.val}%`, background: s.color }} />
                                             </div>
+                                            <span className="text-[9px] font-bold text-slate-700">{s.val}%</span>
                                         </div>
                                     ))}
                                 </div>
+                                <div className="metric-card-footer">Multi-factor reasoning weight</div>
                             </div>
 
                             {/* Risk Assessment */}
-                            <div className="card" style={{ borderLeft: '4px solid var(--danger)' }}>
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-widest">Risk Radar</span>
-                                    <AlertTriangle size={16} className="text-rose-500 opacity-40" />
+                            <div className="metric-card" style={{ borderTop: '4px solid var(--danger)' }}>
+                                <div className="metric-card-header">
+                                    <span>RISK EXPOSURE</span>
+                                    <AlertTriangle size={14} className="text-muted" />
                                 </div>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-3xl font-black text-slate-900">
-                                        {analysis.core_signals.risk_score}
-                                    </span>
-                                    <span className="text-[10px] font-bold text-slate-400">/ 100</span>
+                                <div className="metric-card-value text-rose-600">
+                                    {analysis.core_signals.risk_score}<span className="text-sm">/100</span>
                                 </div>
-                                <p className="mt-2 text-[11px] text-slate-500 font-medium leading-relaxed">
+                                <p className="text-[10px] text-slate-500 font-medium leading-relaxed line-clamp-2">
                                     {analysis.explanations.risk_explain}
                                 </p>
+                                <div className="metric-card-footer">Calculated Headwinds</div>
                             </div>
                         </div>
 
@@ -462,7 +491,7 @@ const StockAnalyzer: React.FC = () => {
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${news.sentiment === 'Positive' ? 'bg-emerald-50 text-emerald-600' :
-                                                                news.sentiment === 'Negative' ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
+                                                            news.sentiment === 'Negative' ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
                                                             }`}>
                                                             {news.sentiment}
                                                         </span>
@@ -476,7 +505,7 @@ const StockAnalyzer: React.FC = () => {
                                                     </p>
                                                 </div>
                                                 <div className={`shrink-0 w-2 h-2 rounded-full mt-2 ${news.impact === 'High' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]' :
-                                                        news.impact === 'Medium' ? 'bg-amber-500' : 'bg-slate-300'
+                                                    news.impact === 'Medium' ? 'bg-amber-500' : 'bg-slate-300'
                                                     }`} title={`Impact Level: ${news.impact}`}></div>
                                             </div>
                                         </div>

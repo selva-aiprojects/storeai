@@ -124,7 +124,6 @@ function App() {
             safeFetch('/accounts/ledger', 'ledger'),
             safeFetch('/accounts/summary', 'financialSummary'),
             safeFetch('/accounts/tax-summary', 'taxSummary'),
-            safeFetch('/payment', 'transactions'),
         ];
 
         const intelTasks = [

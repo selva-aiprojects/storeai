@@ -195,7 +195,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                     <span>{!isCollapsed && sectionName}</span>
                                     {!isCollapsed && (
                                         <motion.div animate={{ rotate: isSectionCollapsed ? 0 : 90 }} style={{ marginLeft: 'auto' }}>
-                                            <ChevronRight size={10} style={{ opacity: 0.5 }} />
+                                            <ChevronRight size={10} style={{ opacity: 0.8 }} />
                                         </motion.div>
                                     )}
                                 </div>

@@ -37,24 +37,16 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
 
     return (
         <header className="header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div className="header-left">
                 <button
                     className="mobile-toggle"
                     onClick={() => setSidebarOpen(true)}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--text-primary)',
-                        cursor: 'pointer',
-                        padding: '4px',
-                        display: 'none' // Controlled by CSS media query
-                    }}
                 >
-                    <Menu size={24} />
+                    <Menu size={22} />
                 </button>
-                <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', lineHeight: 1.2 }}>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--primary-600)' }}>{getPageTitle()}</span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                <div className="header-title">
+                    <span className="title-text">{getPageTitle()}</span>
+                    <span className="tenant-text">
                         {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'STOREAI ENTERPRISE'}
                     </span>
                 </div>

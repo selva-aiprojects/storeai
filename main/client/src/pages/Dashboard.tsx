@@ -47,41 +47,53 @@ const Dashboard = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* --- Financial Status --- */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                <div className="section-header" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-700)' }}>Enterprise Financial Pulse</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Real-time consolidated view</div>
-            </div>
-
             <div className="dashboard-grid">
-                <div className="card" style={{ borderLeft: '4px solid var(--success)', background: 'white' }}>
-                    <div className="card-header">TOTAL REVENUE (SALES)</div>
-                    <div className="metric-value">
-                        <span style={{ color: 'var(--success)' }}>₹{totalRevenue.toLocaleString()}</span>
+                <div className="metric-card" style={{ borderTop: '4px solid var(--success)' }}>
+                    <div className="metric-card-header">
+                        <span>TOTAL REVENUE</span>
+                        <ArrowRight size={14} className="text-muted" />
                     </div>
+                    <div className="metric-card-value text-emerald-600">₹{totalRevenue.toLocaleString()}</div>
+                    <div className="metric-card-footer">Direct Sales + Secondary Flow</div>
                 </div>
-                <div className="card" style={{ borderLeft: '4px solid var(--danger)', background: 'white' }}>
-                    <div className="card-header">TOTAL PROCUREMENT (COSTS)</div>
-                    <div className="metric-value">
-                        <span style={{ color: 'var(--danger)' }}>-₹{totalProcurement.toLocaleString()}</span>
+
+                <div className="metric-card" style={{ borderTop: '4px solid var(--danger)' }}>
+                    <div className="metric-card-header">
+                        <span>PROCUREMENT COST</span>
+                        <ArrowRight size={14} className="text-muted" />
                     </div>
+                    <div className="metric-card-value text-rose-600">-₹{totalProcurement.toLocaleString()}</div>
+                    <div className="metric-card-footer">Inventory Inward + Overheads</div>
                 </div>
-                <div className="card" style={{ borderLeft: '4px solid var(--primary-500)', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, white 100%)' }}>
-                    <div className="card-header">OPERATIONAL NET BALANCE</div>
-                    <div className="metric-value">
-                        <span style={{ color: netStatus >= 0 ? 'var(--primary-600)' : 'var(--danger)' }}>
-                            {netStatus >= 0 ? '+' : '-'}₹{Math.abs(netStatus).toLocaleString()}
-                        </span>
+
+                <div className="metric-card" style={{ borderTop: '4px solid var(--primary-500)' }}>
+                    <div className="metric-card-header">
+                        <span>NET OPERATIONAL BALANCE</span>
+                        <ArrowRight size={14} className="text-muted" />
                     </div>
+                    <div className="metric-card-value" style={{ color: netStatus >= 0 ? 'var(--primary-600)' : 'var(--danger)' }}>
+                        {netStatus >= 0 ? '+' : '-'}₹{Math.abs(netStatus).toLocaleString()}
+                    </div>
+                    <div className="metric-card-footer">Current Liquidity Position</div>
+                </div>
+
+                <div className="metric-card" style={{ borderTop: '4px solid var(--secondary-500)' }}>
+                    <div className="metric-card-header">
+                        <span>WORKFLOW VELOCITY</span>
+                        <ArrowRight size={14} className="text-muted" />
+                    </div>
+                    <div className="metric-card-value text-sky-600">{toBePacked + toBeShipped + toBeDelivered}</div>
+                    <div className="metric-card-footer">Active Pipeline Movements</div>
                 </div>
             </div>
 
-            {/* --- Sales Activity Section --- */}
+            {/* --- Workflow Pipeline (Refined) --- */}
             <div className="section-header" style={{ marginTop: '10px', fontSize: '1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Workflow Pipeline</div>
             <div className="dashboard-grid">
-                <ActivityCard count={toBePacked} label="To Be Packed" icon={Package} color="var(--secondary-500)" />
-                <ActivityCard count={toBeShipped} label="To Be Shipped" icon={Truck} color="var(--warning)" />
-                <ActivityCard count={toBeDelivered} label="To Be Delivered" icon={CheckCircle2} color="var(--success)" />
-                <ActivityCard count={toBeInvoiced} label="To Be Invoiced" icon={FileText} color="var(--danger)" />
+                <ActivityCard count={toBePacked} label="To Be Packed" icon={Package} color="var(--secondary-500)" footer="Awaiting Warehouse Prep" />
+                <ActivityCard count={toBeShipped} label="To Be Shipped" icon={Truck} color="var(--warning)" footer="Ready for Transit" />
+                <ActivityCard count={toBeDelivered} label="To Be Delivered" icon={CheckCircle2} color="var(--success)" footer="Out for Fulfillment" />
+                <ActivityCard count={toBeInvoiced} label="To Be Invoiced" icon={FileText} color="var(--danger)" footer="Awaiting Payment Post" />
             </div>
 
             <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
@@ -202,11 +214,12 @@ const Dashboard = () => {
 };
 
 // Helper Components
-const ActivityCard = ({ count, label, icon: Icon, color }: any) => (
+const ActivityCard = ({ count, label, icon: Icon, color, footer }: any) => (
     <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '12px' }}>
         <div style={{ fontSize: '2.5rem', fontWeight: 800, color }}>{count}</div>
-        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-        <div style={{ marginTop: '8px', color: 'var(--text-muted)', opacity: 0.5 }}><Icon size={20} /></div>
+        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>{label}</div>
+        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', opacity: 0.7 }}>{footer}</div>
+        <div style={{ marginTop: '8px', color: 'var(--text-muted)', opacity: 0.3 }}><Icon size={18} /></div>
     </div>
 );
 

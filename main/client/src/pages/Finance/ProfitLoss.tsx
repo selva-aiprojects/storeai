@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { BarChart3, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Printer } from 'lucide-react';
+import api from '../../services/api';
+import { BarChart3, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Printer, RefreshCw } from 'lucide-react';
 
 const ProfitLoss = () => {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchPL();
@@ -13,16 +14,38 @@ const ProfitLoss = () => {
     const fetchPL = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/v1/finance/pl');
+            setError(null);
+            const res = await api.get('/finance/pl');
             setData(res.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error("P&L fetch error", error);
+            setError(error.response?.data?.message || "Failed to load financial data. You may lack sufficient permissions.");
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading) return <div className="page-container">Loading Financial Statements...</div>;
+    if (loading) return (
+        <div className="page-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+            <RefreshCw size={40} className="animate-spin text-primary" />
+            <p style={{ marginTop: '20px', fontWeight: 600, color: 'var(--text-secondary)' }}>Compiling Strategic Financial Intelligence...</p>
+        </div>
+    );
+
+    if (error) return (
+        <div className="page-container">
+            <div className="card" style={{ borderLeft: '4px solid var(--danger)', padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ background: '#fef2f2', padding: '12px', borderRadius: '12px', color: '#dc2626' }}>
+                    <BarChart3 size={24} />
+                </div>
+                <div>
+                    <h3 style={{ margin: 0, color: '#991b1b' }}>Financial Access Restricted</h3>
+                    <p style={{ margin: '4px 0 0', color: '#b91c1c', fontSize: '0.9rem' }}>{error}</p>
+                </div>
+                <button className="btn btn-primary" onClick={fetchPL} style={{ marginLeft: 'auto' }}>RETRY SYNC</button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="page-container">
