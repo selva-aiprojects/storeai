@@ -374,6 +374,8 @@ CRITICAL INSTRUCTIONS:
 6. CALL TO ACTION: End with a relevant follow-up question.
 7. MAX WORDS: {SYNTHESIS_MAX_WORDS}
 
+RESPONSE:"""
+
     @staticmethod
     def general_synthesis(user_query: str, history: List[Dict]) -> str:
         """Prompt for general, non-platform specific conversation"""
