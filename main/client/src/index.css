@@ -161,14 +161,14 @@ h6 {
 .sidebar-header {
   height: var(--header-height);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 20px;
-  background: transparent;
+  background: radial-gradient(circle at center, rgba(79, 70, 229, 0.08) 0%, transparent 80%);
   position: relative;
   z-index: 2;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 8px;
 }
 

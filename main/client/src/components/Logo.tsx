@@ -9,83 +9,94 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ size = 40, showText = false, className = "" }) => {
     return (
         <div className={`flex items-center gap-3 ${className}`} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <svg
-                width={size}
-                height={size}
-                viewBox="0 0 100 100"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ flexShrink: 0 }}
-            >
-                {/* Cube Base - Grouped for easier styling */}
-                <g id="StoreAI_Cube">
-                    {/* Left Face - Solid Navy */}
-                    <path
-                        d="M15 30L50 50V90L15 70V30Z"
-                        fill="#0f172a"
-                    />
-                    {/* Top Face - Indigo Gradient */}
-                    <path
-                        d="M15 30L50 10L85 30L50 50L15 30Z"
-                        fill="#1e293b"
-                    />
-                    <path
-                        d="M50 10L85 30L50 50L15 30L50 10Z"
-                        fill="url(#topGradient)"
-                        fillOpacity="0.8"
-                    />
+            <div style={{ position: 'relative', width: size, height: size }}>
+                {/* Visual Glow Effect */}
+                <div style={{
+                    position: 'absolute',
+                    top: '15%',
+                    left: '15%',
+                    width: '70%',
+                    height: '70%',
+                    background: 'var(--primary-500)',
+                    filter: 'blur(12px)',
+                    opacity: 0.4,
+                    borderRadius: '50%'
+                }} />
 
-                    {/* Right Face - Transitioning to Neural Network */}
-                    <path
-                        d="M85 30V70L50 90V50L85 30Z"
-                        fill="#1e1b4b"
-                    />
+                <svg
+                    width={size}
+                    height={size}
+                    viewBox="0 0 100 100"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ position: 'relative', zIndex: 1 }}
+                >
+                    <defs>
+                        <linearGradient id="logoTopGradient" x1="15" y1="30" x2="85" y2="30" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#6366f1" />
+                            <stop offset="1" stopColor="#a5b4fc" />
+                        </linearGradient>
+                        <linearGradient id="logoLeftGradient" x1="15" y1="30" x2="50" y2="90" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#4f46e5" />
+                            <stop offset="1" stopColor="#3b82f6" />
+                        </linearGradient>
+                        <linearGradient id="logoRightGradient" x1="50" y1="50" x2="85" y2="70" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#1e293b" />
+                            <stop offset="1" stopColor="#475569" />
+                        </linearGradient>
+                    </defs>
 
-                    {/* Right Face Neural Overlay */}
-                    <g id="Neural_Network">
-                        {/* Nodes */}
-                        <circle cx="50" cy="50" r="3" fill="#6366f1" />
-                        <circle cx="85" cy="30" r="3" fill="#6366f1" />
-                        <circle cx="85" cy="70" r="3" fill="#6366f1" />
-                        <circle cx="50" cy="90" r="3" fill="#6366f1" />
-                        <circle cx="67.5" cy="40" r="2.5" fill="#818cf8" />
-                        <circle cx="67.5" cy="80" r="2.5" fill="#818cf8" />
+                    <g id="StoreAI_Icon_Group">
+                        {/* Left Face */}
+                        <path
+                            d="M15 30L50 50V90L15 70V30Z"
+                            fill="url(#logoLeftGradient)"
+                        />
+                        {/* Top Face */}
+                        <path
+                            d="M15 30L50 10L85 30L50 50L15 30Z"
+                            fill="url(#logoTopGradient)"
+                        />
+                        {/* Right Face */}
+                        <path
+                            d="M85 30V70L50 90V50L85 30Z"
+                            fill="url(#logoRightGradient)"
+                        />
 
-                        {/* Connections */}
-                        <line x1="50" y1="50" x2="85" y2="30" stroke="#4f46e5" strokeWidth="1.5" opacity="0.6" />
-                        <line x1="85" y1="30" x2="85" y2="70" stroke="#4f46e5" strokeWidth="1.5" opacity="0.6" />
-                        <line x1="85" y1="70" x2="50" y2="90" stroke="#4f46e5" strokeWidth="1.5" opacity="0.6" />
-                        <line x1="50" y1="90" x2="50" y2="50" stroke="#4f46e5" strokeWidth="1.5" opacity="0.6" />
-                        <line x1="50" y1="50" x2="85" y2="70" stroke="#4f46e5" strokeWidth="1" opacity="0.4" />
-                        <line x1="85" y1="30" x2="50" y2="90" stroke="#4f46e5" strokeWidth="1" opacity="0.4" />
-                        <line x1="67.5" y1="40" x2="67.5" y2="80" stroke="#4f46e5" strokeWidth="0.8" opacity="0.3" />
+                        {/* Intelligence Overlay */}
+                        <g id="Neural_Overlay">
+                            <line x1="50" y1="50" x2="85" y2="30" stroke="white" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="85" y1="30" x2="85" y2="70" stroke="white" strokeWidth="0.5" opacity="0.3" />
+                            <line x1="85" y1="70" x2="50" y2="90" stroke="white" strokeWidth="0.5" opacity="0.3" />
+
+                            {/* Nodes */}
+                            <circle cx="50" cy="50" r="3.5" fill="white" />
+                            <circle cx="85" cy="30" r="3.5" fill="white" />
+                            <circle cx="85" cy="70" r="3.5" fill="white" />
+                            <circle cx="50" cy="90" r="3.5" fill="white" />
+                            <circle cx="67.5" cy="40" r="2" fill="#818cf8" />
+                            <circle cx="67.5" cy="80" r="2" fill="#818cf8" />
+                        </g>
                     </g>
-                </g>
-
-                <defs>
-                    <linearGradient id="topGradient" x1="15" y1="30" x2="85" y2="30" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#4f46e5" />
-                        <stop offset="1" stopColor="#6366f1" />
-                    </linearGradient>
-                </defs>
-            </svg>
+                </svg>
+            </div>
 
             {showText && (
                 <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
                     <span style={{
-                        fontSize: size > 60 ? '1.5rem' : '1.1rem',
+                        fontSize: size > 60 ? '1.5rem' : '1.15rem',
                         fontWeight: 900,
                         letterSpacing: '0.05em',
-                        color: 'inherit'
+                        color: 'white'
                     }}>
-                        STORE<span style={{ color: '#4f46e5' }}>AI</span>
+                        STORE<span style={{ color: 'var(--primary-400)' }}>AI</span>
                     </span>
                     <span style={{
-                        fontSize: '0.6rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.2em',
-                        opacity: 0.5,
-                        marginTop: '2px'
+                        fontSize: '0.55rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.25em',
+                        color: 'rgba(255,255,255,0.5)',
+                        marginTop: '4px'
                     }}>
                         INTELLIGENCE
                     </span>
