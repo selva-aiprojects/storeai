@@ -563,7 +563,11 @@ class RAGService:
             try:
                 print(f"[RAG] Initializing ChromaDB at {self.chroma_path}...")
                 
-                # Initialize ChromaDB client if not provided
+                # 1. Initialize Database connection early
+                print("[RAG] Pre-warming Database connection...")
+                await self.db.connect()
+                
+                # 2. Initialize ChromaDB client if not provided
                 if not self.chroma_client:
                     self.chroma_client = await asyncio.to_thread(
                         chromadb.PersistentClient,
@@ -584,12 +588,12 @@ class RAGService:
                     metadata={"hnsw:space": "cosine"}
                 )
                 
-                # Resolve LLM service
+                # 3. Resolve LLM service
                 if self.llm is None:
                     from services.llm import llm_service as default_llm
                     self.llm = default_llm
                 
-                # Initialize handlers
+                # 4. Initialize handlers
                 self.sql_handler = SQLHandler(self.db, self.llm)
                 self.vector_handler = VectorHandler(
                     self.product_collection, 
@@ -597,8 +601,17 @@ class RAGService:
                     self.llm
                 )
                 
+                # 5. Pre-warm Embedding Model (Heavy task)
+                print("[RAG] Pre-warming Local Embedding Model...")
+                dummy_text = "warmup"
+                await self.llm.get_embedding(dummy_text)
+                
+                # 6. Pre-warm Intent Router (No LLM call just check keywords)
+                print("[RAG] Routing check...")
+                await IntentRouter.classify("how many products")
+
                 self._initialized = True
-                print("[RAG] Initialization complete.")
+                print("[RAG] Initialization complete. System is HOT.")
             except Exception as e:
                 print(f"[RAG] Failed to initialize: {e}")
                 import traceback

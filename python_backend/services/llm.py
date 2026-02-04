@@ -505,10 +505,6 @@ class LLMService:
         config: Optional[EmbeddingConfig] = None
     ) -> Optional[List[float]]:
         """Generate embedding vector for text"""
-        if not self.embedding_client.configured:
-            logging.warning("Embedding client not available.")
-            return None
-        
         config = config or EmbeddingConfig()
         
         try:
