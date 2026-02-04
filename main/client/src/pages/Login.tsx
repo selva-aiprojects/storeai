@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Layers } from 'lucide-react';
+import Logo from '../components/Logo';
 import api, { login as loginApi } from '../services/api';
 
 const Login = ({ setUser }: any) => {
@@ -138,17 +139,7 @@ const Login = ({ setUser }: any) => {
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
-                    <img
-                        src="/logo-storeai.png"
-                        alt="StoreAI Logo"
-                        style={{
-                            width: '120px',
-                            height: 'auto',
-                            objectFit: 'contain',
-                            marginBottom: '20px',
-                            filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.05))'
-                        }}
-                    />
+                    <Logo size={80} showText />
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 800, textAlign: 'center', opacity: 0.8 }}>
                         {mode === 'LOGIN' ? 'OPERATOR SECURE TERMINAL' : mode === 'SELECT_TENANT' ? 'WORKSPACE DISCOVERY' : 'INSTANCE PROVISIONING'}
                     </div>

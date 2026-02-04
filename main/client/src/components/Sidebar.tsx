@@ -2,6 +2,7 @@ import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Logo from './Logo';
 
 const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCollapsed }: any) => {
     const navigate = useNavigate();
@@ -85,34 +86,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
             {/* Redesigned Sidebar Header */}
             <div className="sidebar-header">
-                <motion.div
-                    initial={false}
-                    animate={{ scale: isCollapsed ? 0.8 : 1 }}
-                    style={{ marginBottom: isCollapsed ? '0' : '8px' }}
-                >
-                    <img
-                        src="/logo-storeai.png"
-                        alt="StoreAI Logo"
-                        style={{
-                            width: isCollapsed ? '36px' : '58px',
-                            height: 'auto',
-                            objectFit: 'contain',
-                            filter: 'drop-shadow(0 0 8px rgba(79, 70, 229, 0.2))',
-                            transition: 'all 0.4s ease'
-                        }}
-                    />
-                </motion.div>
-
-                {!isCollapsed && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="sidebar-brand-accent"
-                        style={{ fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.15em', opacity: 0.9, color: 'var(--text-on-dark)' }}
-                    >
-                        STORE <span style={{ color: 'var(--primary-500)' }}>AI</span>
-                    </motion.div>
-                )}
+                <Logo size={isCollapsed ? 32 : 48} showText={!isCollapsed} />
 
 
                 {!mobileOpen && (
