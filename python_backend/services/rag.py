@@ -112,7 +112,13 @@ class SQLValidator:
             return False
         
         sql_upper = sql.upper()
-        return not any(keyword in sql_upper for keyword in cls.FORBIDDEN_KEYWORDS)
+        
+        # Use regex to find exact words only (prevents blocking "createdAt" because of "CREATE")
+        for keyword in cls.FORBIDDEN_KEYWORDS:
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            if re.search(pattern, sql_upper):
+                return False
+        return True
     
     @classmethod
     def extract_first_query(cls, sql: str) -> str:
@@ -181,7 +187,7 @@ class IntentRouter:
         # Finance terms
         "payment", "overdue", "invoice", "receivables", "payables", "cash flow",
         "balance sheet", "p&l", "expense", "cost", "bank reconciliation",
-        "gst", "tax", "liability", "investment", "capital", "equity",
+        "gst", "tax", "liability", "investment", "share capital", "working capital", "equity",
         "daybook", "ledger", "transactions", "financial", "debit", "credit",
         
         # HR & Resource terms
@@ -223,7 +229,9 @@ class IntentRouter:
 
     GENERAL_KEYWORDS = {
         "weather", "time", "joke", "news", "how are you", 
-        "tell me about", "what is", "calculate", "math"
+        "tell me about", "what is", "calculate", "math",
+        "who is", "where is", "capital", "distance", "temperature",
+        "who created", "definition", "meaning of"
     }
     
     @classmethod
@@ -236,11 +244,13 @@ class IntentRouter:
             return IntentClassification(IntentType.GREETING)
         
         # 2. Heuristic keyword matching (Fast path)
+        for kw in cls.GENERAL_KEYWORDS:
+            pattern = r'\b' + re.escape(kw) + r'\b'
+            if re.search(pattern, normalized_query):
+                return IntentClassification(IntentType.GENERAL)
+
         if cls._contains_sql_keywords(normalized_query) or "health" in normalized_query:
             return IntentClassification(IntentType.SQL)
-            
-        if any(kw in normalized_query for kw in cls.GENERAL_KEYWORDS):
-            return IntentClassification(IntentType.GENERAL)
 
         # 3. LLM Fallback (Slow path - Intelligence path)
         if llm_service:
@@ -253,10 +263,12 @@ class IntentRouter:
 Query: "{query}"
 
 Intent Types:
-- SQL: Querying structured database (sales, stock, accounting, attendance, health reports)
-- VECTOR: Semantic product search, descriptions, or general knowledge
+- SQL: Querying structured database (sales, stock, accounting, attendance, health reports, revenue, products)
+- VECTOR: Semantic product search, descriptions, or store-specific policy knowledge
 - GREETING: Simple hello, help, or who are you
-- GENERAL: General conversation, weather, jokes, or non-platform specific general knowledge
+- GENERAL: General world knowledge, weather, jokes, math, geography, or non-store topics
+
+CRITICAL: If the query is about the world (e.g. capitals, science, weather, general facts) and NOT about this specific store's data, you MUST return GENERAL.
 
 Return ONLY the Intent Type (SQL/VECTOR/GREETING/GENERAL). No explanation."""
                 response = await llm_service.generate_response(prompt)
@@ -281,8 +293,12 @@ Return ONLY the Intent Type (SQL/VECTOR/GREETING/GENERAL). No explanation."""
     
     @classmethod
     def _contains_sql_keywords(cls, query: str) -> bool:
-        """Check if query contains SQL-triggering keywords"""
-        return any(keyword in query for keyword in cls.SQL_KEYWORDS)
+        """Check if query contains SQL-triggering keywords with word boundaries"""
+        for keyword in cls.SQL_KEYWORDS:
+            pattern = r'\b' + re.escape(keyword) + r'\b'
+            if re.search(pattern, query):
+                return True
+        return False
 
 
 # ============================================================================
@@ -722,10 +738,17 @@ class RAGService:
                 
                 # Route intent
                 intent_classification = await IntentRouter.classify(refined_query, self.llm)
+                
+                # Double check for GENERAL intent on raw_query if refined failed (protects against over-refining)
+                if intent_classification.intent_type != IntentType.GENERAL:
+                    raw_classification = await IntentRouter.classify(user_query, self.llm)
+                    if raw_classification.intent_type == IntentType.GENERAL:
+                        intent_classification = raw_classification
+
                 intent_type = intent_classification.intent_type.value
                 print(f"[RAG] Intent: {intent_type}")
                 
-                # Handle General Intent (New)
+                # Handle General Intent
                 if intent_classification.intent_type == IntentType.GENERAL:
                     return await self._handle_general_query(user_query, history)
 
@@ -877,7 +900,7 @@ class RAGService:
 
         return QueryResult(
             response=response,
-            source=DataSource.NONE.value,
+            source=DataSource.CONVERSATION.value if intent == IntentType.GENERAL.value else DataSource.NONE.value,
             context=None,
             intent=intent or DataSource.NONE.value
         )

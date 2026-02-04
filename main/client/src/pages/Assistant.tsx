@@ -250,9 +250,17 @@ const Assistant = () => {
                             <div className="max-w-[85%] space-y-2">
                                 {msg.source && (
                                     <div className="flex items-center gap-1.5 mb-1">
-                                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${msg.source === 'SQL' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${msg.source === 'SQL'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : msg.source === 'CONVERSATION' || msg.source === 'HEURISTIC'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-purple-100 text-purple-700'
                                             }`}>
-                                            {msg.source === 'SQL' ? '✓ Structured Data' : '✓ Knowledge Base'}
+                                            {msg.source === 'SQL'
+                                                ? '✓ Structured Data'
+                                                : msg.source === 'CONVERSATION' || msg.source === 'HEURISTIC'
+                                                    ? '✓ General Intelligence'
+                                                    : '✓ Knowledge Base'}
                                         </span>
                                     </div>
                                 )}
