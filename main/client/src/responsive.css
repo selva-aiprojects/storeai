@@ -2,156 +2,130 @@
    Responsive System (Light Edition)
    ======================= */
 
-@media (max-width: 1024px) {
-    :root {
-        --sidebar-width: 240px;
-    }
-}
+/* =======================
+   Responsive System (Modern Enterprise Edition)
+   ======================= */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     :root {
         --sidebar-width: 0px;
     }
 
-    html,
-    body {
-        font-size: 14px;
+    .main-content {
+        margin-left: 0 !important;
     }
+}
 
+@media (max-width: 768px) {
     .sidebar {
         width: 280px !important;
         transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.25) !important;
-        background: linear-gradient(135deg, #0f172a 0%, #312e81 100%) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .sidebar-header {
-        color: #ffffff !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(10px);
-    }
-
-    .menu-divider {
-        color: rgba(255, 255, 255, 0.5) !important;
-        opacity: 0.8;
-        font-size: 0.65rem !important;
-        margin-top: 20px !important;
-    }
-
-    .sidebar-menu .menu-item {
-        color: rgba(255, 255, 255, 0.8) !important;
-        font-weight: 500 !important;
-        background: transparent !important;
-        margin: 4px 12px !important;
-        border-radius: 10px !important;
-        border: 1px solid transparent !important;
-    }
-
-    .sidebar-menu .menu-item:hover {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #ffffff !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .sidebar-menu .menu-item.active {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    }
-
-    .sidebar-footer {
-        background: rgba(0, 0, 0, 0.2) !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        transition: transform 0.3s ease;
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar.mobile-open {
         transform: translateX(0) !important;
     }
 
-    .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-
     .header {
-        padding: 0 16px;
-        background: #fff;
-        /* Solid on mobile for better visibility */
+        padding: 0 12px;
+        height: 64px;
     }
 
-    .mobile-toggle {
-        display: block !important;
-        color: var(--text-primary) !important;
+    .header-title span:first-child {
+        font-size: 1rem !important;
     }
 
-    .btn-text {
+    .header-title span:last-child {
+        font-size: 0.65rem !important;
+    }
+
+    .header-actions {
+        gap: 6px;
+    }
+
+    .header-actions .btn-text {
         display: none;
     }
 
+    .header-actions .btn {
+        padding: 8px;
+    }
+
     .page-container {
+        padding: 16px 12px;
+    }
+
+    .card {
         padding: 16px;
     }
 
     .dashboard-grid {
         grid-template-columns: 1fr !important;
+        gap: 12px;
     }
 
-    .card {
-        padding: 20px;
-    }
-
+    /* Fixed Table Overlap */
     .table-container {
-        border-radius: 8px;
+        border-radius: var(--radius-md);
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         border: 1px solid var(--border-color);
+        margin: 0 -4px;
+        /* Slight bleed for better reach */
     }
 
     table {
-        min-width: 700px;
-        /* Force scroll for data visibility */
+        min-width: 650px;
+        /* Ensure enough space for data columns */
     }
 
-    .header-actions .btn {
-        padding: 10px !important;
+    th,
+    td {
+        padding: 10px 12px !important;
+        white-space: nowrap;
     }
 
-    /* Premium Navy Blue Buttons for Mobile View */
-    .btn-primary {
-        background: linear-gradient(135deg, #001f3f 0%, #000c24 100%) !important;
-        box-shadow: 0 8px 25px rgba(0, 12, 36, 0.5) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        color: #ffffff !important;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
-        letter-spacing: 0.1em !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    /* POS Mobile Fixes */
+    .pos-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
 
-    .btn-primary:active {
-        background: #000814 !important;
-        transform: scale(0.97) translateY(1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+    .pos-cart-item {
+        grid-template-columns: 1.5fr 1fr 1fr auto;
+        font-size: 0.8rem;
+    }
+
+    /* Footer Mobile */
+    .footer {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 16px !important;
+    }
+
+    .footer-copyright {
+        font-size: 0.65rem;
     }
 }
 
 @media (max-width: 480px) {
+    .header-title {
+        display: none !important;
+        /* Hide title on very small screens to give space for actions */
+    }
+
     .modal {
         width: 95% !important;
-        padding: 24px !important;
-        margin: 10px !important;
-        border-radius: 12px;
+        padding: 16px !important;
+        border-radius: var(--radius-lg);
     }
 
     .btn {
-        padding: 10px 14px;
-        font-size: 0.85rem;
-    }
-
-    .header-title {
-        font-size: 0.8rem !important;
+        padding: 8px 12px;
+        font-size: 0.75rem;
     }
 }
 

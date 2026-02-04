@@ -71,12 +71,13 @@ const Login = ({ setUser }: any) => {
 
     return (
         <div className="modal-overlay" style={{
-            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bfdbfe 100%)', // Light Sky Blue Palette
+            background: 'var(--bg-body)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: '60px 20px',
-            overflowY: 'auto'
+            padding: '40px 20px',
+            overflowY: 'auto',
+            position: 'fixed'
         }}>
             <div style={{
                 position: 'absolute',
@@ -84,7 +85,7 @@ const Login = ({ setUser }: any) => {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%), radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 40%)',
+                backgroundImage: 'radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.05) 0, transparent 50%)',
                 pointerEvents: 'none'
             }} />
 
@@ -92,8 +93,8 @@ const Login = ({ setUser }: any) => {
                 <div style={{
                     position: 'fixed',
                     top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(255, 255, 255, 0.7)',
-                    backdropFilter: 'blur(8px)',
+                    background: 'rgba(15, 23, 42, 0.1)',
+                    backdropFilter: 'blur(12px)',
                     zIndex: 1000,
                     display: 'flex',
                     flexDirection: 'column',
@@ -105,14 +106,14 @@ const Login = ({ setUser }: any) => {
                         animate={{ rotate: 360 }}
                         transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
                         style={{
-                            width: '40px',
-                            height: '40px',
-                            border: '3px solid #e2e8f0',
-                            borderTop: '3px solid #3b82f6',
+                            width: '48px',
+                            height: '48px',
+                            border: '3px solid rgba(79, 70, 229, 0.1)',
+                            borderTop: '3px solid var(--primary-500)',
                             borderRadius: '50%'
                         }}
                     />
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#3b82f6', letterSpacing: '0.1em' }}>{loadingMessage}</div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary-600)', letterSpacing: '0.1em' }}>{loadingMessage}</div>
                 </div>
             )}
 
@@ -121,142 +122,123 @@ const Login = ({ setUser }: any) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="card"
                 style={{
-                    maxWidth: '440px',
-                    width: '90%',
+                    maxWidth: '460px',
+                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    padding: '40px',
-                    background: 'rgba(255, 255, 255, 0.85)', // Premium White Glass
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.5)',
-                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                    borderRadius: '24px',
-                    color: '#1e293b', // Slate 800 for readability
+                    padding: '48px 40px',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-color)',
+                    boxShadow: 'var(--shadow-lg)',
+                    borderRadius: 'var(--radius-xl)',
+                    color: 'var(--text-primary)',
                     zIndex: 10,
                     margin: 'auto'
                 }}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
                     <img
                         src="/logo-storeai.png"
                         alt="StoreAI Logo"
                         style={{
-                            width: '140px',
+                            width: '120px',
                             height: 'auto',
                             objectFit: 'contain',
-                            marginBottom: '16px',
-                            filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))'
+                            marginBottom: '20px',
+                            filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.05))'
                         }}
                     />
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, textAlign: 'center' }}>
-                        {mode === 'LOGIN' ? 'Enterprise Secure Access' : mode === 'SELECT_TENANT' ? 'Identify Organization' : 'Provision Instance'}
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 800, textAlign: 'center', opacity: 0.8 }}>
+                        {mode === 'LOGIN' ? 'OPERATOR SECURE TERMINAL' : mode === 'SELECT_TENANT' ? 'WORKSPACE DISCOVERY' : 'INSTANCE PROVISIONING'}
                     </div>
                 </div>
 
                 {mode === 'LOGIN' ? (
-                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                         <div className="form-group">
-                            <label style={{ fontWeight: 600, fontSize: '0.7rem', color: '#475569', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>OPERATOR EMAIL</label>
+                            <label style={{ fontWeight: 700, fontSize: '0.725rem', color: 'var(--text-secondary)', letterSpacing: '0.02em', marginBottom: '8px', display: 'block' }}>OPERATOR IDENTIFIER</label>
                             <input
                                 type="email"
                                 value={authForm.email}
                                 onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })}
                                 required
-                                placeholder="admin@storeai.com"
+                                placeholder="E.g. chief@storeai.io"
+                                className="login-input"
                                 style={{
-                                    background: '#fff',
-                                    border: '1px solid #e2e8f0',
-                                    color: '#1e293b',
-                                    fontSize: '0.9rem',
-                                    padding: '12px 16px',
-                                    borderRadius: '12px',
-                                    width: '100%',
-                                    transition: 'all 0.2s'
+                                    border: '1px solid var(--border-color)',
+                                    background: '#f8fafc',
+                                    padding: '12px 16px'
                                 }}
-                                onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)'; }}
-                                onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontWeight: 600, fontSize: '0.65rem', color: '#475569', letterSpacing: '0.1em', marginBottom: '8px', display: 'block' }}>ACCESS KEY</label>
+                            <label style={{ fontWeight: 700, fontSize: '0.725rem', color: 'var(--text-secondary)', letterSpacing: '0.02em', marginBottom: '8px', display: 'block' }}>SECURITY PASSKEY</label>
                             <input
                                 type="password"
                                 value={authForm.password}
                                 onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
                                 required
-                                placeholder="••••••••"
+                                placeholder="••••••••••••"
+                                className="login-input"
                                 style={{
-                                    background: '#fff',
-                                    border: '1px solid #e2e8f0',
-                                    color: '#1e293b',
-                                    fontSize: '0.9rem',
-                                    padding: '12px 16px',
-                                    borderRadius: '12px',
-                                    width: '100%',
-                                    transition: 'all 0.2s'
+                                    border: '1px solid var(--border-color)',
+                                    background: '#f8fafc',
+                                    padding: '12px 16px'
                                 }}
-                                onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)'; }}
-                                onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontWeight: 600, fontSize: '0.65rem', color: '#94a3b8', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
-                                <span>TENANT ID (OPTIONAL)</span>
+                            <label style={{ fontWeight: 700, fontSize: '0.725rem', color: 'var(--text-muted)', letterSpacing: '0.02em', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                                <span>WORKSPACE SLUG (OPTIONAL)</span>
                             </label>
                             <input
                                 type="text"
                                 value={authForm.tenantSlug}
                                 onChange={(e) => setAuthForm({ ...authForm, tenantSlug: e.target.value.toLowerCase() })}
-                                placeholder="e.g. technova"
+                                placeholder="e.g. quantum-ops"
+                                className="login-input"
                                 style={{
-                                    background: '#fff',
-                                    border: '1px solid #e2e8f0',
-                                    color: '#1e293b',
-                                    fontSize: '0.9rem',
-                                    padding: '12px 16px',
-                                    borderRadius: '12px',
-                                    width: '100%',
-                                    transition: 'all 0.2s'
+                                    border: '1px solid var(--border-color)',
+                                    background: '#f8fafc',
+                                    padding: '12px 16px'
                                 }}
-                                onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)'; }}
-                                onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
                         <button className="btn btn-primary" style={{
-                            padding: '14px',
-                            marginTop: '8px',
+                            padding: '16px',
+                            marginTop: '10px',
                             fontSize: '0.9rem',
-                            fontWeight: 700,
-                            borderRadius: '12px',
-                            background: '#3b82f6',
-                            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-                        }}>AUTHORIZE ACCESS</button>
+                            fontWeight: 800,
+                            borderRadius: 'var(--radius-md)',
+                            background: 'var(--bg-sidebar)',
+                            color: 'white',
+                            letterSpacing: '0.05em'
+                        }}>AUTHENTICATE TERMINAL</button>
 
-                        <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                            <button type="button" onClick={() => setMode('ONBOARD')} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.75rem', cursor: 'pointer', transition: 'color 0.2s' }}>
-                                Need a dedicated instance? <span style={{ color: '#3b82f6', fontWeight: 600 }}>Request Onboarding</span>
+                        <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                            <button type="button" onClick={() => setMode('ONBOARD')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                Need a private enclave? <span style={{ color: 'var(--primary-600)', fontWeight: 700 }}>Initiate Onboarding</span>
                             </button>
                         </div>
                     </form>
                 ) : mode === 'SELECT_TENANT' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '400px', overflowY: 'auto' }}>
-                        <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#475569', marginBottom: '16px', lineHeight: '1.5' }}>
-                            Your identity is securely linked to multiple workspaces.<br />Select one to continue.
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '420px', overflowY: 'auto' }} className="no-scrollbar">
+                        <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.6' }}>
+                            Multiple workspace profiles detected.<br /><span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Initialize appropriate environment.</span>
                         </p>
                         {availableTenants.map((t: any) => (
                             <button
                                 key={t.id}
                                 onClick={() => handleTenantSelect(t.slug)}
                                 style={{
-                                    padding: '16px',
-                                    justifyContent: 'flex-start',
-                                    background: '#f8fafc',
-                                    color: '#1e293b',
-                                    fontWeight: 600,
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '12px',
+                                    padding: '18px 20px',
+                                    justifyContent: 'space-between',
+                                    background: '#fff',
+                                    color: 'var(--text-primary)',
+                                    fontWeight: 700,
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: 'var(--radius-lg)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '12px',
@@ -264,77 +246,81 @@ const Login = ({ setUser }: any) => {
                                     fontSize: '0.9rem',
                                     transition: 'all 0.2s'
                                 }}
-                                onMouseOver={(e) => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#3b82f6'; }}
-                                onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary-500)'; e.currentTarget.style.background = '#f8fafc'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.background = '#fff'; }}
                             >
-                                <div style={{
-                                    width: '10px', height: '10px',
-                                    borderRadius: '50%',
-                                    background: t.slug === 'storeai' ? '#3b82f6' : '#cbd5e1',
-                                    boxShadow: t.slug === 'storeai' ? '0 0 10px rgba(59, 130, 246, 0.3)' : 'none'
-                                }}></div>
-                                {t.name}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div style={{
+                                        width: '8px', height: '8px',
+                                        borderRadius: '50%',
+                                        background: t.slug === 'storeai' ? 'var(--primary-500)' : 'var(--text-muted)',
+                                        boxShadow: t.slug === 'storeai' ? '0 0 10px var(--primary-500)' : 'none'
+                                    }}></div>
+                                    <span style={{ letterSpacing: '-0.01em' }}>{t.name}</span>
+                                </div>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, opacity: 0.6 }}>{t.slug.toUpperCase()}</span>
                             </button>
                         ))}
-                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', marginTop: '15px', alignSelf: 'center' }}>&larr; BACK TO LOGIN</button>
+                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', marginTop: '20px', alignSelf: 'center' }}>&larr; BACK TO TERMINAL</button>
                     </div>
                 ) : (
-                    <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <form onSubmit={handleOnboardRequest} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                             <div className="form-group">
-                                <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>FIRST NAME</label>
-                                <input value={onboardForm.firstName} onChange={(e) => setOnboardForm({ ...onboardForm, firstName: e.target.value })} required style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
+                                <label style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>FIRST NAME</label>
+                                <input value={onboardForm.firstName} onChange={(e) => setOnboardForm({ ...onboardForm, firstName: e.target.value })} required style={{ background: '#f8fafc', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                             </div>
                             <div className="form-group">
-                                <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>LAST NAME</label>
-                                <input value={onboardForm.lastName} onChange={(e) => setOnboardForm({ ...onboardForm, lastName: e.target.value })} required style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
+                                <label style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>LAST NAME</label>
+                                <input value={onboardForm.lastName} onChange={(e) => setOnboardForm({ ...onboardForm, lastName: e.target.value })} required style={{ background: '#f8fafc', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                             </div>
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>BUSINESS EMAIL</label>
-                            <input type="email" value={onboardForm.email} onChange={(e) => setOnboardForm({ ...onboardForm, email: e.target.value })} required style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>BUSINESS IDENTIFIER</label>
+                            <input type="email" value={onboardForm.email} onChange={(e) => setOnboardForm({ ...onboardForm, email: e.target.value })} required style={{ background: '#f8fafc', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>SECURITY KEY</label>
-                            <input type="password" value={onboardForm.password} onChange={(e) => setOnboardForm({ ...onboardForm, password: e.target.value })} required style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>ENCRYPTION KEY</label>
+                            <input type="password" value={onboardForm.password} onChange={(e) => setOnboardForm({ ...onboardForm, password: e.target.value })} required style={{ background: '#f8fafc', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '8px 0' }}>
-                            <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
-                            <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.1em' }}>ORGANIZATION SETUP</span>
-                            <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0' }}>
+                            <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+                            <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 800, letterSpacing: '0.1em' }}>INSTANCE SETUP</span>
+                            <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
                         </div>
 
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>TENANT NAME</label>
-                            <input value={onboardForm.orgName} onChange={(e) => setOnboardForm({ ...onboardForm, orgName: e.target.value })} required placeholder="e.g. Quantum Dynamics Corp" style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>ORGANIZATION NAME</label>
+                            <input value={onboardForm.orgName} onChange={(e) => setOnboardForm({ ...onboardForm, orgName: e.target.value })} required placeholder="E.g. Nexus Dynamics Group" style={{ background: '#f8fafc', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
                         <div className="form-group">
-                            <label style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>WORKSPACE URL SLUG</label>
-                            <input value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. quantum-hq" style={{ background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
+                            <label style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '6px', display: 'block', letterSpacing: '0.05em' }}>ENVIRONMENT ADDRESS (SLUG)</label>
+                            <input value={onboardForm.orgSlug} onChange={(e) => setOnboardForm({ ...onboardForm, orgSlug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} required placeholder="e.g. nexus-hq" style={{ background: '#f8fafc', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '12px', width: '100%', borderRadius: '10px', fontSize: '0.9rem' }} />
                         </div>
 
                         <button className="btn btn-primary" style={{
                             padding: '16px',
-                            marginTop: '8px',
+                            marginTop: '10px',
                             fontSize: '0.85rem',
                             fontWeight: 800,
-                            borderRadius: '12px',
-                            background: '#3b82f6',
-                            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                            borderRadius: 'var(--radius-md)',
+                            background: 'var(--bg-sidebar)',
+                            color: 'white',
                             letterSpacing: '0.05em'
-                        }}>PROVISION WORKSPACE</button>
+                        }}>PROVISION INSTANCE</button>
 
-                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'color 0.2s', marginTop: '4px' }}>&larr; BACK TO ACCESS TERMINAL</button>
+                        <button type="button" onClick={() => setMode('LOGIN')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'color 0.2s', marginTop: '6px' }}>&larr; RETURN TO SECURE TERMINAL</button>
                     </form>
                 )}
-                <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '0.65rem', color: '#94a3b8', letterSpacing: '0.05em', lineHeight: '1.6' }}>
-                    &copy; 2026 COGNIVECTRA - STOREAI INTELLIGENCE PLATFORM. <br />
-                    <span style={{ color: '#64748b', fontWeight: 600 }}>SECURE ENCLAVE ACTIVE</span>
+                <div style={{ marginTop: '40px', textAlign: 'center', fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.03em', lineHeight: '1.8' }}>
+                    &copy; {new Date().getFullYear()} COGNIVECTRA - STOREAI INTELLIGENCE PLATFORM. <br />
+                    <span style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>VERIFIED SECURE ENCLAVE ACTIVE</span>
                 </div>
             </motion.div >
         </div >
     );
+
 };
 
 export default Login;

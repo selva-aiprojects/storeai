@@ -47,47 +47,49 @@ const Dashboard = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
             {/* --- Financial Status --- */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div className="section-header" style={{ fontSize: '1.2rem', fontWeight: 800 }}>Enterprise Financial Pulse</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                <div className="section-header" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-700)' }}>Enterprise Financial Pulse</div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Real-time consolidated view</div>
             </div>
 
-            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-                <div className="card glass-effect" style={{ borderLeft: '4px solid var(--success)' }}>
+            <div className="dashboard-grid">
+                <div className="card" style={{ borderLeft: '4px solid var(--success)', background: 'white' }}>
                     <div className="card-header">TOTAL REVENUE (SALES)</div>
-                    <div className="metric-value" style={{ fontSize: '2.2rem', color: 'var(--success)' }}>
-                        ₹{totalRevenue.toLocaleString()}
+                    <div className="metric-value">
+                        <span style={{ color: 'var(--success)' }}>₹{totalRevenue.toLocaleString()}</span>
                     </div>
                 </div>
-                <div className="card glass-effect" style={{ borderLeft: '4px solid var(--danger)' }}>
+                <div className="card" style={{ borderLeft: '4px solid var(--danger)', background: 'white' }}>
                     <div className="card-header">TOTAL PROCUREMENT (COSTS)</div>
-                    <div className="metric-value" style={{ fontSize: '2.2rem', color: 'var(--danger)' }}>
-                        -₹{totalProcurement.toLocaleString()}
+                    <div className="metric-value">
+                        <span style={{ color: 'var(--danger)' }}>-₹{totalProcurement.toLocaleString()}</span>
                     </div>
                 </div>
-                <div className="card glass-effect" style={{ borderLeft: '4px solid var(--primary-500)', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(255,255,255,0) 100%)' }}>
+                <div className="card" style={{ borderLeft: '4px solid var(--primary-500)', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, white 100%)' }}>
                     <div className="card-header">OPERATIONAL NET BALANCE</div>
-                    <div className="metric-value" style={{ color: netStatus >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                        {netStatus >= 0 ? '+' : '-'}₹{Math.abs(netStatus).toLocaleString()}
+                    <div className="metric-value">
+                        <span style={{ color: netStatus >= 0 ? 'var(--primary-600)' : 'var(--danger)' }}>
+                            {netStatus >= 0 ? '+' : '-'}₹{Math.abs(netStatus).toLocaleString()}
+                        </span>
                     </div>
                 </div>
             </div>
 
             {/* --- Sales Activity Section --- */}
-            <div className="section-header" style={{ marginTop: '10px' }}>Sales Activity</div>
-            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-                <ActivityCard count={toBePacked} label="Qty To Be Packed" icon={Package} color="#3b82f6" />
-                <ActivityCard count={toBeShipped} label="Pkgs To Be Shipped" icon={Truck} color="#eab308" />
-                <ActivityCard count={toBeDelivered} label="Pkgs To Be Delivered" icon={CheckCircle2} color="#10b981" />
-                <ActivityCard count={toBeInvoiced} label="Qty To Be Invoiced" icon={FileText} color="#f43f5e" />
+            <div className="section-header" style={{ marginTop: '10px', fontSize: '1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Workflow Pipeline</div>
+            <div className="dashboard-grid">
+                <ActivityCard count={toBePacked} label="To Be Packed" icon={Package} color="var(--secondary-500)" />
+                <ActivityCard count={toBeShipped} label="To Be Shipped" icon={Truck} color="var(--warning)" />
+                <ActivityCard count={toBeDelivered} label="To Be Delivered" icon={CheckCircle2} color="var(--success)" />
+                <ActivityCard count={toBeInvoiced} label="To Be Invoiced" icon={FileText} color="var(--danger)" />
             </div>
 
-            <div className="dashboard-grid" style={{ gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
 
                 {/* --- Product Details --- */}
                 <div className="card">
-                    <div className="card-header">PRODUCT DETAILS</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'center' }}>
+                    <div className="card-header">PRODUCT PORTFOLIO</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '20px', alignItems: 'center' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                             <DetailRow label="Low Stock Items" value={lowStockItems} isDanger />
                             <DetailRow label="All Item Groups" value={itemGroups} />
@@ -96,8 +98,8 @@ const Dashboard = () => {
                         </div>
                         <div style={{ height: '160px', position: 'relative' }}>
                             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{activeItems}</div>
-                                <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>ACTIVE</div>
+                                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-600)' }}>{activeItems}</div>
+                                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>ACTIVE</div>
                             </div>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -112,98 +114,88 @@ const Dashboard = () => {
 
                 {/* --- Inventory Summary --- */}
                 <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <div className="card-header">INVENTORY SUMMARY</div>
+                    <div className="card-header">INVENTORY MOMENTUM</div>
                     <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>QUANTITY IN HAND</span>
-                            <span className="metric-value" style={{ fontSize: '1.8rem' }}>{quantityInHand.toLocaleString()}</span>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>QUANTITY IN HAND</span>
+                            <span className="metric-value" style={{ fontSize: '1.75rem' }}>{quantityInHand.toLocaleString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>QUANTITY TO BE RECEIVED</span>
-                            <span className="metric-value" style={{ fontSize: '1.8rem' }}>{quantityToReceive.toLocaleString()}</span>
+                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>TO BE RECEIVED</span>
+                            <span className="metric-value" style={{ fontSize: '1.75rem', color: 'var(--secondary-500)' }}>{quantityToReceive.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* --- Top Selling & Purchase --- */}
-            <div className="dashboard-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                 <div className="card">
-                    <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>TOP SELLING ITEMS</span>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>This Month</span>
-                    </div>
-                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div className="card-header">TOP PERFORMING PRODUCTS</div>
+                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {topSelling.length > 0 ? topSelling.map((item: any, idx: number) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px', borderRadius: '8px', background: 'var(--bg-body)' }}>
-                                <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-500)' }}>
-                                    <Layers size={20} />
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-500)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                    <Layers size={18} />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600 }}>{item.name}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.qty} pcs sold</div>
+                                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.name}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.qty} units sold</div>
                                 </div>
-                                <div style={{ fontWeight: 700, opacity: 0.5 }}>#{idx + 1}</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.8rem', color: 'var(--primary-600)', opacity: 0.3 }}>0{idx + 1}</div>
                             </div>
-                        )) : <div style={{ opacity: 0.5, textAlign: 'center', padding: '20px' }}>No sales recorded this month.</div>}
+                        )) : <div style={{ opacity: 0.5, textAlign: 'center', padding: '20px' }}>No performance data available.</div>}
                     </div>
                 </div>
 
-                <div className="card">
-                    <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>PURCHASE ORDER STATUS</span>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Active Orders</span>
-                    </div>
+                <div className="card" style={{ background: 'var(--primary-gradient)', color: 'white' }}>
+                    <div className="card-header" style={{ color: 'rgba(255,255,255,0.8)' }}>SUPPLY CHAIN ADVISOR</div>
                     <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Quantity Pending Inward</div>
-                        <div className="metric-value" style={{ color: 'var(--secondary-500)' }}>{quantityToReceive}</div>
-                        <div style={{ marginTop: '15px', color: 'var(--primary-500)', fontSize: '0.85rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-                            Monitoring Supply Chain <CheckCircle2 size={16} />
+                        <div style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '8px' }}>Pending Inventory Inward</div>
+                        <div className="metric-value" style={{ color: 'white', fontSize: '2.5rem' }}>{quantityToReceive}</div>
+                        <div style={{ marginTop: '20px', padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', fontSize: '0.85rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                            Real-time tracking active <CheckCircle2 size={16} />
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* --- Direct Release Advisor (FIFO/Expiry focus) --- */}
-            <div className="section-header">Direct Release Advisor (FIFO Compliance)</div>
-            <div className="card" style={{ padding: '0' }}>
-                <div className="table-container">
-                    <table style={{ borderCollapse: 'separate', borderSpacing: '0' }}>
-                        <thead>
-                            <tr>
-                                <th style={{ background: 'var(--bg-body)' }}>PRODUCT</th>
-                                <th style={{ background: 'var(--bg-body)' }}>NEXT BATCH</th>
-                                <th style={{ background: 'var(--bg-body)' }}>UOM</th>
-                                <th style={{ background: 'var(--bg-body)' }}>AVAIL QTY</th>
-                                <th style={{ background: 'var(--bg-body)' }}>EXPIRY STATUS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {products?.slice(0, 10).map((p: any) => {
-                                const bestBatch = p.batches?.length > 0 ? [...p.batches].sort((a: any, b: any) => new Date(a.expiryDate || '9999').getTime() - new Date(b.expiryDate || '9999').getTime())[0] : null;
-                                if (!bestBatch) return null;
-                                const isExpiringSoon = bestBatch.expiryDate && (new Date(bestBatch.expiryDate).getTime() - new Date().getTime()) < (30 * 24 * 60 * 60 * 1000);
-                                return (
-                                    <tr key={p.id}>
-                                        <td><b>{p.name}</b></td>
-                                        <td><code style={{ color: 'var(--secondary-500)' }}>{bestBatch.batchNumber}</code></td>
-                                        <td>{p.unit}</td>
-                                        <td><b>{bestBatch.quantityAvailable}</b></td>
-                                        <td>
-                                            <span className={`badge ${isExpiringSoon ? 'badge-danger' : 'badge-success'}`}>
-                                                {bestBatch.expiryDate ? new Date(bestBatch.expiryDate).toLocaleDateString() : 'NO EXPIRY'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {!products?.some((p: any) => p.batches?.length > 0) && (
-                                <tr><td colSpan={5} style={{ textAlign: 'center', padding: '20px', opacity: 0.5 }}>No active batches requiring advisory.</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+            <div className="section-header" style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Direct Release Advisor (FIFO Compliance)</div>
+            <div className="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PRODUCT</th>
+                            <th>NEXT BATCH</th>
+                            <th>UOM</th>
+                            <th>AVAIL QTY</th>
+                            <th>EXPIRY STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {products?.slice(0, 8).map((p: any) => {
+                            const bestBatch = p.batches?.length > 0 ? [...p.batches].sort((a: any, b: any) => new Date(a.expiryDate || '9999').getTime() - new Date(b.expiryDate || '9999').getTime())[0] : null;
+                            if (!bestBatch) return null;
+                            const isExpiringSoon = bestBatch.expiryDate && (new Date(bestBatch.expiryDate).getTime() - new Date().getTime()) < (30 * 24 * 60 * 60 * 1000);
+                            return (
+                                <tr key={p.id}>
+                                    <td><b>{p.name}</b></td>
+                                    <td><code style={{ color: 'var(--secondary-500)', fontWeight: 700 }}>{bestBatch.batchNumber}</code></td>
+                                    <td>{p.unit}</td>
+                                    <td><b>{bestBatch.quantityAvailable}</b></td>
+                                    <td>
+                                        <span className={`badge ${isExpiringSoon ? 'badge-danger' : 'badge-success'}`} style={{ borderRadius: '6px', fontSize: '0.7rem' }}>
+                                            {bestBatch.expiryDate ? new Date(bestBatch.expiryDate).toLocaleDateString() : 'STABLE'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
+
 
         </div>
     );

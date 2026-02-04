@@ -97,7 +97,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                             width: isCollapsed ? '36px' : '58px',
                             height: 'auto',
                             objectFit: 'contain',
-                            filter: 'drop-shadow(0 0 8px rgba(124, 58, 237, 0.3))',
+                            filter: 'drop-shadow(0 0 8px rgba(79, 70, 229, 0.2))',
                             transition: 'all 0.4s ease'
                         }}
                     />
@@ -108,11 +108,12 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="sidebar-brand-accent"
-                        style={{ fontSize: '0.9rem', fontWeight: 800, letterSpacing: '0.15em', opacity: 0.9 }}
+                        style={{ fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.15em', opacity: 0.9, color: 'var(--text-on-dark)' }}
                     >
-                        STORE <span style={{ color: '#fff' }}>AI</span>
+                        STORE <span style={{ color: 'var(--primary-500)' }}>AI</span>
                     </motion.div>
                 )}
+
 
                 {!mobileOpen && (
                     <button
@@ -228,8 +229,8 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                             width: '5px',
                                             height: '5px',
                                             borderRadius: '50%',
-                                            background: '#7c3aed',
-                                            boxShadow: '0 0 8px #7c3aed'
+                                            background: 'var(--primary-500)',
+                                            boxShadow: '0 0 8px var(--primary-500)'
                                         }}
                                     />
                                 )}
@@ -238,6 +239,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     });
                 })()}
             </div>
+
 
             {/* Redesigned Profile Section */}
             <div style={{
@@ -258,17 +260,18 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                             width: '40px',
                             height: '40px',
                             borderRadius: '12px',
-                            background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                            background: 'var(--primary-gradient)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 700,
-                            fontSize: '1rem',
+                            fontSize: '0.9rem',
                             color: '#fff',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                         }}>
                             {user.firstName[0]}
                         </div>
+
                         {!isCollapsed && (
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>{user.firstName}</span>

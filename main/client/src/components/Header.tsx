@@ -53,8 +53,8 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     <Menu size={24} />
                 </button>
                 <div className="header-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', lineHeight: 1.2 }}>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#5d03b1' }}>{getPageTitle()}</span>
-                    <span style={{ fontSize: '0.75rem', color: '#5d03b1', fontWeight: 600, letterSpacing: '0.05em' }}>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--primary-600)' }}>{getPageTitle()}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>
                         {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'STOREAI ENTERPRISE'}
                     </span>
                 </div>
@@ -64,9 +64,9 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     className="btn btn-secondary"
                     title="Help Guide"
                     onClick={() => setModal({ type: 'help' })}
-                    style={{ marginRight: '4px', background: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+                    style={{ background: 'rgba(14, 165, 233, 0.08)', color: 'var(--secondary-500)', border: '1px solid rgba(14, 165, 233, 0.2)' }}
                 >
-                    <HelpCircle size={14} /> <span className="btn-text">HELP</span>
+                    <HelpCircle size={16} /> <span className="btn-text">HELP</span>
                 </button>
                 <button className="btn btn-secondary" onClick={() => {
                     const path = location.pathname;
@@ -77,7 +77,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     if (path === '/accounts' || path === '/financials') scope = 'finance';
                     refreshData(scope);
                 }}>
-                    <RefreshCw size={14} /> <span className="btn-text">SYNC</span>
+                    <RefreshCw size={16} /> <span className="btn-text">SYNC</span>
                 </button>
                 <button
                     className="btn"
@@ -85,8 +85,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
                         border: 'none',
                         color: 'white',
-                        boxShadow: '0 4px 14px 0 rgba(14, 165, 233, 0.4)',
-                        marginRight: '8px'
+                        boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)'
                     }}
                     onClick={() => navigate('/stock-analyzer')}
                 >
@@ -95,10 +94,10 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 <button
                     className="btn"
                     style={{
-                        background: 'linear-gradient(135deg, #6366f1, #d946ef)',
+                        background: 'var(--primary-gradient)',
                         border: 'none',
                         color: 'white',
-                        boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.4)'
+                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
                     }}
                     onClick={() => navigate('/assistant')}
                 >
@@ -113,9 +112,10 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         if (path === '/purchases') type = 'orders';
                         setModal({ type });
                     }}>
-                        <Plus size={16} /> <span className="btn-text">NEW ENTRY</span>
+                        <Plus size={18} /> <span className="btn-text">NEW ENTRY</span>
                     </button>
                 )}
+
             </div>
         </header>
     );
