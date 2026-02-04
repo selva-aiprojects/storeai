@@ -47,6 +47,7 @@ app.use(cors({
         'http://localhost:3002',
         'http://localhost:5173',
         'https://store-ai-prd.onrender.com',
+        'https://steward-platform.onrender.com',
         process.env.CLIENT_URL || ''
     ],
     credentials: true

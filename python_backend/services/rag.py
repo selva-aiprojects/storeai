@@ -164,60 +164,40 @@ class SQLExtractor:
 class IntentRouter:
     """Routes queries to appropriate handlers based on intent"""
     
-    # Keywords indicating structured data queries
     SQL_KEYWORDS = {
-        # Inventory terms
+        # Core inventory/product terms
+        "stock", "product", "inventory", "item", "sku", "catalog", "list", "show",
+        "find", "search", "check", "available", "quantity", "price",
+        
+        # Original keywords
         "low stock", "reorder", "minimum stock", "stock alert", "running out",
         "stock critical", "below threshold", "stockout", "overstock", "excess stock",
         "surplus", "dead stock", "slow moving", "non moving", "turnover",
         "days on hand", "stock coverage", "stock ageing", "inventory health",
         "warehouse", "location", "variance", "mismatch", "stock health",
-        
-        # Expiry terms
         "expired", "near expiry", "expiring soon", "batch expiry", "shelf life",
-        
-        # Sales terms
         "sales", "revenue", "profit", "loss", "margin", "top selling",
         "best seller", "growth", "trend",
-        
-        # Purchase/Supplier terms
         "purchase order", "po", "pending po", "approved po", "cancelled po",
         "supplier", "vendor", "on time delivery",
-        
-        # Finance terms
         "payment", "overdue", "invoice", "receivables", "payables", "cash flow",
         "balance sheet", "p&l", "expense", "cost", "bank reconciliation",
         "gst", "tax", "liability", "investment", "share capital", "working capital", "equity",
         "daybook", "ledger", "transactions", "financial", "debit", "credit",
-        
-        # HR & Resource terms
         "resource", "allocation", "headcount", "joiners", "exits", "attrition",
         "attendance", "absenteeism", "late coming", "leave", "holiday",
         "payroll", "salary", "overtime", "deductions", "reimbursements",
         "performance", "appraisal", "performer", "training",
         "employee", "employees", "staff", "department", "designation",
-        
-        # Operations terms
         "anomaly", "spike", "drop", "outlier", "duplicate", "data issue",
         "missing data", "sync", "failed job", "background task", "exception list",
-        
-        # Executive/Analytics terms
         "business summary", "overview", "store health", "risks", "red flags",
         "watchlist", "bottlenecks", "kpi", "metrics", "insights", "forecast",
         "demand", "attention", "changed",
-        
-        # Aggregation terms
-        "count", "total", "sum", "average", "avg", "how many", "how much",
-        "top", "best", "worst", "highest", "lowest", "show", "list",
-        
-        # Time-based terms (critical for date queries)
+        "count", "total", "sum", "average", "avg",
         "yesterday", "today", "this week", "this month", "last week", "last month",
         "daily", "weekly", "monthly", "yearly", "recent", "latest",
-        
-        # Customer terms
         "customer", "customers", "top customer", "buyer", "client",
-        
-        # Additional operational terms
         "health", "audit", "compliance", "unpaid", "pending", "overdue",
         "aging", "returns", "refunds", "stock movement", "valuation"
     }
@@ -229,7 +209,7 @@ class IntentRouter:
 
     GENERAL_KEYWORDS = {
         "weather", "time", "joke", "news", "how are you", 
-        "tell me about", "what is", "calculate", "math",
+        "what is", "calculate", "math",
         "who is", "where is", "capital", "distance", "temperature",
         "who created", "definition", "meaning of"
     }
@@ -244,31 +224,31 @@ class IntentRouter:
             return IntentClassification(IntentType.GREETING)
         
         # 2. Heuristic keyword matching (Fast path)
+        if cls._contains_sql_keywords(normalized_query) or any(x in normalized_query for x in ["health", "stock", "sales", "revenue", "product", "product list"]):
+            return IntentClassification(IntentType.SQL)
+
         for kw in cls.GENERAL_KEYWORDS:
             pattern = r'\b' + re.escape(kw) + r'\b'
             if re.search(pattern, normalized_query):
                 return IntentClassification(IntentType.GENERAL)
 
-        if cls._contains_sql_keywords(normalized_query) or "health" in normalized_query:
-            return IntentClassification(IntentType.SQL)
-
         # 3. LLM Fallback (Slow path - Intelligence path)
         if llm_service:
             try:
-                # Force SQL for store/business health queries
-                if any(x in normalized_query for x in ["health", "stock", "sales", "revenue"]):
+                # Secondary force SQL
+                if any(x in normalized_query for x in ["health", "stock", "sales", "revenue", "product", "inventory"]):
                     return IntentClassification(IntentType.SQL)
 
                 prompt = f"""Classify the intent of the following user query for an ERP system.
 Query: "{query}"
 
 Intent Types:
-- SQL: Querying structured database (sales, stock, accounting, attendance, health reports, revenue, products)
-- VECTOR: Semantic product search, descriptions, or store-specific policy knowledge
+- SQL: Querying structured database (sales, stock, inventory, product lists, accounting, attendance, health reports, revenue)
+- VECTOR: Semantic product search, detailed descriptions, instructions, or store-specific policy knowledge
 - GREETING: Simple hello, help, or who are you
-- GENERAL: General world knowledge, weather, jokes, math, geography, or non-store topics
+- GENERAL: General world knowledge (weather, astronomy, geography, travel), math, or non-store topics
 
-CRITICAL: If the query is about the world (e.g. capitals, science, weather, general facts) and NOT about this specific store's data, you MUST return GENERAL.
+CRITICAL: If the query mentions specific items (like switches, phones, products) OR store operations (sales, stock), you MUST return SQL or VECTOR. Return GENERAL ONLY for topics completely unrelated to a retail/inventory business.
 
 Return ONLY the Intent Type (SQL/VECTOR/GREETING/GENERAL). No explanation."""
                 response = await llm_service.generate_response(prompt)
@@ -337,21 +317,19 @@ Standalone Query:"""
         return f"""You are the Advanced StoreAI Business Assistant (PostgreSQL Specialist).
 Generate EXECUTION-READY, READONLY SQL for the "{tenant_id}" environment.
 
-SCHEMA CONTEXT:
-- "Product"("id", "sku", "name", "price", "stockQuantity", "tenantId")
-- "Sale"("id", "invoiceNo", "totalAmount", "taxAmount", "tenantId", "createdAt")
-- "Payment"("id", "amount", "method", "saleId", "tenantId") -> Links to "Sale"
-- "LedgerEntry"("id", "accountId", "debitAmount", "creditAmount", "referenceType", "referenceId", "tenantId")
-- "ChartOfAccounts"("id", "name", "accountType", "accountGroup", "tenantId")
-- "Employee"("id", "firstName", "lastName", "designation", "tenantId")
-- "Attendance"("id", "employeeId", "status", "date")
+SCHEMA CONTEXT (PostgreSQL):
+- Table "Product" columns: ("id", "sku", "name", "price", "stockQuantity", "categoryId", "tenantId", "isDeleted", "createdAt")
+- Table "Sale" columns: ("id", "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "customerId", "tenantId", "createdAt")
+- Table "Payment" columns: ("id", "amount", "method", "saleId", "tenantId")
+- Table "LedgerEntry" columns: ("id", "accountId", "debitAmount", "creditAmount", "referenceType", "referenceId", "tenantId")
+- Table "ChartOfAccounts" columns: ("id", "name", "accountType", "accountGroup", "tenantId")
 
 CRITICAL RULES:
 1. {tenant_filter}
-2. ACCOUNTING: Joins "LedgerEntry" with "ChartOfAccounts" to filter by accountGroup ('INCOME', 'EXPENSES', 'ASSETS', 'LIABILITIES').
-3. QUOTING: Use DOUBLE QUOTES for ALL table and column names.
-4. AGGREGATION: Use SUM(), COUNT(), or AVG() as requested.
-5. NO MARKDOWN: Return only the SQL string.
+2. QUOTING: Use DOUBLE QUOTES for EVERY column and table name (e.g., SELECT T."stockQuantity" FROM "Product" T).
+3. CASE SENSITIVITY: Use ILIKE for all string comparisons (e.g., WHERE T."name" ILIKE '%product%') to ensure case-insensitive matching.
+4. JOINING: For products/stock, query the "Product" table. For sales, use "Sale". For accounting, join "LedgerEntry" with "ChartOfAccounts".
+5. NO MARKDOWN: Return ONLY the standard SQL string.
 
 QUERY: "{query}"
 SQL:"""
@@ -739,12 +717,7 @@ class RAGService:
                 # Route intent
                 intent_classification = await IntentRouter.classify(refined_query, self.llm)
                 
-                # Double check for GENERAL intent on raw_query if refined failed (protects against over-refining)
-                if intent_classification.intent_type != IntentType.GENERAL:
-                    raw_classification = await IntentRouter.classify(user_query, self.llm)
-                    if raw_classification.intent_type == IntentType.GENERAL:
-                        intent_classification = raw_classification
-
+                # Double check: if refined intent is too broad, stick with it unless it's GREETING
                 intent_type = intent_classification.intent_type.value
                 print(f"[RAG] Intent: {intent_type}")
                 

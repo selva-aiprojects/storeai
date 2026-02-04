@@ -20,13 +20,7 @@ from fastapi.responses import JSONResponse
 
 app = FastAPI(title="StoreAI Intelligence Platform (Cognivectra)")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False, # Bearer tokens don't need credentials; allows wildcard origin
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS logic is handled last to ensure it's the outermost middleware
 
 @app.get("/api/health")
 def health_check():
@@ -269,6 +263,18 @@ Instructions:
             "recent_news": []
         }
 
+@app.get("/api/v1/ai/market-research")
+@app.get("/api/ai/market-research")
+async def market_research_stub(user: dict = Depends(get_current_user)):
+    """Legacy compatibility for mission-control dashboard"""
+    return {
+        "status": "active",
+        "market_sentiment": "BULLISH",
+        "volatility": "LOW",
+        "top_picks": ["NVDA", "AAPL", "MSFT"],
+        "summary": "AI signals indicate steady consolidation with upward bias."
+    }
+
 # --- FINANCE ENDPOINTS ---
 
 @app.post("/api/finance/return")
@@ -363,6 +369,20 @@ async def startup_event():
     logger.info("Startup: Listing Routes")
     for route in app.routes:
         logger.info(f"Route: {route.path} [{route.name}]")
+
+# Add CORS last to wrap ALL other responses and errors
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://store-ai-prd.onrender.com",
+        "https://steward-platform.onrender.com"
+    ],
+    allow_credentials=True, 
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))

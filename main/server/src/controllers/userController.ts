@@ -83,6 +83,33 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
     }
 };
 
+export const getUser = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const tenantId = req.user?.tenantId;
+
+        const userTenant = await prisma.userTenant.findUnique({
+            where: { userId_tenantId: { userId: id, tenantId: tenantId! } },
+            include: {
+                user: {
+                    select: { id: true, email: true, firstName: true, lastName: true, isActive: true }
+                },
+                role: true
+            }
+        });
+
+        if (!userTenant) return res.status(404).json({ error: 'User not found in this organization' });
+
+        res.json({
+            ...userTenant.user,
+            role: userTenant.role.code,
+            roleName: userTenant.role.name
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user' });
+    }
+};
+
 export const updateUser = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
