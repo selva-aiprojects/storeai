@@ -1,6 +1,7 @@
 import { LayoutDashboard, Package, Truck, Building2, CreditCard, Wallet, Users, Home, TrendingUp, Settings, LogOut, Layers, X, BarChart3, ChevronDown, ChevronRight, Receipt, RotateCcw, History, FileText, BookOpen, Landmark, ShieldCheck } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { memo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCollapsed }: any) => {
     const navigate = useNavigate();
@@ -57,37 +58,14 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         menuItems.push({ path: '/settings', label: 'Tenant Settings', icon: Settings, permission: 'tenants:manage' });
     }
 
-    // 1. First pass: Filter items by permission/feature (keep dividers for now)
     const accessibleItems = menuItems.filter(item => {
-        if (user?.role === 'SUPER_ADMIN') return true; // Power User Override
+        if (user?.role === 'SUPER_ADMIN') return true;
         if (item.divider) return true;
-        // Check Feature Flag
         if (item.feature && user?.features?.[item.feature] === false) return false;
-        // Check Permission
         if (item.permission && !user?.permissions?.includes(item.permission)) return false;
         return true;
     });
 
-    // 2. Second pass: Remove dividers that have no visible children
-    const filteredMenuItems = accessibleItems.reduce((acc: any[], item: any) => {
-        if (item.divider) {
-            // It's a divider, verify if there are any actual items in this section
-            // We look ahead in the ORIGINAL 'accessibleItems' array from the current index
-            // But 'reduce' doesn't give us easy lookahead. 
-            // EASIER STRATEGY: 
-            // We buffer the divider. We only push the buffer if we encounter a non-divider item.
-            // If we encounter another divider before an item, we drop the previous buffer.
-
-            // However, since we are iterating the *already filtered* list, we can just use a helper.
-            return [...acc, item]; // Placeholder, we'll fix logic below
-        }
-        return [...acc, item];
-    }, []);
-
-    // Correct Logic: 
-    // We recreate the array. We hold the 'current divider' in a variable. 
-    // When we see an item, we push the 'current divider' (if pending) then the item.
-    // If we see a divider, we set 'current divider'.
     const smartFilteredItems: any[] = [];
     let pendingDivider: any = null;
 
@@ -95,60 +73,75 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         if (item.divider) {
             pendingDivider = item;
         } else {
-            // It's a real item
             if (pendingDivider) {
                 smartFilteredItems.push(pendingDivider);
-                pendingDivider = null; // Consumed
+                pendingDivider = null;
             }
             smartFilteredItems.push(item);
         }
     });
 
-    // Override the variable used in render
-    const finalMenuItems = smartFilteredItems;
-
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-header" style={{ height: 'auto', padding: '16px 10px 10px', background: 'transparent', position: 'relative' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: isCollapsed ? '0' : '8px' }}>
+            {/* Redesigned Sidebar Header */}
+            <div className="sidebar-header">
+                <motion.div
+                    initial={false}
+                    animate={{ scale: isCollapsed ? 0.8 : 1 }}
+                    style={{ marginBottom: isCollapsed ? '0' : '8px' }}
+                >
                     <img
                         src="/logo-storeai.png"
                         alt="StoreAI Logo"
                         style={{
-                            width: isCollapsed ? '40px' : '60px',
+                            width: isCollapsed ? '36px' : '58px',
                             height: 'auto',
                             objectFit: 'contain',
-                            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
-                            transition: 'width 0.3s ease'
+                            filter: 'drop-shadow(0 0 8px rgba(124, 58, 237, 0.3))',
+                            transition: 'all 0.4s ease'
                         }}
                     />
-                </div>
+                </motion.div>
+
+                {!isCollapsed && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="sidebar-brand-accent"
+                        style={{ fontSize: '0.9rem', fontWeight: 800, letterSpacing: '0.15em', opacity: 0.9 }}
+                    >
+                        STORE <span style={{ color: '#fff' }}>AI</span>
+                    </motion.div>
+                )}
+
                 {!mobileOpen && (
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
                         style={{
                             position: 'absolute',
-                            right: isCollapsed ? '-12px' : '10px',
+                            right: isCollapsed ? '30px' : '15px',
                             top: '50%',
                             transform: 'translateY(-50%)',
-                            background: '#7c3aed',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '24px',
-                            height: '24px',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '8px',
+                            width: '28px',
+                            height: '28px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: 'white',
+                            color: '#fff',
                             cursor: 'pointer',
                             zIndex: 10,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                             transition: 'all 0.3s ease'
                         }}
                     >
-                        {isCollapsed ? <ChevronRight size={14} /> : <ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} />}
+                        <motion.div animate={{ rotate: isCollapsed ? 0 : 180 }}>
+                            <ChevronRight size={16} />
+                        </motion.div>
                     </button>
                 )}
+
                 {mobileOpen && (
                     <div style={{ position: 'absolute', top: '24px', right: '20px' }}>
                         <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
@@ -156,56 +149,54 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                 )}
             </div>
 
-            <div className="sidebar-menu" style={{ paddingTop: '10px' }}>
+            <div className="sidebar-menu">
+                {/* Tenant Context Chip */}
                 <div style={{
-                    marginBottom: '12px',
-                    padding: isCollapsed ? '8px 0' : '8px 12px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    marginBottom: '20px',
+                    padding: isCollapsed ? '8px 4px' : '10px 14px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.05)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: '40px'
+                    minHeight: '42px'
                 }}>
                     {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ maxHeight: '20px', objectFit: 'contain' }} alt="Tenant" />
+                        <img src={user.activeTenant.logo} style={{ maxHeight: '22px', objectFit: 'contain' }} alt="Tenant" />
                     ) : (
                         !isCollapsed && (
-                            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                                {user?.activeTenant?.name || 'StoreAI Intelligence Platform'}
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }}></div>
+                                <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {user?.activeTenant?.name || 'CORE PLATFORM'}
+                                </span>
+                            </div>
                         )
                     )}
                 </div>
+
                 {(() => {
                     let sectionTracker = '';
-                    return finalMenuItems.map((item: any, index) => {
+                    return smartFilteredItems.map((item: any, index) => {
                         if (item.divider) {
-                            if (isCollapsed) return <div key={index} className="menu-divider-mini" style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '15px 10px' }}></div>;
-
                             sectionTracker = item.divider;
                             const sectionName = item.divider;
                             const isSectionCollapsed = collapsedSections.includes(sectionName);
+
                             return (
                                 <div
-                                    key={index}
+                                    key={`div-${index}`}
                                     className="menu-divider"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        toggleSection(sectionName);
-                                    }}
-                                    style={{
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        userSelect: 'none'
-                                    }}
+                                    onClick={() => toggleSection(sectionName)}
+                                    style={{ cursor: 'pointer' }}
                                 >
-                                    {sectionName}
-                                    {isSectionCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                                    <span>{!isCollapsed && sectionName}</span>
+                                    {!isCollapsed && (
+                                        <motion.div animate={{ rotate: isSectionCollapsed ? 0 : 90 }} style={{ marginLeft: 'auto' }}>
+                                            <ChevronRight size={10} style={{ opacity: 0.5 }} />
+                                        </motion.div>
+                                    )}
                                 </div>
                             );
                         }
@@ -216,43 +207,116 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                         }
 
                         return (
-                            <button
-                                key={index}
+                            <motion.button
+                                layout
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.02 }}
+                                key={`item-${index}`}
                                 className={`menu-item ${currentPath === item.path ? 'active' : ''}`}
                                 onClick={() => handleNavigate(item.path)}
                                 title={isCollapsed ? item.label : ''}
                             >
-                                <item.icon size={18} style={{ opacity: currentPath === item.path ? 1 : 0.7 }} />
+                                <item.icon size={19} />
                                 {!isCollapsed && <span>{item.label}</span>}
-                            </button>
+                                {currentPath === item.path && !isCollapsed && (
+                                    <motion.div
+                                        layoutId="active-indicator"
+                                        className="active-dot"
+                                        style={{
+                                            marginLeft: 'auto',
+                                            width: '5px',
+                                            height: '5px',
+                                            borderRadius: '50%',
+                                            background: '#7c3aed',
+                                            boxShadow: '0 0 8px #7c3aed'
+                                        }}
+                                    />
+                                )}
+                            </motion.button>
                         );
                     });
                 })()}
             </div>
 
-            <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="profile-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <div className="avatar" style={{
-                        width: '36px', height: '36px', borderRadius: '10px',
-                        background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: 700, fontSize: '0.9rem', color: '#fff'
-                    }}>
-                        {user.firstName[0]}
+            {/* Redesigned Profile Section */}
+            <div style={{
+                padding: '24px 16px',
+                background: 'rgba(0,0,0,0.15)',
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+                position: 'relative',
+                zIndex: 2
+            }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: isCollapsed ? 'center' : 'space-between',
+                    gap: '12px'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="avatar" style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '1rem',
+                            color: '#fff',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                        }}>
+                            {user.firstName[0]}
+                        </div>
+                        {!isCollapsed && (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>{user.firstName}</span>
+                                <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{user.role}</span>
+                            </div>
+                        )}
                     </div>
-                    <div className="profile-info" style={{ display: isCollapsed ? 'none' : 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff' }}>{user.firstName}</span>
-                        <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>{user.role}</span>
-                    </div>
+
+                    {!isCollapsed && (
+                        <button
+                            onClick={logout}
+                            style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                border: 'none',
+                                padding: '8px',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            title="Sign Out"
+                        >
+                            <LogOut size={16} />
+                        </button>
+                    )}
                 </div>
 
-                <button onClick={logout} className="btn" style={{
-                    width: '100%', background: 'rgba(255,255,255,0.05)',
-                    color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.1)',
-                    fontSize: '0.8rem', padding: '8px', display: 'flex', justifyContent: 'center'
-                }}>
-                    <LogOut size={14} style={{ marginRight: isCollapsed ? '0' : '8px' }} /> {!isCollapsed && 'LOGOUT SYSTEM'}
-                </button>
+                {isCollapsed && (
+                    <button
+                        onClick={logout}
+                        style={{
+                            width: '100%',
+                            marginTop: '16px',
+                            background: 'transparent',
+                            color: 'rgba(255,255,255,0.4)',
+                            border: 'none',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <LogOut size={18} />
+                    </button>
+                )}
             </div>
         </aside>
     );
