@@ -42,7 +42,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     className="mobile-toggle"
                     onClick={() => setSidebarOpen(true)}
                 >
-                    <Menu size={22} />
+                    <Menu size={24} />
                 </button>
                 <div className="header-title">
                     <span className="title-text">{getPageTitle()}</span>

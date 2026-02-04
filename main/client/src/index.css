@@ -309,6 +309,7 @@ h6 {
   color: var(--primary-600);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .mobile-toggle:hover {
