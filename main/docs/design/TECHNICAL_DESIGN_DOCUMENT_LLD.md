@@ -1,6 +1,6 @@
 # StoreAI Technical Design Document (Low-Level Design)
 
-**Document Version:** 2.1.0  
+**Document Version:** 2.2.0  
 **Last Updated:** 2026-02-04  
 **Classification:** Internal / Confidential  
 **Author:** AI Product Architect  
@@ -110,36 +110,25 @@ StoreAI is an enterprise-grade, multi-tenant Inventory & Resource Management Pla
 ### 3.2 RAG Pipeline Components
 
 #### Intent Router
-Classifies user queries into three categories:
-- **SQL Intent**: Queries requiring structured data (e.g., "yesterday sales", "low stock")
-- **Vector Intent**: Semantic search queries (e.g., "find products similar to X")
-- **Greeting Intent**: Conversational greetings
-- **General Intent**: Out-of-scope platform queries (e.g., "weather", "facts", "jokes")
+Classifies user queries with a **Prioritized Hybrid Engine**:
+- **GENERAL Intent (Priority 1)**: World knowledge, weather, math, or trivia. Uses regex word-boundary matching for heuristic detection and LLM fallback.
+- **SQL Intent (Priority 2)**: Structured data retrieval (sales, stock, finance).
+- **VECTOR Intent (Priority 3)**: Product search and policy documentation.
+- **GREETING Intent**: Basic bot-user interactions.
 
-**Keyword Categories:**
-| Category | Keywords |
-|----------|----------|
-| Inventory | low stock, reorder, stockout, surplus, dead stock, stock health |
-| Sales | revenue, profit, margin, top selling, growth, trend |
-| Finance | daybook, ledger, gst, liability, receivables, payables |
-| HR | employee, attendance, payroll, salary, department, designation |
-| Time-based | yesterday, today, this week, this month, daily, weekly |
-
-#### SQL Handler
-- Generates PostgreSQL-safe queries using LLM
-- Validates against forbidden keywords (DROP, DELETE, etc.)
-- Automatically applies tenant isolation filters
-- Limits results to prevent payload bloat
+**Security Guardrails:**
+- **Regex-Based SQL Validation**: Filters forbidden keywords (DROP, DELETE, etc.) using `\b` word boundaries to permit column names like `createdAt` or `isDeleted`.
+- **Tenant Lockdown**: Every SQL query is automatically wrapped in a `tenantId` scope.
 
 #### Vector Handler
-- Uses Local ONNX model for zero-latency, private embedding generation
-- Performs cosine similarity search in ChromaDB (`chroma_db_v2`)
-- Returns top-5 semantically similar results
+- Uses Local ONNX model (`all-MiniLM-L6-v2`) for zero-latency, private embedding generation.
+- Performs cosine similarity search in ChromaDB.
+- Persistent storage at `./chroma_db_v2`.
 
 #### Ingestion Pipeline
-- **Product Ingester (`indexer.py`)**: Synchronizes PostgreSQL product catalog to ChromaDB.
-- **Knowledge Ingester (`knowledge_indexer.py`)**: Chunks and embeds system documentation and Prisma schema.
-- **Schedule**: Trigger-based via `/api/admin/reindex` or manual script execution.
+- **Product Ingester (`indexer.py`)**: Real-time sync of store inventory to vectors.
+- **Knowledge Ingester (`knowledge_indexer.py`)**: Chunks and embeds Prisma Schema and documentation.
+- **Trigger**: Exposed via `/api/admin/reindex` for on-demand synchronization.
 
 ### 3.3 LLM Service Configuration
 
@@ -163,12 +152,11 @@ The system uses a two-phase approach:
 2. **Answer Synthesis**: LLM generates human-readable response from data
 
 **Prompt Engineering Constraints:**
-- No hallucination for SQL/Vector data (strict adherence to telemetry)
-- "General" mode allows for helpful conversational answers for non-platform queries
-- SECURITY: Never disclose system paths, env vars, or internal DB names
-- Markdown tables for structured data
-- Maximum 150 words
-- Always end with actionable next step
+- **Grounded Synthesis**: Strict adherence to telemetry for SQL/Vector data.
+- **Premium General Mode**: Eloquent, helpful tone for non-platform queries.
+- **Telemetry Hiding**: The "Telemetry Data Signal" box is automatically suppressed for `GENERAL` intent for a cleaner UI.
+- **No-Hallucination**: If no data is found, the AI explicitly states the absence of records rather than inventing numbers.
+- **Markdown Purity**: Auto-formatting of financial tables and product lists.
 
 ---
 
@@ -857,7 +845,8 @@ fastapi @0.109.0
 |---------|------|--------|---------|
 | 1.0.0 | 2026-01-28 | AI Architect | Initial creation |
 | 2.0.0 | 2026-01-31 | AI Architect | Added AI Intelligence Layer, updated schemas |
-| 2.1.0 | 2026-02-04 | AI Architect | Switched to Local ONNX, added General Intent, ingestion details |
+| 2.1.0 | 2026-02-04 | AI Architect | Switched to Local ONNX, added General Intent |
+| 2.2.0 | 2026-02-04 | AI Architect | Final Review: Regex Safety, Prioritized Intent Routing, UI Polish |
 
 ---
 
