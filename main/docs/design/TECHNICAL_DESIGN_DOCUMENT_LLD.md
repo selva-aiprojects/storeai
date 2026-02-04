@@ -757,15 +757,20 @@ react@18.x
 ### 13.3 Python Backend
 
 ```
-fastapi
-├── uvicorn (ASGI server)
-├── asyncpg (PostgreSQL async)
-├── groq (LLM client)
-├── google-generativeai (embeddings)
-├── chromadb (vector store)
-├── pydantic (data validation)
-├── python-jose (JWT)
-└── python-dotenv (config)
+fastapi @0.109.0
+├── uvicorn / uvloop / starlette (Web & Runtime)
+├── asyncpg / sqlalchemy / pypika (Database & SQL)
+├── groq (LLM Inference)
+├── chromadb (Vector Store)
+├── onnxruntime (Local Embedding Inference)
+├── tokenizers / huggingface-hub (AI Utilities)
+├── pydantic (Schema & Validation)
+├── PyJWT / bcrypt (Security & Auth)
+├── opentelemetry-* (Observability & Monitoring)
+├── httpx / requests (HTTP Clients)
+├── posthog (Product Analytics)
+├── rich / typer / coloredlogs / tqdm (Logging & CLI)
+└── python-dotenv (Configuration)
 ```
 
 ---
