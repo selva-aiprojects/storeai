@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Search, TrendingUp, TrendingDown, RefreshCw, AlertTriangle,
-    Activity, BarChart2, Brain, Clock, History, Target
+    Activity, BarChart2, Brain, Clock, History, Target, Zap
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import aiApi from '../../services/ai';
