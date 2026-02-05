@@ -40,7 +40,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
 
     return (
         <header className="header">
-            <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
                 <button
                     className="mobile-toggle"
                     onClick={() => setSidebarOpen(true)}
@@ -49,7 +49,17 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                    <Logo size={64} />
+                    <div style={{
+                        background: 'rgba(15, 23, 42, 0.05)',
+                        padding: '12px',
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid rgba(15, 23, 42, 0.05)'
+                    }}>
+                        <Logo size={82} />
+                    </div>
                     <div className="header-title">
                         <span className="title-text">{getPageTitle()}</span>
                         <span className="tenant-text">

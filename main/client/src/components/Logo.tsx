@@ -19,7 +19,8 @@ const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = ""
                 display: 'flex',
                 alignItems: 'center',
                 overflow: 'hidden',
-                borderRadius: '8px'
+                borderRadius: '8px',
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
             }}>
                 {showText ? (
                     // Full Brand Identity (Horizontal)
@@ -52,7 +53,7 @@ const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = ""
                             src="/logo-mt.png"
                             alt="StoreAI"
                             style={{
-                                height: size * 1.8, // Zoom more to make icon visible
+                                height: size * 2.2, // Zoomed significantly for maximum impact
                                 width: 'auto',
                                 maxWidth: 'none',
                                 objectFit: 'cover',
