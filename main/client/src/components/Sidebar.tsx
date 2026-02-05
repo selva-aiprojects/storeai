@@ -85,8 +85,8 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
             {/* Redesigned Sidebar Header */}
-            <div className="sidebar-header" style={{ padding: '24px 20px' }}>
-                <Logo size={isCollapsed ? 42 : 64} showText={!isCollapsed} />
+            <div className="sidebar-header" style={{ padding: '20px' }}>
+                <Logo size={isCollapsed ? 32 : 48} showText={!isCollapsed} />
 
 
                 {!mobileOpen && (

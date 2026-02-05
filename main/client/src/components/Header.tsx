@@ -49,7 +49,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Logo size={50} />
+                    <Logo size={36} />
                     <div className="header-title">
                         <span className="title-text">{getPageTitle()}</span>
                         <span className="tenant-text">
