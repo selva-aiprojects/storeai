@@ -6,9 +6,9 @@ interface LogoProps {
     className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 48, showText = false, className = "" }) => {
+const Logo: React.FC<LogoProps> = ({ size = 60, showText = false, className = "" }) => {
     return (
-        <div className={`flex items-center justify-center ${className}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className={`flex items-center ${className}`} style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{
                 position: 'relative',
                 width: size,
@@ -16,24 +16,13 @@ const Logo: React.FC<LogoProps> = ({ size = 48, showText = false, className = ""
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '4px',
-                background: 'rgba(255, 255, 255, 0.03)',
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
+                padding: size > 40 ? '10px' : '6px',
+                background: '#f0f9ff', // Celestial Light Blue/White background
+                borderRadius: size > 40 ? '16px' : '10px',
+                border: '2px solid #bae6fd',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255,255,255,0.5)',
+                overflow: 'hidden'
             }}>
-                {/* Dynamic Glow Effect */}
-                <div style={{
-                    position: 'absolute',
-                    width: '60%',
-                    height: '60%',
-                    background: 'var(--primary-400)',
-                    filter: 'blur(20px)',
-                    opacity: 0.3,
-                    borderRadius: '50%',
-                    zIndex: 0
-                }} />
-
                 <img
                     src="/StoreAI-Logo.png"
                     alt="StoreAI"
@@ -43,37 +32,36 @@ const Logo: React.FC<LogoProps> = ({ size = 48, showText = false, className = ""
                         objectFit: 'contain',
                         position: 'relative',
                         zIndex: 1,
-                        filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.1))'
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
                     }}
                     onError={(e) => {
-                        // Simple SVG fallback if image not found
                         e.currentTarget.style.display = 'none';
                     }}
                 />
             </div>
 
-            {/* If the user really wants text, we provide it but make it very clean and elegant */}
             {showText && (
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
                     lineHeight: 1,
-                    marginLeft: '14px',
+                    marginLeft: '16px',
                 }}>
                     <span style={{
-                        fontSize: size > 60 ? '1.4rem' : '1.1rem',
-                        fontWeight: 900,
+                        fontSize: size > 80 ? '1.8rem' : '1.25rem',
+                        fontWeight: 950,
                         letterSpacing: '0.05em',
                         color: 'white',
-                        textTransform: 'uppercase'
+                        textTransform: 'uppercase',
+                        textShadow: '0 2px 10px rgba(0,0,0,0.5)'
                     }}>
                         STORE<span style={{ color: 'var(--primary-400)' }}>AI</span>
                     </span>
                     <span style={{
-                        fontSize: '0.5rem',
+                        fontSize: size > 80 ? '0.7rem' : '0.6rem',
                         fontWeight: 800,
-                        letterSpacing: '0.4em',
-                        color: 'rgba(255,255,255,0.4)',
+                        letterSpacing: '0.45em',
+                        color: 'rgba(255,255,255,0.5)',
                         marginTop: '4px',
                         textTransform: 'uppercase'
                     }}>
