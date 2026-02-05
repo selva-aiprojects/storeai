@@ -251,10 +251,10 @@ const Assistant = () => {
                                 {msg.source && (
                                     <div className="flex items-center gap-1.5 mb-1">
                                         <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${msg.source === 'SQL'
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : msg.source === 'CONVERSATION' || msg.source === 'HEURISTIC'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-purple-100 text-purple-700'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : msg.source === 'CONVERSATION' || msg.source === 'HEURISTIC'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-purple-100 text-purple-700'
                                             }`}>
                                             {msg.source === 'SQL'
                                                 ? '✓ Structured Data'
@@ -273,7 +273,8 @@ const Assistant = () => {
                                     </ReactMarkdown>
                                 </div>
 
-                                {msg.context && (
+                                {/* Hide technical telemetry block as per user request */}
+                                {false && msg.context && (
                                     <div className="bg-gray-50 rounded-lg border overflow-hidden mt-3">
                                         <div className="bg-gray-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 border-bottom">
                                             Telemetry Data Signal

@@ -60,11 +60,11 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     className="btn btn-secondary"
                     title="Help Guide"
                     onClick={() => setModal({ type: 'help' })}
-                    style={{ background: 'rgba(14, 165, 233, 0.08)', color: 'var(--secondary-500)', border: '1px solid rgba(14, 165, 233, 0.2)' }}
+                    style={{ background: 'rgba(14, 165, 233, 0.08)', color: 'var(--secondary-500)', border: '1px solid rgba(14, 165, 233, 0.2)', padding: '6px 10px' }}
                 >
-                    <HelpCircle size={16} /> <span className="btn-text">HELP</span>
+                    <HelpCircle size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>HELP</span>
                 </button>
-                <button className="btn btn-secondary" onClick={() => {
+                <button className="btn btn-secondary" style={{ padding: '6px 10px' }} onClick={() => {
                     const path = location.pathname;
                     let scope = 'essential';
                     if (path === '/sales' || path === '/customers') scope = 'sales';
@@ -73,7 +73,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     if (path === '/accounts' || path === '/financials') scope = 'finance';
                     refreshData(scope);
                 }}>
-                    <RefreshCw size={16} /> <span className="btn-text">SYNC</span>
+                    <RefreshCw size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>SYNC</span>
                 </button>
                 <button
                     className="btn"
@@ -81,11 +81,12 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
                         border: 'none',
                         color: 'white',
-                        boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)'
+                        boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
+                        padding: '6px 10px'
                     }}
                     onClick={() => navigate('/stock-analyzer')}
                 >
-                    <TrendingUp size={16} /> <span className="btn-text">MARKET</span>
+                    <TrendingUp size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>MARKET</span>
                 </button>
                 <button
                     className="btn"
@@ -93,11 +94,12 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         background: 'var(--primary-gradient)',
                         border: 'none',
                         color: 'white',
-                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)'
+                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                        padding: '6px 10px'
                     }}
                     onClick={() => navigate('/assistant')}
                 >
-                    <Sparkles size={16} /> <span className="btn-text">AI INTELLIGENCE</span>
+                    <Sparkles size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>AI INTEL</span>
                 </button>
                 {showNewButton && (
                     <button className="btn btn-primary" onClick={() => {

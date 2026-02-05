@@ -127,8 +127,8 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <div style={{ padding: '30px', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                            <Activity className="animate-pulse" size={20} />
-                            Initializing Neural Market Relay...
+                            <Activity className="text-gray-400" size={20} />
+                            Market analysis session ended • Updates paused
                         </div>
                     )}
                 </div>
