@@ -1,11 +1,14 @@
 import { RefreshCw, Plus, Menu, Sparkles, TrendingUp, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Logo from './Logo';
 
 const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
     const location = useLocation();
     const navigate = useNavigate();
 
     const getPageTitle = () => {
+        // ... mapping omitted for brevity if using replace_file_content rules ...
+        // wait, I must match exactly.
         const path = location.pathname;
         const mapping: Record<string, string> = {
             '/': 'DASHBOARD',
@@ -37,18 +40,22 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
 
     return (
         <header className="header">
-            <div className="header-left">
+            <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                 <button
                     className="mobile-toggle"
                     onClick={() => setSidebarOpen(true)}
                 >
                     <Menu size={24} />
                 </button>
-                <div className="header-title">
-                    <span className="title-text">{getPageTitle()}</span>
-                    <span className="tenant-text">
-                        {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'STOREAI ENTERPRISE'}
-                    </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Logo size={32} />
+                    <div className="header-title">
+                        <span className="title-text">{getPageTitle()}</span>
+                        <span className="tenant-text">
+                            {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'STOREAI ENTERPRISE'}
+                        </span>
+                    </div>
                 </div>
             </div>
             <div className="header-actions">
