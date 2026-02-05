@@ -76,7 +76,7 @@ const Login = ({ setUser }: any) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: '100px 20px',
+            padding: '70px 20px',
             overflowY: 'auto',
             position: 'fixed'
         }}>
@@ -140,7 +140,7 @@ const Login = ({ setUser }: any) => {
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px' }}>
-                    <Logo size={200} showText />
+                    <Logo size={120} showText />
                     <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 800, textAlign: 'center', opacity: 0.8, marginTop: '24px' }}>
                         {mode === 'LOGIN' ? 'OPERATOR SECURE TERMINAL' : mode === 'SELECT_TENANT' ? 'WORKSPACE DISCOVERY' : 'INSTANCE PROVISIONING'}
                     </div>
