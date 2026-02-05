@@ -45,11 +45,11 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     className="mobile-toggle"
                     onClick={() => setSidebarOpen(true)}
                 >
-                    <Menu size={24} />
+                    <Menu size={48} />
                 </button>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Logo size={36} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                    <Logo size={100} />
                     <div className="header-title">
                         <span className="title-text">{getPageTitle()}</span>
                         <span className="tenant-text">
@@ -65,7 +65,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     onClick={() => setModal({ type: 'help' })}
                     style={{ background: 'rgba(14, 165, 233, 0.08)', color: 'var(--secondary-500)', border: '1px solid rgba(14, 165, 233, 0.2)' }}
                 >
-                    <HelpCircle size={16} /> <span className="btn-text">HELP</span>
+                    <HelpCircle size={32} /> <span className="btn-text">HELP</span>
                 </button>
                 <button className="btn btn-secondary" onClick={() => {
                     const path = location.pathname;
@@ -76,7 +76,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     if (path === '/accounts' || path === '/financials') scope = 'finance';
                     refreshData(scope);
                 }}>
-                    <RefreshCw size={16} /> <span className="btn-text">SYNC</span>
+                    <RefreshCw size={32} /> <span className="btn-text">SYNC</span>
                 </button>
                 <button
                     className="btn"
@@ -88,7 +88,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     }}
                     onClick={() => navigate('/stock-analyzer')}
                 >
-                    <TrendingUp size={16} /> <span className="btn-text">MARKET</span>
+                    <TrendingUp size={32} /> <span className="btn-text">MARKET</span>
                 </button>
                 <button
                     className="btn"
@@ -100,7 +100,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     }}
                     onClick={() => navigate('/assistant')}
                 >
-                    <Sparkles size={16} /> <span className="btn-text">AI INTELLIGENCE</span>
+                    <Sparkles size={32} /> <span className="btn-text">AI INTELLIGENCE</span>
                 </button>
                 {showNewButton && (
                     <button className="btn btn-primary" onClick={() => {
@@ -111,7 +111,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         if (path === '/purchases') type = 'orders';
                         setModal({ type });
                     }}>
-                        <Plus size={18} /> <span className="btn-text">NEW ENTRY</span>
+                        <Plus size={36} /> <span className="btn-text">NEW ENTRY</span>
                     </button>
                 )}
 

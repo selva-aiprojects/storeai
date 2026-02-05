@@ -85,8 +85,8 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
             {/* Redesigned Sidebar Header */}
-            <div className="sidebar-header" style={{ padding: '20px' }}>
-                <Logo size={isCollapsed ? 32 : 48} showText={!isCollapsed} />
+            <div className="sidebar-header" style={{ padding: '20px 40px' }}>
+                <Logo size={isCollapsed ? 80 : 120} showText={!isCollapsed} />
 
 
                 {!mobileOpen && (
@@ -112,14 +112,14 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                         }}
                     >
                         <motion.div animate={{ rotate: isCollapsed ? 0 : 180 }}>
-                            <ChevronRight size={16} />
+                            <ChevronRight size={32} />
                         </motion.div>
                     </button>
                 )}
 
                 {mobileOpen && (
                     <div style={{ position: 'absolute', top: '24px', right: '20px' }}>
-                        <X size={20} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
+                        <X size={40} onClick={() => setMobileOpen(false)} style={{ cursor: 'pointer', opacity: 0.7 }} />
                     </div>
                 )}
             </div>
@@ -135,10 +135,10 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: '42px'
+                    minHeight: '84px'
                 }}>
                     {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ maxHeight: '22px', objectFit: 'contain' }} alt="Tenant" />
+                        <img src={user.activeTenant.logo} style={{ maxHeight: '44px', objectFit: 'contain' }} alt="Tenant" />
                     ) : (
                         !isCollapsed && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -169,7 +169,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                     <span>{!isCollapsed && sectionName}</span>
                                     {!isCollapsed && (
                                         <motion.div animate={{ rotate: isSectionCollapsed ? 0 : 90 }} style={{ marginLeft: 'auto' }}>
-                                            <ChevronRight size={10} style={{ opacity: 0.8 }} />
+                                            <ChevronRight size={20} style={{ opacity: 0.8 }} />
                                         </motion.div>
                                     )}
                                 </div>
@@ -192,7 +192,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                 onClick={() => handleNavigate(item.path)}
                                 title={isCollapsed ? item.label : ''}
                             >
-                                <item.icon size={19} />
+                                <item.icon size={38} />
                                 {!isCollapsed && <span>{item.label}</span>}
                                 {currentPath === item.path && !isCollapsed && (
                                     <motion.div
@@ -271,7 +271,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                             }}
                             title="Sign Out"
                         >
-                            <LogOut size={16} />
+                            <LogOut size={32} />
                         </button>
                     )}
                 </div>
@@ -291,7 +291,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                             justifyContent: 'center'
                         }}
                     >
-                        <LogOut size={18} />
+                        <LogOut size={36} />
                     </button>
                 )}
             </div>

@@ -6,7 +6,7 @@ interface LogoProps {
     className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 48, showText = false, className = "" }) => {
+const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "" }) => {
     // We'll use the new logo image saved in public/logo-mt.png
     // The image contains both the icon and the text "StoreAI MULTI-TENANT"
 
@@ -19,9 +19,7 @@ const Logo: React.FC<LogoProps> = ({ size = 48, showText = false, className = ""
                 display: 'flex',
                 alignItems: 'center',
                 overflow: 'hidden',
-                borderRadius: '8px',
-                // Subtle glow effect consistent with the app's premium feel
-                filter: 'drop-shadow(0 0 10px rgba(79, 70, 229, 0.2))'
+                borderRadius: '8px'
             }}>
                 {showText ? (
                     // Full Brand Identity (Horizontal)
@@ -54,11 +52,11 @@ const Logo: React.FC<LogoProps> = ({ size = 48, showText = false, className = ""
                             src="/logo-mt.png"
                             alt="StoreAI"
                             style={{
-                                height: size * 1.1, // Zoom slightly
+                                height: size * 1.8, // Zoom more to make icon visible
                                 width: 'auto',
                                 maxWidth: 'none',
                                 objectFit: 'cover',
-                                objectPosition: '0% 50%', // Focus on the icon at the very left
+                                objectPosition: '0% center', // Focus on the icon at the very left
                             }}
                         />
                     </div>
