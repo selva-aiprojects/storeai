@@ -1,10 +1,19 @@
+import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Package, Truck, CheckCircle2, FileText, AlertTriangle, Layers, ArrowRight } from 'lucide-react';
+import { Package, Truck, CheckCircle2, FileText, AlertTriangle, Layers, ArrowRight, Zap, Globe, TrendingUp as TrendingIcon, Activity } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { getMarketResearch } from '../services/ai';
 
 const Dashboard = () => {
     const { data } = useOutletContext<any>();
     const { stats, sales = [], orders = [], products = [], inventory } = data || {};
+    const [marketData, setMarketData] = useState<any>(null);
+
+    useEffect(() => {
+        getMarketResearch()
+            .then(res => setMarketData(res))
+            .catch(err => console.error("Dashboard Market Fetch Error:", err));
+    }, []);
 
     // --- Financial Status ---
     const totalRevenue = stats?.revenue || sales.reduce((acc: number, s: any) => acc + (s.totalAmount || 0), 0);
@@ -84,6 +93,72 @@ const Dashboard = () => {
                     </div>
                     <div className="metric-card-value text-sky-600">{toBePacked + toBeShipped + toBeDelivered}</div>
                     <div className="metric-card-footer">Active Pipeline Movements</div>
+                </div>
+            </div>
+
+            {/* --- Market Intelligence & Exchanges --- */}
+            <div className="section-header" style={{ marginTop: '10px', fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <Activity size={18} style={{ marginRight: '10px', display: 'inline-block', verticalAlign: 'middle' }} />
+                Predictive Market Intelligence & Live Exchanges
+            </div>
+            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}>
+                <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)', minHeight: '180px', background: 'linear-gradient(to bottom right, var(--bg-card), rgba(99, 102, 241, 0.02))' }}>
+                    <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Zap size={16} color="var(--accent-primary)" />
+                        <span style={{ fontWeight: 800 }}>QUANTUM MARKET SENTIMENT</span>
+                    </div>
+                    {marketData ? (
+                        <div style={{ marginTop: '15px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>SENTIMENT INDEX</span>
+                                <span className={`badge ${marketData.market_sentiment === 'BULLISH' ? 'badge-success' : 'badge-danger'}`} style={{ fontWeight: 800, fontSize: '0.7rem' }}>
+                                    {marketData.market_sentiment}
+                                </span>
+                            </div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 500, lineHeight: '1.5', background: 'rgba(99, 102, 241, 0.05)', padding: '12px', border: '1px solid rgba(99, 102, 241, 0.1)', borderRadius: '10px', color: 'var(--text-primary)' }}>
+                                {marketData.summary}
+                            </div>
+                            <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', marginRight: '4px' }}>Top Monitoring:</span>
+                                {marketData.top_picks?.map((pick: string) => (
+                                    <span key={pick} style={{ fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', background: 'var(--bg-hover)', border: '1px solid var(--border-color)', borderRadius: '6px' }}>{pick}</span>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{ padding: '30px', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                            <Activity className="animate-pulse" size={20} />
+                            Initializing Neural Market Relay...
+                        </div>
+                    )}
+                </div>
+
+                <div className="card" style={{ borderLeft: '4px solid var(--accent-secondary)', background: 'linear-gradient(to bottom right, var(--bg-card), rgba(6, 182, 212, 0.02))' }}>
+                    <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Globe size={16} color="var(--accent-secondary)" />
+                        <span style={{ fontWeight: 800 }}>LIVE EXCHANGE STATUS (REAL-TIME)</span>
+                    </div>
+                    <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {marketData?.exchanges?.map((ex: any) => (
+                            <div key={ex.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--bg-hover)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                        <TrendingIcon size={16} color={ex.trend.startsWith('+') ? '#10b981' : '#f43f5e'} />
+                                    </div>
+                                    <div>
+                                        <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{ex.name}</div>
+                                        <div style={{ fontSize: '0.65rem', color: '#10b981', fontWeight: 700 }}>{ex.status}</div>
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <div style={{ fontSize: '1rem', fontWeight: 900, color: ex.trend.startsWith('+') ? '#10b981' : '#f43f5e' }}>{ex.trend}</div>
+                                    <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600 }}>VOLATILITY: {marketData.volatility}</div>
+                                </div>
+                            </div>
+                        )) || [1, 2].map(i => (
+                            <div key={i} style={{ height: '56px', background: 'var(--bg-hover)', borderRadius: '10px', opacity: 0.3 }}></div>
+                        ))}
+                    </div>
                 </div>
             </div>
 

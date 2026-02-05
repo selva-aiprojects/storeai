@@ -68,17 +68,28 @@ interface AiAnalysis {
 }
 
 const StockAnalyzer: React.FC = () => {
-    const [ticker, setTicker] = useState('');
+    const [ticker, setTicker] = useState('RELIANCE.NS');
     const [loading, setLoading] = useState(false);
     const [analysis, setAnalysis] = useState<AiAnalysis | null>(null);
     const [error, setError] = useState('');
     const [animate, setAnimate] = useState(false);
     const [healthStatus, setHealthStatus] = useState<'Checking' | 'Connected' | 'Error'>('Checking');
+    const [marketResearch, setMarketResearch] = useState<any>(null);
 
     useEffect(() => {
         setAnimate(true);
         checkAiHealth();
+        fetchMarketResearch();
     }, []);
+
+    const fetchMarketResearch = async () => {
+        try {
+            const resp = await aiApi.get('/ai/market-research');
+            setMarketResearch(resp.data);
+        } catch (e) {
+            console.error("Market Research Feed Failed", e);
+        }
+    };
 
     const checkAiHealth = async () => {
         try {
@@ -180,6 +191,36 @@ const StockAnalyzer: React.FC = () => {
                     </div>
                 </header>
 
+                {/* Market Intelligence Relay */}
+                <div className="flex flex-col md:flex-row gap-6 mb-8">
+                    {marketResearch?.exchanges?.map((ex: any) => (
+                        <div key={ex.name} className="flex-1 bg-white/50 backdrop-blur-sm border border-slate-200/60 p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-2 h-2 rounded-full ${ex.status === 'OPEN' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500'}`} />
+                                <span className="text-xs font-black text-slate-800 tracking-tighter">{ex.name}</span>
+                            </div>
+                            <div className="text-right">
+                                <div className={`text-sm font-black ${ex.trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'}`}>{ex.trend}</div>
+                                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{ex.status}</div>
+                            </div>
+                        </div>
+                    ))}
+                    <div className="flex-[2] bg-indigo-600 p-4 rounded-2xl flex items-center justify-between text-white shadow-lg shadow-indigo-200">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-white/20 p-2 rounded-lg">
+                                <Zap size={18} />
+                            </div>
+                            <div>
+                                <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-0.5">AI MARKET SIGNAL</div>
+                                <div className="text-xs font-bold leading-tight line-clamp-1">{marketResearch?.summary || 'Connecting to Neural Market Stream...'}</div>
+                            </div>
+                        </div>
+                        <div className="text-right ml-4">
+                            <span className="text-[10px] font-black bg-white/20 px-2 py-0.5 rounded uppercase">{marketResearch?.market_sentiment || 'SCANNING'}</span>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Search Terminal */}
                 <div className="card" style={{ padding: '40px', background: 'var(--bg-sidebar)', color: 'white', borderRadius: '24px', overflow: 'hidden', position: 'relative' }}>
                     <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '100%', background: 'radial-gradient(circle at top right, rgba(79, 70, 229, 0.2), transparent)', pointerEvents: 'none' }} />
@@ -191,7 +232,7 @@ const StockAnalyzer: React.FC = () => {
                                 type="text"
                                 value={ticker}
                                 onChange={e => setTicker(e.target.value.toUpperCase())}
-                                placeholder="ENTER EQUITY TICKER (E.G. NVDA, AAPL)"
+                                placeholder="ENTER STOCK SYMBOL (E.G. RELIANCE.NS, TCS.NS)"
                                 style={{
                                     width: '100%',
                                     background: 'rgba(255,255,255,0.05)',
@@ -229,7 +270,7 @@ const StockAnalyzer: React.FC = () => {
                     </form>
 
                     <div className="mt-8 flex flex-wrap justify-center gap-3 relative z-10">
-                        {['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'NFLX'].map(t => (
+                        {['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'INFY.NS', 'ICICIBANK.NS', 'HINDUNILVR.NS', 'ITC.NS', 'SBIN.NS'].map(t => (
                             <button
                                 key={t}
                                 onClick={() => setTicker(t)}

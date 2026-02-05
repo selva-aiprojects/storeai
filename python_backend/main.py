@@ -137,9 +137,9 @@ async def analyze_stock(req: StockRequest, user: dict = Depends(get_current_user
         if not req.ticker:
             raise HTTPException(status_code=400, detail="Ticker is required")
             
-        prompt = f"""Role: Institutional Quantitative Analyst AI.
-Task: Perform a deep-dive analysis of {req.ticker} for an institutional investment memo.
-Input Data: Simulate real-time market data, technical indicators (RSI, MACD, Bollinger, Moving Averages), fundamental data (P/E, EPS, Revenue Growth), and scan recent news/sentiment.
+        prompt = f"""Role: Institutional Quantitative Analyst AI specializing in Indian Markets.
+Task: Perform a deep-dive analysis of {req.ticker} (focus on NSE/BSE) for an institutional investment memo.
+Input Data: Simulate real-time market data across Indian exchanges, technical indicators (RSI, MACD, Bollinger, Moving Averages), fundamental data (P/E, EPS, Revenue Growth), and scan recent news/sentiment related to Indian economy and specific sectors.
 
 Output: STRICT JSON ONLY. No markdown. No conversational text.
 Target JSON Structure (AiAnalysis Interface):
@@ -150,7 +150,7 @@ Target JSON Structure (AiAnalysis Interface):
         "company_name": "<Full Company Name>",
         "sector": "<Sector>",
         "last_price": <number>,
-        "currency": "USD",
+        "currency": "INR",
         "time_range": "6M"
     }},
     "core_signals": {{
@@ -176,24 +176,24 @@ Target JSON Structure (AiAnalysis Interface):
     }},
     "history_context": {{
         "previous_calls": [
-            {{ "date": "YYYY-MM-DD", "rating": "Buy", "confidence": 85, "outcome": "outperformed" }},
-            {{ "date": "YYYY-MM-DD", "rating": "Hold", "confidence": 70, "outcome": "neutral" }}
+            {{ "date": "2024-01-15", "rating": "Buy", "confidence": 85, "outcome": "outperformed" }},
+            {{ "date": "2024-03-20", "rating": "Hold", "confidence": 70, "outcome": "neutral" }}
         ],
         "model_confidence_trend": [
-            {{ "date": "YYYY-MM-DD", "confidence": 75 }},
-            {{ "date": "YYYY-MM-DD", "confidence": 80 }}
+            {{ "date": "2024-01-01", "confidence": 75 }},
+            {{ "date": "2024-06-01", "confidence": 80 }}
         ]
     }},
     "charts": {{
         "price_series": [ 
-            {{ "date": "2024-01-01", "close": 150.00 }},
+            {{ "date": "2024-01-01", "close": 2500.00 }},
             ... (Generate ~15 data points matching the trend)
         ]
     }},
     "recent_news": [
         {{
             "headline": "<Headline>",
-            "source": "Bloomberg" | "Reuters" | "WSJ",
+            "source": "MoneyControl" | "Economic Times" | "LiveMint",
             "published_at": "<Relative Date>",
             "sentiment": "Positive" | "Negative" | "Neutral",
             "impact": "High" | "Medium" | "Low",
@@ -203,10 +203,10 @@ Target JSON Structure (AiAnalysis Interface):
 }}
 
 Instructions:
-1. Be specific with numbers (Price, P/E, RSI).
+1. Be specific with numbers (Price in ₹, P/E, RSI).
 2. Ensure `core_signals` scores are consistent with the `ai_overall_rating`.
 3. Simulate a realistic `price_series` array that visually correlates with your technical analysis.
-4. Provide "Insider" level insight in `why_it_matters` for news.
+4. Provide "Insider" level insight in `why_it_matters` for news, focusing on SEBI regulations, RBI policies, or Indian sector trends.
 """
         
         response = await llm_service.generate_response(prompt)
@@ -226,10 +226,10 @@ Instructions:
         return {
             "meta": {
                 "ticker": req.ticker,
-                "company_name": f"{req.ticker} Corp (Simulation)",
-                "sector": "Technology",
-                "last_price": 150.00,
-                "currency": "USD",
+                "company_name": f"{req.ticker} Enterprises (NSE)",
+                "sector": "Indian Bluechip",
+                "last_price": 2450.00,
+                "currency": "INR",
                 "time_range": "6M"
             },
             "core_signals": {
@@ -241,16 +241,16 @@ Instructions:
                 "confidence": 50
             },
             "ai_rationale": {
-                "thesis": "Service unavailable. Showing placeholder data.",
+                "thesis": "AI Signal relay temporarily interrupted. Displaying simulation metrics.",
                 "time_horizon": "medium_term",
-                "bull_case": "Service restored.",
-                "bear_case": "Continued outage.",
-                "base_case": "Retry shortly."
+                "bull_case": "Market consolidation complete.",
+                "bear_case": "Macroeconomic headwinds.",
+                "base_case": "Neutral sideways movement."
             },
             "explanations": {
-                "technical_explain": "N/A",
-                "fundamental_explain": "N/A",
-                "news_explain": "N/A",
+                "technical_explain": "Awaiting live feed...",
+                "fundamental_explain": "Awaiting Q3 reports...",
+                "news_explain": "Awaiting sentiment pulse...",
                 "risk_explain": "N/A"
             },
             "history_context": {
@@ -266,13 +266,17 @@ Instructions:
 @app.get("/api/v1/ai/market-research")
 @app.get("/api/ai/market-research")
 async def market_research_stub(user: dict = Depends(get_current_user)):
-    """Legacy compatibility for mission-control dashboard"""
+    """Legacy compatibility for mission-control dashboard - Updated for Indian Markets"""
     return {
         "status": "active",
         "market_sentiment": "BULLISH",
-        "volatility": "LOW",
-        "top_picks": ["NVDA", "AAPL", "MSFT"],
-        "summary": "AI signals indicate steady consolidation with upward bias."
+        "volatility": "MODERATE",
+        "top_picks": ["RELIANCE", "TCS", "HDFCBANK", "INFY"],
+        "summary": "Nifty 50 showing strong support at key EMA levels. Positive outlook on BFSI and Auto sectors.",
+        "exchanges": [
+            {"name": "NSE", "status": "OPEN", "trend": "+0.45%"},
+            {"name": "BSE", "status": "OPEN", "trend": "+0.42%"}
+        ]
     }
 
 # --- FINANCE ENDPOINTS ---

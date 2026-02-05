@@ -1,77 +1,98 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { InventoryService } from '../src/services/inventory.service';
+import { SalesService } from '../src/services/sales.service';
 
 const prisma = new PrismaClient();
 
-async function main() {
-    console.log('--- STARTING MULTI-TENANT SAAS SEED ---');
+async function setupCOA(tenantId: string) {
+    const accounts = [
+        { code: '1000', name: 'Cash in Hand', group: 'ASSET', type: 'CASH' },
+        { code: '1100', name: 'Inventory Assets', group: 'ASSET', type: 'INVENTORY' },
+        { code: '1200', name: 'Accounts Receivable', group: 'ASSET', type: 'AR' },
+        { code: '2100', name: 'Accounts Payable', group: 'LIABILITY', type: 'AP' },
+        { code: '3100', name: 'Owner Investment/Equity', group: 'EQUITY', type: 'EQUITY' },
+        { code: '4100', name: 'Sales Revenue', group: 'INCOME', type: 'SALES' },
+        { code: '5100', name: 'GST Input Tax', group: 'ASSET', type: 'GST_INPUT' },
+        { code: '5200', name: 'GST Output Tax', group: 'LIABILITY', type: 'GST_OUTPUT' },
+        { code: '6100', name: 'Staff Incentives', group: 'EXPENSE', type: 'INCENTIVE' },
+        { code: '2200', name: 'Salaries & Incentives Payable', group: 'LIABILITY', type: 'EMPLOYEE_PAYABLE' },
+    ];
 
+    const coaMap: Record<string, any> = {};
+    for (const acc of accounts) {
+        const created = await prisma.chartOfAccounts.create({
+            data: {
+                code: acc.code,
+                name: acc.name,
+                accountGroup: acc.group,
+                accountType: acc.type,
+                openingBalance: 0,
+                currentBalance: 0,
+                tenantId: tenantId,
+                isSystemAccount: true
+            }
+        });
+        coaMap[acc.type] = created;
+    }
+    return coaMap;
+}
+
+async function recordInitialInvestment(tenantId: string, coaMap: Record<string, any>) {
+    const amount = 100000;
+    const voucher = `JV-INIT-${Date.now()}`;
+
+    await prisma.ledgerEntry.create({
+        data: {
+            accountId: coaMap['CASH'].id,
+            debitAmount: amount,
+            creditAmount: 0,
+            referenceType: 'JOURNAL',
+            description: 'Initial Business Investment',
+            voucherNumber: voucher,
+            tenantId
+        }
+    });
+
+    await prisma.ledgerEntry.create({
+        data: {
+            accountId: coaMap['EQUITY'].id,
+            debitAmount: 0,
+            creditAmount: amount,
+            referenceType: 'JOURNAL',
+            description: 'Owner Equity Contribution',
+            voucherNumber: voucher,
+            tenantId
+        }
+    });
+
+    await prisma.daybook.create({
+        data: {
+            type: 'JOURNAL',
+            description: 'Initial Capital Infusion',
+            debit: amount,
+            credit: amount,
+            status: 'APPROVED',
+            tenantId
+        }
+    });
+}
+
+async function main() {
+    console.log('--- STARTING STOREAI ENTERPRISE SEED ---');
     const hashedPassword = await bcrypt.hash('Admin@123', 10);
 
-    // 1. Clean Database
-    try {
-        await prisma.activityLog.deleteMany({});
-        await prisma.purchaseRequisitionItem.deleteMany({});
-        await prisma.purchaseQuotation.deleteMany({});
-        await prisma.purchaseRequisition.deleteMany({});
-        await prisma.stockLedger.deleteMany({});
-        await prisma.salesRegister.deleteMany({});
-        await prisma.stock.deleteMany({});
-        await prisma.saleItem.deleteMany({});
-        await prisma.goodsReceiptItem.deleteMany({});
-        await prisma.goodsReceipt.deleteMany({});
-        await prisma.inventoryDocumentItem.deleteMany({});
-        await prisma.inventoryDocument.deleteMany({});
-        await prisma.dealItem.deleteMany({});
-        await prisma.activity.deleteMany({});
-        await prisma.salesOrderItem.deleteMany({});
-        await prisma.salesOrder.deleteMany({});
-        await prisma.deal.deleteMany({});
-        await prisma.orderItem.deleteMany({});
-        await prisma.order.deleteMany({});
-        await prisma.payroll.deleteMany({});
-        await prisma.attendance.deleteMany({});
-        await prisma.payment.deleteMany({});
-        await prisma.sale.deleteMany({});
-        await prisma.ledger.deleteMany({});
-        await prisma.employee.deleteMany({});
-        await prisma.department.deleteMany({});
-        await prisma.productBatch.deleteMany({});
-        await prisma.pricingRule.deleteMany({});
-        await prisma.product.deleteMany({});
-        await prisma.category.deleteMany({});
-        await prisma.supplier.deleteMany({});
-        await prisma.customer.deleteMany({});
-        await prisma.warehouse.deleteMany({});
-        await prisma.userTenant.deleteMany({});
-        await prisma.user.deleteMany({});
-        await prisma.role.deleteMany({});
-        await prisma.permission.deleteMany({});
-        await prisma.tenant.deleteMany({});
-        await prisma.plan.deleteMany({});
-        console.log('✔ Database Cleaned');
-    } catch (e) { console.log('⚠ Cleanup warning:', e); }
-
-    // 2. Seed Plans
+    // 1. Seed Plans
     const proPlan = await prisma.plan.upsert({
         where: { name: 'PRO' },
-        update: { price: 99.0, features: { maxUsers: 20, aiPredictions: true, multiWarehouse: true, advancedCRM: true } },
+        update: {},
         create: {
             name: 'PRO', price: 99.0, billingCycle: 'MONTHLY',
             features: { maxUsers: 20, aiPredictions: true, multiWarehouse: true, advancedCRM: true }
         }
     });
 
-    const enterprisePlan = await prisma.plan.upsert({
-        where: { name: 'ENTERPRISE' },
-        update: { price: 499.0, features: { maxUsers: 1000, aiPredictions: true, multiWarehouse: true, advancedCRM: true, customBranding: true } },
-        create: {
-            name: 'ENTERPRISE', price: 499.0, billingCycle: 'ANNUAL',
-            features: { maxUsers: 1000, aiPredictions: true, multiWarehouse: true, advancedCRM: true, customBranding: true }
-        }
-    });
-
-    // 3. Seed Permissions & Roles
+    // 2. Seed Permissions & Roles
     const perms = [
         { code: 'dashboard:view', name: 'View Dashboard', category: 'DASHBOARD' },
         { code: 'inventory:read', name: 'View Inventory', category: 'INVENTORY' },
@@ -82,13 +103,9 @@ async function main() {
         { code: 'hr:write', name: 'Manage Personnel', category: 'HR' },
         { code: 'accounts:read', name: 'View Accounts', category: 'FINANCE' },
         { code: 'accounts:write', name: 'Manage Accounts', category: 'FINANCE' },
-        { code: 'reports:view', name: 'View Reports', category: 'REPORTS' },
-        { code: 'crm:write', name: 'Manage CRM', category: 'CRM' },
-        { code: 'orders:read', name: 'View Purchase Orders', category: 'PROCUREMENT' },
-        { code: 'orders:write', name: 'Manage Purchase Orders', category: 'PROCUREMENT' },
-        { code: 'users:manage', name: 'Manage Users', category: 'ADMIN' },
-        { code: 'tenants:manage', name: 'Manage Organizations', category: 'ADMIN' }
+        { code: 'reports:view', name: 'View Reports', category: 'REPORTS' }
     ];
+
     for (const p of perms) {
         await prisma.permission.upsert({
             where: { code: p.code },
@@ -99,204 +116,104 @@ async function main() {
 
     const superAdminRole = await prisma.role.upsert({
         where: { code: 'SUPER_ADMIN' },
-        update: { permissions: { set: perms.map(p => ({ code: p.code })) } },
+        update: {},
         create: {
             name: 'Super Admin', code: 'SUPER_ADMIN',
             permissions: { connect: perms.map(p => ({ code: p.code })) }
         }
     });
 
-    const procurementRole = await prisma.role.upsert({
-        where: { code: 'PROCUREMENT_TEAM' },
-        update: {
-            permissions: {
-                set: [
-                    { code: 'dashboard:view' },
-                    { code: 'inventory:read' },
-                    { code: 'inventory:write' },
-                    { code: 'orders:read' },
-                    { code: 'orders:write' },
-                    { code: 'reports:view' }
-                ]
-            }
-        },
+    // 3. Create Root Admin User
+    const adminUser = await prisma.user.upsert({
+        where: { email: 'admin@storeai.com' },
+        update: { password: hashedPassword },
         create: {
-            name: 'Procurement Team', code: 'PROCUREMENT_TEAM',
-            permissions: {
-                connect: [
-                    { code: 'dashboard:view' },
-                    { code: 'inventory:read' },
-                    { code: 'inventory:write' },
-                    { code: 'orders:read' },
-                    { code: 'orders:write' },
-                    { code: 'reports:view' }
-                ]
-            }
+            email: 'admin@storeai.com', password: hashedPassword, firstName: 'System', lastName: 'Administrator'
         }
     });
 
-    const salesRole = await prisma.role.upsert({
-        where: { code: 'SALES_TEAM' },
-        update: {
-            permissions: {
-                set: [
-                    { code: 'dashboard:view' },
-                    { code: 'inventory:read' },
-                    { code: 'sales:read' },
-                    { code: 'sales:write' },
-                    { code: 'reports:view' }
-                ]
-            }
-        },
+    // 4. Create Demo Tenant
+    const demoTenant = await prisma.tenant.upsert({
+        where: { slug: 'storeai' },
+        update: {},
         create: {
-            name: 'Sales Team', code: 'SALES_TEAM',
-            permissions: {
-                connect: [
-                    { code: 'dashboard:view' },
-                    { code: 'inventory:read' },
-                    { code: 'sales:read' },
-                    { code: 'sales:write' },
-                    { code: 'reports:view' }
-                ]
-            }
+            name: 'StoreAI Corporate Hub',
+            slug: 'storeai',
+            status: 'ACTIVE',
+            planId: proPlan.id
         }
     });
 
-    const hrRole = await prisma.role.upsert({
-        where: { code: 'HR_TEAM' },
-        update: {
-            permissions: {
-                set: [
-                    { code: 'dashboard:view' },
-                    { code: 'hr:read' },
-                    { code: 'hr:write' },
-                    { code: 'reports:view' }
-                ]
-            }
-        },
-        create: {
-            name: 'HR Team', code: 'HR_TEAM',
-            permissions: {
-                connect: [
-                    { code: 'dashboard:view' },
-                    { code: 'hr:read' },
-                    { code: 'hr:write' },
-                    { code: 'reports:view' }
-                ]
-            }
-        }
+    await prisma.userTenant.upsert({
+        where: { userId_tenantId: { userId: adminUser.id, tenantId: demoTenant.id } },
+        update: { isActive: true },
+        create: { userId: adminUser.id, tenantId: demoTenant.id, roleId: superAdminRole.id }
     });
 
-    // 4. Seed Default Tenant (StoreAI Corporate)
-    const storeAiTenant = await prisma.tenant.create({
-        data: {
-            name: 'StoreAI Corporate Hub', slug: 'storeai', status: 'ACTIVE',
-            planId: enterprisePlan.id
-        }
-    });
+    // --- FULL BUSINESS FLOW SEEDING ---
+    const coaMap = await setupCOA(demoTenant.id);
+    await recordInitialInvestment(demoTenant.id, coaMap);
 
-    // 5. Build isolated data for the tenant
-    const depts = ["Management", "Operations", "Sales"];
-    const createdDepts: Record<string, any> = {};
-    for (const name of depts) {
-        createdDepts[name] = await prisma.department.create({ data: { name, tenantId: storeAiTenant.id } });
-    }
+    const mgtDept = await prisma.department.create({ data: { name: 'Management', tenantId: demoTenant.id } });
+    const salesDept = await prisma.department.create({ data: { name: 'Sales', tenantId: demoTenant.id } });
 
-    const categories = [
-        { name: 'Server Infrastructure', desc: 'Compute & Rack hardware' },
-        { name: 'Networking', desc: 'Enterprise connectivity' }
-    ];
-    const createdCats: Record<string, any> = {};
-    for (const cat of categories) {
-        createdCats[cat.name] = await prisma.category.create({ data: { name: cat.name, description: cat.desc, tenantId: storeAiTenant.id } });
-    }
-
-    const whMain = await prisma.warehouse.create({ data: { name: 'London Central Hub', location: 'Heathrow Logistics Park', isDefault: true, tenantId: storeAiTenant.id } });
-
-    // Products
-    const products = [
-        { sku: 'SRV-DL380', name: 'HPE ProLiant DL380 Gen11', price: 9500, cost: 6800, cat: 'Server Infrastructure', stock: 12 },
-        { sku: 'NET-C9200', name: 'Cisco Catalyst 9200L', price: 2100, cost: 1400, cat: 'Networking', stock: 25 }
-    ];
-    const createdProds: any[] = [];
-    for (const p of products) {
-        const prod = await prisma.product.create({
+    // Seed 5 Employees
+    const employees = [];
+    for (let i = 1; i <= 5; i++) {
+        const emp = await prisma.employee.create({
             data: {
-                sku: p.sku, name: p.name, price: p.price, costPrice: p.cost,
-                stockQuantity: p.stock, categoryId: createdCats[p.cat].id,
-                tenantId: storeAiTenant.id, isBatchTracked: true
+                employeeId: `EMP-00${i}`,
+                firstName: `Employee`,
+                lastName: `${i}`,
+                designation: i === 1 ? 'Store Manager' : 'Sales Advisor',
+                salary: 40000,
+                joiningDate: new Date(),
+                departmentId: i === 1 ? mgtDept.id : salesDept.id,
+                eligibleForIncentive: true,
+                incentivePercentage: 2.0
             }
         });
-        createdProds.push(prod);
-        await prisma.stock.create({ data: { productId: prod.id, warehouseId: whMain.id, quantity: p.stock, batchNumber: 'LOT-SAAS-001' } });
+        employees.push(emp);
     }
 
-    // Admin User
-    const adminUser = await prisma.user.create({
+    // Suppliers & Customers
+    const supplier = await prisma.supplier.create({ data: { name: 'Main Distribution Co.', email: 'supply@distro.com', tenantId: demoTenant.id } });
+    const customer = await prisma.customer.create({ data: { name: 'Regular Retail Customer', email: 'walkin@gmail.com', tenantId: demoTenant.id } });
+
+    // Category & Products
+    const cat = await prisma.category.create({ data: { name: 'Electronics', tenantId: demoTenant.id } });
+    const warehouse = await prisma.warehouse.create({ data: { name: 'Standard Warehouse', location: 'Rack 1', isDefault: true, tenantId: demoTenant.id } });
+
+    const prod1 = await prisma.product.create({
         data: {
-            email: 'admin@storeai.com', password: hashedPassword, firstName: 'Alex', lastName: 'Master'
+            sku: 'STAI-EL-001', name: 'Enterprise Router X1', price: 5000, costPrice: 3500,
+            categoryId: cat.id, tenantId: demoTenant.id, isBatchTracked: true
         }
     });
 
-    await prisma.userTenant.create({
-        data: { userId: adminUser.id, tenantId: storeAiTenant.id, roleId: superAdminRole.id }
-    });
-
-    await prisma.employee.create({
+    // Purchase Order & Inward
+    const po = await prisma.order.create({
         data: {
-            employeeId: 'EMP-SAAS-001', firstName: 'Alex', lastName: 'Master',
-            designation: 'CTO & Solution Architect', salary: 120000,
-            joiningDate: new Date('2023-01-01'), departmentId: createdDepts['Management'].id,
-            userId: adminUser.id
+            orderNumber: 'PO-X1-001', status: 'APPROVED', totalAmount: 35000,
+            supplierId: supplier.id, tenantId: demoTenant.id,
+            items: { create: { productId: prod1.id, quantity: 10, unitPrice: 3500 } }
         }
     });
 
-    // 6. Demo Organizations for Validation
-    const demoOrgs = [
-        {
-            name: 'Quantum Retail Solutions',
-            slug: 'quantum',
-            logo: 'https://placehold.co/100x100/4f46e5/ffffff?text=QR',
-            features: { RETAIL_MODULE: true, INVENTORY_MODULE: true, CRM_MODULE: false, HR_MODULE: false }
-        },
-        {
-            name: 'Nexus Logistics Group',
-            slug: 'nexus',
-            logo: 'https://placehold.co/100x100/0891b2/ffffff?text=NX',
-            features: { PROCUREMENT_MODULE: true, INVENTORY_MODULE: true, RETAIL_MODULE: false, HR_MODULE: false }
-        },
-        {
-            name: 'Horizon Dynamics',
-            slug: 'horizon',
-            logo: 'https://placehold.co/100x100/059669/ffffff?text=HD',
-            features: { CRM_MODULE: true, REPORT_MODULE: true, RETAIL_MODULE: false, PROCUREMENT_MODULE: false }
-        }
-    ];
+    await InventoryService.processInwardStock({
+        tenantId: demoTenant.id, productId: prod1.id, warehouseId: warehouse.id,
+        quantity: 10, costPrice: 3500, batchNumber: 'LOT-XP-01', poId: po.id,
+        receivedBy: adminUser.id, supplierId: supplier.id, gstAmount: 6300
+    });
 
-    for (const org of demoOrgs) {
-        const tenant = await prisma.tenant.create({
-            data: {
-                name: org.name,
-                slug: org.slug,
-                logo: org.logo,
-                features: org.features,
-                planId: proPlan.id,
-                status: 'ACTIVE'
-            }
-        });
+    // Sale
+    await SalesService.createSale({
+        tenantId: demoTenant.id, customerId: customer.id, salesmanId: employees[1].id,
+        items: [{ productId: prod1.id, quantity: 1, unitPrice: 5000, discount: 0 }],
+        paymentMethod: 'CASH', amountPaid: 5900
+    });
 
-        // Link Admin to these orgs as well
-        await prisma.userTenant.create({
-            data: {
-                userId: adminUser.id,
-                tenantId: tenant.id,
-                roleId: superAdminRole.id
-            }
-        });
-        console.log(`✔ Demo Organization Created: ${org.name}`);
-    }
-
-    console.log('✔ CORE SAAS SEED COMPLETE: 4 Organizations active for admin@storeai.com');
+    console.log('--- SEEDING COMPLETE ---');
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());
