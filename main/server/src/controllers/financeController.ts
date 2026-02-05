@@ -153,27 +153,50 @@ export const getProfitAndLoss = async (req: AuthRequest, res: Response) => {
         const tenantId = req.user?.tenantId;
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
-        const [income, expenses] = await Promise.all([
-            prisma.daybook.aggregate({
-                where: { tenantId, type: 'INCOME' },
-                _sum: { debit: true }
-            }),
-            prisma.daybook.aggregate({
-                where: { tenantId, type: 'EXPENSE' },
-                _sum: { credit: true }
-            })
-        ]);
-
-        const totalIncome = income._sum.debit || 0;
-        const totalExpenses = expenses._sum.credit || 0;
-
-        const saleItems = await prisma.saleItem.findMany({
-            where: { sale: { tenantId, isDeleted: false } },
-            include: { product: true }
+        // Fetch all Income and Expense accounts with their ledger entries
+        const accounts = await prisma.chartOfAccounts.findMany({
+            where: {
+                tenantId,
+                accountGroup: { in: ['INCOME', 'EXPENSES'] }
+            },
+            include: {
+                ledgerEntries: {
+                    select: { debitAmount: true, creditAmount: true }
+                }
+            }
         });
-        const cogs = saleItems.reduce((acc, item) => acc + (item.quantity * item.product.costPrice), 0);
 
-        const netProfit = totalIncome - totalExpenses - cogs;
+        let totalIncome = 0;
+        let totalExpenses = 0;
+        let cogs = 0;
+
+        accounts.forEach(acc => {
+            const debits = acc.ledgerEntries.reduce((sum, e) => sum + e.debitAmount, 0);
+            const credits = acc.ledgerEntries.reduce((sum, e) => sum + e.creditAmount, 0);
+
+            if (acc.accountGroup === 'INCOME') {
+                totalIncome += (credits - debits);
+            } else if (acc.accountGroup === 'EXPENSES') {
+                const balance = debits - credits;
+                if (acc.accountType === 'COGS') {
+                    cogs += balance;
+                }
+                totalExpenses += balance;
+            }
+        });
+
+        // Fallback for COGS if ledger is empty (for legacy data)
+        if (cogs === 0) {
+            const saleItems = await prisma.saleItem.findMany({
+                where: { sale: { tenantId, isDeleted: false } },
+                include: { product: true }
+            });
+            cogs = saleItems.reduce((acc, item) => acc + (item.quantity * item.product.costPrice), 0);
+            if (totalExpenses === 0) totalExpenses = cogs; // If no other expenses, total is just COGS
+            else if (!accounts.some(a => a.accountType === 'COGS')) totalExpenses += cogs;
+        }
+
+        const netProfit = totalIncome - totalExpenses;
 
         res.json({
             totalIncome,
@@ -183,6 +206,7 @@ export const getProfitAndLoss = async (req: AuthRequest, res: Response) => {
             margin: totalIncome > 0 ? (netProfit / totalIncome) * 100 : 0
         });
     } catch (error) {
+        console.error("P&L Error:", error);
         res.status(500).json({ error: 'P&L calculation failed' });
     }
 };
@@ -233,93 +257,99 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
         const tenantId = req.user?.tenantId;
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
-        // 1. ASSETS
-        // Cash/Bank: Only Capital, Paid Sales, minus Paid Purchases/Expenses
-        const daybookBalance = await prisma.daybook.aggregate({
-            where: { tenantId },
-            _sum: { debit: true, credit: true }
-        });
-        const cashBalance = (daybookBalance._sum.debit || 0) - (daybookBalance._sum.credit || 0);
-
-        // Inventory Value
-        const stocks = await prisma.stock.findMany({
-            include: { product: true }
-        });
-        const inventoryValue = stocks
-            .filter(s => (s as any).product.tenantId === tenantId)
-            .reduce((acc, s) => acc + (s.quantity * (s as any).product.costPrice), 0);
-
-        // Accounts Receivable (Unpaid Sales)
-        const ar = await prisma.sale.aggregate({
-            where: { tenantId, isPaid: false, isDeleted: false },
-            _sum: { totalAmount: true }
-        });
-
-        // GST Input (Asset) - Read from Ledger
-        const gstInput = await prisma.ledger.aggregate({
-            where: { tenantId, category: 'GST_INPUT' },
-            _sum: { amount: true }
-        });
-
-        // 2. LIABILITIES
-        // Accounts Payable (Pending Orders)
-        const ap = await prisma.order.aggregate({
-            where: { tenantId, status: { not: 'CANCELLED' } },
-            _sum: { totalAmount: true }
-        });
-
-        // GST Output (Liability) - Read from Ledger
-        const gstOutput = await prisma.ledger.aggregate({
-            where: { tenantId, category: 'GST_PAYABLE' },
-            _sum: { amount: true }
-        });
-
-        // 3. EQUITY & PROFIT
-        const equity = await prisma.daybook.aggregate({
-            where: { tenantId, type: 'CAPITAL' },
-            _sum: { debit: true }
-        });
-
-        // Calculate Retained Earnings (Income - Expense - COGS)
-        const pnl = await prisma.daybook.aggregate({
+        // Fetch all balance sheet accounts (Assets, Liabilities, Equity)
+        const accounts = await prisma.chartOfAccounts.findMany({
             where: {
                 tenantId,
-                type: { in: ['INCOME', 'EXPENSE', 'SALE', 'RETURN'] }
+                accountGroup: { in: ['ASSETS', 'LIABILITIES', 'EQUITY'] }
             },
-            _sum: { debit: true, credit: true }
+            include: {
+                ledgerEntries: {
+                    select: { debitAmount: true, creditAmount: true }
+                }
+            }
         });
-        // Calculate COGS for Retained Earnings
-        const saleItems = await prisma.saleItem.findMany({
-            where: { sale: { tenantId, isDeleted: false } }, // Include all sales (Accrual Basis)
-            include: { product: true }
+
+        const assets = { cash: 0, inventory: 0, receivables: 0, gstInput: 0, other: 0, total: 0 };
+        const liabilities = { payables: 0, gstPayable: 0, other: 0, total: 0 };
+        const equity = { capital: 0, retainedEarnings: 0, total: 0 };
+
+        accounts.forEach(acc => {
+            const debits = acc.ledgerEntries.reduce((sum, e) => sum + e.debitAmount, 0);
+            const credits = acc.ledgerEntries.reduce((sum, e) => sum + e.creditAmount, 0);
+
+            if (acc.accountGroup === 'ASSETS') {
+                const balance = debits - credits;
+                if (acc.accountType === 'CASH' || acc.accountType === 'BANK') assets.cash += balance;
+                else if (acc.accountType === 'INVENTORY') assets.inventory += balance;
+                else if (acc.accountType === 'AR') assets.receivables += balance;
+                else if (acc.accountType === 'GST_INPUT') assets.gstInput += balance;
+                else assets.other += balance;
+                assets.total += balance;
+            } else if (acc.accountGroup === 'LIABILITIES') {
+                const balance = credits - debits;
+                if (acc.accountType === 'AP') liabilities.payables += balance;
+                else if (acc.accountType === 'GST_OUTPUT') liabilities.gstPayable += balance;
+                else liabilities.other += balance;
+                liabilities.total += balance;
+            } else if (acc.accountGroup === 'EQUITY') {
+                const balance = credits - debits;
+                if (acc.accountType === 'CAPITAL') equity.capital += balance;
+                else if (acc.accountType === 'RETAINED_EARNINGS') equity.retainedEarnings += balance;
+                equity.total += balance;
+            }
         });
-        const cogs = saleItems.reduce((acc, item) => acc + (item.quantity * item.product.costPrice), 0);
 
-        const retainedEarnings = (pnl._sum.debit || 0) - (pnl._sum.credit || 0) - cogs;
+        // 1. Calculate Current Year Profit (from PL Logic)
+        const plRes = await prisma.chartOfAccounts.findMany({
+            where: { tenantId, accountGroup: { in: ['INCOME', 'EXPENSES'] } },
+            include: { ledgerEntries: { select: { debitAmount: true, creditAmount: true } } }
+        });
 
-        const totalAssets = cashBalance + inventoryValue + (ar._sum.totalAmount || 0) + (gstInput._sum.amount || 0);
-        const totalLiabilities = (ap._sum.totalAmount || 0) + (gstOutput._sum.amount || 0);
-        const totalEquity = (equity._sum.debit || 0) + retainedEarnings;
+        let currentYearProfit = 0;
+        plRes.forEach(acc => {
+            const debits = acc.ledgerEntries.reduce((sum, e) => sum + e.debitAmount, 0);
+            const credits = acc.ledgerEntries.reduce((sum, e) => sum + e.creditAmount, 0);
+            if (acc.accountGroup === 'INCOME') currentYearProfit += (credits - debits);
+            else currentYearProfit -= (debits - credits);
+        });
+
+        // Integration Profit into Retained Earnings for Balance Sheet purposes
+        equity.retainedEarnings += currentYearProfit;
+        equity.total += currentYearProfit;
+
+        // Fallbacks for Legacy Systems (if ledger is empty)
+        if (assets.total === 0) {
+            // Cash Fallback
+            const daybookBalance = await prisma.daybook.aggregate({
+                where: { tenantId },
+                _sum: { debit: true, credit: true }
+            });
+            assets.cash = (daybookBalance._sum.debit || 0) - (daybookBalance._sum.credit || 0);
+
+            // Inventory Fallback
+            const stocks = await prisma.stock.findMany({
+                include: { product: true }
+            });
+            assets.inventory = stocks
+                .filter(s => (s as any).product.tenantId === tenantId)
+                .reduce((acc, s) => acc + (s.quantity * (s as any).product.costPrice), 0);
+
+            // AR Fallback
+            const ar = await prisma.sale.aggregate({
+                where: { tenantId, isPaid: false, isDeleted: false },
+                _sum: { totalAmount: true }
+            });
+            assets.receivables = ar._sum.totalAmount || 0;
+
+            assets.total = assets.cash + assets.inventory + assets.receivables + assets.gstInput;
+        }
 
         res.json({
-            assets: {
-                cash: cashBalance,
-                inventory: inventoryValue,
-                receivables: ar._sum.totalAmount || 0,
-                gstInput: gstInput._sum.amount || 0,
-                total: totalAssets
-            },
-            liabilities: {
-                payables: ap._sum.totalAmount || 0,
-                gstOutput: gstOutput._sum.amount || 0,
-                total: totalLiabilities
-            },
-            equity: {
-                capital: equity._sum.debit || 0,
-                retainedEarnings: retainedEarnings,
-                total: totalEquity
-            },
-            isBalanced: Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 1
+            assets,
+            liabilities,
+            equity,
+            isBalanced: Math.abs(assets.total - (liabilities.total + equity.total)) < 1
         });
     } catch (error) {
         console.error("Balance Sheet Error:", error);

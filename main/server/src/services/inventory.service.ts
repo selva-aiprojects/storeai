@@ -301,6 +301,51 @@ export const InventoryService = {
 
                 remainingQty -= deduct;
                 allocatedBatches.push({ batchId: batch.id, quantity: deduct });
+
+                // === COGS ACCOUNTING INTEGRATION ===
+                try {
+                    const cogsAccount = await prismaTx.chartOfAccounts.findFirst({
+                        where: { tenantId: data.tenantId, accountType: 'COGS' }
+                    });
+                    const inventoryAccount = await prismaTx.chartOfAccounts.findFirst({
+                        where: { tenantId: data.tenantId, accountType: 'INVENTORY' }
+                    });
+
+                    if (cogsAccount && inventoryAccount) {
+                        const costValue = deduct * batch.costPrice;
+                        const voucherNumber = `COGS-${Date.now()}`;
+
+                        // Dr COGS Account
+                        await prismaTx.ledgerEntry.create({
+                            data: {
+                                accountId: cogsAccount.id,
+                                debitAmount: costValue,
+                                creditAmount: 0,
+                                referenceType: 'SALE_COGS',
+                                referenceId: data.invoiceId,
+                                description: `COGS for Invoice ${data.invoiceId} (Batch: ${batch.batchNumber})`,
+                                voucherNumber,
+                                tenantId: data.tenantId
+                            }
+                        });
+
+                        // Cr Inventory Account
+                        await prismaTx.ledgerEntry.create({
+                            data: {
+                                accountId: inventoryAccount.id,
+                                debitAmount: 0,
+                                creditAmount: costValue,
+                                referenceType: 'SALE_COGS',
+                                referenceId: data.invoiceId,
+                                description: `Inventory deduction for Invoice ${data.invoiceId}`,
+                                voucherNumber,
+                                tenantId: data.tenantId
+                            }
+                        });
+                    }
+                } catch (accountingError) {
+                    console.warn('COGS accounting integration failed:', accountingError);
+                }
             }
 
             // 3. Update Product Aggregate
