@@ -10,14 +10,14 @@
 
 :root {
   /* --- Core Palette: Modern Navy --- */
-  --bg-body: #f8fafc;
+  --bg-body: #f1f5f9;
   /* Slate 50 */
   --bg-surface: #ffffff;
 
   /* Sidebar: Deep Professional Navy */
-  --bg-sidebar: #0f172a;
-  /* Slate 900 */
-  --bg-sidebar-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --bg-sidebar: #020617;
+  /* Darker Navy */
+  --bg-sidebar-gradient: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
 
   /* Primary Accent: Indigo Refined */
   --primary-500: #4f46e5;
