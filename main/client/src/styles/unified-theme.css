@@ -1,0 +1,587 @@
+/* =========================================================================
+   STORE AI - UNIFIED PROFESSIONAL DESIGN SYSTEM
+   High-Standard Enterprise Theme with Consistent Module Color Coding
+   ========================================================================= */
+
+:root {
+  /* ===== CORE BRAND COLORS ===== */
+  --brand-navy: #020617;
+  --brand-indigo: #4f46e5;
+  --brand-sky: #0ea5e9;
+  --brand-slate: #475569;
+
+  /* ===== MODULE-SPECIFIC ACCENT COLORS (Consistent Across App) ===== */
+  
+  /* Dashboard & Overview */
+  --module-dashboard: #4f46e5;        /* Indigo 600 */
+  --module-dashboard-light: #6366f1;  /* Indigo 500 */
+  --module-dashboard-bg: rgba(79, 70, 229, 0.05);
+  
+  /* Inventory & Products */
+  --module-inventory: #0ea5e9;        /* Sky 500 */
+  --module-inventory-light: #38bdf8;  /* Sky 400 */
+  --module-inventory-bg: rgba(14, 165, 233, 0.05);
+  
+  /* Sales & Revenue */
+  --module-sales: #10b981;            /* Emerald 500 */
+  --module-sales-light: #34d399;      /* Emerald 400 */
+  --module-sales-bg: rgba(16, 185, 129, 0.05);
+  
+  /* Purchases & Procurement */
+  --module-purchases: #f59e0b;        /* Amber 500 */
+  --module-purchases-light: #fbbf24;  /* Amber 400 */
+  --module-purchases-bg: rgba(245, 158, 11, 0.05);
+  
+  /* Finance & Accounting */
+  --module-finance: #8b5cf6;          /* Violet 500 */
+  --module-finance-light: #a78bfa;    /* Violet 400 */
+  --module-finance-bg: rgba(139, 92, 246, 0.05);
+  
+  /* HR & People */
+  --module-hr: #ec4899;               /* Pink 500 */
+  --module-hr-light: #f472b6;         /* Pink 400 */
+  --module-hr-bg: rgba(236, 72, 153, 0.05);
+  
+  /* Reports & Analytics */
+  --module-reports: #06b6d4;          /* Cyan 500 */
+  --module-reports-light: #22d3ee;    /* Cyan 400 */
+  --module-reports-bg: rgba(6, 182, 212, 0.05);
+  
+  /* Settings & Configuration */
+  --module-settings: #64748b;         /* Slate 500 */
+  --module-settings-light: #94a3b8;   /* Slate 400 */
+  --module-settings-bg: rgba(100, 116, 139, 0.05);
+  
+  /* CRM & Customers */
+  --module-crm: #14b8a6;              /* Teal 500 */
+  --module-crm-light: #2dd4bf;        /* Teal 400 */
+  --module-crm-bg: rgba(20, 184, 166, 0.05);
+  
+  /* AI & Intelligence */
+  --module-ai: #d946ef;               /* Fuchsia 500 */
+  --module-ai-light: #e879f9;         /* Fuchsia 400 */
+  --module-ai-bg: rgba(217, 70, 239, 0.05);
+
+  /* ===== STATUS COLORS (Professional & Accessible) ===== */
+  --status-success: #10b981;          /* Emerald 500 */
+  --status-success-light: #d1fae5;    /* Emerald 100 */
+  --status-success-dark: #047857;     /* Emerald 700 */
+  
+  --status-warning: #f59e0b;          /* Amber 500 */
+  --status-warning-light: #fef3c7;    /* Amber 100 */
+  --status-warning-dark: #b45309;     /* Amber 700 */
+  
+  --status-danger: #ef4444;           /* Red 500 */
+  --status-danger-light: #fee2e2;     /* Red 100 */
+  --status-danger-dark: #b91c1c;      /* Red 700 */
+  
+  --status-info: #3b82f6;             /* Blue 500 */
+  --status-info-light: #dbeafe;       /* Blue 100 */
+  --status-info-dark: #1e40af;        /* Blue 700 */
+  
+  --status-neutral: #6b7280;          /* Gray 500 */
+  --status-neutral-light: #f3f4f6;    /* Gray 100 */
+  --status-neutral-dark: #374151;     /* Gray 700 */
+
+  /* ===== SEMANTIC COLORS ===== */
+  --color-revenue: var(--status-success);
+  --color-expense: var(--status-danger);
+  --color-profit: var(--module-finance);
+  --color-pending: var(--status-warning);
+  --color-active: var(--status-success);
+  --color-inactive: var(--status-neutral);
+
+  /* ===== BACKGROUND LAYERS ===== */
+  --bg-body: #f8fafc;                 /* Slate 50 */
+  --bg-surface: #ffffff;              /* Pure White */
+  --bg-elevated: #ffffff;             /* Pure White with shadow */
+  --bg-hover: #f1f5f9;                /* Slate 100 */
+  --bg-active: #e2e8f0;               /* Slate 200 */
+  --bg-disabled: #f8fafc;             /* Slate 50 */
+  
+  /* ===== SIDEBAR (Professional Navy) ===== */
+  --sidebar-bg: #020617;              /* Slate 950 */
+  --sidebar-gradient: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+  --sidebar-text: rgba(255, 255, 255, 0.85);
+  --sidebar-text-active: #ffffff;
+  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-active: rgba(255, 255, 255, 0.08);
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+
+  /* ===== TYPOGRAPHY ===== */
+  --text-primary: #0f172a;            /* Slate 900 */
+  --text-secondary: #475569;          /* Slate 600 */
+  --text-tertiary: #64748b;           /* Slate 500 */
+  --text-muted: #94a3b8;              /* Slate 400 */
+  --text-disabled: #cbd5e1;           /* Slate 300 */
+  --text-on-dark: #f8fafc;            /* Slate 50 */
+  --text-on-primary: #ffffff;         /* Pure White */
+
+  /* ===== BORDERS ===== */
+  --border-light: #f1f5f9;            /* Slate 100 */
+  --border-default: #e2e8f0;          /* Slate 200 */
+  --border-medium: #cbd5e1;           /* Slate 300 */
+  --border-strong: #94a3b8;           /* Slate 400 */
+  --border-focus: var(--brand-indigo);
+
+  /* ===== SHADOWS (Subtle & Professional) ===== */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(15, 23, 42, 0.05);
+  
+  /* Colored Shadows for Module Accents */
+  --shadow-dashboard: 0 10px 25px -5px rgba(79, 70, 229, 0.15);
+  --shadow-inventory: 0 10px 25px -5px rgba(14, 165, 233, 0.15);
+  --shadow-sales: 0 10px 25px -5px rgba(16, 185, 129, 0.15);
+  --shadow-purchases: 0 10px 25px -5px rgba(245, 158, 11, 0.15);
+  --shadow-finance: 0 10px 25px -5px rgba(139, 92, 246, 0.15);
+  --shadow-hr: 0 10px 25px -5px rgba(236, 72, 153, 0.15);
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* ===== SPACING SCALE ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slower: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== Z-INDEX LAYERS ===== */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-notification: 800;
+  --z-max: 999;
+
+  /* ===== LAYOUT CONSTANTS ===== */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 100px;
+  --footer-height: 60px;
+  --content-max-width: 1600px;
+}
+
+/* ===== BADGE SYSTEM (Consistent Status Indicators) ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.badge-success {
+  background: var(--status-success-light);
+  color: var(--status-success-dark);
+  border: 1px solid var(--status-success);
+}
+
+.badge-warning {
+  background: var(--status-warning-light);
+  color: var(--status-warning-dark);
+  border: 1px solid var(--status-warning);
+}
+
+.badge-danger {
+  background: var(--status-danger-light);
+  color: var(--status-danger-dark);
+  border: 1px solid var(--status-danger);
+}
+
+.badge-info {
+  background: var(--status-info-light);
+  color: var(--status-info-dark);
+  border: 1px solid var(--status-info);
+}
+
+.badge-neutral {
+  background: var(--status-neutral-light);
+  color: var(--status-neutral-dark);
+  border: 1px solid var(--status-neutral);
+}
+
+/* Module-specific badges */
+.badge-dashboard {
+  background: var(--module-dashboard-bg);
+  color: var(--module-dashboard);
+  border: 1px solid var(--module-dashboard-light);
+}
+
+.badge-inventory {
+  background: var(--module-inventory-bg);
+  color: var(--module-inventory);
+  border: 1px solid var(--module-inventory-light);
+}
+
+.badge-sales {
+  background: var(--module-sales-bg);
+  color: var(--module-sales);
+  border: 1px solid var(--module-sales-light);
+}
+
+.badge-finance {
+  background: var(--module-finance-bg);
+  color: var(--module-finance);
+  border: 1px solid var(--module-finance-light);
+}
+
+/* ===== BUTTON SYSTEM (Professional & Consistent) ===== */
+.btn-module-dashboard {
+  background: var(--module-dashboard);
+  color: white;
+  border: 1px solid var(--module-dashboard);
+}
+
+.btn-module-dashboard:hover {
+  background: var(--module-dashboard-light);
+  box-shadow: var(--shadow-dashboard);
+  transform: translateY(-1px);
+}
+
+.btn-module-inventory {
+  background: var(--module-inventory);
+  color: white;
+  border: 1px solid var(--module-inventory);
+}
+
+.btn-module-inventory:hover {
+  background: var(--module-inventory-light);
+  box-shadow: var(--shadow-inventory);
+  transform: translateY(-1px);
+}
+
+.btn-module-sales {
+  background: var(--module-sales);
+  color: white;
+  border: 1px solid var(--module-sales);
+}
+
+.btn-module-sales:hover {
+  background: var(--module-sales-light);
+  box-shadow: var(--shadow-sales);
+  transform: translateY(-1px);
+}
+
+.btn-module-purchases {
+  background: var(--module-purchases);
+  color: white;
+  border: 1px solid var(--module-purchases);
+}
+
+.btn-module-purchases:hover {
+  background: var(--module-purchases-light);
+  box-shadow: var(--shadow-purchases);
+  transform: translateY(-1px);
+}
+
+.btn-module-finance {
+  background: var(--module-finance);
+  color: white;
+  border: 1px solid var(--module-finance);
+}
+
+.btn-module-finance:hover {
+  background: var(--module-finance-light);
+  box-shadow: var(--shadow-finance);
+  transform: translateY(-1px);
+}
+
+.btn-module-hr {
+  background: var(--module-hr);
+  color: white;
+  border: 1px solid var(--module-hr);
+}
+
+.btn-module-hr:hover {
+  background: var(--module-hr-light);
+  box-shadow: var(--shadow-hr);
+  transform: translateY(-1px);
+}
+
+/* ===== CARD SYSTEM (Module-Specific Accents) ===== */
+.card-module-dashboard {
+  border-top: 3px solid var(--module-dashboard);
+  background: linear-gradient(to bottom, var(--module-dashboard-bg), var(--bg-surface));
+}
+
+.card-module-dashboard:hover {
+  box-shadow: var(--shadow-dashboard);
+}
+
+.card-module-inventory {
+  border-top: 3px solid var(--module-inventory);
+  background: linear-gradient(to bottom, var(--module-inventory-bg), var(--bg-surface));
+}
+
+.card-module-inventory:hover {
+  box-shadow: var(--shadow-inventory);
+}
+
+.card-module-sales {
+  border-top: 3px solid var(--module-sales);
+  background: linear-gradient(to bottom, var(--module-sales-bg), var(--bg-surface));
+}
+
+.card-module-sales:hover {
+  box-shadow: var(--shadow-sales);
+}
+
+.card-module-purchases {
+  border-top: 3px solid var(--module-purchases);
+  background: linear-gradient(to bottom, var(--module-purchases-bg), var(--bg-surface));
+}
+
+.card-module-purchases:hover {
+  box-shadow: var(--shadow-purchases);
+}
+
+.card-module-finance {
+  border-top: 3px solid var(--module-finance);
+  background: linear-gradient(to bottom, var(--module-finance-bg), var(--bg-surface));
+}
+
+.card-module-finance:hover {
+  box-shadow: var(--shadow-finance);
+}
+
+.card-module-hr {
+  border-top: 3px solid var(--module-hr);
+  background: linear-gradient(to bottom, var(--module-hr-bg), var(--bg-surface));
+}
+
+.card-module-hr:hover {
+  box-shadow: var(--shadow-hr);
+}
+
+/* ===== SECTION HEADERS (Consistent Typography) ===== */
+.section-header {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 2px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.section-header-dashboard { border-bottom-color: var(--module-dashboard); }
+.section-header-inventory { border-bottom-color: var(--module-inventory); }
+.section-header-sales { border-bottom-color: var(--module-sales); }
+.section-header-purchases { border-bottom-color: var(--module-purchases); }
+.section-header-finance { border-bottom-color: var(--module-finance); }
+.section-header-hr { border-bottom-color: var(--module-hr); }
+
+/* ===== METRIC CARDS (Enhanced Professional Design) ===== */
+.metric-card-enhanced {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-default);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--module-dashboard), var(--module-inventory));
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.metric-card-enhanced:hover::before {
+  opacity: 1;
+}
+
+.metric-card-enhanced:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-medium);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-dashboard { color: var(--module-dashboard); }
+.text-inventory { color: var(--module-inventory); }
+.text-sales { color: var(--module-sales); }
+.text-purchases { color: var(--module-purchases); }
+.text-finance { color: var(--module-finance); }
+.text-hr { color: var(--module-hr); }
+.text-reports { color: var(--module-reports); }
+.text-settings { color: var(--module-settings); }
+.text-crm { color: var(--module-crm); }
+.text-ai { color: var(--module-ai); }
+
+.bg-dashboard { background-color: var(--module-dashboard-bg); }
+.bg-inventory { background-color: var(--module-inventory-bg); }
+.bg-sales { background-color: var(--module-sales-bg); }
+.bg-purchases { background-color: var(--module-purchases-bg); }
+.bg-finance { background-color: var(--module-finance-bg); }
+.bg-hr { background-color: var(--module-hr-bg); }
+
+/* ===== ICON CONTAINERS (Module-Specific) ===== */
+.icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all var(--transition-base);
+}
+
+.icon-container-dashboard {
+  background: var(--module-dashboard-bg);
+  color: var(--module-dashboard);
+  border: 1px solid var(--module-dashboard-light);
+}
+
+.icon-container-inventory {
+  background: var(--module-inventory-bg);
+  color: var(--module-inventory);
+  border: 1px solid var(--module-inventory-light);
+}
+
+.icon-container-sales {
+  background: var(--module-sales-bg);
+  color: var(--module-sales);
+  border: 1px solid var(--module-sales-light);
+}
+
+.icon-container-finance {
+  background: var(--module-finance-bg);
+  color: var(--module-finance);
+  border: 1px solid var(--module-finance-light);
+}
+
+/* ===== PROFESSIONAL ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--transition-base) ease-out;
+}
+
+/* ===== LOADING STATES ===== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-hover) 0%,
+    var(--bg-active) 50%,
+    var(--bg-hover) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+.loading-spinner {
+  border: 3px solid var(--border-light);
+  border-top-color: var(--brand-indigo);
+  border-radius: var(--radius-full);
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE UTILITIES ===== */
+@media (max-width: 640px) {
+  :root {
+    --sidebar-width: 100%;
+    --header-height: 80px;
+  }
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+}

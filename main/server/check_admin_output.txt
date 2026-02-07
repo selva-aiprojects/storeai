@@ -1,0 +1,26 @@
+﻿Checking admin account...
+
+User Details:
+Email: admin@storeai.com
+First Name: System
+Last Name: Administrator
+Role: SUPER_ADMIN
+Active: true
+Deleted: false
+
+Tenant Associations:
+- Tenant: Prime Retail Solutions (prime)
+  Status: ACTIVE
+  Role: SUPER_ADMIN
+  Active: true
+- Tenant: Global Logistics Hub (global)
+  Status: ACTIVE
+  Role: SUPER_ADMIN
+  Active: true
+- Tenant: StoreAI Corporate Hub (storeai)
+  Status: ACTIVE
+  Role: SUPER_ADMIN
+  Active: true
+
+Password Check:
+Test password "Admin@123": MATCHES

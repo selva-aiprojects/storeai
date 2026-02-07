@@ -1,5 +1,7 @@
 
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -20,7 +22,7 @@ async function verifyPassword() {
 
     for (const pw of passwordsToTry) {
         const match = await bcrypt.compare(pw, user.password);
-        console.log(`- Try "${pw}": ${match ? "MATCH ✅" : "NO MATCH ❌"}`);
+        console.log("Password:", pw, "Match:", match);
     }
 
     await prisma.$disconnect();
