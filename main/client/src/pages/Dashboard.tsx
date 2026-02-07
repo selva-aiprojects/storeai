@@ -96,68 +96,127 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* --- Market Intelligence & Exchanges --- */}
-            <div className="section-header" style={{ marginTop: '10px', fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <Activity size={18} style={{ marginRight: '10px', display: 'inline-block', verticalAlign: 'middle' }} />
-                Predictive Market Intelligence & Live Exchanges
+            {/* --- Market Intelligence & Exchanges (Unified Professional AI Theme) --- */}
+            <div className="flex items-center gap-3 mt-4 mb-3 border-b border-fuchsia-100 pb-2">
+                <div className="bg-fuchsia-100 p-1.5 rounded-lg">
+                    <Activity size={18} className="text-fuchsia-600" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-800 tracking-tight uppercase">Predictive Market Intelligence</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-fuchsia-50 text-fuchsia-600 rounded-full border border-fuchsia-100">AI POWERED</span>
             </div>
-            <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}>
-                <div className="card" style={{ borderLeft: '4px solid var(--accent-primary)', minHeight: '180px', background: 'linear-gradient(to bottom right, var(--bg-card), rgba(99, 102, 241, 0.02))' }}>
-                    <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Zap size={16} color="var(--accent-primary)" />
-                        <span style={{ fontWeight: 800 }}>QUANTUM MARKET SENTIMENT</span>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Market Sentiment Card */}
+                <div className="card border-t-4 border-t-fuchsia-500 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                    {/* Background Decoration */}
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                        <Zap size={140} />
                     </div>
-                    {marketData ? (
-                        <div style={{ marginTop: '15px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>SENTIMENT INDEX</span>
-                                <span className={`badge ${marketData.market_sentiment === 'BULLISH' ? 'badge-success' : 'badge-danger'}`} style={{ fontWeight: 800, fontSize: '0.7rem' }}>
-                                    {marketData.market_sentiment}
-                                </span>
-                            </div>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 500, lineHeight: '1.5', background: 'rgba(99, 102, 241, 0.05)', padding: '12px', border: '1px solid rgba(99, 102, 241, 0.1)', borderRadius: '10px', color: 'var(--text-primary)' }}>
-                                {marketData.summary}
-                            </div>
-                            <div style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', marginRight: '4px' }}>Top Monitoring:</span>
-                                {marketData.top_picks?.map((pick: string) => (
-                                    <span key={pick} style={{ fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', background: 'var(--bg-hover)', border: '1px solid var(--border-color)', borderRadius: '6px' }}>{pick}</span>
-                                ))}
-                            </div>
+
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-fuchsia-50/30">
+                        <div className="flex items-center gap-2">
+                            <Zap size={16} className="text-fuchsia-500" />
+                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Market Sentiment</span>
                         </div>
-                    ) : (
-                        <div style={{ padding: '30px', textAlign: 'center', opacity: 0.5, fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                            <Activity className="text-gray-400" size={20} />
-                            Market analysis session ended • Updates paused
-                        </div>
-                    )}
+                        {marketData && (
+                            <span className={`text-[10px] font-black px-2 py-1 rounded-full border ${marketData.market_sentiment === 'BULLISH'
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                    : 'bg-rose-50 text-rose-600 border-rose-100'
+                                }`}>
+                                {marketData.market_sentiment}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="p-5 relative z-10">
+                        {marketData ? (
+                            <div className="space-y-4">
+                                <div className="bg-fuchsia-50/50 rounded-xl p-4 border border-fuchsia-100/50">
+                                    <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                                        {marketData.summary}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <TrendingIcon size={14} className="text-fuchsia-400" />
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Top Monitoring</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {marketData.top_picks?.map((pick: string) => (
+                                            <span key={pick} className="text-xs font-semibold px-2.5 py-1 bg-white border border-gray-200 text-gray-600 rounded-md shadow-sm">
+                                                {pick}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="py-8 text-center flex flex-col items-center justify-center text-gray-400 space-y-2">
+                                <Activity size={24} className="opacity-20" />
+                                <span className="text-xs font-medium">Market analysis session paused</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <div className="card" style={{ borderLeft: '4px solid var(--accent-secondary)', background: 'linear-gradient(to bottom right, var(--bg-card), rgba(6, 182, 212, 0.02))' }}>
-                    <div className="card-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Globe size={16} color="var(--accent-secondary)" />
-                        <span style={{ fontWeight: 800 }}>LIVE EXCHANGE STATUS (REAL-TIME)</span>
+                {/* Live Exchange Status */}
+                <div className="card border-t-4 border-t-cyan-500 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                        <Globe size={140} />
                     </div>
-                    <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {marketData?.exchanges?.map((ex: any) => (
-                            <div key={ex.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--bg-hover)', border: '1px solid var(--border-color)', borderRadius: '10px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                                        <TrendingIcon size={16} color={ex.trend.startsWith('+') ? '#10b981' : '#f43f5e'} />
+
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-cyan-50/30">
+                        <div className="flex items-center gap-2">
+                            <Globe size={16} className="text-cyan-500" />
+                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Live Exchange Feed</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                            </span>
+                            <span className="text-[10px] font-bold text-cyan-600">LIVE</span>
+                        </div>
+                    </div>
+
+                    <div className="p-0">
+                        <div className="divide-y divide-gray-50">
+                            {marketData?.exchanges?.map((ex: any) => (
+                                <div key={ex.name} className="p-4 hover:bg-gray-50/50 transition-colors flex items-center justify-between group/item">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm border ${ex.trend.startsWith('+') ? 'bg-emerald-50 border-emerald-100 text-emerald-500' : 'bg-rose-50 border-rose-100 text-rose-500'
+                                            }`}>
+                                            <TrendingIcon size={16} />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-800">{ex.name}</div>
+                                            <div className="text-[10px] font-semibold text-gray-400">{ex.status}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{ex.name}</div>
-                                        <div style={{ fontSize: '0.65rem', color: '#10b981', fontWeight: 700 }}>{ex.status}</div>
+                                    <div className="text-right">
+                                        <div className={`text-sm font-black ${ex.trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'
+                                            }`}>
+                                            {ex.trend}
+                                        </div>
+                                        <div className="text-[10px] font-medium text-gray-400">
+                                            Vol: <span className="text-gray-600">{marketData.volatility}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '1rem', fontWeight: 900, color: ex.trend.startsWith('+') ? '#10b981' : '#f43f5e' }}>{ex.trend}</div>
-                                    <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600 }}>VOLATILITY: {marketData.volatility}</div>
+                            )) || [1, 2].map(i => (
+                                <div key={i} className="p-4 animate-pulse flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
+                                        <div className="space-y-1">
+                                            <div className="h-3 w-16 bg-gray-100 rounded"></div>
+                                            <div className="h-2 w-10 bg-gray-100 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div className="h-4 w-12 bg-gray-100 rounded"></div>
                                 </div>
-                            </div>
-                        )) || [1, 2].map(i => (
-                            <div key={i} style={{ height: '56px', background: 'var(--bg-hover)', borderRadius: '10px', opacity: 0.3 }}></div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
