@@ -55,65 +55,65 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     </span>
                 </div>
             </div>
-            <div className="header-actions">
+            <div className="header-actions flex items-center gap-3">
                 <button
-                    className="btn btn-secondary"
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
                     title="Help Guide"
                     onClick={() => setModal({ type: 'help' })}
-                    style={{ background: 'rgba(14, 165, 233, 0.08)', color: 'var(--secondary-500)', border: '1px solid rgba(14, 165, 233, 0.2)', padding: '6px 10px' }}
                 >
-                    <HelpCircle size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>HELP</span>
+                    <HelpCircle size={18} />
                 </button>
-                <button className="btn btn-secondary" style={{ padding: '6px 10px' }} onClick={() => {
-                    const path = location.pathname;
-                    let scope = 'essential';
-                    if (path === '/sales' || path === '/customers') scope = 'sales';
-                    if (path === '/inventory' || path === '/purchases') scope = 'purchases';
-                    if (path === '/hr') scope = 'hr';
-                    if (path === '/accounts' || path === '/financials') scope = 'finance';
-                    refreshData(scope);
-                }}>
-                    <RefreshCw size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>SYNC</span>
-                </button>
+
                 <button
-                    className="btn"
-                    style={{
-                        background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
-                        border: 'none',
-                        color: 'white',
-                        boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
-                        padding: '6px 10px'
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all"
+                    title="Sync Data"
+                    onClick={() => {
+                        const path = location.pathname;
+                        let scope = 'essential';
+                        if (path === '/sales' || path === '/customers') scope = 'sales';
+                        if (path === '/inventory' || path === '/purchases') scope = 'purchases';
+                        if (path === '/hr') scope = 'hr';
+                        if (path === '/accounts' || path === '/financials') scope = 'finance';
+                        refreshData(scope);
                     }}
+                >
+                    <RefreshCw size={18} />
+                </button>
+
+                <div className="h-6 w-px bg-gray-200 mx-1"></div>
+
+                <button
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 transition-all"
                     onClick={() => navigate('/stock-analyzer')}
                 >
-                    <TrendingUp size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>MARKET</span>
+                    <TrendingUp size={16} />
+                    <span>MARKET</span>
                 </button>
+
                 <button
-                    className="btn"
-                    style={{
-                        background: 'var(--primary-gradient)',
-                        border: 'none',
-                        color: 'white',
-                        boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
-                        padding: '6px 10px'
-                    }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:shadow-lg hover:shadow-fuchsia-200 transition-all"
                     onClick={() => navigate('/assistant')}
                 >
-                    <Sparkles size={16} /> <span className="btn-text" style={{ fontSize: '10px' }}>AI INTEL</span>
+                    <Sparkles size={16} />
+                    <span>AI INTEL</span>
                 </button>
+
                 {showNewButton && (
-                    <button className="btn btn-primary" onClick={() => {
-                        const path = location.pathname;
-                        let type = path.substring(1);
-                        if (path === '/accounts' || path === '/financials') type = 'payment';
-                        if (path === '/hr') type = 'employees';
-                        if (path === '/purchases') type = 'orders';
-                        setModal({ type });
-                    }}>
-                        <Plus size={18} /> <span className="btn-text">NEW ENTRY</span>
+                    <button
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gray-900 hover:bg-gray-800 transition-all ml-2"
+                        onClick={() => {
+                            const path = location.pathname;
+                            let type = path.substring(1);
+                            if (path === '/accounts' || path === '/financials') type = 'payment';
+                            if (path === '/hr') type = 'employees';
+                            if (path === '/purchases') type = 'orders';
+                            setModal({ type });
+                        }}
+                    >
+                        <Plus size={16} />
+                        <span>NEW ENTRY</span>
                     </button>
                 )}
-
             </div>
         </header>
     );
