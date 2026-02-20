@@ -1,5 +1,5 @@
 # StoreAI Enterprise: API Reference Documentation
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Base URL**: `/api/v1`
 
 ---
@@ -52,6 +52,30 @@
 | `GET` | `/accounts/tax-summary` | Aggregated GST Input/Output report. | JWT |
 | `GET` | `/tenants/all` | List all tenants (System Admin only). | JWT |
 | `GET` | `/dashboard/stats` | Aggregated dashboard KPI metrics. | JWT |
+
+## 7. AI Intelligence (Python FastAPI Service)
+Note: AI endpoints are exposed by the Python AI service and use `/api` base routes.
+
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/chat` | Existing RAG chat (internal store intelligence). | JWT |
+| `POST` | `/api/ai/orchestrate` | New orchestration endpoint combining internal and optional external context. | JWT |
+| `POST` | `/api/ai/stock-analyze` | Market/stock analysis response in strict JSON format. | JWT |
+| `GET` | `/api/health` | AI service health check. | Public |
+
+### `/api/ai/orchestrate` request payload
+```json
+{
+  "query": "What should I reorder this week and how do market trends affect pricing?",
+  "history": [],
+  "mode": "auto"
+}
+```
+
+### `/api/ai/orchestrate` modes
+- `auto`: Uses LangGraph orchestration when available, otherwise safe fallback orchestration.
+- `langgraph`: Forces LangGraph path.
+- `crew`: Attempts CrewAI post-processing (recommended in an isolated worker runtime).
 
 ---
 

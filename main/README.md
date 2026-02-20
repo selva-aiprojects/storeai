@@ -4,6 +4,7 @@ A comprehensive, deployment-ready Inventory Management System designed with clea
 
 ## Tech Stack
 - **Backend:** Node.js (Express) with TypeScript
+- **AI Backend:** Python (FastAPI, RAG, LangGraph orchestration)
 - **Database:** PostgreSQL
 - **ORM:** Prisma
 - **Frontend:** React + Tailwind CSS
@@ -53,6 +54,13 @@ A comprehensive, deployment-ready Inventory Management System designed with clea
    npm run dev
    ```
 
+5. Setup AI Backend (Python):
+   ```bash
+   cd ../python_backend
+   ..\\.venv\\Scripts\\python -m pip install -r requirements.txt
+   ..\\.venv\\Scripts\\python main.py
+   ```
+
 ### Docker Deployment
 ```bash
 docker-compose up -d
@@ -61,3 +69,8 @@ docker-compose up -d
 ## API Documentation
 The API follows RESTful principles. Base URL: `/api/v1`.
 Detailed route list can be found in `server/src/routes`.
+
+AI service routes (Python FastAPI) include:
+- `POST /api/chat`
+- `POST /api/ai/orchestrate`
+- `POST /api/ai/stock-analyze`

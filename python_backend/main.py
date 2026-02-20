@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from services.rag import rag_service
 from services.llm import llm_service
+from services.ai_orchestration import ai_orchestration_service
 from utils.logger import logger, log_error, log_api_call
 import uvicorn
 import traceback
@@ -32,9 +33,9 @@ def api_root():
 
 @app.middleware("http")
 async def log_requests(request, call_next):
-    logger.info(f"🚀 AI API Request: {request.method} {request.url.path}")
+    logger.info(f"AI API Request: {request.method} {request.url.path}")
     response = await call_next(request)
-    logger.info(f"✅ AI API Response: {response.status_code}")
+    logger.info(f"AI API Response: {response.status_code}")
     return response
 
 @app.middleware("http")
@@ -60,6 +61,11 @@ class QueryRequest(BaseModel):
     query: str
     history: list = []
 
+class OrchestrationRequest(BaseModel):
+    query: str
+    history: list = []
+    mode: str = "auto"
+
 class ReturnRequest(BaseModel):
     saleId: str
     items: list
@@ -74,7 +80,7 @@ import jwt
 
 security = HTTPBearer()
 JWT_SECRET = os.getenv("JWT_SECRET", "your_super_secret_jwt_key")
-logger.info(f"🔑 Initializing with JWT_SECRET: {JWT_SECRET[:4]}...{JWT_SECRET[-2:]}")
+logger.info(f"Initializing with JWT_SECRET: {JWT_SECRET[:4]}...{JWT_SECRET[-2:]}")
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
     try:
@@ -82,7 +88,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as e:
-        logger.error(f"🔑 Auth Failed: {str(e)}")
+        logger.error(f"Auth Failed: {str(e)}")
         raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 
@@ -110,6 +116,30 @@ async def chat_endpoint(req: QueryRequest, user: dict = Depends(get_current_user
         
     except Exception as e:
         logger.error(f"Chat Error: {e}")
+        return JSONResponse(status_code=500, content={"detail": str(e)})
+
+
+@app.post("/api/ai/orchestrate")
+async def orchestrate_ai(req: OrchestrationRequest, user: dict = Depends(get_current_user)):
+    try:
+        tenant_id = user.get('tenantId')
+        user_role = user.get('role')
+        result = await ai_orchestration_service.orchestrate(
+            query=req.query,
+            history=req.history,
+            tenant_id=tenant_id,
+            role=user_role,
+            mode=req.mode
+        )
+        return {
+            "response": result.response,
+            "source": result.source,
+            "route": result.route,
+            "mode": result.mode,
+            "metadata": result.metadata,
+        }
+    except Exception as e:
+        logger.error(f"Orchestration Error: {e}")
         return JSONResponse(status_code=500, content={"detail": str(e)})
 
 @app.post("/api/admin/reindex")
@@ -365,7 +395,7 @@ def read_root():
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("🚀 AI Hub: Fast Startup Mode Active")
+    logger.info("AI Hub: Fast Startup Mode Active")
     # Trigger RAG and LLM initialization in the background
     # This allows the server to bind to PORT and pass health checks immediately
     asyncio.create_task(rag_service.init())
@@ -391,3 +421,4 @@ app.add_middleware(
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
