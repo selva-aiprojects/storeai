@@ -701,21 +701,30 @@ class RAGService:
                 # Normalize query
                 query = self._normalize_query(user_query)
                 print(f"[RAG] Processing for tenant {target_tenant_id}: '{query}'")
-                
-                # Refine with context
-                if len(history) >= 2:
-                    refined_query = await self._refine_query(query, history)
-                else:
-                    refined_query = query
-                
+
                 # Handle greetings
                 greeting_result = self._handle_greeting(query)
                 if greeting_result:
                     greeting_result.intent = "GREETING"
                     return greeting_result
-                
-                # Route intent
+
+                # Route raw query first to avoid history hijacking (e.g., weather -> SQL fallback/no-data).
+                raw_intent = await IntentRouter.classify(query, None)
+                if raw_intent.intent_type == IntentType.GENERAL:
+                    return await self._handle_general_query(user_query, history)
+
+                # Refine with context only for non-general paths
+                if len(history) >= 2:
+                    refined_query = await self._refine_query(query, history)
+                else:
+                    refined_query = query
+
+                # Route refined query
                 intent_classification = await IntentRouter.classify(refined_query, self.llm)
+
+                # Safety: if raw is clearly GENERAL, do not allow refined context to force store intent.
+                if raw_intent.intent_type == IntentType.GENERAL:
+                    return await self._handle_general_query(user_query, history)
                 
                 # Double check: if refined intent is too broad, stick with it unless it's GREETING
                 intent_type = intent_classification.intent_type.value
@@ -732,6 +741,14 @@ class RAGService:
                     target_tenant_id,
                     role
                 )
+
+                # Deterministic fallback for frequent KPI asks when LLM SQL path yields empty results.
+                if not self._is_valid_context(context_data):
+                    context_data, source = await self._fallback_kpi_context(
+                        refined_query,
+                        target_tenant_id,
+                        role
+                    )
                 
                 # Handle no data found
                 if not self._is_valid_context(context_data):
@@ -836,6 +853,57 @@ class RAGService:
             context_data, source = await self.vector_handler.execute(query)
             print(f"[RAG] Direct Vector Result Length: {len(context_data) if context_data else 0}")
             return context_data, source
+
+    async def _fallback_kpi_context(
+        self,
+        query: str,
+        tenant_id: str,
+        role: str = None
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """Deterministic SQL fallbacks for high-frequency operational asks."""
+        q = query.lower()
+        try:
+            if "yesterday" in q and any(x in q for x in ["sale", "sales", "revenue"]):
+                sql = (
+                    'SELECT COALESCE(SUM(S."totalAmount"), 0) AS "totalSales", '
+                    'COUNT(*) AS "orderCount" '
+                    'FROM "Sale" S '
+                    'WHERE DATE(S."createdAt") = CURRENT_DATE - INTERVAL \'1 day\' '
+                )
+                if role != "SUPER_ADMIN":
+                    sql += 'AND S."tenantId" = $1'
+                    rows = await self.db.fetch_rows(sql, tenant_id)
+                else:
+                    rows = await self.db.fetch_rows(sql)
+                return json.dumps([dict(rows[0])], cls=CustomJSONEncoder), DataSource.SQL.value
+
+            if any(x in q for x in ["stock health", "inventory health", "stock status"]):
+                sql = (
+                    'SELECT COUNT(*) AS "totalProducts", '
+                    'SUM(CASE WHEN P."stockQuantity" <= 0 THEN 1 ELSE 0 END) AS "outOfStockCount", '
+                    'SUM(CASE WHEN P."stockQuantity" > 0 AND P."stockQuantity" <= 10 THEN 1 ELSE 0 END) AS "lowStockCount" '
+                    'FROM "Product" P WHERE P."isDeleted" = false '
+                )
+                if role != "SUPER_ADMIN":
+                    sql += 'AND P."tenantId" = $1'
+                    rows = await self.db.fetch_rows(sql, tenant_id)
+                else:
+                    rows = await self.db.fetch_rows(sql)
+                return json.dumps([dict(rows[0])], cls=CustomJSONEncoder), DataSource.SQL.value
+
+            if any(x in q for x in ["resource allocation", "headcount", "staff allocation"]):
+                # Keep this safe and generic across partial schemas.
+                sql = 'SELECT COUNT(*) AS "employeeCount" FROM "Employee" E WHERE E."isDeleted" = false '
+                if role != "SUPER_ADMIN":
+                    sql += 'AND E."tenantId" = $1'
+                    rows = await self.db.fetch_rows(sql, tenant_id)
+                else:
+                    rows = await self.db.fetch_rows(sql)
+                return json.dumps([dict(rows[0])], cls=CustomJSONEncoder), DataSource.SQL.value
+        except Exception as e:
+            print(f"[RAG] KPI fallback error: {e}")
+
+        return None, None
     
     @staticmethod
     def _is_valid_context(context_data: Optional[str]) -> bool:
@@ -855,6 +923,10 @@ class RAGService:
         intent: str = None
     ) -> QueryResult:
         """Handle cases where no data is found"""
+        # Never answer GENERAL intent with store no-data boilerplate.
+        if intent == IntentType.GENERAL.value:
+            return await self._handle_general_query(user_query, history)
+
         # If in conversation, try conversational response
         if history:
             return await self._synthesize_answer(
