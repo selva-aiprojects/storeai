@@ -68,7 +68,7 @@ const PayrollEngine = () => {
                             return (
                                 <div key={emp.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold">
+                                        <div className="w-12 h-12 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center font-bold">
                                             {emp.firstName[0]}{emp.lastName[0]}
                                         </div>
                                         <div>
@@ -95,7 +95,7 @@ const PayrollEngine = () => {
                                         </button>
 
                                         {slip && (
-                                            <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg">
+                                            <button className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg">
                                                 <Download size={20} />
                                             </button>
                                         )}
@@ -108,7 +108,7 @@ const PayrollEngine = () => {
 
                 {/* Payroll Summary / Policies */}
                 <div className="space-y-6">
-                    <div className="card p-6 bg-indigo-900 text-white">
+                    <div className="card p-6 bg-sky-900 text-white">
                         <h3 className="text-lg font-bold mb-4">Statutory Settings</h3>
                         <div className="space-y-4 opacity-90">
                             <div className="flex justify-between text-xs border-b border-white/10 pb-2">
@@ -154,3 +154,4 @@ const PayrollEngine = () => {
 };
 
 export default PayrollEngine;
+

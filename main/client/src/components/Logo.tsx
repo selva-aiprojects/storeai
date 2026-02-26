@@ -4,71 +4,61 @@ interface LogoProps {
     size?: number;
     showText?: boolean;
     className?: string;
+    theme?: 'light' | 'dark';
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "" }) => {
-    // We'll use the new logo image saved in public/logo-mt.png
-    // The image contains both the icon and the text "StoreAI MULTI-TENANT"
+const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "", theme = 'dark' }) => {
+    const effectiveSize = size * 2.5;
+    const primaryLogo = theme === 'light' ? '/StoreAI-Logo-new.png' : '/StoreAI-Logo-new.png';
+    const fallbackLogo = '/StoreAI-Logo-new.png';
+    const iconPath = '/favicon-cart.svg';
+    const styleFilter = theme === 'light'
+        ? 'none'
+        : 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
 
     return (
         <div className={`flex items-center ${className}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
             <div style={{
                 position: 'relative',
-                width: showText ? 'auto' : size,
-                height: size,
+                width: showText ? 'auto' : effectiveSize,
+                height: effectiveSize,
                 display: 'flex',
                 alignItems: 'center',
-                overflow: 'hidden',
+                overflow: 'visible', // allow overflow so large logos don't get clipped
                 borderRadius: '8px',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                filter: styleFilter
             }}>
                 {showText ? (
-                    // Full Brand Identity (Horizontal)
                     <img
-                        src="/logo-mt.png"
-                        alt="StoreAI MULTI-TENANT"
+                        src={primaryLogo}
+                        alt="StoreAI"
                         style={{
-                            height: size,
+                            height: effectiveSize,
                             width: 'auto',
                             objectFit: 'contain',
                             display: 'block'
                         }}
                         onError={(e) => {
-                            // Fallback if image fails
+                            if (e.currentTarget.src.endsWith(primaryLogo)) {
+                                e.currentTarget.src = fallbackLogo;
+                                return;
+                            }
                             e.currentTarget.style.display = 'none';
                         }}
                     />
                 ) : (
-                    // Icon Only Mode (Square-ish crop of the brain/store icon)
-                    <div style={{
-                        width: size,
-                        height: size,
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'transparent'
+                    <div className="bg-gradient-to-br from-[#0061A8] to-[#00A3E0] shadow-md rounded-[0.8rem] flex items-center justify-center" style={{
+                        width: '42px',
+                        height: '42px',
                     }}>
                         <img
                             src="/logo-mt.png"
                             alt="StoreAI"
-                            style={{
-                                height: size * 2.2, // Zoomed significantly for maximum impact
-                                width: 'auto',
-                                maxWidth: 'none',
-                                objectFit: 'cover',
-                                objectPosition: '0% center', // Focus on the icon at the very left
-                            }}
+                            className="w-[75%] h-[75%] object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
                         />
                     </div>
                 )}
             </div>
-
-            {/* 
-                Since the new logo image already has the text "StoreAI MULTI-TENANT",
-                visible when showText is true (because we show the full horizontal image),
-                we don't render additional separate text here to avoid duplication.
-            */}
         </div>
     );
 };

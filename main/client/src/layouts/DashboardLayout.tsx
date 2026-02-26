@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import Logo from '../components/Logo';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }: any) => {
@@ -77,17 +78,6 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }:
                         </motion.div>
                     </AnimatePresence>
                 </div>
-                <footer className="footer" style={{ padding: '20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="footer-copyright">
-                        <div style={{ color: 'var(--accent-primary)', fontWeight: 600, marginBottom: '4px' }}>VERSION 3.0.4 // HYPERION ARCHITECTURE</div>
-                        &copy; {new Date().getFullYear()} StoreAI Intelligence Platform from Cognivectra's product.
-                    </div>
-                    <div style={{ display: 'flex', gap: '20px', fontSize: '0.65rem', opacity: 0.6, fontWeight: 700 }}>
-                        <span style={{ color: 'var(--accent-secondary)' }}>F2: NEW SALE</span>
-                        <span>F9: EXECUTE</span>
-                        <span>ESC: CLOSE</span>
-                    </div>
-                </footer>
             </div>
         </div>
     );

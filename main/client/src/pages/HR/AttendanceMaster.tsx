@@ -150,7 +150,7 @@ const AttendanceMaster = () => {
                     </div>
                     <p className="text-[10px] text-gray-400 mt-1">Accumulated overtime for payout</p>
                 </div>
-                <div className="card p-6 border-l-4 border-l-purple-500">
+                <div className="card p-6 border-l-4 border-l-blue-500">
                     <h4 className="text-xs font-bold text-gray-400 uppercase mb-2">Leave Roster</h4>
                     <div className="text-2xl font-black">{Object.values(attendance).filter(a => a.status === 'LEAVE').length}</div>
                     <p className="text-[10px] text-gray-400 mt-1">Employees on approved vacation</p>
@@ -161,3 +161,4 @@ const AttendanceMaster = () => {
 };
 
 export default AttendanceMaster;
+

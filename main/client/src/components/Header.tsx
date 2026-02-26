@@ -48,10 +48,11 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     <Menu size={24} />
                 </button>
 
-                <div className="header-title">
-                    <span className="title-text">{getPageTitle()}</span>
-                    <span className="tenant-text">
-                        {user?.activeTenant?.name ? user.activeTenant.name.toUpperCase() : 'STOREAI ENTERPRISE'}
+                {/* Main Content Page Logo Removed per request */}
+                <div className="header-title flex flex-col items-start gap-1">
+                    <span className="title-text text-lg font-black tracking-tight text-[#002244] uppercase leading-none">{getPageTitle()}</span>
+                    <span className="tenant-text text-[10px] font-bold tracking-widest text-[#0061A8]/80 uppercase leading-none">
+                        {user?.activeTenant?.name ? user.activeTenant.name : 'STOREAI ENTERPRISE'}
                     </span>
                 </div>
             </div>
@@ -65,7 +66,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </button>
 
                 <button
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all"
+                    className="p-2 text-gray-400 hover:text-sky-700 hover:bg-sky-50 rounded-full transition-all"
                     title="Sync Data"
                     onClick={() => {
                         const path = location.pathname;
@@ -83,24 +84,24 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 <div className="h-6 w-px bg-gray-200 mx-1"></div>
 
                 <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-[#0061A8] bg-[#0061A8]/5 hover:bg-[#0061A8]/10 border border-[#0061A8]/20 transition-all uppercase tracking-wider"
                     onClick={() => navigate('/stock-analyzer')}
                 >
                     <TrendingUp size={16} />
-                    <span>MARKET</span>
+                    <span>Market Intel</span>
                 </button>
 
                 <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:shadow-lg hover:shadow-fuchsia-200 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#0061A8] to-[#00A3E0] hover:shadow-lg hover:shadow-blue-900/10 transition-all uppercase tracking-wider"
                     onClick={() => navigate('/assistant')}
                 >
                     <Sparkles size={16} />
-                    <span>AI INTEL</span>
+                    <span>AI Intel</span>
                 </button>
 
                 {showNewButton && (
                     <button
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gray-900 hover:bg-gray-800 transition-all ml-2"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-[#001a33] hover:bg-[#002244] transition-all ml-2 uppercase tracking-wider shadow-lg shadow-slate-900/10"
                         onClick={() => {
                             const path = location.pathname;
                             let type = path.substring(1);
@@ -111,7 +112,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                         }}
                     >
                         <Plus size={16} />
-                        <span>NEW ENTRY</span>
+                        <span>New Entry</span>
                     </button>
                 )}
             </div>

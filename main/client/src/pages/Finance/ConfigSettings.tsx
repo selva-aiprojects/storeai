@@ -91,7 +91,7 @@ const ConfigSettings = () => {
                 {/* Operation Controls */}
                 <div className="card p-6">
                     <div className="flex items-start gap-4 mb-6">
-                        <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                             <Shield size={24} />
                         </div>
                         <div>
@@ -105,7 +105,7 @@ const ConfigSettings = () => {
                                 type="checkbox"
                                 checked={configs.enforceApproval}
                                 onChange={(e) => setConfigs({ ...configs, enforceApproval: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-indigo-600"
+                                className="w-5 h-5 rounded border-gray-300 text-sky-600"
                             />
                             <div>
                                 <span className="text-sm font-bold text-gray-800">Enforce Daybook Approval</span>
@@ -117,7 +117,7 @@ const ConfigSettings = () => {
                                 type="checkbox"
                                 checked={configs.allowPartialReturns}
                                 onChange={(e) => setConfigs({ ...configs, allowPartialReturns: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-indigo-600"
+                                className="w-5 h-5 rounded border-gray-300 text-sky-600"
                             />
                             <div>
                                 <span className="text-sm font-bold text-gray-800">Allow Partial Sales Returns</span>
@@ -144,3 +144,4 @@ const ConfigSettings = () => {
 };
 
 export default ConfigSettings;
+

@@ -22,6 +22,7 @@ import tenantRoutes from './routes/tenantRoutes';
 import requisitionRoutes from './routes/requisitionRoutes';
 import financeRoutes from './routes/financeRoutes';
 import auditRoutes from './routes/auditRoutes';
+import aiRoutes from './routes/aiRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 
@@ -90,6 +91,7 @@ app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/requisitions', requisitionRoutes);
 app.use('/api/v1/finance', financeRoutes);
 app.use('/api/v1/audit-logs', auditRoutes);
+app.use('/api/v1/ai', aiRoutes);
 app.get('/api/v1/dashboard/stats', authenticate, getDashboardStats);
 
 app.get('/', (req, res) => res.send('🚀 StoreAI API Gateway is Active. Access versioned endpoints at /api/v1'));

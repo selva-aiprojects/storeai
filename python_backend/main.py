@@ -1,5 +1,7 @@
 
 import os
+import json
+import re
 from dotenv import load_dotenv
 
 # Load .env from main directory ASAP
@@ -14,6 +16,7 @@ from pydantic import BaseModel
 from services.rag import rag_service
 from services.llm import llm_service
 from services.ai_orchestration import ai_orchestration_service
+from services.market_data import market_data_service, MarketDataError
 from utils.logger import logger, log_error, log_api_call
 import uvicorn
 import traceback
@@ -166,132 +169,87 @@ async def analyze_stock(req: StockRequest, user: dict = Depends(get_current_user
     try:
         if not req.ticker:
             raise HTTPException(status_code=400, detail="Ticker is required")
-            
-        prompt = f"""Role: Institutional Quantitative Analyst AI specializing in Indian Markets.
-Task: Perform a deep-dive analysis of {req.ticker} (focus on NSE/BSE) for an institutional investment memo.
-Input Data: Simulate real-time market data across Indian exchanges, technical indicators (RSI, MACD, Bollinger, Moving Averages), fundamental data (P/E, EPS, Revenue Growth), and scan recent news/sentiment related to Indian economy and specific sectors.
 
-Output: STRICT JSON ONLY. No markdown. No conversational text.
-Target JSON Structure (AiAnalysis Interface):
+        live_context = await market_data_service.fetch_live_context(req.ticker)
+        live_json = json.dumps(live_context, ensure_ascii=True)
 
+        prompt = f"""Role: Institutional Quantitative Analyst.
+Task: Generate prediction and interpretation ONLY from the provided LIVE market context.
+
+LIVE_CONTEXT_JSON:
+{live_json}
+
+STRICT RULES:
+1. Use ONLY LIVE_CONTEXT_JSON for market facts.
+2. Do NOT simulate any market data.
+3. If a field is missing in LIVE_CONTEXT_JSON, keep it null or explicitly state \"insufficient live data\".
+4. Prediction is allowed, but clearly label it as forecast.
+5. Return STRICT JSON only (no markdown).
+
+Return structure:
 {{
-    "meta": {{
-        "ticker": "{req.ticker}",
-        "company_name": "<Full Company Name>",
-        "sector": "<Sector>",
-        "last_price": <number>,
-        "currency": "INR",
-        "time_range": "6M"
-    }},
-    "core_signals": {{
-        "ai_overall_rating": "Strong Buy" | "Buy" | "Hold" | "Sell" | "Avoid",
-        "technical_score": <0-100>,
-        "fundamental_score": <0-100>,
-        "news_score": <0-100>,
-        "risk_score": <0-100>, 
-        "confidence": <0-100>
-    }},
-    "ai_rationale": {{
-        "thesis": "<Executive summary thesis (2-3 sentences)>",
-        "time_horizon": "short_term" | "medium_term" | "long_term",
-        "bull_case": "<Optimistic scenario>",
-        "bear_case": "<Downside risks>",
-        "base_case": "<Most likely outcome>"
-    }},
-    "explanations": {{
-        "technical_explain": "<Specific levels, indicators>",
-        "fundamental_explain": "<Valuation, growth stats>",
-        "news_explain": "<Key narratives driving price>",
-        "risk_explain": "<Key headwinds>"
-    }},
-    "history_context": {{
-        "previous_calls": [
-            {{ "date": "2024-01-15", "rating": "Buy", "confidence": 85, "outcome": "outperformed" }},
-            {{ "date": "2024-03-20", "rating": "Hold", "confidence": 70, "outcome": "neutral" }}
-        ],
-        "model_confidence_trend": [
-            {{ "date": "2024-01-01", "confidence": 75 }},
-            {{ "date": "2024-06-01", "confidence": 80 }}
-        ]
-    }},
-    "charts": {{
-        "price_series": [ 
-            {{ "date": "2024-01-01", "close": 2500.00 }},
-            ... (Generate ~15 data points matching the trend)
-        ]
-    }},
-    "recent_news": [
-        {{
-            "headline": "<Headline>",
-            "source": "MoneyControl" | "Economic Times" | "LiveMint",
-            "published_at": "<Relative Date>",
-            "sentiment": "Positive" | "Negative" | "Neutral",
-            "impact": "High" | "Medium" | "Low",
-            "why_it_matters": "<One concise sentence insight>"
-        }}
-    ]
-}}
+  \"meta\": {{
+    \"ticker_requested\": \"{req.ticker}\",
+    \"symbol_resolved\": \"<symbol>\",
+    \"company_name\": \"<name|null>\",
+    \"exchange\": \"<exchange|null>\",
+    \"currency\": \"<currency|null>\",
+    \"as_of_epoch\": <number>
+  }},
+  \"live_snapshot\": {{
+    \"last_price\": <number|null>,
+    \"change_percent\": <number|null>,
+    \"volume\": <number|null>,
+    \"market_cap\": <number|null>,
+    \"pe\": <number|null>,
+    \"eps_ttm\": <number|null>,
+    \"rsi14\": <number|null>,
+    \"sma20\": <number|null>,
+    \"sma50\": <number|null>
+  }},
+  \"prediction\": {{
+    \"rating\": \"Strong Buy|Buy|Hold|Sell|Avoid\",
+    \"horizon\": \"short_term|medium_term|long_term\",
+    \"confidence\": <0-100>,
+    \"bull_case\": \"<forecast>\",
+    \"base_case\": \"<forecast>\",
+    \"bear_case\": \"<forecast>\"
+  }},
+  \"analysis\": {{
+    \"thesis\": \"<2-3 sentences grounded in live data>\",
+    \"risk_factors\": [\"<risk1>\", \"<risk2>\"],
+    \"action_points\": [\"<action1>\", \"<action2>\"]
+  }},
+  \"news_digest\": [
+    {{
+      \"title\": \"<title>\",
+      \"publisher\": \"<publisher>\",
+      \"published_at_epoch\": <number|null>,
+      \"impact\": \"High|Medium|Low\",
+      \"why_it_matters\": \"<grounded explanation>\"
+    }}
+  ],
+  \"price_series\": [
+    {{\"ts\": <epoch|null>, \"close\": <number>}}
+  ]
+}}"""
 
-Instructions:
-1. Be specific with numbers (Price in ₹, P/E, RSI).
-2. Ensure `core_signals` scores are consistent with the `ai_overall_rating`.
-3. Simulate a realistic `price_series` array that visually correlates with your technical analysis.
-4. Provide "Insider" level insight in `why_it_matters` for news, focusing on SEBI regulations, RBI policies, or Indian sector trends.
-"""
-        
         response = await llm_service.generate_response(prompt)
-        
-        # Clean response if it contains markdown code blocks
-        import re
         json_match = re.search(r'\{.*\}', response, re.DOTALL)
         if json_match:
             response = json_match.group(0)
-            
-        import json
+
         return json.loads(response)
-        
+
+    except MarketDataError as e:
+        logger.error(f"Live market data unavailable: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail=f"Live market data unavailable for ticker '{req.ticker}': {str(e)}"
+        )
     except Exception as e:
         logger.error(f"Stock analysis failed: {e}")
-        # Return mock data on failure to prevent UI crash
-        return {
-            "meta": {
-                "ticker": req.ticker,
-                "company_name": f"{req.ticker} Enterprises (NSE)",
-                "sector": "Indian Bluechip",
-                "last_price": 2450.00,
-                "currency": "INR",
-                "time_range": "6M"
-            },
-            "core_signals": {
-                "ai_overall_rating": "Hold",
-                "technical_score": 50,
-                "fundamental_score": 60,
-                "news_score": 50,
-                "risk_score": 40,
-                "confidence": 50
-            },
-            "ai_rationale": {
-                "thesis": "AI Signal relay temporarily interrupted. Displaying simulation metrics.",
-                "time_horizon": "medium_term",
-                "bull_case": "Market consolidation complete.",
-                "bear_case": "Macroeconomic headwinds.",
-                "base_case": "Neutral sideways movement."
-            },
-            "explanations": {
-                "technical_explain": "Awaiting live feed...",
-                "fundamental_explain": "Awaiting Q3 reports...",
-                "news_explain": "Awaiting sentiment pulse...",
-                "risk_explain": "N/A"
-            },
-            "history_context": {
-                "previous_calls": [],
-                "model_confidence_trend": []
-            },
-            "charts": {
-                "price_series": []
-            },
-            "recent_news": []
-        }
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/ai/market-research")
 @app.get("/api/ai/market-research")
@@ -421,4 +379,3 @@ app.add_middleware(
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-

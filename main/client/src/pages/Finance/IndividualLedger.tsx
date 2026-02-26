@@ -67,7 +67,7 @@ const IndividualLedger = () => {
                                     </td>
                                     <td>
                                         <div className="font-semibold text-gray-900">{item.description}</div>
-                                        <div className="text-[10px] text-indigo-500 font-bold uppercase">{item.type}</div>
+                                        <div className="text-[10px] text-sky-500 font-bold uppercase">{item.type}</div>
                                     </td>
                                     <td className="font-mono text-[10px] text-gray-400">
                                         {item.referenceId || '--'}
@@ -101,3 +101,4 @@ const IndividualLedger = () => {
 };
 
 export default IndividualLedger;
+

@@ -1,0 +1,24 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="StoreAI cart app icon">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#3cc3ff" />
+      <stop offset="55%" stop-color="#1399e9" />
+      <stop offset="100%" stop-color="#0b6fcb" />
+    </radialGradient>
+  </defs>
+
+  <circle cx="32" cy="32" r="30" fill="url(#bg)" />
+
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 22h6l3.2 18.2H45l3.6-12.8H26.3" stroke-width="3.2" />
+    <circle cx="30.8" cy="46.2" r="2.5" fill="#ffffff" stroke="none" />
+    <circle cx="42.7" cy="46.2" r="2.5" fill="#ffffff" stroke="none" />
+
+    <circle cx="22.2" cy="18.2" r="1.8" fill="#ffffff" stroke="none" />
+    <circle cx="29.2" cy="15.7" r="1.6" fill="#ffffff" stroke="none" />
+    <circle cx="36.7" cy="17.5" r="1.6" fill="#ffffff" stroke="none" />
+    <circle cx="43.8" cy="21" r="1.8" fill="#ffffff" stroke="none" />
+    <path d="M24 19l4.2-2.2m2.4.7l4.5 1.3m2.7.9l4.1 2" stroke-width="1.8" />
+    <path d="M27.8 24.2l5.2 3.2m-8.6.9l6.5 1.2m6 .9l6.2.9m-19.6 5.5l6.2.9m5 .8l5.6.7" stroke-width="1.7" />
+  </g>
+</svg>

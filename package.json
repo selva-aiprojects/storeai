@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "store-ai-client": "file:main/client",
+    "tsc": "^2.0.4",
+    "typescript": "^5.9.3"
+  }
+}

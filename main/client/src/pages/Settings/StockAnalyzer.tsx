@@ -84,7 +84,7 @@ const StockAnalyzer: React.FC = () => {
 
     const fetchMarketResearch = async () => {
         try {
-            const resp = await aiApi.get('/ai/market-research');
+            const resp = await aiApi.get('/market-research');
             setMarketResearch(resp.data);
         } catch (e) {
             console.error("Market Research Feed Failed", e);
@@ -110,7 +110,7 @@ const StockAnalyzer: React.FC = () => {
         setAnalysis(null);
 
         try {
-            const response = await aiApi.post('/ai/stock-analyze', { ticker });
+            const response = await aiApi.post('/stock-analyze', { ticker });
             // The backend returns an error field if it fails but catches
             if (response.data?.error) throw new Error(response.data.error);
             // If it returns mock data because of an exception, it might look successful but have placeholders
@@ -161,7 +161,7 @@ const StockAnalyzer: React.FC = () => {
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-slate-200/60">
                     <div className="flex items-center gap-5">
                         <div className="p-4 bg-white shadow-sm rounded-2xl border border-slate-100">
-                            <Brain className="w-10 h-10 text-indigo-600" />
+                            <Brain className="w-10 h-10 text-sky-600" />
                         </div>
                         <div>
                             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
@@ -185,8 +185,8 @@ const StockAnalyzer: React.FC = () => {
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Node Instance</span>
                             <span className="text-xs font-black text-slate-700">STOREAI-V3-HYPERION</span>
                         </div>
-                        <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl">
-                            <Activity size={20} className="text-indigo-600" />
+                        <div className="p-3 bg-sky-50 border border-sky-100 rounded-xl">
+                            <Activity size={20} className="text-sky-600" />
                         </div>
                     </div>
                 </header>
@@ -205,7 +205,7 @@ const StockAnalyzer: React.FC = () => {
                             </div>
                         </div>
                     ))}
-                    <div className="flex-[2] bg-indigo-600 p-4 rounded-2xl flex items-center justify-between text-white shadow-lg shadow-indigo-200">
+                    <div className="flex-[2] bg-sky-600 p-4 rounded-2xl flex items-center justify-between text-white shadow-lg shadow-sky-200">
                         <div className="flex items-center gap-4">
                             <div className="bg-white/20 p-2 rounded-lg">
                                 <Zap size={18} />
@@ -391,10 +391,10 @@ const StockAnalyzer: React.FC = () => {
                             <div className="lg:col-span-8 card" style={{ padding: '32px' }}>
                                 <div className="flex justify-between items-center mb-8">
                                     <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                                        <BarChart2 className="w-5 h-5 text-indigo-500" /> Historical Performance & Inference
+                                        <BarChart2 className="w-5 h-5 text-sky-500" /> Historical Performance & Inference
                                     </h3>
                                     <div className="flex gap-4 text-[10px] font-bold text-slate-400">
-                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-indigo-500"></div> PRICE</div>
+                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500"></div> PRICE</div>
                                         <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500"></div> AI CALLS</div>
                                     </div>
                                 </div>
@@ -526,7 +526,7 @@ const StockAnalyzer: React.FC = () => {
                                     analysis.recent_news.map((news, i) => (
                                         <div
                                             key={i}
-                                            className="p-5 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all group"
+                                            className="p-5 bg-white border border-slate-100 rounded-2xl hover:border-sky-200 hover:shadow-md transition-all group"
                                         >
                                             <div className="flex justify-between items-start gap-4">
                                                 <div className="flex-1">
@@ -538,7 +538,7 @@ const StockAnalyzer: React.FC = () => {
                                                         </span>
                                                         <span className="text-[9px] font-extrabold text-slate-400">{news.source.toUpperCase()} • {news.published_at}</span>
                                                     </div>
-                                                    <h4 className="text-slate-900 font-extrabold text-sm leading-snug group-hover:text-indigo-600 transition-colors">
+                                                    <h4 className="text-slate-900 font-extrabold text-sm leading-snug group-hover:text-sky-600 transition-colors">
                                                         {news.headline}
                                                     </h4>
                                                     <p className="mt-3 text-[11px] text-slate-500 leading-normal font-medium italic">
@@ -577,3 +577,4 @@ const StockAnalyzer: React.FC = () => {
 };
 
 export default StockAnalyzer;
+

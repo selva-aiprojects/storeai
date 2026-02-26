@@ -51,7 +51,7 @@ const EmployeeMaster = () => {
                         <div
                             key={emp.id}
                             onClick={() => setSelected(emp)}
-                            className={`p-4 cursor-pointer hover:bg-gray-50 border-b last:border-0 transition ${selected?.id === emp.id ? 'bg-indigo-50 border-r-4 border-r-indigo-600' : ''}`}
+                            className={`p-4 cursor-pointer hover:bg-gray-50 border-b last:border-0 transition ${selected?.id === emp.id ? 'bg-sky-50 border-r-4 border-r-sky-600' : ''}`}
                         >
                             <div className="font-bold text-gray-900">{emp.firstName} {emp.lastName}</div>
                             <div className="text-xs text-gray-500">{emp.designation} • {emp.employeeId}</div>
@@ -165,7 +165,7 @@ const EmployeeMaster = () => {
                                 </div>
                                 <div>
                                     <div className="text-xs text-gray-500 mb-1">Incentive Profile</div>
-                                    <div className="text-xl font-black text-indigo-600">{selected.incentivePercentage || 0}%</div>
+                                    <div className="text-xl font-black text-sky-600">{selected.incentivePercentage || 0}%</div>
                                 </div>
                                 <div>
                                     <div className="text-xs text-gray-500 mb-1">Appraisal Status</div>
@@ -186,3 +186,4 @@ const EmployeeMaster = () => {
 };
 
 export default EmployeeMaster;
+

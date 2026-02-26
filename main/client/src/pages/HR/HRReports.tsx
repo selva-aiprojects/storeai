@@ -41,13 +41,13 @@ const HRReports = () => {
                 <div className="flex-1 flex gap-2">
                     <button
                         onClick={() => setReportType('SALARY')}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${reportType === 'SALARY' ? 'bg-indigo-600 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${reportType === 'SALARY' ? 'bg-sky-600 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                     >
                         Yearly Salary Report
                     </button>
                     <button
                         onClick={() => setReportType('PF')}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${reportType === 'PF' ? 'bg-indigo-600 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${reportType === 'PF' ? 'bg-sky-600 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                     >
                         PF Collection Report
                     </button>
@@ -92,11 +92,11 @@ const HRReports = () => {
                                 {reportType === 'SALARY' ? (
                                     <>
                                         <td className="font-mono text-gray-600">${item.totalBase?.toLocaleString()}</td>
-                                        <td className="font-mono text-indigo-600">+${item.totalInc?.toLocaleString()}</td>
+                                        <td className="font-mono text-sky-600">+${item.totalInc?.toLocaleString()}</td>
                                         <td className="font-mono font-bold text-gray-900">${item.totalNet?.toLocaleString()}</td>
                                         <td>
                                             <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                <div className="h-full bg-indigo-500" style={{ width: '75%' }}></div>
+                                                <div className="h-full bg-sky-500" style={{ width: '75%' }}></div>
                                             </div>
                                         </td>
                                     </>
@@ -129,9 +129,9 @@ const HRReports = () => {
                     </span>
                 </div>
                 <div className="flex gap-2">
-                    <button className="text-[10px] font-bold text-indigo-600 hover:underline">AUDIT LOGS</button>
+                    <button className="text-[10px] font-bold text-sky-600 hover:underline">AUDIT LOGS</button>
                     <span className="text-gray-300">|</span>
-                    <button className="text-[10px] font-bold text-indigo-600 hover:underline">TAX DECLARATIONS</button>
+                    <button className="text-[10px] font-bold text-sky-600 hover:underline">TAX DECLARATIONS</button>
                 </div>
             </div>
         </div>
@@ -139,3 +139,4 @@ const HRReports = () => {
 };
 
 export default HRReports;
+

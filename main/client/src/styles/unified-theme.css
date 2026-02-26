@@ -5,17 +5,17 @@
 
 :root {
   /* ===== CORE BRAND COLORS ===== */
-  --brand-navy: #020617;
-  --brand-indigo: #4f46e5;
-  --brand-sky: #0ea5e9;
+  --brand-navy: #0a1c33;
+  --brand-primary: #0b6fcb;
+  --brand-sky: #38c7f3;
   --brand-slate: #475569;
 
   /* ===== MODULE-SPECIFIC ACCENT COLORS (Consistent Across App) ===== */
   
   /* Dashboard & Overview */
-  --module-dashboard: #4f46e5;        /* Indigo 600 */
-  --module-dashboard-light: #6366f1;  /* Indigo 500 */
-  --module-dashboard-bg: rgba(79, 70, 229, 0.05);
+  --module-dashboard: #0b6fcb;        /* StoreAI blue */
+  --module-dashboard-light: #1d9df1;  /* Sky blue */
+  --module-dashboard-bg: rgba(29, 157, 241, 0.08);
   
   /* Inventory & Products */
   --module-inventory: #0ea5e9;        /* Sky 500 */
@@ -33,9 +33,9 @@
   --module-purchases-bg: rgba(245, 158, 11, 0.05);
   
   /* Finance & Accounting */
-  --module-finance: #8b5cf6;          /* Violet 500 */
-  --module-finance-light: #a78bfa;    /* Violet 400 */
-  --module-finance-bg: rgba(139, 92, 246, 0.05);
+  --module-finance: #0b6fcb;          /* StoreAI Blue */
+  --module-finance-light: #1d9df1;    /* Sky Blue */
+  --module-finance-bg: rgba(29, 157, 241, 0.08);
   
   /* HR & People */
   --module-hr: #ec4899;               /* Pink 500 */
@@ -58,9 +58,9 @@
   --module-crm-bg: rgba(20, 184, 166, 0.05);
   
   /* AI & Intelligence */
-  --module-ai: #d946ef;               /* Fuchsia 500 */
-  --module-ai-light: #e879f9;         /* Fuchsia 400 */
-  --module-ai-bg: rgba(217, 70, 239, 0.05);
+  --module-ai: #0ea5e9;               /* Sky 500 */
+  --module-ai-light: #38c7f3;         /* Sky 400 */
+  --module-ai-bg: rgba(14, 165, 233, 0.08);
 
   /* ===== STATUS COLORS (Professional & Accessible) ===== */
   --status-success: #10b981;          /* Emerald 500 */
@@ -122,7 +122,7 @@
   --border-default: #e2e8f0;          /* Slate 200 */
   --border-medium: #cbd5e1;           /* Slate 300 */
   --border-strong: #94a3b8;           /* Slate 400 */
-  --border-focus: var(--brand-indigo);
+  --border-focus: var(--brand-primary);
 
   /* ===== SHADOWS (Subtle & Professional) ===== */
   --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
@@ -561,7 +561,7 @@
 
 .loading-spinner {
   border: 3px solid var(--border-light);
-  border-top-color: var(--brand-indigo);
+  border-top-color: var(--brand-primary);
   border-radius: var(--radius-full);
   width: 40px;
   height: 40px;
@@ -585,3 +585,4 @@
     --sidebar-width: 240px;
   }
 }
+

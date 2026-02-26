@@ -41,7 +41,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
                             {parsed.map((row, i) => (
-                                <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
+                                <tr key={i} className="hover:bg-sky-50/30 transition-colors">
                                     {headers.map(h => (
                                         <td key={h} className="px-3 py-2 whitespace-nowrap text-[10px] text-gray-600 border-r border-gray-100 last:border-r-0">
                                             {String(row[h])}
@@ -60,7 +60,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
                 <div className="p-3 space-y-1">
                     {Object.entries(parsed).map(([k, v]) => (
                         <div key={k} className="flex gap-2 border-b border-gray-50 last:border-0 pb-1">
-                            <span className="font-bold text-purple-600 uppercase text-[9px] min-w-[80px]">{k.replace(/_/g, ' ')}:</span>
+                            <span className="font-bold text-blue-600 uppercase text-[9px] min-w-[80px]">{k.replace(/_/g, ' ')}:</span>
                             <span className="text-[10px] text-gray-700">{String(v)}</span>
                         </div>
                     ))}
@@ -201,12 +201,12 @@ const Assistant = () => {
             {/* HEADER */}
             <header className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-purple-50 rounded-xl border border-purple-100">
-                        <Sparkles className="w-6 h-6 text-purple-600" />
+                    <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                        <Sparkles className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
-                            StoreAI <span className="text-purple-600">Intelligence Platform</span>
+                            StoreAI <span className="text-blue-600">Intelligence Platform</span>
                         </h1>
                         <p className="text-xs text-gray-500 font-medium">
                             Intelligent Store Oversight • Operational Insights
@@ -241,10 +241,10 @@ const Assistant = () => {
                         >
 
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center
-                                ${msg.sender === 'user' ? 'bg-indigo-600' : 'bg-purple-100'}`}>
+                                ${msg.sender === 'user' ? 'bg-sky-600' : 'bg-blue-100'}`}>
                                 {msg.sender === 'user'
                                     ? <User size={20} className="text-white" />
-                                    : <Bot size={20} className="text-purple-600" />}
+                                    : <Bot size={20} className="text-blue-600" />}
                             </div>
 
                             <div className="max-w-[85%] space-y-2">
@@ -254,7 +254,7 @@ const Assistant = () => {
                                             ? 'bg-blue-100 text-blue-700'
                                             : msg.source === 'CONVERSATION' || msg.source === 'HEURISTIC'
                                                 ? 'bg-green-100 text-green-700'
-                                                : 'bg-purple-100 text-purple-700'
+                                                : 'bg-blue-100 text-blue-700'
                                             }`}>
                                             {msg.source === 'SQL'
                                                 ? '✓ Structured Data'
@@ -266,7 +266,7 @@ const Assistant = () => {
                                 )}
                                 <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed assistant-markdown
                                     ${msg.sender === 'user'
-                                        ? 'bg-indigo-600 text-white'
+                                        ? 'bg-sky-600 text-white'
                                         : 'bg-gray-50 text-gray-800 border'}`}>
                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                         {msg.text}
@@ -344,7 +344,7 @@ const Assistant = () => {
 
                     {loading && (
                         <div className="flex gap-3">
-                            <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
+                            <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
                             <span className="text-xs text-gray-400">Analyzing...</span>
                         </div>
                     )}
@@ -358,7 +358,7 @@ const Assistant = () => {
                         <button
                             key={label}
                             onClick={() => setInput(label)}
-                            className="whitespace-nowrap px-3 py-1.5 rounded-full border border-purple-200 bg-purple-50 text-purple-700 text-[11px] font-semibold hover:bg-purple-100 transition"
+                            className="whitespace-nowrap px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 text-[11px] font-semibold hover:bg-blue-100 transition"
                         >
                             {label}
                         </button>
@@ -379,7 +379,7 @@ const Assistant = () => {
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || loading}
-                            className="p-3 bg-purple-600 rounded-xl text-white hover:bg-purple-700 transition"
+                            className="p-3 bg-blue-600 rounded-xl text-white hover:bg-blue-700 transition"
                         >
                             <Send size={20} />
                         </button>
@@ -391,3 +391,4 @@ const Assistant = () => {
 };
 
 export default Assistant;
+

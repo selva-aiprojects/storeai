@@ -90,3 +90,15 @@ temp_token.txt
 # Internal Design Documents (Confidential)
 main/docs/design/TECHNICAL_DESIGN_DOCUMENT_LLD.md
 
+# Local agent/runtime artifacts
+.agent/
+python_backend/logs/
+
+# Frontend automation/runtime artifacts
+main/client/puppeteer_data/
+main/client/capture_screenshots.js
+
+# Generated debug assets/docs (local testing)
+main/docs/debug_*.png
+main/docs/error_state.png
+main/docs/StoreAI_Role_Workflows.docx

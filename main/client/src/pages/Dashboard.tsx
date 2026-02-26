@@ -97,25 +97,25 @@ const Dashboard = () => {
             </div>
 
             {/* --- Market Intelligence & Exchanges (Unified Professional AI Theme) --- */}
-            <div className="flex items-center gap-3 mt-4 mb-3 border-b border-fuchsia-100 pb-2">
-                <div className="bg-fuchsia-100 p-1.5 rounded-lg">
-                    <Activity size={18} className="text-fuchsia-600" />
+            <div className="flex items-center gap-3 mt-4 mb-3 border-b border-cyan-100 pb-2">
+                <div className="bg-cyan-100 p-1.5 rounded-lg">
+                    <Activity size={18} className="text-cyan-600" />
                 </div>
                 <h2 className="text-sm font-bold text-gray-800 tracking-tight uppercase">Predictive Market Intelligence</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-fuchsia-50 text-fuchsia-600 rounded-full border border-fuchsia-100">AI POWERED</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded-full border border-cyan-100">AI POWERED</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Market Sentiment Card */}
-                <div className="card border-t-4 border-t-fuchsia-500 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                <div className="card border-t-4 border-t-cyan-500 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
                     {/* Background Decoration */}
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                         <Zap size={140} />
                     </div>
 
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-fuchsia-50/30">
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-cyan-50/30">
                         <div className="flex items-center gap-2">
-                            <Zap size={16} className="text-fuchsia-500" />
+                            <Zap size={16} className="text-cyan-500" />
                             <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Market Sentiment</span>
                         </div>
                         {marketData && (
@@ -131,7 +131,7 @@ const Dashboard = () => {
                     <div className="p-5 relative z-10">
                         {marketData ? (
                             <div className="space-y-4">
-                                <div className="bg-fuchsia-50/50 rounded-xl p-4 border border-fuchsia-100/50">
+                                <div className="bg-cyan-50/50 rounded-xl p-4 border border-cyan-100/50">
                                     <p className="text-sm text-gray-700 leading-relaxed font-medium">
                                         {marketData.summary}
                                     </p>
@@ -139,7 +139,7 @@ const Dashboard = () => {
 
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <TrendingIcon size={14} className="text-fuchsia-400" />
+                                        <TrendingIcon size={14} className="text-cyan-400" />
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Top Monitoring</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -365,3 +365,4 @@ const DetailRow = ({ label, value, isDanger }: any) => (
 );
 
 export default Dashboard;
+

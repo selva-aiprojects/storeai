@@ -85,16 +85,15 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
             {/* Redesigned Sidebar Header */}
-            <div className="sidebar-header" style={{ padding: '0 30px 0 0' }}>
-                <Logo size={isCollapsed ? 92 : 144} showText={!isCollapsed} className="-ml-3" />
-
+            <div className="sidebar-header flex items-center justify-center p-4 relative" style={{ minHeight: isCollapsed ? '80px' : '100px' }}>
+                <Logo size={isCollapsed ? 64 : 84} showText={!isCollapsed} className={isCollapsed ? '' : 'sidebar-brand'} theme="dark" />
 
                 {!mobileOpen && (
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
                         style={{
                             position: 'absolute',
-                            right: isCollapsed ? '30px' : '15px',
+                            right: isCollapsed ? '8px' : '12px',
                             top: '50%',
                             transform: 'translateY(-50%)',
                             background: 'rgba(255, 255, 255, 0.05)',
@@ -127,11 +126,11 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
             <div className="sidebar-menu">
                 {/* Tenant Context Chip */}
                 <div style={{
-                    marginBottom: '20px',
+                    marginBottom: '18px',
                     padding: isCollapsed ? '8px 4px' : '10px 14px',
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    background: 'rgba(255, 255, 255, 0.04)',
                     borderRadius: '12px',
-                    border: '1px solid rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.09)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -203,8 +202,8 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                             width: '5px',
                                             height: '5px',
                                             borderRadius: '50%',
-                                            background: 'var(--primary-500)',
-                                            boxShadow: '0 0 8px var(--primary-500)'
+                                            background: '#00A3E0',
+                                            boxShadow: '0 0 8px #00A3E0'
                                         }}
                                     />
                                 )}
@@ -213,12 +212,10 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     });
                 })()}
             </div>
-
-
             {/* Redesigned Profile Section */}
             <div style={{
                 padding: '24px 16px',
-                background: 'rgba(0,0,0,0.15)',
+                background: 'rgba(0,0,0,0.2)',
                 borderTop: '1px solid rgba(255,255,255,0.05)',
                 position: 'relative',
                 zIndex: 2
