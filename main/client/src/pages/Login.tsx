@@ -107,8 +107,8 @@ const Login = ({ setUser }: any) => {
                 <div className="p-12 lg:p-16 flex flex-col justify-center">
 
                     {/* Mobile Logo Branding Header */}
-                    <div className="lg:hidden flex justify-center mb-8 px-8 py-6 bg-gradient-to-r from-[#0061A8] to-[#00A3E0] rounded-2xl shadow-lg -mx-4">
-                        <img src="/logo-mt.png" alt="StoreAI" className="h-16 w-auto drop-shadow-lg" />
+                    <div className="lg:hidden flex justify-center mb-10 px-10 py-8 bg-gradient-to-r from-[#0061A8] to-[#00A3E0] rounded-3xl shadow-xl -mx-4 transition-all duration-500">
+                        <img src="/logo-mt.png" alt="StoreAI" className="h-28 w-auto drop-shadow-2xl scale-110" />
                     </div>
 
                     <h1 className="text-4xl font-extrabold text-slate-800">
