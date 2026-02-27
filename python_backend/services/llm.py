@@ -41,6 +41,10 @@ class TaskType(Enum):
 
 # API Configuration
 GROQ_API_KEY = SecurityUtils.decrypt(os.getenv("GROQ_API_KEY"))
+if GROQ_API_KEY:
+    logging.info(f"[LLM] API Key loaded successfully. Starts with: {GROQ_API_KEY[:6]}...")
+else:
+    logging.error("[LLM] GROQ_API_KEY is missing or decryption failed.")
 
 # Model Configuration
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"

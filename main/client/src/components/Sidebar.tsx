@@ -47,9 +47,9 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         { path: '/gst', label: 'GST Compliance', icon: FileText, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/pl', label: 'Profit & Loss (P&L)', icon: BarChart3, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/config-finance', label: 'Finance Policies', icon: Settings, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
-        { path: '/reports', label: 'Strategic Reports', icon: TrendingUp, feature: 'REPORT_MODULE', permission: 'reports:view' },
+        { path: '/reports', label: 'Market Intel', icon: TrendingUp, feature: 'REPORT_MODULE', permission: 'reports:view', hideMobileLabel: true },
         { divider: 'AI Intelligence' },
-        { path: '/assistant', label: 'AI Intelligence', icon: Layers, feature: 'AI_MODULE', permission: 'dashboard:view' },
+        { path: '/assistant', label: 'AI Intel', icon: Layers, feature: 'AI_MODULE', permission: 'dashboard:view', hideMobileLabel: true },
     ];
 
     if (user?.role === 'SUPER_ADMIN') {
@@ -190,7 +190,11 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                                 title={isCollapsed ? item.label : ''}
                             >
                                 <item.icon size={19} />
-                                {!isCollapsed && <span>{item.label}</span>}
+                                {!isCollapsed && (
+                                    <span className={item.hideMobileLabel ? 'hidden md:inline' : ''}>
+                                        {item.label}
+                                    </span>
+                                )}
                                 {currentPath === item.path && !isCollapsed && (
                                     <motion.div
                                         layoutId="active-indicator"
