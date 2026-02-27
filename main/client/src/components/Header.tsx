@@ -7,33 +7,36 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
     const navigate = useNavigate();
 
     const getPageTitle = () => {
-        // ... mapping omitted for brevity if using replace_file_content rules ...
-        // wait, I must match exactly.
         const path = location.pathname;
         const mapping: Record<string, string> = {
-            '/': 'DASHBOARD',
-            '/products': 'PRODUCT CATALOG',
-            '/inventory': 'STOCK MASTER',
-            '/sales': 'SALES [POS]',
-            '/returns': 'SALES RETURNS',
-            '/purchases': 'PROCUREMENT HUB',
-            '/partners': 'PARTNERS',
-            '/customers': 'CUSTOMERS',
-            '/hr-master': 'EMPLOYEE MASTER',
-            '/attendance': 'ATTENDANCE MASTER',
-            '/payroll': 'PAYROLL ENGINE',
-            '/hr-reports': 'STATUTORY REPORTS',
-            '/daybook': 'DAYBOOK (DAILY)',
-            '/ledger': 'GENERAL LEDGER',
-            '/liability': 'LIABILITY TRACKER',
-            '/gst': 'GST COMPLIANCE',
-            '/pl': 'PROFIT & LOSS (P&L)',
-            '/config-finance': 'FINANCE POLICIES',
-            '/reports': 'STRATEGIC REPORTS',
-            '/assistant': 'AI INTELLIGENCE',
-            '/settings': 'SYSTEM SETTINGS'
+            '/': 'Dashboard',
+            '/products': 'Product Catalog',
+            '/inventory': 'Stock Master',
+            '/sales': 'Sales [POS]',
+            '/returns': 'Sales Returns',
+            '/purchases': 'Procurement Hub',
+            '/partners': 'Partners',
+            '/customers': 'Customers',
+            '/hr-master': 'Employee Master',
+            '/attendance': 'Attendance Master',
+            '/payroll': 'Payroll Engine',
+            '/hr-reports': 'Statutory Reports',
+            '/daybook': 'Daybook (Daily)',
+            '/ledger': 'General Ledger',
+            '/liability': 'Liability Tracker',
+            '/gst': 'GST Compliance',
+            '/pl': 'Profit & Loss (P&L)',
+            '/config-finance': 'Finance Policies',
+            '/reports': 'Strategic Reports',
+            '/assistant': 'AI Intelligence',
+            '/settings': 'System Settings'
         };
-        return mapping[path] || (path.substring(1).replace('-', ' ').toUpperCase() || 'DASHBOARD');
+        const defaultTitle = path.substring(1)
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
+        return mapping[path] || (defaultTitle || 'Dashboard');
     };
 
     const showNewButton = ['/inventory', '/sales', '/purchases', '/hr', '/customers', '/accounts'].includes(location.pathname);
@@ -49,9 +52,9 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </button>
 
                 <div className="header-title flex flex-col items-start gap-1">
-                    <span className="title-text text-lg font-black tracking-tight text-[#002244] uppercase leading-none">{getPageTitle()}</span>
+                    <span className="title-text text-lg font-black tracking-tight text-[#002244] leading-none">{getPageTitle()}</span>
                     <span className="tenant-text text-[10px] font-bold tracking-widest text-[#0061A8]/80 uppercase leading-none">
-                        {user?.activeTenant?.name ? user.activeTenant.name : 'STOREAI ENTERPRISE'}
+                        {user?.activeTenant?.name ? user.activeTenant.name : 'StoreAI Enterprise'}
                     </span>
                 </div>
             </div>
