@@ -9,9 +9,9 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "", theme = 'dark' }) => {
     const effectiveSize = size * 2.5;
-    const primaryLogo = theme === 'light' ? '/StoreAI-Logo-new.png' : '/StoreAI-Logo-new.png';
+    const primaryLogo = theme === 'light' ? '/storeai-primary-light.png' : '/storeai-primary-light.png';
     const fallbackLogo = '/StoreAI-Logo-new.png';
-    const iconPath = '/favicon-cart.svg';
+    const iconPath = '/storeai-app-icon.png';
     const styleFilter = theme === 'light'
         ? 'none'
         : 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
@@ -52,7 +52,7 @@ const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = ""
                         height: '42px',
                     }}>
                         <img
-                            src="/logo-mt.png"
+                            src={iconPath}
                             alt="StoreAI"
                             className="w-[75%] h-[75%] object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
                         />

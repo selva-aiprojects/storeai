@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict
 
 from services.rag import rag_service
-from services.llm import llm_service
+from services.llm import llm_service, GenerationConfig
 
 
 try:
@@ -45,6 +45,8 @@ class OrchestrationState(TypedDict, total=False):
     final_response: str
     source: str
     mode: str
+    domain: str
+    action_plan: str
 
 
 @dataclass
@@ -98,13 +100,31 @@ class AIOrchestrationService:
 
     def _route_query(self, query: str) -> str:
         q = query.lower()
-        has_store = any(k in q for k in self.STORE_KEYWORDS)
-        has_external = any(k in q for k in self.EXTERNAL_KEYWORDS)
-        if has_store and has_external:
-            return "hybrid"
-        if has_external:
-            return "external"
-        return "store"
+        has_finance = any(k in q for k in ["finance", "profit", "margin", "ledger", "cost", "revenue"])
+        has_inventory = any(k in q for k in ["stock", "inventory", "sku", "warehouse", "product"])
+        has_hr = any(k in q for k in ["employee", "attendance", "payroll", "hr", "staff"])
+        has_market = any(k in q for k in ["market", "competitor", "trend", "global", "economy"])
+        
+        domain = "general"
+        if has_finance: domain = "finance"
+        elif has_inventory: domain = "inventory"
+        elif has_hr: domain = "hr"
+        elif has_market: domain = "market"
+
+        if domain != "general" and has_market:
+            return f"hybrid_{domain}"
+        if domain != "general":
+            return f"store_{domain}"
+        if has_market:
+            return "external_market"
+        return "store_general"
+
+    async def _intent_node(self, state: OrchestrationState) -> OrchestrationState:
+        # Step 1: LLM Agentic Routing & Domain Extraction
+        route = self._route_query(state["query"])
+        state["route"] = route
+        state["domain"] = route.split("_")[-1]
+        return state
 
     async def _store_node(self, state: OrchestrationState) -> OrchestrationState:
         res = await rag_service.process_query(
@@ -117,41 +137,48 @@ class AIOrchestrationService:
         return state
 
     async def _external_node(self, state: OrchestrationState) -> OrchestrationState:
+        route = state.get("route", "")
+        if "external" not in route and "hybrid" not in route:
+            state["external_response"] = ""
+            return state
+
         prompt = (
-            "Provide concise external-world business context that can help a retail store decision.\n"
-            "If live data is unavailable, clearly label assumptions as estimated.\n"
+            "You are an AI Analyst researching outside-world context.\n"
             f"User query: {state['query']}\n"
-            "Output: bullet points with practical impact."
+            "Output: Provide a brief summary of external market data relevant to this query."
         )
         state["external_response"] = await llm_service.generate_response(prompt)
         return state
 
     async def _synthesis_node(self, state: OrchestrationState) -> OrchestrationState:
-        route = state.get("route", "store")
+        route = state.get("route", "store_general")
+        domain = state.get("domain", "general")
         store_response = state.get("store_response", "")
         external_response = state.get("external_response", "")
 
-        if route == "store":
-            state["final_response"] = store_response
-            state["source"] = "STORE_RAG"
-            return state
-        if route == "external":
-            state["final_response"] = external_response
-            state["source"] = "EXTERNAL_CONTEXT"
-            return state
-
         prompt = (
-            "You are an enterprise AI orchestrator.\n"
-            "Merge the following two inputs into one clear answer for a store operator.\n"
-            "1) Internal store intelligence:\n"
-            f"{store_response}\n\n"
-            "2) Outside-world context:\n"
-            f"{external_response}\n\n"
-            "Rules: prioritize internal facts, then enrich with external context, "
-            "and end with 2-3 action items."
+            "You are an enterprise AI agent orchestrator.\n"
+            "Analyze the data and provide dynamic, actionable insights and narratives rather than rigid structured rows.\n"
+            f"1) Internal Store Intelligence:\n{store_response}\n\n"
         )
-        state["final_response"] = await llm_service.generate_response(prompt)
-        state["source"] = "HYBRID"
+        if external_response:
+            prompt += f"2) Outside-World Context:\n{external_response}\n\n"
+        prompt += "Deliver a sophisticated recommendation with a prioritized action plan."
+
+        # Map domain to the correct virtual LoRA Adapter
+        adapter_mapping = {
+            "finance": "finance_qlora",
+            "inventory": "inventory_lora",
+            "market": "market_qlora",
+            "hr": "hr_lora",
+            "general": None
+        }
+        
+        adapter = adapter_mapping.get(domain)
+        config = GenerationConfig(adapter=adapter)
+        
+        state["final_response"] = await llm_service.generate_response(prompt, config=config)
+        state["source"] = f"LANGGRAPH_AGENTIC_{domain.upper()}"
         return state
 
     def _build_graph(self):
@@ -160,22 +187,22 @@ class AIOrchestrationService:
 
         graph = StateGraph(OrchestrationState)
 
-        async def route_node(state: OrchestrationState) -> OrchestrationState:
-            state["route"] = self._route_query(state["query"])
-            return state
+        def choose_data_source(state: OrchestrationState) -> str:
+            route = state.get("route", "")
+            if "hybrid" in route: return "hybrid"
+            if "external" in route: return "external"
+            return "store"
 
-        def choose_route(state: OrchestrationState) -> str:
-            return state.get("route", "store")
-
-        graph.add_node("route_step", route_node)
+        graph.add_node("intent_step", self._intent_node)
         graph.add_node("store_step", self._store_node)
         graph.add_node("external_step", self._external_node)
         graph.add_node("synthesis_step", self._synthesis_node)
 
-        graph.set_entry_point("route_step")
+        graph.set_entry_point("intent_step")
+        
         graph.add_conditional_edges(
-            "route_step",
-            choose_route,
+            "intent_step",
+            choose_data_source,
             {
                 "store": "store_step",
                 "external": "external_step",

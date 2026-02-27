@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import Logo from '../components/Logo';
+import Footer from '../components/Footer';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }: any) => {
@@ -64,19 +65,25 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }:
             />
             <div className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
                 <Header refreshData={refreshData} setModal={setModal} setSidebarOpen={handleSetSidebarOpen} user={user} />
-                <div className="page-container" ref={pageContainerRef} style={{ position: 'relative' }}>
-                    <AnimatePresence mode="popLayout">
-                        <motion.div
-                            key={window.location.pathname}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                            style={{ width: '100%' }}
-                        >
-                            <Outlet context={outletContext} />
-                        </motion.div>
-                    </AnimatePresence>
+                <div className="page-container flex flex-col" ref={pageContainerRef} style={{ position: 'relative' }}>
+                    <div className="flex-1">
+                        <AnimatePresence mode="popLayout">
+                            <motion.div
+                                key={window.location.pathname}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                                style={{ width: '100%' }}
+                            >
+                                <Outlet context={outletContext} />
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+                    {/* FOOTER WIDGET */}
+                    <div className="pt-10">
+                        <Footer />
+                    </div>
                 </div>
             </div>
         </div>

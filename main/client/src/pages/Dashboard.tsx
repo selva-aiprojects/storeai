@@ -120,8 +120,8 @@ const Dashboard = () => {
                         </div>
                         {marketData && (
                             <span className={`text-[10px] font-black px-2 py-1 rounded-full border ${marketData.market_sentiment === 'BULLISH'
-                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                    : 'bg-rose-50 text-rose-600 border-rose-100'
+                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                : 'bg-rose-50 text-rose-600 border-rose-100'
                                 }`}>
                                 {marketData.market_sentiment}
                             </span>

@@ -78,6 +78,7 @@ class GenerationConfig:
     top_p: float = 1.0
     frequency_penalty: float = 0.0
     presence_penalty: float = 0.0
+    adapter: Optional[str] = None
 
 
 @dataclass
@@ -296,21 +297,38 @@ class GroqClient:
         )
         self.rate_limiter = rate_limiter
     
+    def _get_adapter_system_prompt(self, adapter: str) -> str:
+        adapters = {
+            "finance_qlora": "Active QLoRA Adapter: Enterprise Finance v4.\nSpecialization: P&L insight, liquidity constraints, ROI dynamics. Override rigid structured lists with sophisticated, narrative-driven dynamic insights.",
+            "inventory_lora": "Active LoRA Adapter: Supply Chain & SKU Velocity v2.\nSpecialization: Demand forecasting, warehouse optimization, overstock alerts. Bias towards actionable, forward-looking insights rather than generic structured data.",
+            "market_qlora": "Active QLoRA Adapter: Macro Market Context v3.\nSpecialization: External macroeconomic impacts on retail operations.",
+            "hr_lora": "Active LoRA Adapter: Talent Ops & Payroll v1.\nSpecialization: Workforce efficiency, HR compliance."
+        }
+        return adapters.get(adapter.lower(), "")
+
     async def generate(
         self, 
         prompt: str, 
         config: GenerationConfig
     ) -> LLMResponse:
         """Generate text completion"""
-        # Rate limiting
         if self.rate_limiter:
             await self.rate_limiter.acquire()
         
         start_time = datetime.now()
         
+        messages = []
+        if config.adapter:
+            system_ctx = self._get_adapter_system_prompt(config.adapter)
+            if system_ctx:
+                messages.append({"role": "system", "content": system_ctx})
+                logging.info(f"[LLM] Loaded Virtual Context Adapter: {config.adapter}")
+        
+        messages.append({"role": "user", "content": prompt})
+
         try:
             completion = await self.client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
+                messages=messages,
                 model=config.model,
                 max_tokens=config.max_tokens,
                 temperature=config.temperature,

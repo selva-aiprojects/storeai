@@ -48,7 +48,10 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     <Menu size={24} />
                 </button>
 
-                {/* Main Content Page Logo Removed per request */}
+                <div className="header-brand hidden sm:flex">
+                    <Logo size={14} />
+                </div>
+
                 <div className="header-title flex flex-col items-start gap-1">
                     <span className="title-text text-lg font-black tracking-tight text-[#002244] uppercase leading-none">{getPageTitle()}</span>
                     <span className="tenant-text text-[10px] font-bold tracking-widest text-[#0061A8]/80 uppercase leading-none">
