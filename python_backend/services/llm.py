@@ -13,9 +13,8 @@ from datetime import datetime, timedelta
 import logging
 
 from groq import AsyncGroq
-# Use ChromaDB's default embedding function (ONNX-based, local, free)
-from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 from dotenv import load_dotenv
+from utils.security import SecurityUtils
 
 
 # Load environment variables
@@ -41,7 +40,7 @@ class TaskType(Enum):
 
 
 # API Configuration
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = SecurityUtils.decrypt(os.getenv("GROQ_API_KEY"))
 
 # Model Configuration
 DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
@@ -62,7 +61,7 @@ RATE_LIMIT_WINDOW = 60  # seconds
 MAX_REQUESTS_PER_WINDOW = 50
 
 # Error Messages
-OVERLOAD_SIGNAL = "[SYSTEM OVERLOAD]"
+OVERLOAD_SIGNAL = "[SERVICE SYNCHRONIZATION ERROR]"
 
 
 # ============================================================================
@@ -384,8 +383,13 @@ class LocalEmbeddingClient:
             try:
                 # Running this in a thread because it's CPU/IO heavy
                 def setup():
-                    # Default is all-MiniLM-L6-v2 (ONNX)
-                    return DefaultEmbeddingFunction()
+                    # Lazy/Optional import for ChromaDB consistency
+                    try:
+                        from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
+                        return DefaultEmbeddingFunction()
+                    except Exception as e:
+                        logging.error(f"[LLM] ChromaDB Embedding Function unavailable: {e}")
+                        return None
                 
                 self.embed_fn = await asyncio.to_thread(setup)
                 self.configured = True
@@ -412,7 +416,9 @@ class LocalEmbeddingClient:
             # Run synchronous CPU-bound task in thread pool
             def get_emb():
                 embeddings = self.embed_fn([text])
-                return embeddings[0] if embeddings else None
+                if embeddings is not None and len(embeddings) > 0:
+                    return embeddings[0]
+                return None
                 
             result = await asyncio.to_thread(get_emb)
             return result
@@ -493,7 +499,9 @@ class LLMService:
             return response.content
             
         except Exception as e:
-            logging.error(f"Generation failed: {e}")
+            import traceback
+            error_details = traceback.format_exc()
+            logging.error(f"Generation failed for query '{prompt[:50]}...': {e}\n{error_details}")
             return OVERLOAD_SIGNAL
     
     async def generate_structured(
@@ -532,7 +540,7 @@ class LLMService:
             # Generate embedding
             embedding = await self.embedding_client.generate_embedding(text, config)
             
-            if embedding:
+            if embedding is not None:
                 logging.info(f"Generated embedding with {len(embedding)} dimensions")
             
             return embedding

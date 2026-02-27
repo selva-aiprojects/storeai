@@ -44,7 +44,7 @@ const Login = ({ setUser }: any) => {
             >
 
                 {/* ================= LEFT SIDE ================= */}
-                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#0061A8] to-[#00A3E0] p-14 text-white overflow-hidden">
+                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#0061A8] to-[#00A3E0] p-10 text-white overflow-hidden">
 
                     {/* Wavy Background Decor */}
                     <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -61,14 +61,14 @@ const Login = ({ setUser }: any) => {
                             <span className="text-[#ffffff]">Intelligence</span>
                         </h2>
 
-                        <p className="mt-6 text-lg text-blue-50 font-medium max-w-md leading-relaxed drop-shadow-sm">
+                        <p className="mt-3 text-lg text-blue-50 font-medium max-w-md leading-relaxed drop-shadow-sm">
                             Strategic operations engine powering inventory optimization,
                             finance intelligence, and AI-driven growth.
                         </p>
                     </div>
 
                     {/* Center Logo */}
-                    <div className="flex justify-center relative z-10 py-8">
+                    <div className="flex justify-center relative z-10 py-4">
                         <img
                             src="/logo-mt.png"
                             alt="StoreAI"
@@ -77,7 +77,7 @@ const Login = ({ setUser }: any) => {
                     </div>
 
                     {/* Bottom Trust Badges */}
-                    <div className="space-y-4 relative z-10">
+                    <div className="space-y-3 relative z-10">
                         {[
                             {
                                 icon: <ShieldCheck size={18} />,

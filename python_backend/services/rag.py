@@ -3,7 +3,6 @@ RAG Service for StoreAI Intelligence Platform
 Handles query processing, intent routing, and response generation
 """
 
-import chromadb
 import json
 import uuid
 import re
@@ -47,14 +46,9 @@ MAX_CONTEXT_MESSAGES = 4
 MAX_SQL_RESULTS = 15
 MAX_VECTOR_RESULTS = 5
 SYNTHESIS_MAX_WORDS = 150
+# Defaults for lazy initialization
 CHROMA_DB_PATH = "./chroma_db_v2"
 COLLECTION_NAME = "storeai_products"
-
-# Initialize Settings to disable telemetry
-from chromadb.config import Settings
-CHROMA_SETTINGS = Settings(
-    anonymized_telemetry=False
-)
 
 
 # ============================================================================
@@ -318,9 +312,11 @@ Generate EXECUTION-READY, READONLY SQL for the "{tenant_id}" environment.
 
 SCHEMA CONTEXT (PostgreSQL):
 - Table "Product" columns: ("id", "sku", "name", "price", "stockQuantity", "categoryId", "tenantId", "isDeleted", "createdAt")
-- Table "Sale" columns: ("id", "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "customerId", "tenantId", "createdAt")
-- Table "Payment" columns: ("id", "amount", "method", "saleId", "tenantId")
+- Table "Sale" columns: ("id", "invoiceNo", "totalAmount", "taxAmount", "cgstAmount", "sgstAmount", "igstAmount", "customerId", "tenantId", "createdAt")
+- Table "Payment" columns: ("id", "amount", "method", "saleId" (FOREIGN KEY to Sale.id), "tenantId")
 - Table "Employee" columns: ("id", "firstName", "lastName", "designation", "salary", "tenantId", "isDeleted")
+
+CRITICAL: The columns are case-sensitive. You MUST wrap every column name in DOUBLE QUOTES (e.g., SELECT "totalAmount" FROM "Sale").
 
 CRITICAL RULES:
 1. {tenant_filter}
@@ -490,22 +486,26 @@ class VectorHandler:
             
             # Get embedding
             embedding = await self.llm.get_embedding(query)
-            if not embedding:
+            if embedding is None:
                 print("[Vector Handler] Failed to generate embedding")
                 return None, None
             
             # Query both collections in thread pool (non-blocking)
-            product_results = await asyncio.to_thread(
-                self.product_collection.query,
-                query_embeddings=[embedding],
-                n_results=MAX_VECTOR_RESULTS
-            )
+            product_results = {}
+            if self.product_collection:
+                product_results = await asyncio.to_thread(
+                    self.product_collection.query,
+                    query_embeddings=[embedding],
+                    n_results=MAX_VECTOR_RESULTS
+                )
             
-            knowledge_results = await asyncio.to_thread(
-                self.knowledge_collection.query,
-                query_embeddings=[embedding],
-                n_results=MAX_VECTOR_RESULTS
-            )
+            knowledge_results = {}
+            if self.knowledge_collection:
+                knowledge_results = await asyncio.to_thread(
+                    self.knowledge_collection.query,
+                    query_embeddings=[embedding],
+                    n_results=MAX_VECTOR_RESULTS
+                )
             
             # Combine results with text
             context_items = []
@@ -561,9 +561,7 @@ class RAGService:
     ):
         # Configuration
         self.chroma_path = CHROMA_DB_PATH
-        self.chroma_settings = CHROMA_SETTINGS
         self.collection_name = COLLECTION_NAME
-        
         # Services
         self.db = db_service or db
         
@@ -601,26 +599,36 @@ class RAGService:
                 print("[RAG] Pre-warming Database connection...")
                 await self.db.connect()
                 
-                # 2. Initialize ChromaDB client if not provided
+                # 2. Initialize ChromaDB client lazily
                 if not self.chroma_client:
-                    self.chroma_client = await asyncio.to_thread(
-                        chromadb.PersistentClient,
-                        path=self.chroma_path,
-                        settings=self.chroma_settings
-                    )
-                
-                # Get or create collections
-                self.product_collection = await asyncio.to_thread(
-                    self.chroma_client.get_or_create_collection,
-                    name=self.collection_name,
-                    metadata={"hnsw:space": "cosine"}
-                )
-                
-                self.knowledge_collection = await asyncio.to_thread(
-                    self.chroma_client.get_or_create_collection,
-                    name="storeai_knowledge",
-                    metadata={"hnsw:space": "cosine"}
-                )
+                    try:
+                        import chromadb
+                        from chromadb.config import Settings
+                        
+                        settings = Settings(anonymized_telemetry=False)
+                        self.chroma_client = await asyncio.to_thread(
+                            chromadb.PersistentClient,
+                            path=self.chroma_path,
+                            settings=settings
+                        )
+                        
+                        # Get or create collections
+                        self.product_collection = await asyncio.to_thread(
+                            self.chroma_client.get_or_create_collection,
+                            name=self.collection_name,
+                            metadata={"hnsw:space": "cosine"}
+                        )
+                        
+                        self.knowledge_collection = await asyncio.to_thread(
+                            self.chroma_client.get_or_create_collection,
+                            name="storeai_knowledge",
+                            metadata={"hnsw:space": "cosine"}
+                        )
+                    except Exception as e:
+                        print(f"[RAG] ChromaDB initialization skipped/failed: {e}")
+                        self.chroma_client = None
+                        self.product_collection = None
+                        self.knowledge_collection = None
                 
                 # 3. Resolve LLM service
                 if self.llm is None:
@@ -990,10 +998,11 @@ class RAGService:
             response = await self.llm.generate_response(prompt)
             
             # Handle LLM failure gracefully
-            if "[SYSTEM OVERLOAD]" in response:
+            if OVERLOAD_SIGNAL in response:
                 response = (
                     "I've retrieved the latest readings from your store telemetry. "
-                    "Here is the structured summary for your review."
+                    "However, the AI reasoning engine is currently synchronizing. "
+                    "Please review the structured data breakdown below."
                 )
             
             # Prepare UI context
