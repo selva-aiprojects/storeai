@@ -501,8 +501,9 @@ class LLMService:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
+            error_msg = f"{OVERLOAD_SIGNAL} (Error: {str(e)})"
             logging.error(f"Generation failed for query '{prompt[:50]}...': {e}\n{error_details}")
-            return OVERLOAD_SIGNAL
+            return error_msg
     
     async def generate_structured(
         self,

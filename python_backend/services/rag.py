@@ -217,7 +217,7 @@ class IntentRouter:
             return IntentClassification(IntentType.GREETING)
         
         # 2. Heuristic keyword matching (Fast path)
-        if cls._contains_sql_keywords(normalized_query) or any(x in normalized_query for x in ["health", "stock", "sales", "revenue", "product", "product list"]):
+        if cls._contains_sql_keywords(normalized_query) or any(x in normalized_query for x in ["health", "stock", "sales", "revenue", "product", "product list", "allocation", "resource", "customer"]):
             return IntentClassification(IntentType.SQL)
 
         for kw in cls.GENERAL_KEYWORDS:
