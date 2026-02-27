@@ -171,12 +171,12 @@ h6 {
 }
 
 .sidebar-logo-contrast img {
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
-  transition: filter 0.3s ease;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+  transition: all 0.3s ease;
 }
 
 .sidebar-logo-contrast:hover img {
-  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+  filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) brightness(1.1);
 }
 
 .sidebar-menu {

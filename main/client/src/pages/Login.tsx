@@ -71,7 +71,7 @@ const Login = ({ setUser }: any) => {
                         <img
                             src="/logo-mt.png"
                             alt="StoreAI"
-                            className="w-[85%] max-h-[180px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105"
+                            className="w-[85%] max-h-[180px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105 sidebar-logo-contrast"
                         />
                     </div>
 
@@ -107,7 +107,7 @@ const Login = ({ setUser }: any) => {
 
                     {/* Mobile Logo Branding Header */}
                     <div className="lg:hidden flex justify-center mb-6 px-8 py-5 bg-gradient-to-r from-[#0061A8] to-[#00A3E0] rounded-2xl shadow-lg -mx-4 transition-all duration-500">
-                        <img src="/logo-mt.png" alt="StoreAI" className="h-16 w-auto drop-shadow-lg" />
+                        <img src="/logo-mt.png" alt="StoreAI" className="h-16 w-auto drop-shadow-xl sidebar-logo-contrast" />
                     </div>
 
                     <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-800">

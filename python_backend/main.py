@@ -145,6 +145,21 @@ async def orchestrate_ai(req: OrchestrationRequest, user: dict = Depends(get_cur
         logger.error(f"Orchestration Error: {e}")
         return JSONResponse(status_code=500, content={"detail": str(e)})
 
+@app.get("/api/ai/verify-config")
+async def verify_llm_config(user: dict = Depends(get_current_user)):
+    """Securely verify if LLM and RAG are configured correctly"""
+    health = await llm_service.health_check()
+    provider_health = health.get("groq")
+    embed_health = health.get("embedding")
+    return {
+        "llm_provider": "groq",
+        "llm_healthy": provider_health.is_healthy if provider_health else False,
+        "llm_error": provider_health.error if provider_health and not provider_health.is_healthy else None,
+        "embedding_healthy": embed_health.is_healthy if embed_health else False,
+        "tenant_id": user.get("tenantId"),
+        "role": user.get("role")
+    }
+
 @app.post("/api/admin/reindex")
 async def reindex_data(request: Request):
     """Trigger full re-indexing of vector store"""
@@ -251,6 +266,8 @@ Return structure:
         logger.error(f"Stock analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/market-research")
+@app.get("/api/market-research")
 @app.get("/api/v1/ai/market-research")
 @app.get("/api/ai/market-research")
 async def market_research_stub(user: dict = Depends(get_current_user)):
