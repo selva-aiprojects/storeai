@@ -137,7 +137,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     minHeight: '42px'
                 }}>
                     <img
-                        src={user?.activeTenant?.logo || '/StoreAI-Logo-new.png'}
+                        src={user?.activeTenant?.logo || '/logo-mt.png'}
                         style={{ maxHeight: isCollapsed ? '18px' : '22px', objectFit: 'contain' }}
                         alt="Tenant"
                     />

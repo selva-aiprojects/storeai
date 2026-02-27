@@ -59,15 +59,13 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </div>
             </div>
             <div className="header-actions flex items-center gap-3">
-                {user?.activeTenant?.logo && (
-                    <div className="tenant-logo-header mr-2 flex items-center justify-center bg-white/50 backdrop-blur-sm p-1.5 rounded-lg border border-gray-100/50 shadow-sm">
-                        <img
-                            src={user.activeTenant.logo}
-                            alt={user.activeTenant.name}
-                            className="h-7 w-auto object-contain"
-                        />
-                    </div>
-                )}
+                <div className="tenant-logo-header mr-2 flex items-center justify-center bg-white/50 backdrop-blur-sm p-1.5 rounded-lg border border-gray-100/50 shadow-sm">
+                    <img
+                        src={user?.activeTenant?.logo || '/logo-mt.png'}
+                        alt={user?.activeTenant?.name || 'StoreAI'}
+                        className="h-7 w-auto object-contain"
+                    />
+                </div>
                 <button
                     className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
                     title="Help Guide"
