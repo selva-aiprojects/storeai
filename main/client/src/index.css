@@ -170,6 +170,15 @@ h6 {
   padding-left: 4px;
 }
 
+.sidebar-logo-contrast img {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.25)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+  transition: filter 0.3s ease;
+}
+
+.sidebar-logo-contrast:hover img {
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+}
+
 .sidebar-menu {
   flex: 1;
   padding: 8px 12px 30px;
