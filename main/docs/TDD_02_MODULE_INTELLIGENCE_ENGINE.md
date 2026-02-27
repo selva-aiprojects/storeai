@@ -35,6 +35,9 @@ The **Intelligence Engine** is a specialized microservice responsible for all AI
 
 ## 2. Architecture Components
 
+### Intelligence Engine Orchestration Visual
+![GenAI Orchestration Workflow](file:///d:/Training/working/Store-AI/main/docs/assets/genai_orchestration.png)
+
 ### A. Service Layer (`services/`)
 - **`AIOrchestrationService`**: The primary brain using **LangGraph**. It manages cycle-aware state transitions between intent classification, data retrieval, and synthesis.
 - **`RAGService`**: Handles the core retrieval logic (SQL vs Vector) while maintaining strict **multi-tenant isolation**.

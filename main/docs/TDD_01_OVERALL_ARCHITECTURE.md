@@ -17,6 +17,9 @@ This document outlines the high-level architecture, technology stack, and system
 
 The system follows a **Microservices-inspired Monolithic Architecture**, where the Core Platform and the Intelligence Engine run as distinct services but share a unified data layer.
 
+### High-Level Architecture Overview
+![Overall System Architecture](file:///d:/Training/working/Store-AI/main/docs/assets/overall_architecture.png)
+
 ### High-Level Architecture Diagram
 ```mermaid
 graph TD
