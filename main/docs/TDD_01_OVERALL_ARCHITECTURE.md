@@ -21,9 +21,11 @@ The system follows a **Microservices-inspired Monolithic Architecture**, where t
 ```mermaid
 graph TD
     Client[Client (Browser/Mobile)]
+    Superadmin[Superadmin Portal]
     
     subgraph "Application Layer"
         LB[Load Balancer / Gateway]
+        TenantMiddleware[Tenant Isolation & RBAC Middleware]
         NodeAPI[Core Backend (Node.js/Express)]
         PyAPI[Intelligence Engine (Python/FastAPI)]
     end
@@ -36,17 +38,18 @@ graph TD
     
     subgraph "External Services"
         Groq[Groq AI Platform]
-        Stripe[Payment Gateway]
     end
 
     Client -->|HTTPS/REST| LB
-    LB -->|/api/*| NodeAPI
-    LB -->|/api/ai/*| PyAPI
+    Superadmin -->|Admin Ops| NodeAPI
+    LB -->|Tenant Scoped| TenantMiddleware
+    TenantMiddleware -->|/api/*| NodeAPI
+    TenantMiddleware -->|/api/ai/*| PyAPI
     
     NodeAPI -->|Read/Write| PG
     NodeAPI -->|Cache| Redis
     
-    PyAPI -->|Read-Only| PG
+    PyAPI -->|Read-Only (Scoped)| PG
     PyAPI -->|Semantic Search| Chroma
     PyAPI -->|LLM Inference| Groq
 ```
@@ -57,40 +60,42 @@ graph TD
 
 ### A. Frontend (Client)
 - **Framework**: React 18 (Vite) for high-performance rendering.
-- **Styling**: TailwindCSS for responsive, utility-first design.
-- **State Management**: React Context & Hooks (Local), Redux Toolkit (Global).
-- **Visualization**: Chart.js / Recharts for financial dashboards.
+- **Styling**: Vanilla CSS with Design System tokens for premium aesthetics.
+- **State Management**: React Context & Hooks.
+- **Multi-Tenancy**: Dynamic branding (Logos/Themes) based on tenant context.
 
 ### B. Core Backend (Business Logic)
 - **Runtime**: Node.js (v18+).
-- **Framework**: Express.js for RESTful API routing.
-- **ORM**: Prisma for type-safe database interactions.
-- **Authentication**: JWT (JSON Web Tokens) with Role-Based Access Control (RBAC).
+- **Framework**: Express.js with Custom Middleware for Tenant Isolation.
+- **ORM**: Prisma with Middleware for automatic `tenantId` injection.
+- **Roles**: Superadmin (Global), Admin (Tenant), Staff (Tenant).
 
 ### C. Intelligence Engine (AI)
 - **Runtime**: Python 3.9+.
-- **Framework**: FastAPI for high-concurrency async endpoints.
-- **Vector Database**: ChromaDB (Local Persistent) for RAG.
-- **LLM Integration**: Groq API (Llama3-70b) for ultra-low latency inference.
-- **Embedding Model**: `all-MiniLM-L6-v2` (ONNX/Local).
+- **Orchestration**: **LangGraph** for cycle-aware agentic workflows.
+- **Expertise**: Multi-LoRA Adapters (Finance, Inventory, HR).
+- **Vector Database**: ChromaDB (Local Persistent) with Metadata isolation.
+- **LLM Integration**: Groq API (Llama 3.1) for low-latency synthesis.
 
 ### D. Data Persistence
 - **Primary Database**: PostgreSQL 15.
-- **Architecture**: Relational Schema with Multi-Tenancy (TenantID separation).
+- **Architecture**: Shared Database, Shared Schema with `tenantId` Row-Level Security (RLS) simulation via Prisma.
 
 ---
 
 ## 4. Key Design Principles
 
-### 1. Multi-Tenancy
-The system is built from the ground up to support multiple organizations (Tenants) within a single deployment. using a **Shared Database, Shared Schema** approach.
-- **Isolation**: Every database query is scoped by `tenantId`.
-- **Security**: Middleware enforces tenant access tokens on every request.
+### 1. Robust Multi-Tenancy
+The system is built from the ground up to support multiple organizations (Tenants).
+- **Tenant Isolation**: Every database query is strictly scoped by `tenantId`.
+- **Superadmin Role**: A global administrative tier for managing tenant lifecycles, global settings, and cross-tenant health metrics.
+- **Branding Isolation**: Support for tenant-specific logos (`logo-mt.png` logic) and platform customization.
 
-### 2. Hybrid Intelligence (RAG + SQL)
-The Intelligence Engine does not rely on a single retrieval method. It uses a **Hybrid Router**:
-- **SQL Path**: For deterministic financial queries (e.g., "What is my profit?"), the AI generates precise SQL queries.
-- **Vector Path**: For unstructured queries (e.g., "How does the checkout work?"), the AI retrieves semantic context from documentation.
+### 2. Hybrid Agentic Intelligence
+The Intelligence Engine uses a sophisticated **LangGraph Orchestrator**:
+- **Dynamic Routing**: Classifies intent (Finance vs Inventory vs Market) and routes to specialized LoRA adapters.
+- **Data Transparency**: Response synthesis mandated to include raw database numbers for fact-based analysis.
+- **Telemetry UI**: "Data Insight Breakdown" unhidden to show users the exact data points retrieved by the AI.
 
 ### 3. Security
 - **Data Privacy**: No customer PII is sent to external AI providers (Groq) without sanitization.

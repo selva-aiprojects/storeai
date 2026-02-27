@@ -114,11 +114,33 @@ This document outlines the data architecture, normalized data model, and system 
 
 ---
 
-## 5. Reporting & Analytics (Views)
+## 5. Multi-Tenant Core Architecture
 
-To be implemented as Native SQL Views or aggregation queries:
+StoreAI is designed as a **Shared Database, Shared Schema** multi-tenant application. Logical isolation is maintained at the application and data-access layers.
 
-1.  **Inventory Aging**: `SELECT product, batch, DATEDIFF(now, receivedDate) FROM Stock ...`
-2.  **Reorder Alerts**: `SELECT * FROM Product WHERE stockQuantity < lowStockThreshold`.
-3.  **Sales Revenue**: Group `Sale` by `month`, `salesman`, `product`.
-4.  **Payroll Report**: Summary of `Payroll` table.
+### A. Data Isolation
+Every table in the database contains a `tenantId` field. 
+- **Persistence**: Prisma middleware automatically injects the active `tenantId` into all `find`, `create`, `update`, and `delete` operations.
+- **Reporting**: SQL Views (e.g., `Reporting_CurrentStock`) include the `tenantId` column to allow for performant, isolated aggregations.
+
+### B. RBAC & Identity
+Roles are defined in a hierarchical structure across the platform:
+1.  **Superadmin**: Global access. Can manage tenant records, monitor platform-wide health, and perform cross-tenant system maintenance.
+2.  **Admin (Owner)**: Full access within a specific tenant. Manages store settings, staff, and financial configurations.
+3.  **Staff**: Functional access within a specific tenant (e.g., Cashier, Inventory Manager). Masked from sensitive financial summaries where required.
+
+### C. Tenant Onboarding Workflow
+1.  **Registration**: New `Tenant` record created with a unique `id`.
+2.  **Seeding**: Default categories, tax slabs, and a primary Admin user are initialized for the new `tenantId`.
+3.  **Identity**: The tenant is assigned a unique sub-domain or isolation identifier for login branding (`logo-mt.png`).
+
+---
+
+## 6. Reporting & Analytics (Views)
+
+To be implemented as Native SQL Views with mandatory `tenantId` scoping:
+
+1.  **Inventory Aging**: `SELECT product, batch, DATEDIFF(now, receivedDate), "tenantId" FROM Stock ...`
+2.  **Reorder Alerts**: `SELECT * FROM Product WHERE "stockQuantity" < "lowStockThreshold" AND "tenantId" = '...'`.
+3.  **Sales Revenue**: Group `Sale` by `month`, `salesman`, `product`, and `tenantId`.
+4.  **Payroll Report**: Summary of `Payroll` table scoped to `tenantId`.

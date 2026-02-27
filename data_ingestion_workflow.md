@@ -29,14 +29,12 @@ The pipeline applies specific logic to prepare data for semantic search:
     - *Why?* Vector models understand sentences better than raw JSON key-values.
 
 ### **D. Indexing Strategy**
-1.  **Embedding Generation**:
-    - Text is sent to the `LLMService` which uses `all-MiniLM-L6-v2` (Local ONNX) to generate a 384-dimensional vector.
-2.  **Batching**:
-    - Records are processed in **batches of 10**.
-    - **Throttling**: A 0.5-second sleep is inserted between batches to prevent CPU/Memory spikes.
-3.  **Upsert**:
+1.  **Embedding Generation**: Local ONNX `all-MiniLM-L6-v2`.
+2.  **Batching**: Batches of 10 with throttling to preserve resources.
+3.  **Tenant Isolation (Metadata)**:
     - Data is written to the `storeai_products` collection.
-    - *Metadata*: Original structured fields (`price`, `stock`) are stored alongside the vector for filtering.
+    - **CRITICAL**: Every vector is tagged with a `tenant_id` metadata field. 
+    - **Retrieval**: The `RAGService` applies a metadata filter `{"tenant_id": "active_tenant_id"}` during search to ensure cross-tenant data leakage is impossible.
 
 ---
 
@@ -48,9 +46,9 @@ The pipeline applies specific logic to prepare data for semantic search:
 - **Schedule**: None (Run when documentation or schema changes).
 
 ### **B. Ingestion Flow**
-The pipeline ingests two distinct types of unstructured data:
+Ingests unstructured documentation relevant to the platform:
 1.  **Markdown Documentation**: Scans `main/docs/*.md`.
-2.  **Database Schema**: Reads `main/server/prisma/schema.prisma`.
+2.  **Database Schema**: Parsed from `schema.prisma`.
 
 ### **C. Data Cleansing & Chunking**
 1.  **Documentation (Text Splitting)**:
