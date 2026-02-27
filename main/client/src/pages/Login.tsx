@@ -70,9 +70,9 @@ const Login = ({ setUser }: any) => {
                     {/* Center Logo */}
                     <div className="flex justify-center relative z-10 py-8">
                         <img
-                            src="/StoreAI-Logo-new.png"
+                            src="/logo-storeai.png"
                             alt="StoreAI"
-                            className="w-[70%] drop-shadow-2xl filter brightness-0 invert"
+                            className="w-[70%] drop-shadow-2xl"
                         />
                     </div>
 
@@ -108,7 +108,7 @@ const Login = ({ setUser }: any) => {
 
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex justify-center mb-10">
-                        <img src="/StoreAI-Logo-new.png" alt="StoreAI" className="h-20" />
+                        <img src="/logo-storeai.png" alt="StoreAI" className="h-20" />
                     </div>
 
                     <h1 className="text-4xl font-extrabold text-slate-800">

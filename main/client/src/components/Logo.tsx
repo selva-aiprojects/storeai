@@ -5,28 +5,36 @@ interface LogoProps {
     showText?: boolean;
     className?: string;
     theme?: 'light' | 'dark';
+    variant?: 'colored' | 'white';
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "", theme = 'dark' }) => {
+const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "", theme = 'dark', variant }) => {
     const effectiveSize = size * 2.5;
-    const primaryLogo = theme === 'light' ? '/storeai-primary-light.png' : '/storeai-primary-light.png';
-    const fallbackLogo = '/StoreAI-Logo-new.png';
+
+    // Default to 'colored' unless explicitly 'white' or if theme is dark and variant not specified
+    const activeVariant = variant || (theme === 'dark' ? 'white' : 'colored');
+
+    const coloredLogo = '/logo-storeai.png';
+    const whiteLogo = '/logo-storeai.png'; // If we had a dedicated white one, we'd use it. For now use colored or apply filter.
+
+    const primaryLogo = activeVariant === 'white' ? whiteLogo : coloredLogo;
+    const fallbackLogo = '/logo-storeai.png';
     const iconPath = '/storeai-app-icon.png';
-    const styleFilter = theme === 'light'
-        ? 'none'
-        : 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))';
+
+    const styleFilter = activeVariant === 'white'
+        ? 'brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+        : 'none';
 
     return (
         <div className={`flex items-center ${className}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
             <div style={{
                 position: 'relative',
-                width: showText ? 'auto' : effectiveSize,
-                height: effectiveSize,
+                width: showText ? 'auto' : '42px',
+                height: showText ? effectiveSize : '42px',
                 display: 'flex',
                 alignItems: 'center',
-                overflow: 'visible', // allow overflow so large logos don't get clipped
+                overflow: 'visible',
                 borderRadius: '8px',
-                filter: styleFilter
             }}>
                 {showText ? (
                     <img
@@ -36,7 +44,8 @@ const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = ""
                             height: effectiveSize,
                             width: 'auto',
                             objectFit: 'contain',
-                            display: 'block'
+                            display: 'block',
+                            filter: styleFilter
                         }}
                         onError={(e) => {
                             if (e.currentTarget.src.endsWith(primaryLogo)) {

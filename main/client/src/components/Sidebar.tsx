@@ -86,7 +86,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
             {/* Redesigned Sidebar Header */}
             <div className="sidebar-header flex items-center justify-center p-4 relative" style={{ minHeight: isCollapsed ? '80px' : '100px' }}>
-                <Logo size={isCollapsed ? 64 : 84} showText={!isCollapsed} className={isCollapsed ? '' : 'sidebar-brand'} theme="dark" />
+                <Logo size={isCollapsed ? 64 : 84} showText={!isCollapsed} className={isCollapsed ? '' : 'sidebar-brand'} variant="colored" />
 
                 {!mobileOpen && (
                     <button

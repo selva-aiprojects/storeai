@@ -48,10 +48,6 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     <Menu size={24} />
                 </button>
 
-                <div className="header-brand hidden sm:flex">
-                    <Logo size={14} />
-                </div>
-
                 <div className="header-title flex flex-col items-start gap-1">
                     <span className="title-text text-lg font-black tracking-tight text-[#002244] uppercase leading-none">{getPageTitle()}</span>
                     <span className="tenant-text text-[10px] font-bold tracking-widest text-[#0061A8]/80 uppercase leading-none">
@@ -60,6 +56,15 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </div>
             </div>
             <div className="header-actions flex items-center gap-3">
+                {user?.activeTenant?.logo && (
+                    <div className="tenant-logo-header mr-2 flex items-center justify-center bg-white/50 backdrop-blur-sm p-1.5 rounded-lg border border-gray-100/50 shadow-sm">
+                        <img
+                            src={user.activeTenant.logo}
+                            alt={user.activeTenant.name}
+                            className="h-7 w-auto object-contain"
+                        />
+                    </div>
+                )}
                 <button
                     className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
                     title="Help Guide"
