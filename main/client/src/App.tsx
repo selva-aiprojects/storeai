@@ -62,7 +62,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        if (user) refreshData();
+        if (user) refreshData('full');
     }, [user]);
 
     const fetchMe = async () => {

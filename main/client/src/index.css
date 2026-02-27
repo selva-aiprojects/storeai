@@ -195,8 +195,8 @@ h6 {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.85);
-  /* Brightened significantly */
+  color: var(--accent-cyan, #00A3E0);
+  /* Cyan to strongly differentiate headers */
   padding: 24px 12px 10px;
   display: flex;
   align-items: center;
@@ -207,8 +207,8 @@ h6 {
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
-  /* Brightened from 0.05 to 0.2 */
+  background: linear-gradient(90deg, rgba(0, 163, 224, 0.4), transparent);
+  /* Matching cyan line */
 }
 
 .menu-item {
@@ -218,11 +218,10 @@ h6 {
   padding: 10px 14px;
   margin: 2px 0;
   border-radius: var(--radius-md);
-  color: rgba(255, 255, 255, 0.85);
-  /* Brightened */
+  color: rgba(255, 255, 255, 0.65);
+  /* Dimmer baseline so it contrasts with header */
   font-size: 0.85rem;
   font-weight: 600;
-  /* Bolder for professional look */
   background: transparent;
   width: 100%;
   border: none;

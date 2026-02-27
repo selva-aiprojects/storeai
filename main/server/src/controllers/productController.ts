@@ -30,7 +30,7 @@ export const getProducts = async (req: AuthRequest, res: Response) => {
 
         const products = await prisma.product.findMany({
             where: { isDeleted: false, tenantId },
-            include: { category: true },
+            include: { category: true, batches: true },
             orderBy: { createdAt: 'desc' }
         });
         // Attach intelligent reorder recommendation

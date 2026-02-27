@@ -7,180 +7,87 @@ const Products = () => {
     const { products } = data || {};
 
     return (
-        <div style={{ padding: '0 10px', maxWidth: '1600px', margin: '0 auto' }}>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                gap: '32px',
-                paddingBottom: '40px'
-            }}>
+        <div className="px-2.5 max-w-[1600px] mx-auto">
+            {/* Header/Banner for Products */}
+            <div className="flex items-center gap-3 mt-4 mb-6 border-b border-blue-100 pb-4">
+                <div className="bg-blue-50 p-2 rounded-xl">
+                    <Package size={24} className="text-[#0061A8]" />
+                </div>
+                <div>
+                    <h1 className="text-2xl font-extrabold text-[#002244] tracking-tight">Product Catalog</h1>
+                    <p className="text-sm font-medium text-slate-500">Manage your active inventory and market assets</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-8 pb-10">
                 {products?.filter((p: any) => !p.isDeleted).map((p: any, i: number) => (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05 }}
                         key={p.id}
-                        className="card glass-effect"
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            padding: 0,
-                            overflow: 'hidden',
-                            borderRadius: '24px',
-                            border: '1px solid rgba(255, 255, 255, 0.4)',
-                            background: 'linear-gradient(145deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 100%)',
-                            boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)',
-                            transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                            position: 'relative',
-                            height: '100%'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
-                            e.currentTarget.style.boxShadow = '0 20px 50px -12px rgba(139, 92, 246, 0.25)'; // Purple Glow
-                            e.currentTarget.style.borderColor = '#a78bfa'; // Light Purple Border
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 10px 40px -10px rgba(0,0,0,0.1)';
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                        }}
+                        className="card glass-effect group flex flex-col p-0 overflow-hidden rounded-3xl border border-[#0061A8]/10 bg-white shadow-[0_10px_40px_-10px_rgba(0,97,168,0.05)] transition-all duration-[400ms] ease-[cubic-bezier(0.175,0.885,0.32,1.275)] relative h-full hover:-translate-y-2 hover:scale-[1.02] hover:shadow-[0_20px_50px_-12px_rgba(0,97,168,0.2)] hover:border-[#00a3e0]/30"
                     >
                         {/* --- Hero Image / Icon Area --- */}
-                        <div style={{
-                            height: '220px',
-                            background: p.image
-                                ? `url(${p.image}) center/cover no-repeat`
-                                : 'radial-gradient(circle at 50% 100%, #f3e8ff 0%, #e9d5ff 100%)', // Light Purple Gradient
-                            position: 'relative',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderBottom: '1px solid rgba(255,255,255,0.5)'
-                        }}>
+                        <div className="h-[220px] relative flex items-center justify-center border-b border-[#0061A8]/5"
+                            style={{
+                                background: p.image
+                                    ? `url(${p.image}) center/cover no-repeat`
+                                    : 'radial-gradient(circle at 50% 100%, #eff6ff 0%, #dbeafe 100%)',
+                            }}>
                             {!p.image && (
-                                <div style={{
-                                    background: '#fff',
-                                    padding: '20px',
-                                    borderRadius: '50%',
-                                    boxShadow: '0 10px 25px rgba(139, 92, 246, 0.15)', // Purple Shadow
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <Package size={40} color="#8b5cf6" strokeWidth={1.5} /> {/* Purple Icon */}
+                                <div className="bg-white p-6 rounded-full shadow-[0_10px_25px_rgba(0,97,168,0.1)] flex items-center justify-center">
+                                    <Package size={44} color="#0061A8" strokeWidth={1.5} />
                                 </div>
                             )}
 
                             {/* Stock Badge */}
-                            <div style={{
-                                position: 'absolute',
-                                top: '16px',
-                                right: '16px',
-                            }}>
-                                <span className={`badge ${p.stockQuantity <= (p.lowStockThreshold || 10) ? 'badge-danger' : 'badge-success'}`} style={{
-                                    backdropFilter: 'blur(8px)',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                    border: '1px solid rgba(255,255,255,0.5)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                }}>
-                                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></div>
+                            <div className="absolute top-4 right-4">
+                                <span className={`flex items-center gap-1.5 px-3 py-1 backdrop-blur-md border shadow-sm rounded-xl text-xs font-extrabold ${p.stockQuantity <= (p.lowStockThreshold || 10) ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-current"></div>
                                     {p.stockQuantity} {p.unit}
                                 </span>
                             </div>
 
                             {/* Category Pill */}
-                            <div style={{
-                                position: 'absolute',
-                                bottom: '16px',
-                                left: '16px',
-                            }}>
-                                <span style={{
-                                    background: 'rgba(255,255,255,0.9)',
-                                    backdropFilter: 'blur(4px)',
-                                    padding: '6px 12px',
-                                    borderRadius: '30px',
-                                    fontSize: '0.7rem',
-                                    fontWeight: 700,
-                                    color: '#7c3aed', // Deep Purple Text
-                                    letterSpacing: '0.05em',
-                                    textTransform: 'uppercase',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                                }}>
-                                    <Tag size={10} /> {p.category?.name || 'ASSET'}
+                            <div className="absolute bottom-4 left-4">
+                                <span className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-[11px] font-extrabold text-[#0061A8] tracking-widest uppercase shadow-sm border border-slate-100/50">
+                                    <Tag size={12} /> {p.category?.name || 'ASSET'}
                                 </span>
                             </div>
                         </div>
 
                         {/* --- Card Body --- */}
-                        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, background: 'rgba(255,255,255,0.4)' }}>
+                        <div className="p-6 flex flex-col gap-4 flex-1 bg-[#fafcff]">
                             <div>
-                                <h3 style={{
-                                    fontSize: '1.4rem',
-                                    fontWeight: 800,
-                                    letterSpacing: '-0.03em',
-                                    lineHeight: 1.1,
-                                    marginBottom: '4px',
-                                    background: 'linear-gradient(90deg, #1e293b 0%, #334155 100%)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent'
-                                }}>
+                                <h3 className="text-[1.4rem] font-extrabold tracking-tight leading-tight mb-1 text-[#002244]">
                                     {p.name}
                                 </h3>
-                                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'monospace' }}>
+                                <div className="text-xs text-slate-500 font-bold font-mono tracking-widest">
                                     SKU: {p.sku}
                                 </div>
                             </div>
 
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'baseline',
-                                gap: '4px',
-                                paddingBottom: '16px',
-                                borderBottom: '1px solid rgba(0,0,0,0.05)'
-                            }}>
-                                <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#7c3aed', letterSpacing: '-0.05em' }}> {/* Purple Price */}
+                            <div className="flex items-baseline gap-1 pb-4 border-b border-black/5">
+                                <span className="text-[1.8rem] font-extrabold text-[#00A3E0] tracking-tight">
                                     ₹{p.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </span>
                             </div>
 
-                            <p style={{
-                                fontSize: '0.9rem',
-                                color: '#475569',
-                                lineHeight: 1.6,
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                margin: 0
-                            }}>
-                                {p.description || "Quality inventory item. Designed for efficient retail operations."}
+                            <p className="text-sm text-slate-600 leading-relaxed font-medium line-clamp-2 m-0">
+                                {p.description || "Premium inventory item perfectly aligned with standard retail operations."}
                             </p>
 
-                            <div style={{ marginTop: 'auto', paddingTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div className="mt-auto pt-3 grid grid-cols-2 gap-3">
                                 <button
-                                    className="btn btn-secondary"
+                                    className="rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-[#0061A8] hover:text-[#0061A8] transition-all font-bold text-xs uppercase tracking-wider py-3 shadow-sm hover:shadow-md"
                                     onClick={() => setModal({ type: 'requisitions', metadata: { productId: p.id, name: p.name } })}
-                                    style={{
-                                        justifyContent: 'center',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 700
-                                    }}
                                 >
                                     Stock Request
                                 </button>
                                 <button
-                                    className="btn btn-primary"
+                                    className="rounded-xl bg-gradient-to-r from-[#0061A8] to-[#00A3E0] hover:from-[#004d85] hover:to-[#0086b8] text-white transition-all font-bold text-xs uppercase tracking-wider py-3 shadow-lg shadow-blue-500/20 hover:-translate-y-0.5 active:scale-[0.98]"
                                     onClick={() => setModal({ type: 'sales', metadata: { items: [{ productId: p.id, quantity: 1, unitPrice: p.price }] } })}
-                                    style={{
-                                        justifyContent: 'center',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 700
-                                    }}
                                 >
                                     Sell Item
                                 </button>
