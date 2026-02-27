@@ -158,12 +158,12 @@ class AIOrchestrationService:
 
         prompt = (
             "You are an enterprise AI agent orchestrator.\n"
-            "Analyze the data and provide dynamic, actionable insights and narratives rather than rigid structured rows.\n"
+            "Analyze the data and provide a response that directly explains the numbers found in the telemetry.\n"
             f"1) Internal Store Intelligence:\n{store_response}\n\n"
         )
         if external_response:
             prompt += f"2) Outside-World Context:\n{external_response}\n\n"
-        prompt += "Deliver a sophisticated recommendation with a prioritized action plan."
+        prompt += "Deliver a technical insight followed by an actionable business recommendation."
 
         # Map domain to the correct virtual LoRA Adapter
         adapter_mapping = {

@@ -72,7 +72,7 @@ const Login = ({ setUser }: any) => {
                         <img
                             src="/logo-mt.png"
                             alt="StoreAI"
-                            className="w-[70%] drop-shadow-2xl"
+                            className="w-[85%] drop-shadow-2xl transition-all duration-700 hover:scale-105"
                         />
                     </div>
 
@@ -108,7 +108,7 @@ const Login = ({ setUser }: any) => {
 
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex justify-center mb-10">
-                        <img src="/logo-storeai.png" alt="StoreAI" className="h-20" />
+                        <img src="/logo-mt.png" alt="StoreAI" className="h-24" />
                     </div>
 
                     <h1 className="text-4xl font-extrabold text-slate-800">

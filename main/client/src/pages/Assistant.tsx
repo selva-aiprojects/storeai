@@ -273,11 +273,11 @@ const Assistant = () => {
                                     </ReactMarkdown>
                                 </div>
 
-                                {/* Hide technical telemetry block as per user request */}
-                                {false && msg.context && (
-                                    <div className="bg-gray-50 rounded-lg border overflow-hidden mt-3">
-                                        <div className="bg-gray-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 border-bottom">
-                                            Telemetry Data Signal
+                                {msg.context && (
+                                    <div className="bg-white rounded-xl border border-blue-100 overflow-hidden mt-3 shadow-sm">
+                                        <div className="bg-blue-50/50 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-blue-600 border-b border-blue-100 flex items-center gap-2">
+                                            <Sparkles size={12} />
+                                            Data Insight Breakdown
                                         </div>
                                         <div className="p-0 text-[11px] text-gray-700">
                                             <ContextRenderer data={msg.context} />

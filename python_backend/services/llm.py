@@ -299,8 +299,8 @@ class GroqClient:
     
     def _get_adapter_system_prompt(self, adapter: str) -> str:
         adapters = {
-            "finance_qlora": "Active QLoRA Adapter: Enterprise Finance v4.\nSpecialization: P&L insight, liquidity constraints, ROI dynamics. Override rigid structured lists with sophisticated, narrative-driven dynamic insights.",
-            "inventory_lora": "Active LoRA Adapter: Supply Chain & SKU Velocity v2.\nSpecialization: Demand forecasting, warehouse optimization, overstock alerts. Bias towards actionable, forward-looking insights rather than generic structured data.",
+            "finance_qlora": "Active QLoRA Adapter: Enterprise Finance v4.\nSpecialization: ROI dynamics, liquidity, and P&L. INSTRUCTION: You MUST incorporate every telemetry data point into your analysis. High-level summaries must be grounded in the specific currency amounts and percentages provided.",
+            "inventory_lora": "Active LoRA Adapter: Supply Chain & SKU Velocity v2.\nSpecialization: Demand forecasting and warehouse efficiency. INSTRUCTION: Direct citation of stock quantities and reorder points is MANDATORY. Do not generalize stock levels.",
             "market_qlora": "Active QLoRA Adapter: Macro Market Context v3.\nSpecialization: External macroeconomic impacts on retail operations.",
             "hr_lora": "Active LoRA Adapter: Talent Ops & Payroll v1.\nSpecialization: Workforce efficiency, HR compliance."
         }

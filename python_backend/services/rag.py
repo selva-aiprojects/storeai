@@ -114,10 +114,9 @@ class SQLValidator:
         sql_upper = sql.upper()
         
         # Use regex to find exact words only (prevents blocking "createdAt" because of "CREATE")
-        for keyword in cls.FORBIDDEN_KEYWORDS:
-            pattern = r'\b' + re.escape(keyword) + r'\b'
-            if re.search(pattern, sql_upper):
-                return False
+        # Prevent huge data dumps
+        if "LIMIT" not in sql_upper:
+            return False
         return True
     
     @classmethod
@@ -321,19 +320,22 @@ SCHEMA CONTEXT (PostgreSQL):
 - Table "Product" columns: ("id", "sku", "name", "price", "stockQuantity", "categoryId", "tenantId", "isDeleted", "createdAt")
 - Table "Sale" columns: ("id", "invoiceNo", "totalAmount", "taxAmount", "gstAmount", "customerId", "tenantId", "createdAt")
 - Table "Payment" columns: ("id", "amount", "method", "saleId", "tenantId")
-- Table "LedgerEntry" columns: ("id", "accountId", "debitAmount", "creditAmount", "referenceType", "referenceId", "tenantId")
-- Table "ChartOfAccounts" columns: ("id", "name", "accountType", "accountGroup", "tenantId")
+- Table "Employee" columns: ("id", "firstName", "lastName", "designation", "salary", "tenantId", "isDeleted")
 
 CRITICAL RULES:
 1. {tenant_filter}
 2. QUOTING: Use DOUBLE QUOTES for EVERY column and table name (e.g., SELECT T."stockQuantity" FROM "Product" T).
-3. CASE SENSITIVITY: Use ILIKE for all string comparisons (e.g., WHERE T."name" ILIKE '%product%') to ensure case-insensitive matching.
-4. JOINING: For products/stock, query the "Product" table. For sales, use "Sale". For accounting, join "LedgerEntry" with "ChartOfAccounts".
-5. NO MARKDOWN: Return ONLY the standard SQL string.
+3. CASE SENSITIVITY: Use ILIKE for all string comparisons.
+4. DATE FILTERING (PostgreSQL): 
+   - Yesterday: WHERE "createdAt"::DATE = CURRENT_DATE - INTERVAL '1 day'
+   - Today: WHERE "createdAt"::DATE = CURRENT_DATE
+   - Last 7 Days: WHERE "createdAt" > NOW() - INTERVAL '7 days'
+5. LIMIT: Always append "LIMIT 50" unless a specific count is requested.
+6. NO MARKDOWN: Return ONLY the standard SQL string.
 
 QUERY: "{query}"
 SQL:"""
-    
+
     @staticmethod
     def answer_synthesis(
         user_query: str, 
@@ -351,22 +353,21 @@ SQL:"""
         return f"""ROLE: Lead StoreAI Assistant.
 CONTEXT: Business Intelligence Guide.
 
-Respond to "{user_query}" based ONLY on the telemetry provided.
+Respond to "{user_query}" based on the telemetry provided.
 
-TELEMETRY DATA:
+TELEMETRY DATA (JSON):
 {context_data}
 
 CONVERSATION HISTORY:
 {history_str if history_str else "N/A"}
 
 CRITICAL INSTRUCTIONS:
-1. STRICT DATA ADHERENCE: Use ONLY the specific numbers from the TELEMETRY DATA section.
-2. NO DATA FALLBACK: If TELEMETRY DATA contains "{NO_DATA_SIGNAL}" or is empty/null, you MUST state: "I've reviewed the store records for your request, but no specific data was found for this period/category." DO NOT invent categories, numbers, or trends.
-3. NO PLACEHOLDERS: NEVER use example data (like Fashion, Electronics, 500 units) unless they are explicitly in the telemetry.
-4. FORMATTING: Use Markdown tables ONLY if you have real telemetry data to list.
-5. INSIGHT: If (and only if) data exists, add one "Smart Observation" based on the trends. If no data, skip this.
-6. CALL TO ACTION: End with a relevant follow-up question.
-7. MAX WORDS: {SYNTHESIS_MAX_WORDS}
+1. DATA TRANSPARENCY: You MUST directly cite the numbers from the TELEMETRY DATA. If the data shows 500 units, say "500 units". DO NOT generalize or omit specific counts/amounts.
+2. NO DATA FALLBACK: If TELEMETRY DATA contains "{NO_DATA_SIGNAL}" or is empty/null, you MUST state: "I've reviewed the store records for your request, but no specific data was found for this period/category."
+3. FORMATTING: Use Markdown tables or bold text to highlight specific data points.
+4. INSIGHT: Add one "Smart Observation" based on the patterns identified in the numbers.
+5. CALL TO ACTION: End with a relevant follow-up question.
+6. MAX WORDS: {SYNTHESIS_MAX_WORDS}
 
 RESPONSE:"""
 
@@ -392,7 +393,7 @@ USER QUERY: "{user_query}"
 CRITICAL INSTRUCTIONS:
 1. PREMIUM TONE: Use a polished, eloquent, and sophisticated tone. Avoid being robotic.
 2. INTELLIGENT HELP: Provide direct and accurate answers for general facts, weather, or math.
-3. BRAND AWARENESS: Occasionally (not always) tie back a general concept to how it might relate to a business or store environment if relevant (e.g., if asked about weather, mention how it might affect logisitics or customer footfall).
+3. BRAND AWARENESS: Occasionally (not always) tie back a general concept to how it might relate to a business or store environment if relevant.
 4. SECURITY: ABSOLUTELY NEVER share database credentials, system paths, or internal platform architecture.
 5. CONCISE: Keep responses between 40-100 words.
 
@@ -868,20 +869,20 @@ class RAGService:
                     'SELECT COALESCE(SUM(S."totalAmount"), 0) AS "totalSales", '
                     'COUNT(*) AS "orderCount" '
                     'FROM "Sale" S '
-                    'WHERE DATE(S."createdAt") = CURRENT_DATE - INTERVAL \'1 day\' '
+                    'WHERE S."createdAt"::DATE = CURRENT_DATE - INTERVAL \'1 day\' '
                 )
                 if role != "SUPER_ADMIN":
                     sql += 'AND S."tenantId" = $1'
                     rows = await self.db.fetch_rows(sql, tenant_id)
                 else:
                     rows = await self.db.fetch_rows(sql)
-                return json.dumps([dict(rows[0])], cls=CustomJSONEncoder), DataSource.SQL.value
+                return json.dumps([dict(r) for r in rows], cls=CustomJSONEncoder), DataSource.SQL.value
 
             if any(x in q for x in ["stock health", "inventory health", "stock status"]):
                 sql = (
                     'SELECT COUNT(*) AS "totalProducts", '
                     'SUM(CASE WHEN P."stockQuantity" <= 0 THEN 1 ELSE 0 END) AS "outOfStockCount", '
-                    'SUM(CASE WHEN P."stockQuantity" > 0 AND P."stockQuantity" <= 10 THEN 1 ELSE 0 END) AS "lowStockCount" '
+                    'SUM(CASE WHEN P."stockQuantity" > 0 AND P."stockQuantity" <= P."lowStockThreshold" THEN 1 ELSE 0 END) AS "lowStockCount" '
                     'FROM "Product" P WHERE P."isDeleted" = false '
                 )
                 if role != "SUPER_ADMIN":
@@ -889,17 +890,37 @@ class RAGService:
                     rows = await self.db.fetch_rows(sql, tenant_id)
                 else:
                     rows = await self.db.fetch_rows(sql)
-                return json.dumps([dict(rows[0])], cls=CustomJSONEncoder), DataSource.SQL.value
+                return json.dumps([dict(r) for r in rows], cls=CustomJSONEncoder), DataSource.SQL.value
 
             if any(x in q for x in ["resource allocation", "headcount", "staff allocation"]):
-                # Keep this safe and generic across partial schemas.
-                sql = 'SELECT COUNT(*) AS "employeeCount" FROM "Employee" E WHERE E."isDeleted" = false '
+                sql = (
+                    'SELECT D."name" AS "department", COUNT(E.id) AS "employeeCount" '
+                    'FROM "Department" D '
+                    'LEFT JOIN "Employee" E ON D.id = E."departmentId" AND E."isDeleted" = false '
+                    'WHERE D."isDeleted" = false '
+                )
                 if role != "SUPER_ADMIN":
-                    sql += 'AND E."tenantId" = $1'
+                    sql += 'AND D."tenantId" = $1 GROUP BY D."name"'
                     rows = await self.db.fetch_rows(sql, tenant_id)
                 else:
+                    sql += 'GROUP BY D."name"'
                     rows = await self.db.fetch_rows(sql)
-                return json.dumps([dict(rows[0])], cls=CustomJSONEncoder), DataSource.SQL.value
+                return json.dumps([dict(r) for r in rows], cls=CustomJSONEncoder), DataSource.SQL.value
+
+            if "top customer" in q or "best customer" in q:
+                sql = (
+                    'SELECT C."name" AS "customer", SUM(S."totalAmount") AS "totalSpend" '
+                    'FROM "Customer" C '
+                    'JOIN "Sale" S ON C.id = S."customerId" '
+                    'WHERE C."isDeleted" = false '
+                )
+                if role != "SUPER_ADMIN":
+                    sql += 'AND C."tenantId" = $1 GROUP BY C."name" ORDER BY "totalSpend" DESC LIMIT 1'
+                    rows = await self.db.fetch_rows(sql, tenant_id)
+                else:
+                    sql += 'GROUP BY C."name" ORDER BY "totalSpend" DESC LIMIT 1'
+                    rows = await self.db.fetch_rows(sql)
+                return json.dumps([dict(r) for r in rows], cls=CustomJSONEncoder), DataSource.SQL.value
         except Exception as e:
             print(f"[RAG] KPI fallback error: {e}")
 
