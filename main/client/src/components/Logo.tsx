@@ -14,11 +14,11 @@ const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = ""
     // Default to 'colored' unless explicitly 'white' or if theme is dark and variant not specified
     const activeVariant = variant || (theme === 'dark' ? 'white' : 'colored');
 
-    const coloredLogo = '/logo-storeai.png';
-    const whiteLogo = '/logo-storeai.png'; // If we had a dedicated white one, we'd use it. For now use colored or apply filter.
+    const coloredLogo = '/StoreAI-Logo-new.png';
+    const whiteLogo = '/StoreAI-Logo-new.png'; // If we had a dedicated white one, we'd use it. For now use colored or apply filter.
 
     const primaryLogo = activeVariant === 'white' ? whiteLogo : coloredLogo;
-    const fallbackLogo = '/logo-storeai.png';
+    const fallbackLogo = '/StoreAI-Logo-new.png';
     const iconPath = '/storeai-app-icon.png';
 
     const styleFilter = activeVariant === 'white'

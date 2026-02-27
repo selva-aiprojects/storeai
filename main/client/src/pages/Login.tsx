@@ -70,7 +70,7 @@ const Login = ({ setUser }: any) => {
                     {/* Center Logo */}
                     <div className="flex justify-center relative z-10 py-8">
                         <img
-                            src="/logo-storeai.png"
+                            src="/StoreAI-Logo-new.png"
                             alt="StoreAI"
                             className="w-[70%] drop-shadow-2xl"
                         />

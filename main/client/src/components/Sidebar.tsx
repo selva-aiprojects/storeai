@@ -136,17 +136,15 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
                     justifyContent: 'center',
                     minHeight: '42px'
                 }}>
-                    {user?.activeTenant?.logo ? (
-                        <img src={user.activeTenant.logo} style={{ maxHeight: '22px', objectFit: 'contain' }} alt="Tenant" />
-                    ) : (
-                        !isCollapsed && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }}></div>
-                                <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.05em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {user?.activeTenant?.name || 'CORE PLATFORM'}
-                                </span>
-                            </div>
-                        )
+                    <img
+                        src={user?.activeTenant?.logo || '/StoreAI-Logo-new.png'}
+                        style={{ maxHeight: isCollapsed ? '18px' : '22px', objectFit: 'contain' }}
+                        alt="Tenant"
+                    />
+                    {!isCollapsed && !user?.activeTenant?.logo && (
+                        <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginLeft: '8px' }}>
+                            {user?.activeTenant?.name || 'CORE PLATFORM'}
+                        </span>
                     )}
                 </div>
 
