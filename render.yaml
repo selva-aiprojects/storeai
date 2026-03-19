@@ -38,6 +38,8 @@ services:
           envVarKey: JWT_SECRET
       - key: PORT
         value: 8000
+      - key: PYTHON_VERSION
+        value: 3.11.11
 
   # Frontend Service (Static Site)
   - type: web
