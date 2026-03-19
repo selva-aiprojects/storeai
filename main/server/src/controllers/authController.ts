@@ -90,11 +90,23 @@ export const login = async (req: Request, res: Response) => {
             return res.status(403).json({ error: 'User is not associated with any account' });
         }
 
-        // Determine active tenant: either provided slug or the first one
+        // Determine active tenant in a stable/safe order:
+        // 1) requested tenantSlug
+        // 2) StoreAI hub tenant
+        // 3) any ACTIVE tenant
+        // 4) fallback to first relation
         let activeTenantRelation = user.tenants[0];
         if (tenantSlug) {
             const found = user.tenants.find(t => t.tenant.slug === tenantSlug);
             if (found) activeTenantRelation = found;
+        } else {
+            const storeAiTenant = user.tenants.find(t => t.tenant.slug === 'storeai');
+            const activeTenant = user.tenants.find(t => t.tenant.status === 'ACTIVE');
+            if (storeAiTenant) {
+                activeTenantRelation = storeAiTenant;
+            } else if (activeTenant) {
+                activeTenantRelation = activeTenant;
+            }
         }
 
         const activeTenant = activeTenantRelation.tenant;
