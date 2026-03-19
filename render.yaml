@@ -51,9 +51,9 @@ services:
         fromService:
           type: web
           name: store-ai-server
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
       - key: VITE_AI_API_URL
         fromService:
           type: web
           name: store-ai-python
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
