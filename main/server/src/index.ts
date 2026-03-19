@@ -41,16 +41,24 @@ const PORT = process.env.PORT || 5000;
 
 app.use(compression());
 
+const allowedOrigins = new Set([
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:5173',
+    'https://store-ai-prd.onrender.com',
+    'https://steward-platform.onrender.com',
+    process.env.CLIENT_URL || ''
+]);
+
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'http://localhost:5173',
-        'https://store-ai-prd.onrender.com',
-        'https://steward-platform.onrender.com',
-        process.env.CLIENT_URL || ''
-    ],
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.has(origin)) return callback(null, true);
+        if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+        if (/^http:\/\/127\.0\.0\.1:\d+$/.test(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));

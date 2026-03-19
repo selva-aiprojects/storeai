@@ -23,16 +23,25 @@ const Login = ({ setUser }: any) => {
             localStorage.setItem("store_ai_token", resp.data.token);
             setUser(resp.data.user);
         } catch (e: any) {
-            setErrorMessage("Invalid credentials. Please try again.");
+            const status = e?.response?.status;
+            const apiError = e?.response?.data?.error;
+
+            if (!e?.response) {
+                setErrorMessage("Cannot reach server. Please ensure backend is running on port 5000.");
+            } else if (status === 401) {
+                setErrorMessage("Invalid credentials. Please try again.");
+            } else {
+                setErrorMessage(apiError || "Login failed. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-8 font-['Outfit'] relative overflow-hidden bg-slate-50">
+        <div className="h-screen flex items-center justify-center px-4 py-4 lg:py-6 font-['Outfit'] relative overflow-hidden bg-slate-50">
             {/* Ambient Background matching the wavy gradients */}
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(0,97,168,0.08)_0%,transparent_40%),radial-gradient(circle_at_100%_100%,rgba(0,163,224,0.08)_0%,transparent_40%)]"></div>
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(0,64,110,0.1)_0%,transparent_40%),radial-gradient(circle_at_100%_100%,rgba(0,108,153,0.1)_0%,transparent_40%)]"></div>
 
             {/* MAIN CARD */}
             <motion.div
@@ -43,7 +52,7 @@ const Login = ({ setUser }: any) => {
             >
 
                 {/* ================= LEFT SIDE ================= */}
-                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#0061A8] to-[#00A3E0] p-10 text-white overflow-hidden">
+                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#00406E] to-[#006C99] p-10 text-white overflow-hidden">
 
                     {/* Wavy Background Decor */}
                     <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -71,7 +80,7 @@ const Login = ({ setUser }: any) => {
                         <img
                             src="/logo-mt.png"
                             alt="StoreAI"
-                            className="w-[85%] max-h-[180px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105 sidebar-logo-contrast"
+                            className="w-full max-h-[360px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105 sidebar-logo-contrast"
                         />
                     </div>
 
@@ -103,11 +112,11 @@ const Login = ({ setUser }: any) => {
                 </div>
 
                 {/* ================= RIGHT SIDE ================= */}
-                <div className="p-8 lg:p-12 flex flex-col justify-center">
+                <div className="p-6 lg:p-10 flex flex-col justify-center">
 
                     {/* Mobile Logo Branding Header */}
-                    <div className="lg:hidden flex justify-center mb-6 px-8 py-5 bg-gradient-to-r from-[#0061A8] to-[#00A3E0] rounded-2xl shadow-lg -mx-4 transition-all duration-500">
-                        <img src="/logo-mt.png" alt="StoreAI" className="h-16 w-auto drop-shadow-xl sidebar-logo-contrast" />
+                    <div className="lg:hidden flex justify-center mb-4 px-8 py-4 bg-gradient-to-r from-[#00406E] to-[#006C99] rounded-2xl shadow-lg -mx-2 transition-all duration-500">
+                        <img src="/logo-mt.png" alt="StoreAI" className="h-32 w-auto drop-shadow-xl sidebar-logo-contrast" />
                     </div>
 
                     <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-800">
@@ -123,7 +132,7 @@ const Login = ({ setUser }: any) => {
                         </div>
                     )}
 
-                    <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                    <form onSubmit={handleLogin} className="mt-4 space-y-3">
 
                         {/* Email */}
                         <div>
@@ -181,7 +190,7 @@ const Login = ({ setUser }: any) => {
                         {/* Button */}
                         <button
                             disabled={loading}
-                            className="w-full mt-4 bg-gradient-to-r from-[#0061A8] to-[#00A3E0] hover:from-[#004d85] hover:to-[#008fcc] text-white py-4 rounded-xl font-bold tracking-widest shadow-xl shadow-blue-500/10 transition-all hover:-translate-y-0.5 active:scale-[0.98] text-xs"
+                            className="w-full mt-4 bg-gradient-to-r from-[#00406E] to-[#006C99] hover:from-[#003254] hover:to-[#00547A] text-white py-4 rounded-xl font-bold tracking-widest shadow-xl shadow-blue-900/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] text-xs"
                         >
                             {loading ? "AUTHORIZING..." : "SIGN IN TO STOREAI"}
                         </button>
@@ -189,7 +198,7 @@ const Login = ({ setUser }: any) => {
                     </form>
 
                     {/* Footer */}
-                    <div className="mt-8 text-center text-[10px] text-slate-400 font-semibold tracking-wider">
+                    <div className="mt-5 text-center text-[10px] text-slate-400 font-semibold tracking-wider">
                         © {new Date().getFullYear()} StoreAI Intelligence
                     </div>
 
