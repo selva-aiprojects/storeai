@@ -15,6 +15,14 @@ services:
         value: 5000
       - key: NODE_ENV
         value: production
+      - key: AUTO_FIX_ADMIN_ON_BOOT
+        value: true
+      - key: INITIAL_ADMIN_EMAIL
+        value: admin@storeai.com
+      - key: INITIAL_ADMIN_PASSWORD
+        value: Admin@123
+      - key: INITIAL_ADMIN_TENANT_SLUG
+        value: storeai
 
   # Python AI Backend Service
   - type: web

@@ -25,6 +25,7 @@ import auditRoutes from './routes/auditRoutes';
 import aiRoutes from './routes/aiRoutes';
 import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
+import { ensureAdminAccessOnBoot } from './adminBootstrap';
 
 logger.info('--- ENVIRONMENT CONFIG CHECK ---');
 logger.info(`PORT: ${process.env.PORT}`);
@@ -114,11 +115,20 @@ app.get('/api/health', (req, res) => res.json({
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Only listen if NOT running on Vercel (Vercel handles binding automatically)
-if (process.env.VERCEL !== '1') {
-    app.listen(PORT, () => {
-        logger.info(`🚀 StoreAI Enterprise Server running on port ${PORT}`);
-    });
-}
+const startServer = async () => {
+    await ensureAdminAccessOnBoot();
+
+    if (process.env.VERCEL !== '1') {
+        app.listen(PORT, () => {
+            logger.info(`StoreAI Enterprise Server running on port ${PORT}`);
+        });
+    }
+};
+
+startServer().catch((error) => {
+    logger.error(`Server startup failed: ${error}`);
+    process.exit(1);
+});
 
 export default app;
+
