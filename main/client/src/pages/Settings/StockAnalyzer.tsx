@@ -110,7 +110,7 @@ const StockAnalyzer: React.FC = () => {
         setAnalysis(null);
 
         try {
-            const response = await aiApi.post('/stock-analyze', { ticker });
+            const response = await aiApi.post('/ai/stock-analyze', { ticker });
             // The backend returns an error field if it fails but catches
             if (response.data?.error) throw new Error(response.data.error);
             // If it returns mock data because of an exception, it might look successful but have placeholders

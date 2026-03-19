@@ -69,7 +69,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 <button
                     className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all"
                     title="Help Guide"
-                    onClick={() => setModal({ type: 'help' })}
+                    onClick={() => navigate('/assistant')}
                 >
                     <HelpCircle size={18} />
                 </button>

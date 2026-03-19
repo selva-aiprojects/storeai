@@ -28,7 +28,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
 
             const headers = Object.keys(parsed[0]);
             return (
-                <div className="overflow-x-auto">
+                <div className="max-h-72 overflow-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/50">
                             <tr>
@@ -57,7 +57,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
 
         if (typeof parsed === 'object' && parsed !== null) {
             return (
-                <div className="p-3 space-y-1">
+                <div className="p-3 space-y-1 max-h-72 overflow-auto">
                     {Object.entries(parsed).map(([k, v]) => (
                         <div key={k} className="flex gap-2 border-b border-gray-50 last:border-0 pb-1">
                             <span className="font-bold text-blue-600 uppercase text-[9px] min-w-[80px]">{k.replace(/_/g, ' ')}:</span>
@@ -68,7 +68,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
             );
         }
 
-        return <div className="p-3 whitespace-pre-wrap">{String(data)}</div>;
+        return <div className="p-3 whitespace-pre-wrap break-words max-h-72 overflow-auto">{String(data)}</div>;
     } catch {
         const lines = data.split('\n').filter(l => l.trim());
         if (lines.length > 0 && lines[0].startsWith('- ')) {
@@ -78,7 +78,7 @@ const ContextRenderer = ({ data }: { data: string }) => {
                 </ul>
             );
         }
-        return <div className="p-3 whitespace-pre-wrap">{data}</div>;
+        return <div className="p-3 whitespace-pre-wrap break-words max-h-72 overflow-auto">{data}</div>;
     }
 };
 
@@ -194,7 +194,7 @@ const Assistant = () => {
 
     return (
         <div
-            className="flex flex-col h-full w-full max-w-6xl mx-auto p-4 md:p-6 gap-5 overflow-hidden"
+            className="flex flex-col w-full max-w-6xl mx-auto p-4 md:p-6 gap-5 overflow-hidden h-[calc(100vh-180px)] min-h-[560px]"
             style={{ fontFamily: "'Open Sans', sans-serif" }}
         >
 
@@ -229,7 +229,7 @@ const Assistant = () => {
             </header>
 
             {/* CHAT FRAME */}
-            <main className="flex-1 flex flex-col bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden relative">
+            <main className="flex-1 min-h-0 flex flex-col bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden relative">
                 <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
 
                     {messages.map(msg => (
@@ -264,7 +264,7 @@ const Assistant = () => {
                                         </span>
                                     </div>
                                 )}
-                                <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed assistant-markdown
+                                <div className={`p-4 rounded-2xl text-sm md:text-base leading-relaxed assistant-markdown break-words overflow-x-auto
                                     ${msg.sender === 'user'
                                         ? 'bg-sky-600 text-white'
                                         : 'bg-gray-50 text-gray-800 border'}`}>
