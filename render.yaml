@@ -39,12 +39,12 @@ services:
       - key: PORT
         value: 8000
 
+staticSites:
   # Frontend Service (Static Site)
-  - type: static
-    name: store-ai-client
+  - name: store-ai-client
     rootDir: main/client
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    publishPath: dist
     envVars:
       - key: VITE_API_URL
         fromService:
