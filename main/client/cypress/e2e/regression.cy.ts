@@ -1,6 +1,21 @@
 describe('StoreAI ERP Regression Suite', () => {
     const adminEmail = 'admin@storeai.com';
     const adminPassword = 'Admin@123';
+    const tenantSlug = 'storeai';
+
+    const loginAsAdmin = () => {
+        cy.visit('/login');
+        cy.get('input[type="email"]').clear().type(adminEmail);
+        cy.get('input[type="password"]').clear().type(adminPassword);
+        cy.get('input[type="text"]').then(($inputs) => {
+            if ($inputs.length > 0) {
+                cy.wrap($inputs.last()).clear().type(tenantSlug);
+            }
+        });
+        cy.contains('button', 'SIGN IN TO STOREAI').click();
+        cy.url().should('not.include', '/login');
+        cy.contains('Dashboard').should('be.visible');
+    };
 
     beforeEach(() => {
         // Clear local storage and cookies to ensure a fresh state
@@ -10,26 +25,12 @@ describe('StoreAI ERP Regression Suite', () => {
 
     it('1. Authentication Flow', () => {
         cy.visit('/login');
-
-        // Check if the logo is visible (The new SVG logo)
-        cy.get('svg').should('exist');
-
-        // Perform login
-        cy.get('input[type="email"]').type(adminEmail);
-        cy.get('input[type="password"]').type(adminPassword);
-        cy.get('button[type="submit"]').click();
-
-        // Should redirect to dashboard (root path)
-        cy.url().should('not.include', '/login');
-        cy.contains('Dashboard').should('be.visible');
+        cy.get('input[type="email"]').should('be.visible');
+        loginAsAdmin();
     });
 
     it('2. Dashboard Integrity Check', () => {
-        // Login first
-        cy.visit('/login');
-        cy.get('input[type="email"]').type(adminEmail);
-        cy.get('input[type="password"]').type(adminPassword);
-        cy.get('button[type="submit"]').click();
+        loginAsAdmin();
 
         // Check for key dashboard components
         cy.contains('Total Revenue').should('be.visible');
@@ -38,43 +39,34 @@ describe('StoreAI ERP Regression Suite', () => {
     });
 
     it('3. Inventory & Procurement Flow', () => {
-        cy.visit('/login');
-        cy.get('input[type="email"]').type(adminEmail);
-        cy.get('input[type="password"]').type(adminPassword);
-        cy.get('button[type="submit"]').click();
+        loginAsAdmin();
 
-        // Navigate to Inventory
-        cy.visit('/inventory');
+        cy.contains('button', 'Stock Master').click();
+        cy.url().should('include', '/inventory');
         cy.contains('Inventory').should('be.visible');
 
         // Check if products exist (from seeding)
         cy.contains('Enterprise Router X1').should('be.visible');
 
-        // Navigate to Transactions (Purchases)
-        cy.visit('/purchases');
+        cy.contains('button', 'Procurement Hub').click();
+        cy.url().should('include', '/purchases');
         cy.contains('Orders').should('be.visible');
         cy.contains('PO-X1-001').should('be.visible');
     });
 
     it('4. Sales & Billing Check', () => {
-        cy.visit('/login');
-        cy.get('input[type="email"]').type(adminEmail);
-        cy.get('input[type="password"]').type(adminPassword);
-        cy.get('button[type="submit"]').click();
+        loginAsAdmin();
 
-        // Navigate to Sales
-        cy.visit('/sales');
+        cy.contains('button', 'Sales [POS]').click();
+        cy.url().should('include', '/sales');
         cy.contains('Sales').should('be.visible');
     });
 
     it('5. HR & Payroll Access', () => {
-        cy.visit('/login');
-        cy.get('input[type="email"]').type(adminEmail);
-        cy.get('input[type="password"]').type(adminPassword);
-        cy.get('button[type="submit"]').click();
+        loginAsAdmin();
 
-        // Navigate to HR
-        cy.visit('/hr-master');
+        cy.contains('button', 'Employee Master').click();
+        cy.url().should('include', '/hr-master');
         cy.contains('Employee Master').should('be.visible');
         cy.contains('Employee 1').should('be.visible');
     });

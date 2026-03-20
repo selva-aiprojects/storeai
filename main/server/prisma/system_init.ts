@@ -36,8 +36,11 @@ async function main() {
         { code: 'sales:write', name: 'Generate Sales', category: 'SALES' },
         { code: 'hr:read', name: 'View Personnel', category: 'HR' },
         { code: 'hr:write', name: 'Manage Personnel', category: 'HR' },
+        { code: 'payroll:read', name: 'View Payroll', category: 'HR' },
+        { code: 'payroll:write', name: 'Manage Payroll', category: 'HR' },
         { code: 'accounts:read', name: 'View Accounts', category: 'FINANCE' },
         { code: 'accounts:write', name: 'Manage Accounts', category: 'FINANCE' },
+        { code: 'reports:read', name: 'View Reports', category: 'REPORTS' },
         { code: 'reports:view', name: 'View Reports', category: 'REPORTS' },
         { code: 'crm:write', name: 'Manage CRM', category: 'CRM' },
         { code: 'orders:read', name: 'View Purchase Orders', category: 'PROCUREMENT' },
@@ -56,7 +59,12 @@ async function main() {
 
     const superAdminRole = await prisma.role.upsert({
         where: { code: 'SUPER_ADMIN' },
-        update: {},
+        update: {
+            permissions: {
+                set: [],
+                connect: perms.map(p => ({ code: p.code }))
+            }
+        },
         create: {
             name: 'Super Admin', code: 'SUPER_ADMIN',
             permissions: { connect: perms.map(p => ({ code: p.code })) }

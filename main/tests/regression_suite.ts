@@ -24,7 +24,7 @@ const TIMESTAMP = Date.now();
 // Configuration
 const CONFIG = {
     adminEmail: 'admin@storeai.com',
-    adminPassword: 'AdminPassword123!',
+    adminPassword: 'Admin@123',
     tenantSlug: 'storeai',
     headers: {} as any
 };

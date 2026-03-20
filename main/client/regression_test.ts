@@ -6,7 +6,7 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/v1';
 const ADMIN_EMAIL = 'admin@storeai.com';
-const ADMIN_PASSWORD = 'AdminPassword123!';
+const ADMIN_PASSWORD = 'Admin@123';
 
 async function runRegression() {
     console.log('🚀 Starting Regression Suite...');
