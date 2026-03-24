@@ -30,7 +30,7 @@ services:
     env: python
     rootDir: python_backend
     buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     plan: free
     envVars:
       - key: DATABASE_URL
@@ -44,8 +44,10 @@ services:
           type: web
           name: store-ai-server
           envVarKey: JWT_SECRET
-      - key: PORT
-        value: 8000
+      - key: RAG_PREWARM_ON_STARTUP
+        value: "false"
+      - key: ANONYMIZED_TELEMETRY
+        value: "false"
       - key: PYTHON_VERSION
         value: 3.11.11
 

@@ -30,6 +30,15 @@ app = FastAPI(title="StoreAI Intelligence Platform (Cognivectra)")
 def health_check():
     return {"status": "UP", "version": "1.0.2", "service": "storeai-ai-engine"}
 
+@app.get("/healthz")
+def healthz():
+    # Minimal readiness probe endpoint for Render port/health checks.
+    return {"ok": True}
+
+@app.head("/healthz")
+def healthz_head():
+    return JSONResponse(status_code=200, content={})
+
 @app.get("/api")
 def api_root():
     return {"status": "AI Hub Active", "endpoints": ["/chat", "/health", "/ai/stock-analyze"]}
@@ -368,12 +377,21 @@ async def get_yearly_report(year: int, type: str):
 def read_root():
     return {"status": "StoreAI Intelligence Platform Running"}
 
+@app.head("/")
+def read_root_head():
+    return JSONResponse(status_code=200, content={})
+
 @app.on_event("startup")
 async def startup_event():
     logger.info("AI Hub: Fast Startup Mode Active")
-    # Trigger RAG and LLM initialization in the background
-    # This allows the server to bind to PORT and pass health checks immediately
-    asyncio.create_task(rag_service.init())
+    logger.info("Health probe ready at /healthz")
+    # Optional pre-warm. Keep disabled by default in production so readiness is fast and stable.
+    prewarm_enabled = os.getenv("RAG_PREWARM_ON_STARTUP", "false").lower() == "true"
+    if prewarm_enabled:
+        logger.info("AI Hub: RAG prewarm enabled (background task)")
+        asyncio.create_task(rag_service.init())
+    else:
+        logger.info("AI Hub: RAG prewarm disabled; using lazy init on first request")
     
     logger.info("Startup: Listing Routes")
     for route in app.routes:

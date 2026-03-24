@@ -60,8 +60,13 @@ class SecurityUtils:
             decrypted = fernet.decrypt(token.encode())
             return decrypted.decode()
         except Exception as e:
-            # Fallback for failed decryption
-            logging.error(f"[SECURITY] Decryption failed: {e}")
+            # Graceful fallback for legacy/misconfigured values.
+            # If someone accidentally prefixed a plaintext key with ENC:, still allow boot.
+            token = data[4:].strip().strip('"').strip("'")
+            if token.startswith("gsk_"):
+                logging.warning("[SECURITY] ENC decryption failed; using plaintext token fallback.")
+                return token
+            logging.warning("[SECURITY] ENC decryption failed; returning original value.")
             return data
 
 if __name__ == "__main__":

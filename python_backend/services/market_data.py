@@ -26,6 +26,11 @@ class MarketDataService:
                       "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Accept": "application/json,text/plain,*/*",
     }
+    CACHE_TTL_SECONDS = 600
+
+    def __init__(self):
+        # Simple in-memory cache to survive temporary provider throttling.
+        self._cache: Dict[str, Dict[str, Any]] = {}
 
     @staticmethod
     def _normalize_ticker(ticker: str) -> str:
@@ -94,6 +99,10 @@ class MarketDataService:
         params_chart = {"range": "6mo", "interval": "1d"}
         params_search = {"q": symbol, "quotesCount": 1, "newsCount": 8}
 
+        cached = self._cache.get(symbol)
+        if cached and (time.time() - cached["ts"] <= self.CACHE_TTL_SECONDS):
+            return cached["data"]
+
         try:
             async with httpx.AsyncClient(timeout=timeout, headers=self.DEFAULT_HEADERS) as client:
                 quote_resp, chart_resp, search_resp = await asyncio.gather(
@@ -110,11 +119,27 @@ class MarketDataService:
                 if search_resp.status_code == 429:
                     search_resp = await self._get_with_retry(client, search_url_alt, params_search)
         except Exception:
-            return await self._fetch_with_yfinance(symbol)
+            try:
+                data = await self._fetch_with_yfinance(symbol)
+                self._cache[symbol] = {"ts": time.time(), "data": data}
+                return data
+            except Exception:
+                if cached:
+                    return cached["data"]
+                raise
 
-        # If direct Yahoo APIs are blocked/throttled, fallback to yfinance resolver.
-        if quote_resp.status_code != 200 or chart_resp.status_code != 200:
-            return await self._fetch_with_yfinance(symbol)
+        # If direct Yahoo quote endpoint is blocked/throttled, fallback to yfinance resolver.
+        if quote_resp.status_code != 200:
+            try:
+                data = await self._fetch_with_yfinance(symbol)
+                self._cache[symbol] = {"ts": time.time(), "data": data}
+                return data
+            except Exception:
+                if cached:
+                    return cached["data"]
+                raise MarketDataError("Live quote unavailable and no cached data found")
+
+        # Chart/news are non-critical; continue with partial data when unavailable.
         if search_resp.status_code != 200:
             # Soft fail for news path; keep live price/series from quote+chart.
             search_json = {"news": []}
@@ -122,7 +147,7 @@ class MarketDataService:
             search_json = search_resp.json()
 
         quote_json = quote_resp.json()
-        chart_json = chart_resp.json()
+        chart_json = chart_resp.json() if chart_resp.status_code == 200 else {}
 
         quote_results = (quote_json.get("quoteResponse") or {}).get("result") or []
         if not quote_results:
@@ -131,20 +156,21 @@ class MarketDataService:
         quote = quote_results[0]
 
         chart_result = ((chart_json.get("chart") or {}).get("result") or [None])[0]
-        if not chart_result:
-            raise MarketDataError("No chart data found for ticker")
+        timestamps = []
+        closes: List[float] = []
+        if chart_result:
+            timestamps = chart_result.get("timestamp") or []
+            quotes = ((chart_result.get("indicators") or {}).get("quote") or [None])[0] or {}
+            closes = [c for c in (quotes.get("close") or []) if c is not None]
 
-        timestamps = chart_result.get("timestamp") or []
-        quotes = ((chart_result.get("indicators") or {}).get("quote") or [None])[0] or {}
-        closes = [c for c in (quotes.get("close") or []) if c is not None]
-
-        if len(closes) < 20:
-            raise MarketDataError("Insufficient live history data for analysis")
-
-        close_arr = np.array(closes, dtype=float)
-        rsi14 = self._rsi(close_arr, 14)
-        sma20 = self._sma(close_arr, 20)
-        sma50 = self._sma(close_arr, 50)
+        rsi14 = None
+        sma20 = None
+        sma50 = None
+        if len(closes) >= 20:
+            close_arr = np.array(closes, dtype=float)
+            rsi14 = self._rsi(close_arr, 14)
+            sma20 = self._sma(close_arr, 20)
+            sma50 = self._sma(close_arr, 50)
 
         price_series: List[Dict[str, Any]] = []
         ts_clean = [int(t) for t in timestamps if isinstance(t, (int, float))]
@@ -164,7 +190,7 @@ class MarketDataService:
                 }
             )
 
-        return {
+        payload = {
             "symbol": symbol,
             "fetched_at_epoch": int(time.time()),
             "quote": {
@@ -187,6 +213,8 @@ class MarketDataService:
             "series": price_series,
             "news": news_items,
         }
+        self._cache[symbol] = {"ts": time.time(), "data": payload}
+        return payload
 
     async def _fetch_with_yfinance(self, symbol: str) -> Dict[str, Any]:
         def _load() -> Dict[str, Any]:

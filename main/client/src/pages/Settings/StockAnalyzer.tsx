@@ -67,6 +67,92 @@ interface AiAnalysis {
     }[];
 }
 
+const clamp = (n: number, min = 0, max = 100) => Math.max(min, Math.min(max, n));
+
+const toDateLabel = (ts?: number | null) => {
+    if (!ts) return new Date().toISOString().split('T')[0];
+    return new Date(ts * 1000).toISOString().split('T')[0];
+};
+
+const mapRating = (rating?: string): AiRating => {
+    const normalized = (rating || '').toLowerCase();
+    if (normalized.includes('strong buy')) return 'Strong Buy';
+    if (normalized.includes('buy')) return 'Buy';
+    if (normalized.includes('sell')) return 'Sell';
+    if (normalized.includes('avoid')) return 'Avoid';
+    return 'Hold';
+};
+
+const normalizeAnalysisPayload = (raw: any, requestedTicker: string): AiAnalysis => {
+    if (raw?.core_signals && raw?.ai_rationale) return raw as AiAnalysis;
+
+    const live = raw?.live_snapshot || {};
+    const prediction = raw?.prediction || {};
+    const analysis = raw?.analysis || {};
+    const meta = raw?.meta || {};
+    const priceSeries = (raw?.price_series || []).map((p: any) => ({
+        date: toDateLabel(p?.ts ?? null),
+        close: Number(p?.close ?? 0),
+    }));
+
+    const rsi = Number(live?.rsi14 ?? 50);
+    const confidence = Number(prediction?.confidence ?? 60);
+    const technicalScore = clamp(Math.round(rsi));
+    const riskScore = clamp(100 - confidence);
+    const newsScore = Array.isArray(raw?.news_digest) && raw.news_digest.length > 0 ? 70 : 45;
+    const lastPrice = live?.last_price ?? null;
+    const currency = meta?.currency || 'INR';
+
+    return {
+        meta: {
+            ticker: meta?.symbol_resolved || meta?.ticker_requested || requestedTicker,
+            company_name: meta?.company_name || meta?.symbol_resolved || requestedTicker,
+            sector: 'Market Intelligence',
+            last_price: typeof lastPrice === 'number' ? lastPrice : undefined,
+            currency,
+            time_range: '6M',
+        },
+        core_signals: {
+            ai_overall_rating: mapRating(prediction?.rating),
+            technical_score: technicalScore,
+            fundamental_score: clamp(Math.round((confidence + technicalScore) / 2)),
+            news_score: newsScore,
+            risk_score: riskScore,
+            confidence: clamp(confidence),
+        },
+        ai_rationale: {
+            thesis: analysis?.thesis || 'Live data is limited; this is a conservative directional read.',
+            time_horizon: prediction?.horizon || 'medium_term',
+            bull_case: prediction?.bull_case || 'Upside if momentum sustains above near-term support.',
+            bear_case: prediction?.bear_case || 'Downside if risk factors strengthen or support breaks.',
+            base_case: prediction?.base_case || 'Range-bound movement while waiting for fresh catalysts.',
+        },
+        explanations: {
+            technical_explain: `RSI14: ${live?.rsi14 ?? 'N/A'}, SMA20: ${live?.sma20 ?? 'N/A'}, SMA50: ${live?.sma50 ?? 'N/A'}.`,
+            fundamental_explain: `PE: ${live?.pe ?? 'N/A'}, EPS(TTM): ${live?.eps_ttm ?? 'N/A'}, Market Cap: ${live?.market_cap ?? 'N/A'}.`,
+            news_explain: Array.isArray(raw?.news_digest) && raw.news_digest.length > 0
+                ? 'Recent headlines were included in the model context.'
+                : 'No recent news payload was available from provider at request time.',
+            risk_explain: (analysis?.risk_factors || []).join(' | ') || 'Rate limits/data gaps may reduce signal reliability.',
+        },
+        history_context: {
+            previous_calls: [],
+            model_confidence_trend: [],
+        },
+        charts: {
+            price_series: priceSeries,
+        },
+        recent_news: (raw?.news_digest || []).map((n: any) => ({
+            headline: n?.title || 'Market update',
+            source: n?.publisher || 'News feed',
+            published_at: n?.published_at_epoch ? toDateLabel(n.published_at_epoch) : new Date().toISOString().split('T')[0],
+            sentiment: 'Neutral',
+            impact: n?.impact || 'Medium',
+            why_it_matters: n?.why_it_matters || 'Potential impact on short-term volatility and sentiment.',
+        })),
+    };
+};
+
 const StockAnalyzer: React.FC = () => {
     const [ticker, setTicker] = useState('RELIANCE.NS');
     const [loading, setLoading] = useState(false);
@@ -113,15 +199,19 @@ const StockAnalyzer: React.FC = () => {
             const response = await aiApi.post('/ai/stock-analyze', { ticker });
             // The backend returns an error field if it fails but catches
             if (response.data?.error) throw new Error(response.data.error);
-            // If it returns mock data because of an exception, it might look successful but have placeholders
-            setAnalysis(response.data as AiAnalysis);
+            setAnalysis(normalizeAnalysisPayload(response.data, ticker));
         } catch (err: any) {
             console.error("Stock Analysis Error:", err);
-            setError(err.response?.status === 404
-                ? 'AI Analysis endpoint not found. Please verify back-end version.'
-                : err.message === 'Network Error'
-                    ? 'Connection failed. Please verify AI Service URL configuration.'
-                    : (err.response?.data?.detail || err.message || 'Failed to analyze stock. Please try again.'));
+            const detail = err.response?.data?.detail || err.message || '';
+            if (err.response?.status === 429 || /rate limit|too many requests/i.test(detail)) {
+                setError('Live provider is rate-limited right now. Please retry in 30-60 seconds.');
+            } else if (err.response?.status === 404) {
+                setError('AI Analysis endpoint not found. Please verify back-end version.');
+            } else if (err.message === 'Network Error') {
+                setError('Connection failed. Please verify AI Service URL configuration.');
+            } else {
+                setError(detail || 'Failed to analyze stock. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
