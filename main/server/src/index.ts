@@ -59,6 +59,7 @@ app.use(cors({
         if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
         if (/^http:\/\/127\.0\.0\.1:\d+$/.test(origin)) return callback(null, true);
         if (/^https:\/\/[a-z0-9-]+\.onrender\.com$/.test(origin)) return callback(null, true);
+        if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) return callback(null, true);
         return callback(new Error('Not allowed by CORS'));
     },
     credentials: true

@@ -407,7 +407,7 @@ app.add_middleware(
         "https://store-ai-prd.onrender.com",
         "https://steward-platform.onrender.com"
     ],
-    allow_origin_regex=r"https://[a-z0-9-]+\.onrender\.com",
+    allow_origin_regex=r"https://[a-z0-9-]+\.(onrender\.com|vercel\.app)",
     allow_credentials=True, 
     allow_methods=["*"],
     allow_headers=["*"],

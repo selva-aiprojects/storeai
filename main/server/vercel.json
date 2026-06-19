@@ -1,0 +1,23 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "api/index.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "node_modules/.prisma/**",
+                    "node_modules/@prisma/**",
+                    "prisma/**"
+                ],
+                "maxDuration": 30
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "api/index.ts"
+        }
+    ]
+}

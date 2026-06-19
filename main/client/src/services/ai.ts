@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const rawAiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api';
-const AI_API_URL = rawAiUrl.endsWith('/api') ? rawAiUrl : `${rawAiUrl.replace(/\/$/, '')}/api`;
+const rawAiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:5000/api/v1/ai';
+const AI_API_URL = rawAiUrl.replace(/\/+$/, '');
 
 const aiApi = axios.create({
     baseURL: AI_API_URL,
