@@ -102,3 +102,13 @@ main/client/capture_screenshots.js
 main/docs/debug_*.png
 main/docs/error_state.png
 main/docs/StoreAI_Role_Workflows.docx
+
+# Local Vercel env and test artifacts
+main/client/.env.vercel.*
+main/server/.env.vercel.*
+main/client/*.png
+main/client/e2e_*.mjs
+main/client/ui_smoke_*.mjs
+main/client/puppeteer_probe.mjs
+python_backend/test_raw_key.py
+
