@@ -27,6 +27,14 @@ import { getDashboardStats } from './controllers/dashboardController';
 import { authenticate } from './middleware/authMiddleware';
 import { ensureAdminAccessOnBoot } from './adminBootstrap';
 
+// Defensively trim environment variables to prevent carriage-return/newline leak issues
+const envsToTrim = ['DATABASE_URL', 'AUTO_FIX_ADMIN_ON_BOOT', 'CLIENT_URL', 'JWT_SECRET', 'INITIAL_ADMIN_EMAIL', 'INITIAL_ADMIN_PASSWORD'];
+for (const envVar of envsToTrim) {
+    if (process.env[envVar]) {
+        process.env[envVar] = process.env[envVar]!.trim();
+    }
+}
+
 logger.info('--- ENVIRONMENT CONFIG CHECK ---');
 logger.info(`PORT: ${process.env.PORT}`);
 const dbUrl = process.env.DATABASE_URL || '';
