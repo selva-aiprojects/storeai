@@ -14,7 +14,7 @@ const Landing = () => {
             {/* Navbar */}
             <nav className="relative z-10 container mx-auto px-6 py-6 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-16 md:h-20 w-auto drop-shadow-xl sidebar-logo-contrast" />
+                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-32 md:h-40 w-auto drop-shadow-xl sidebar-logo-contrast" />
                 </div>
                 <div className="flex items-center gap-4">
                     <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
@@ -154,7 +154,7 @@ const Landing = () => {
             <footer className="relative z-10 border-t border-white/10 py-12 bg-slate-950">
                 <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
-                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-10 md:h-12 w-auto opacity-80 drop-shadow-md sidebar-logo-contrast" />
+                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-20 md:h-24 w-auto opacity-80 drop-shadow-md sidebar-logo-contrast" />
                     </div>
                     <div className="text-slate-500 text-sm font-medium">
                         © {new Date().getFullYear()} StoreAI Intelligence. All rights reserved.
