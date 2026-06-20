@@ -98,28 +98,38 @@ const Landing = () => {
                         </motion.div>
                     </div>
 
-                    {/* Right Column: Compact Dashboard Mockup */}
-                    <div className="lg:col-span-7">
+                    {/* Right Column: High-Impact Glowing Logo Presentation */}
+                    <div className="lg:col-span-7 flex justify-center items-center relative min-h-[350px] w-full">
+                        {/* Glow backdrops */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] bg-gradient-to-tr from-blue-500/25 to-cyan-400/25 rounded-full blur-[80px] pointer-events-none animate-pulse"></div>
+                        
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
-                            className="relative rounded-2xl border border-white/10 bg-slate-800/40 backdrop-blur-xl p-1.5 shadow-2xl overflow-hidden group"
+                            className="relative z-10 flex justify-center items-center w-full max-w-sm p-8 rounded-[2.5rem] border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-[0_0_50px_rgba(37,99,235,0.15)] group overflow-hidden"
+                            style={{
+                                animation: 'float-animation 6s ease-in-out infinite'
+                            }}
                         >
+                            {/* Embedded CSS animation for floating effect */}
+                            <style>{`
+                                @keyframes float-animation {
+                                    0% { transform: translateY(0px); }
+                                    50% { transform: translateY(-12px); }
+                                    100% { transform: translateY(0px); }
+                                }
+                            `}</style>
+                            
                             <img 
-                                src="/demo_dashboard.html" 
-                                alt="Dashboard Preview" 
-                                className="rounded-xl w-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+                                src="/logo-transparent.png" 
+                                alt="StoreAI Logo Banner" 
+                                className="w-full h-auto object-contain max-h-[220px] drop-shadow-[0_15px_30px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform duration-500"
                                 onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
+                                    // Fallback to logo-final.png if logo-transparent.png is not found
+                                    e.currentTarget.src = "/logo-final.png";
                                 }}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center -z-10 bg-slate-800/60 min-h-[300px]">
-                                <div className="text-slate-500 font-medium flex flex-col items-center gap-3">
-                                    <BarChart3 size={40} className="opacity-40" />
-                                    <span className="text-sm">Interactive Dashboard Interface</span>
-                                </div>
-                            </div>
                         </motion.div>
                     </div>
                 </div>
@@ -241,6 +251,31 @@ const Landing = () => {
                         </div>
                     </motion.div>
                 </div>
+
+                {/* Contact Row */}
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                    className="mt-8 p-6 rounded-2xl bg-white/5 border border-white/10 grid md:grid-cols-3 gap-6 text-center md:text-left items-center"
+                >
+                    <div>
+                        <h4 className="text-sm font-bold text-slate-300 mb-1">Get in Touch with Sales</h4>
+                        <p className="text-xs text-slate-500">Have questions about deployment or custom pricing?</p>
+                    </div>
+                    <div className="flex flex-wrap gap-4 md:col-span-2 justify-center md:justify-end">
+                        <a href="mailto:contactus@whitekraaft.com" className="px-4 py-2 bg-slate-900/40 border border-white/5 hover:bg-slate-900/60 rounded-xl text-xs text-slate-300 flex items-center gap-2 transition-all">
+                            📧 contactus@whitekraaft.com
+                        </a>
+                        <a href="tel:+917032295550" className="px-4 py-2 bg-slate-900/40 border border-white/5 hover:bg-slate-900/60 rounded-xl text-xs text-slate-300 flex items-center gap-2 transition-all">
+                            📞 +91 70322 95550
+                        </a>
+                        <a href="https://wa.me/917032295550" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl text-xs text-emerald-400 flex items-center gap-2 transition-all font-semibold">
+                            💬 WhatsApp Sales
+                        </a>
+                    </div>
+                </motion.div>
             </main>
 
             {/* Footer */}
