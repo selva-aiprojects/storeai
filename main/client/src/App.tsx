@@ -12,6 +12,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import FormModal from './components/FormModal';
 
 // Pages
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
@@ -157,7 +158,11 @@ function App() {
     return (
         <Router>
             {!user ? (
-                <Login setUser={setUser} />
+                <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/login" element={<Login setUser={setUser} />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
             ) : (
                 <Routes>
                     <Route element={<DashboardLayout user={user} logout={() => {
