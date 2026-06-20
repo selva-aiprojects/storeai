@@ -99,15 +99,15 @@ const Landing = () => {
                     </div>
 
                     {/* Right Column: High-Impact Glowing Logo Presentation */}
-                    <div className="lg:col-span-7 flex justify-center items-center relative min-h-[350px] w-full">
+                    <div className="lg:col-span-7 flex justify-center items-center relative min-h-[400px] w-full">
                         {/* Glow backdrops */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] bg-gradient-to-tr from-blue-500/25 to-cyan-400/25 rounded-full blur-[80px] pointer-events-none animate-pulse"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-tr from-blue-500/20 to-cyan-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse"></div>
                         
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 15 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
-                            className="relative z-10 flex justify-center items-center w-full max-w-sm p-8 rounded-[2.5rem] border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-[0_0_50px_rgba(37,99,235,0.15)] group overflow-hidden"
+                            className="relative z-10 w-full max-w-lg flex justify-center items-center"
                             style={{
                                 animation: 'float-animation 6s ease-in-out infinite'
                             }}
@@ -116,18 +116,18 @@ const Landing = () => {
                             <style>{`
                                 @keyframes float-animation {
                                     0% { transform: translateY(0px); }
-                                    50% { transform: translateY(-12px); }
+                                    50% { transform: translateY(-15px); }
                                     100% { transform: translateY(0px); }
                                 }
                             `}</style>
                             
                             <img 
-                                src="/logo-transparent.png" 
+                                src="/logo-storeai.png" 
                                 alt="StoreAI Logo Banner" 
-                                className="w-full h-auto object-contain max-h-[220px] drop-shadow-[0_15px_30px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform duration-500"
+                                className="w-full h-auto object-contain max-h-[350px] drop-shadow-[0_20px_50px_rgba(37,99,235,0.45)] hover:scale-105 transition-transform duration-500"
                                 onError={(e) => {
-                                    // Fallback to logo-final.png if logo-transparent.png is not found
-                                    e.currentTarget.src = "/logo-final.png";
+                                    // Fallback to StoreAI-Logo.png if logo-storeai.png is not found
+                                    e.currentTarget.src = "/StoreAI-Logo.png";
                                 }}
                             />
                         </motion.div>
