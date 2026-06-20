@@ -53,7 +53,7 @@ const Login = ({ setUser }: any) => {
             >
 
                 {/* ================= LEFT SIDE ================= */}
-                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#00406E] to-[#006C99] p-10 text-white overflow-hidden">
+                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#003254] to-[#00547A] p-10 text-white overflow-hidden">
 
                     {/* Wavy Background Decor */}
                     <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -116,7 +116,7 @@ const Login = ({ setUser }: any) => {
                 <div className="p-6 lg:p-10 flex flex-col justify-center">
 
                     {/* Mobile Logo Branding Header */}
-                    <div className="lg:hidden flex justify-center mb-4 px-8 py-4 bg-gradient-to-r from-[#00406E] to-[#006C99] rounded-2xl shadow-lg -mx-2 transition-all duration-500">
+                    <div className="lg:hidden flex justify-center mb-4 px-8 py-4 bg-gradient-to-r from-[#003254] to-[#00547A] rounded-2xl shadow-lg -mx-2 transition-all duration-500">
                         <img src="/logo-mt.png" alt="StoreAI" className="h-32 w-auto drop-shadow-xl sidebar-logo-contrast" />
                     </div>
 
@@ -197,7 +197,7 @@ const Login = ({ setUser }: any) => {
                         {/* Button */}
                         <button
                             disabled={loading}
-                            className="w-full mt-4 bg-gradient-to-r from-[#00406E] to-[#006C99] hover:from-[#003254] hover:to-[#00547A] text-white py-4 rounded-xl font-bold tracking-widest shadow-xl shadow-blue-900/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] text-xs"
+                            className="w-full mt-4 bg-gradient-to-r from-[#003254] to-[#00547A] hover:from-[#00243D] hover:to-[#003E5A] text-white py-4 rounded-xl font-bold tracking-widest shadow-xl shadow-blue-900/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] text-xs"
                         >
                             {loading ? "AUTHORIZING..." : "SIGN IN TO STOREAI"}
                         </button>
