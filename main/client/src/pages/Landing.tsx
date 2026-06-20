@@ -256,8 +256,8 @@ const Landing = () => {
             <section className="relative z-10 py-24 bg-slate-900/50 backdrop-blur-lg border-t border-white/5">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Trusted by Industry Leaders</h2>
-                        <p className="text-slate-400 max-w-xl mx-auto">See how businesses are transforming their operations with StoreAI.</p>
+                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Loved by Growing Businesses</h2>
+                        <p className="text-slate-400 max-w-xl mx-auto">Hear how retailers and store owners are simplifying their operations with StoreAI.</p>
                     </div>
                     <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {[
