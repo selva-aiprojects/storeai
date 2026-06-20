@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { BarChart3, Building2, PackageCheck, ShieldCheck, ChevronRight, Zap } from 'lucide-react';
+import { BarChart3, Building2, PackageCheck, ShieldCheck, ChevronRight, Zap, TrendingUp, Clock, Target, CheckCircle2, Star, ArrowRight } from 'lucide-react';
 
 const Landing = () => {
     return (
@@ -98,6 +98,34 @@ const Landing = () => {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Stats / Trust Section */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="mt-32 pt-10 border-t border-white/10"
+                >
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-4xl mx-auto">
+                        <div>
+                            <div className="text-4xl font-bold text-white mb-2">99.9%</div>
+                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Uptime</div>
+                        </div>
+                        <div>
+                            <div className="text-4xl font-bold text-white mb-2">30%</div>
+                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Avg. Cost Reduction</div>
+                        </div>
+                        <div>
+                            <div className="text-4xl font-bold text-white mb-2">10k+</div>
+                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Stores Managed</div>
+                        </div>
+                        <div>
+                            <div className="text-4xl font-bold text-white mb-2">24/7</div>
+                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Expert Support</div>
+                        </div>
+                    </div>
+                </motion.div>
             </main>
 
             {/* Features Section */}
@@ -147,6 +175,162 @@ const Landing = () => {
                             </motion.div>
                         ))}
                     </div>
+                </div>
+            </section>
+
+            {/* Value Proposition Section */}
+            <section className="relative z-10 py-32 bg-slate-900">
+                <div className="container mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-center gap-16 max-w-6xl mx-auto">
+                        <div className="flex-1">
+                            <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">Stop reacting. <br/>Start predicting with AI.</h2>
+                            <p className="text-xl text-slate-400 mb-8 leading-relaxed">
+                                Traditional retail software tells you what happened yesterday. StoreAI tells you what will happen tomorrow. Maximize margins and minimize stockouts with predictive intelligence.
+                            </p>
+                            
+                            <div className="space-y-6">
+                                {[
+                                    { icon: <TrendingUp className="text-emerald-400" size={24} />, title: "Boost Revenue", desc: "Identify cross-sell opportunities and optimize pricing dynamically." },
+                                    { icon: <Clock className="text-blue-400" size={24} />, title: "Save Hundreds of Hours", desc: "Automate purchase orders, scheduling, and accounting reconciliation." },
+                                    { icon: <Target className="text-indigo-400" size={24} />, title: "Zero Guesswork", desc: "Data-driven insights tell you exactly what to stock and when." }
+                                ].map((item, idx) => (
+                                    <div key={idx} className="flex gap-4 items-start">
+                                        <div className="mt-1 p-2 bg-white/5 rounded-lg border border-white/10">
+                                            {item.icon}
+                                        </div>
+                                        <div>
+                                            <h4 className="text-lg font-bold text-white mb-1">{item.title}</h4>
+                                            <p className="text-slate-400">{item.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex-1 w-full relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 blur-3xl rounded-full pointer-events-none"></div>
+                            <div className="relative bg-slate-800/80 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-center pb-6 border-b border-white/10">
+                                        <div>
+                                            <div className="text-sm text-slate-400 mb-1">Projected ROI</div>
+                                            <div className="text-3xl font-bold text-white">284%</div>
+                                        </div>
+                                        <div className="px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-sm font-bold">
+                                            +12.5% vs Last Year
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm text-slate-400 mb-4">Top Performing Categories</div>
+                                        <div className="space-y-4">
+                                            {[
+                                                { label: "Electronics", val: 85, color: "bg-blue-500" },
+                                                { label: "Apparel", val: 62, color: "bg-cyan-500" },
+                                                { label: "Home Goods", val: 45, color: "bg-indigo-500" }
+                                            ].map((stat, i) => (
+                                                <div key={i}>
+                                                    <div className="flex justify-between text-sm font-medium mb-2">
+                                                        <span className="text-white">{stat.label}</span>
+                                                        <span className="text-slate-400">{stat.val}% margin</span>
+                                                    </div>
+                                                    <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+                                                        <motion.div 
+                                                            initial={{ width: 0 }}
+                                                            whileInView={{ width: `${stat.val}%` }}
+                                                            viewport={{ once: true }}
+                                                            transition={{ duration: 1, delay: 0.2 + (i * 0.1) }}
+                                                            className={`${stat.color} h-2 rounded-full`}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Testimonials */}
+            <section className="relative z-10 py-24 bg-slate-900/50 backdrop-blur-lg border-t border-white/5">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Trusted by Industry Leaders</h2>
+                        <p className="text-slate-400 max-w-xl mx-auto">See how businesses are transforming their operations with StoreAI.</p>
+                    </div>
+                    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        {[
+                            {
+                                quote: "StoreAI completely eliminated our stockouts. The predictive ordering is like having a crystal ball for our inventory.",
+                                author: "Sarah Jenkins",
+                                role: "VP Operations, TechRetail"
+                            },
+                            {
+                                quote: "We cut our accounting reconciliation time by 70%. The multi-tenant architecture perfectly handles our 50+ locations.",
+                                author: "Michael Chen",
+                                role: "CFO, GlobalMart"
+                            },
+                            {
+                                quote: "The best ROI of any software we've deployed. We saw a 15% increase in margins within the first quarter of implementation.",
+                                author: "Elena Rodriguez",
+                                role: "Director of Retail, StyleCorp"
+                            }
+                        ].map((testimonial, idx) => (
+                            <motion.div 
+                                key={idx} 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                                className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                            >
+                                <div className="flex gap-1 mb-6 text-yellow-500">
+                                    {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+                                </div>
+                                <p className="text-lg text-slate-300 mb-6 italic">"{testimonial.quote}"</p>
+                                <div>
+                                    <div className="font-bold text-white">{testimonial.author}</div>
+                                    <div className="text-sm text-slate-400">{testimonial.role}</div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="relative z-10 py-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-900 to-slate-900 border-t border-white/10">
+                <div className="container mx-auto px-6">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="max-w-4xl mx-auto text-center bg-gradient-to-b from-white/10 to-transparent border border-white/10 p-12 md:p-20 rounded-[3rem] relative overflow-hidden"
+                    >
+                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                        <div className="relative z-10">
+                            <h2 className="text-4xl md:text-6xl font-extrabold mb-6">Ready to scale your business?</h2>
+                            <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
+                                Join hundreds of businesses using StoreAI to optimize operations, reduce costs, and accelerate growth.
+                            </p>
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                <Link to="/login" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-extrabold text-lg shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                                    Start Free Trial
+                                    <ArrowRight size={20} />
+                                </Link>
+                                <a href="mailto:sales@whitekraaft.com" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-lg border border-white/10 transition-all hover:scale-105 active:scale-95">
+                                    Contact Sales
+                                </a>
+                            </div>
+                            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-400 font-medium">
+                                <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> No credit card required</div>
+                                <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> 14-day free trial</div>
+                                <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> Cancel anytime</div>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 
