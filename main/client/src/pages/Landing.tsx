@@ -157,7 +157,7 @@ const Landing = () => {
                         <img src="/logo-mt.png" alt="StoreAI Logo" className="h-20 md:h-24 w-auto opacity-80 drop-shadow-md sidebar-logo-contrast" />
                     </div>
                     <div className="text-slate-500 text-sm font-medium">
-                        © {new Date().getFullYear()} StoreAI Intelligence. All rights reserved.
+                        © {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com.
                     </div>
                 </div>
             </footer>

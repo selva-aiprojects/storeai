@@ -206,7 +206,7 @@ const Login = ({ setUser }: any) => {
 
                     {/* Footer */}
                     <div className="mt-5 text-center text-[10px] text-slate-400 font-semibold tracking-wider">
-                        © {new Date().getFullYear()} StoreAI Intelligence
+                        © {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com
                     </div>
 
                 </div>
