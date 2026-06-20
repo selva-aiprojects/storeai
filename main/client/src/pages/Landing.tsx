@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { BarChart3, Building2, PackageCheck, ShieldCheck, ChevronRight, Zap, TrendingUp, Clock, Target, CheckCircle2, Star, ArrowRight } from 'lucide-react';
+import { BarChart3, Building2, ChevronRight, Zap, TrendingUp, Clock, Star, ArrowRight } from 'lucide-react';
 
 const Landing = () => {
     return (
-        <div className="min-h-screen bg-slate-900 text-white font-['Outfit'] overflow-hidden selection:bg-blue-500/30">
+        <div className="min-h-screen bg-slate-900 text-white font-['Outfit'] overflow-hidden selection:bg-blue-500/30 flex flex-col justify-between">
             {/* Ambient Background */}
             <div className="fixed inset-0 z-0">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(0,108,153,0.15)_0%,transparent_50%),radial-gradient(circle_at_100%_100%,rgba(0,64,110,0.2)_0%,transparent_50%)]"></div>
@@ -12,335 +12,242 @@ const Landing = () => {
             </div>
 
             {/* Navbar */}
-            <nav className="relative z-10 container mx-auto px-6 py-6 flex justify-between items-center">
+            <nav className="relative z-10 container mx-auto px-6 py-4 flex justify-between items-center border-b border-white/5 max-w-7xl">
                 <div className="flex items-center gap-2">
-                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-32 md:h-40 w-auto drop-shadow-xl sidebar-logo-contrast" />
+                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-16 md:h-20 w-auto drop-shadow-xl sidebar-logo-contrast" />
                 </div>
                 <div className="flex items-center gap-4">
                     <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
                         Sign In
                     </Link>
-                    <Link to="/login" className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-900/50 transition-all hover:-translate-y-0.5 active:scale-95">
+                    <Link to="/login" className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-900/50 transition-all hover:-translate-y-0.5 active:scale-95">
                         Get Started
                     </Link>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <main className="relative z-10 container mx-auto px-6 pt-20 pb-32">
-                <div className="max-w-4xl mx-auto text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider mb-8"
-                    >
-                        <Zap size={14} className="animate-pulse" />
-                        Next-Gen Commerce Engine
-                    </motion.div>
+            {/* Main Content Area */}
+            <main className="relative z-10 container mx-auto px-6 py-6 max-w-7xl flex-grow">
+                {/* Upper Split Screen: Hero & Preview */}
+                <div className="grid lg:grid-cols-12 gap-8 items-center mb-8">
+                    {/* Left Column: Hero Text & CTAs & Stats */}
+                    <div className="lg:col-span-5 space-y-6">
+                        <motion.div
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider"
+                        >
+                            <Zap size={12} className="animate-pulse" />
+                            Next-Gen Commerce Engine
+                        </motion.div>
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6"
-                    >
-                        Intelligence for <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Modern Business</span>
-                    </motion.h1>
+                        <motion.h1
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.1 }}
+                            className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight"
+                        >
+                            Intelligence for <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Modern Business</span>
+                        </motion.h1>
 
-                    <motion.p
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-lg md:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed"
-                    >
-                        A unified platform delivering multi-tenant architecture, inventory optimization, and profound financial insights for the data-driven enterprise.
-                    </motion.p>
+                        <motion.p
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="text-base text-slate-400 leading-relaxed"
+                        >
+                            A unified multi-tenant engine delivering predictive inventory optimization and profound financial insights for the data-driven enterprise.
+                        </motion.p>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        className="flex flex-col sm:flex-row items-center justify-center gap-4"
-                    >
-                        <Link to="/login" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-lg shadow-[0_0_40px_rgba(37,99,235,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
-                            Enter Workspace
-                            <ChevronRight size={20} />
-                        </Link>
-                        <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-semibold text-lg backdrop-blur-sm border border-white/10 transition-all hover:scale-105 active:scale-95">
-                            Explore Features
-                        </a>
-                    </motion.div>
-                </div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.3 }}
+                            className="flex flex-wrap items-center gap-3"
+                        >
+                            <Link to="/login" className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-base shadow-[0_0_30px_rgba(37,99,235,0.25)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                                Enter Workspace
+                                <ChevronRight size={18} />
+                            </Link>
+                            <Link to="/login" className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-base backdrop-blur-sm border border-white/10 transition-all hover:scale-105 active:scale-95">
+                                Start Free Trial
+                            </Link>
+                        </motion.div>
 
-                {/* Dashboard Preview / Mockup */}
-                <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                    className="mt-20 relative mx-auto max-w-5xl rounded-2xl md:rounded-[2rem] border border-white/10 bg-slate-800/50 backdrop-blur-xl p-2 md:p-4 shadow-2xl overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10 pointer-events-none"></div>
-                    <img 
-                        src="/demo_dashboard.html" 
-                        alt="Dashboard Preview" 
-                        className="rounded-xl md:rounded-2xl w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-                        onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                        }}
-                    />
-                    {/* Fallback mockup if image is missing */}
-                    <div className="absolute inset-0 flex items-center justify-center -z-10 bg-slate-800/80">
-                        <div className="text-slate-500 font-medium flex flex-col items-center gap-4">
-                            <BarChart3 size={48} className="opacity-50" />
-                            <span>Interactive Dashboard Preview</span>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Stats / Trust Section */}
-                <motion.div 
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="mt-32 pt-10 border-t border-white/10"
-                >
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-4xl mx-auto">
-                        <div>
-                            <div className="text-4xl font-bold text-white mb-2">99.9%</div>
-                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Uptime</div>
-                        </div>
-                        <div>
-                            <div className="text-4xl font-bold text-white mb-2">30%</div>
-                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Avg. Cost Reduction</div>
-                        </div>
-                        <div>
-                            <div className="text-4xl font-bold text-white mb-2">10k+</div>
-                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Stores Managed</div>
-                        </div>
-                        <div>
-                            <div className="text-4xl font-bold text-white mb-2">24/7</div>
-                            <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Expert Support</div>
-                        </div>
-                    </div>
-                </motion.div>
-            </main>
-
-            {/* Features Section */}
-            <section id="features" className="relative z-10 bg-slate-900/50 backdrop-blur-lg border-t border-white/5 py-32">
-                <div className="container mx-auto px-6">
-                    <div className="text-center mb-20">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Engineered for Scale</h2>
-                        <p className="text-slate-400 max-w-xl mx-auto">Everything you need to manage multiple organizations, track real-time inventory, and analyze financial health.</p>
+                        {/* Tighter Stats row directly in hero */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.8, delay: 0.4 }}
+                            className="pt-6 border-t border-white/5 grid grid-cols-3 gap-4"
+                        >
+                            <div>
+                                <div className="text-2xl font-bold text-white">99.9%</div>
+                                <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider">Uptime</div>
+                            </div>
+                            <div>
+                                <div className="text-2xl font-bold text-emerald-400">30%</div>
+                                <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider">Cost Cut</div>
+                            </div>
+                            <div>
+                                <div className="text-2xl font-bold text-cyan-400">10k+</div>
+                                <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider">Stores</div>
+                            </div>
+                        </motion.div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {[
-                            {
-                                icon: <Building2 size={32} className="text-blue-400" />,
-                                title: "Multi-Tenant Architecture",
-                                desc: "Isolate data across multiple organizations while managing them from a single pane of glass."
-                            },
-                            {
-                                icon: <PackageCheck size={32} className="text-cyan-400" />,
-                                title: "Inventory Optimization",
-                                desc: "AI-driven stock alerts, predictive purchasing, and real-time global inventory tracking."
-                            },
-                            {
-                                icon: <BarChart3 size={32} className="text-indigo-400" />,
-                                title: "Financial Intelligence",
-                                desc: "Automated general ledgers, profit & loss statements, and granular taxation compliance."
-                            },
-                            {
-                                icon: <ShieldCheck size={32} className="text-emerald-400" />,
-                                title: "Enterprise Governance",
-                                desc: "Strict RBAC controls, audit logs, and secure authentication to keep your data safe."
-                            }
-                        ].map((feature, idx) => (
-                            <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                className={`p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors ${idx === 3 ? 'md:col-span-3 lg:col-span-1 lg:col-start-2' : ''}`}
-                            >
-                                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
-                                    {feature.icon}
+                    {/* Right Column: Compact Dashboard Mockup */}
+                    <div className="lg:col-span-7">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            className="relative rounded-2xl border border-white/10 bg-slate-800/40 backdrop-blur-xl p-1.5 shadow-2xl overflow-hidden group"
+                        >
+                            <img 
+                                src="/demo_dashboard.html" 
+                                alt="Dashboard Preview" 
+                                className="rounded-xl w-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center -z-10 bg-slate-800/60 min-h-[300px]">
+                                <div className="text-slate-500 font-medium flex flex-col items-center gap-3">
+                                    <BarChart3 size={40} className="opacity-40" />
+                                    <span className="text-sm">Interactive Dashboard Interface</span>
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                                <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
-                            </motion.div>
-                        ))}
+                            </div>
+                        </motion.div>
                     </div>
                 </div>
-            </section>
 
-            {/* Value Proposition Section */}
-            <section className="relative z-10 py-32 bg-slate-900">
-                <div className="container mx-auto px-6">
-                    <div className="flex flex-col md:flex-row items-center gap-16 max-w-6xl mx-auto">
-                        <div className="flex-1">
-                            <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">Stop reacting. <br/>Start predicting with AI.</h2>
-                            <p className="text-xl text-slate-400 mb-8 leading-relaxed">
-                                Traditional retail software tells you what happened yesterday. StoreAI tells you what will happen tomorrow. Maximize margins and minimize stockouts with predictive intelligence.
-                            </p>
-                            
-                            <div className="space-y-6">
+                {/* Lower Grid: Compact 3-Column Features & Insights Dashboard */}
+                <div className="grid lg:grid-cols-12 gap-6 mt-8">
+                    {/* Left 4 Cols: Engineered Features */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        className="lg:col-span-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all space-y-4"
+                    >
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Building2 size={18} className="text-blue-400" />
+                            Engineered for Scale
+                        </h3>
+                        <div className="space-y-3 text-sm">
+                            {[
+                                { title: "Multi-Tenant Architecture", desc: "Isolate data securely across organization units." },
+                                { title: "Inventory Optimization", desc: "Real-time global tracking & predictive purchasing." },
+                                { title: "Financial Intelligence", desc: "Automated ledgers, profit & loss, & taxation." },
+                                { title: "Enterprise Governance", desc: "Granular RBAC controls & full compliance audit logs." }
+                            ].map((f, idx) => (
+                                <div key={idx} className="p-2.5 rounded-lg bg-slate-900/40 border border-white/5">
+                                    <div className="font-bold text-slate-200 mb-0.5 text-xs">{f.title}</div>
+                                    <div className="text-slate-400 text-[11px]">{f.desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Middle 4 Cols: Predictive ROI Widgets */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="lg:col-span-4 p-6 rounded-2xl bg-slate-800/60 border border-white/10 hover:bg-slate-800/80 transition-all flex flex-col justify-between"
+                    >
+                        <div>
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                                <TrendingUp size={18} className="text-emerald-400" />
+                                Predictive Analytics
+                            </h3>
+                            <div className="flex justify-between items-center p-3 rounded-xl bg-slate-900/40 border border-white/5 mb-4">
+                                <div>
+                                    <div className="text-xs text-slate-400">Projected ROI</div>
+                                    <div className="text-xl font-bold text-white">284%</div>
+                                </div>
+                                <div className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-md text-[10px] font-bold">
+                                    +12.5% vs Last Year
+                                </div>
+                            </div>
+                            <div className="space-y-3">
                                 {[
-                                    { icon: <TrendingUp className="text-emerald-400" size={24} />, title: "Boost Revenue", desc: "Identify cross-sell opportunities and optimize pricing dynamically." },
-                                    { icon: <Clock className="text-blue-400" size={24} />, title: "Save Hundreds of Hours", desc: "Automate purchase orders, scheduling, and accounting reconciliation." },
-                                    { icon: <Target className="text-indigo-400" size={24} />, title: "Zero Guesswork", desc: "Data-driven insights tell you exactly what to stock and when." }
-                                ].map((item, idx) => (
-                                    <div key={idx} className="flex gap-4 items-start">
-                                        <div className="mt-1 p-2 bg-white/5 rounded-lg border border-white/10">
-                                            {item.icon}
+                                    { label: "Electronics Margins", val: 85, color: "bg-blue-500" },
+                                    { label: "Apparel Margins", val: 62, color: "bg-cyan-500" },
+                                    { label: "Home Goods Margins", val: 45, color: "bg-indigo-500" }
+                                ].map((stat, i) => (
+                                    <div key={i}>
+                                        <div className="flex justify-between text-xs mb-1">
+                                            <span className="text-slate-300">{stat.label}</span>
+                                            <span className="text-slate-400 font-bold">{stat.val}%</span>
                                         </div>
-                                        <div>
-                                            <h4 className="text-lg font-bold text-white mb-1">{item.title}</h4>
-                                            <p className="text-slate-400">{item.desc}</p>
+                                        <div className="w-full bg-slate-700/30 rounded-full h-1.5 overflow-hidden">
+                                            <motion.div 
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: `${stat.val}%` }}
+                                                viewport={{ once: true }}
+                                                transition={{ duration: 0.8, delay: 0.2 + (i * 0.1) }}
+                                                className={`${stat.color} h-1.5 rounded-full`}
+                                            />
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        <div className="flex-1 w-full relative">
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 blur-3xl rounded-full pointer-events-none"></div>
-                            <div className="relative bg-slate-800/80 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-center pb-6 border-b border-white/10">
-                                        <div>
-                                            <div className="text-sm text-slate-400 mb-1">Projected ROI</div>
-                                            <div className="text-3xl font-bold text-white">284%</div>
-                                        </div>
-                                        <div className="px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-sm font-bold">
-                                            +12.5% vs Last Year
-                                        </div>
+                        <div className="pt-4 mt-4 border-t border-white/5 flex gap-2 items-center">
+                            <Clock size={14} className="text-blue-400" />
+                            <span className="text-[11px] text-slate-400">Inventory alerts update in real-time</span>
+                        </div>
+                    </motion.div>
+
+                    {/* Right 4 Cols: Compact Testimonials & CTA */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="lg:col-span-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex flex-col justify-between gap-4"
+                    >
+                        <div>
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3">
+                                <Star size={18} className="text-yellow-500 fill-yellow-500" />
+                                Retailer Feedback
+                            </h3>
+                            <div className="space-y-3">
+                                {[
+                                    { quote: "StoreAI completely eliminated our stockouts. Predictive ordering is like a crystal ball.", author: "Sarah J., VP Operations" },
+                                    { quote: "Cut accounting reconciliation by 70%. Multi-tenant handles 50+ locations perfectly.", author: "Michael C., CFO" }
+                                ].map((t, idx) => (
+                                    <div key={idx} className="p-3 rounded-xl bg-slate-900/30 border border-white/5">
+                                        <p className="text-xs text-slate-300 italic mb-2">"{t.quote}"</p>
+                                        <div className="text-[10px] text-slate-400 font-bold">{t.author}</div>
                                     </div>
-                                    <div>
-                                        <div className="text-sm text-slate-400 mb-4">Top Performing Categories</div>
-                                        <div className="space-y-4">
-                                            {[
-                                                { label: "Electronics", val: 85, color: "bg-blue-500" },
-                                                { label: "Apparel", val: 62, color: "bg-cyan-500" },
-                                                { label: "Home Goods", val: 45, color: "bg-indigo-500" }
-                                            ].map((stat, i) => (
-                                                <div key={i}>
-                                                    <div className="flex justify-between text-sm font-medium mb-2">
-                                                        <span className="text-white">{stat.label}</span>
-                                                        <span className="text-slate-400">{stat.val}% margin</span>
-                                                    </div>
-                                                    <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
-                                                        <motion.div 
-                                                            initial={{ width: 0 }}
-                                                            whileInView={{ width: `${stat.val}%` }}
-                                                            viewport={{ once: true }}
-                                                            transition={{ duration: 1, delay: 0.2 + (i * 0.1) }}
-                                                            className={`${stat.color} h-2 rounded-full`}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
 
-            {/* Testimonials */}
-            <section className="relative z-10 py-24 bg-slate-900/50 backdrop-blur-lg border-t border-white/5">
-                <div className="container mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Loved by Growing Businesses</h2>
-                        <p className="text-slate-400 max-w-xl mx-auto">Hear how retailers and store owners are simplifying their operations with StoreAI.</p>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {[
-                            {
-                                quote: "StoreAI completely eliminated our stockouts. The predictive ordering is like having a crystal ball for our inventory.",
-                                author: "Sarah Jenkins",
-                                role: "VP Operations, TechRetail"
-                            },
-                            {
-                                quote: "We cut our accounting reconciliation time by 70%. The multi-tenant architecture perfectly handles our 50+ locations.",
-                                author: "Michael Chen",
-                                role: "CFO, GlobalMart"
-                            },
-                            {
-                                quote: "The best ROI of any software we've deployed. We saw a 15% increase in margins within the first quarter of implementation.",
-                                author: "Elena Rodriguez",
-                                role: "Director of Retail, StyleCorp"
-                            }
-                        ].map((testimonial, idx) => (
-                            <motion.div 
-                                key={idx} 
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-                            >
-                                <div className="flex gap-1 mb-6 text-yellow-500">
-                                    {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                                </div>
-                                <p className="text-lg text-slate-300 mb-6 italic">"{testimonial.quote}"</p>
-                                <div>
-                                    <div className="font-bold text-white">{testimonial.author}</div>
-                                    <div className="text-sm text-slate-400">{testimonial.role}</div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="relative z-10 py-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-900 to-slate-900 border-t border-white/10">
-                <div className="container mx-auto px-6">
-                    <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="max-w-4xl mx-auto text-center bg-gradient-to-b from-white/10 to-transparent border border-white/10 p-12 md:p-20 rounded-[3rem] relative overflow-hidden"
-                    >
-                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                        <div className="relative z-10">
-                            <h2 className="text-4xl md:text-6xl font-extrabold mb-6">Ready to scale your business?</h2>
-                            <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
-                                Join hundreds of businesses using StoreAI to optimize operations, reduce costs, and accelerate growth.
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <Link to="/login" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-extrabold text-lg shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
-                                    Start Free Trial
-                                    <ArrowRight size={20} />
-                                </Link>
-                                <a href="mailto:sales@whitekraaft.com" className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-lg border border-white/10 transition-all hover:scale-105 active:scale-95">
-                                    Contact Sales
-                                </a>
-                            </div>
-                            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-400 font-medium">
-                                <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> No credit card required</div>
-                                <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> 14-day free trial</div>
-                                <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-emerald-400"/> Cancel anytime</div>
-                            </div>
+                        {/* Unified Micro-CTA */}
+                        <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+                            <span className="text-[11px] text-slate-400">14-day free trial • Cancel anytime</span>
+                            <Link to="/login" className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1 transition-all active:scale-95">
+                                Start Now
+                                <ArrowRight size={12} />
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
-            </section>
+            </main>
 
             {/* Footer */}
-            <footer className="relative z-10 border-t border-white/10 py-12 bg-slate-950">
-                <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-20 md:h-24 w-auto opacity-80 drop-shadow-md sidebar-logo-contrast" />
-                    </div>
-                    <div className="text-slate-500 text-sm font-medium">
+            <footer className="relative z-10 border-t border-white/5 py-4 bg-slate-950/80 mt-8">
+                <div className="container mx-auto px-6 max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-10 w-auto opacity-80 drop-shadow-md sidebar-logo-contrast" />
+                    <div className="text-slate-500 text-xs">
                         © {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com.
                     </div>
                 </div>
