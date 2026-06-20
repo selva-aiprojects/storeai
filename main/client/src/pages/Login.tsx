@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Building2, Users } from "lucide-react";
+import { ShieldCheck, Building2, Users, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import api, { login as loginApi } from "../services/api";
 
 const Login = ({ setUser }: any) => {
@@ -118,6 +119,12 @@ const Login = ({ setUser }: any) => {
                     <div className="lg:hidden flex justify-center mb-4 px-8 py-4 bg-gradient-to-r from-[#00406E] to-[#006C99] rounded-2xl shadow-lg -mx-2 transition-all duration-500">
                         <img src="/logo-mt.png" alt="StoreAI" className="h-32 w-auto drop-shadow-xl sidebar-logo-contrast" />
                     </div>
+
+                    {/* Back to Home Link */}
+                    <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 font-semibold text-sm transition-colors mb-6 self-start w-fit">
+                        <ArrowLeft size={16} />
+                        Back to Home
+                    </Link>
 
                     <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-800">
                         Welcome Back
