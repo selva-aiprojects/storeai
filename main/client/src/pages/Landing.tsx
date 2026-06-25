@@ -1,28 +1,31 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { BarChart3, Building2, ChevronRight, Zap, TrendingUp, Clock, Star, ArrowRight } from 'lucide-react';
+import { Building2, ChevronRight, Zap, TrendingUp, Clock, Star, ArrowRight, Mail, Phone, MessageCircle } from 'lucide-react';
 
 const Landing = () => {
     return (
         <div className="min-h-screen bg-slate-900 text-white font-['Outfit'] overflow-hidden selection:bg-blue-500/30 flex flex-col justify-between">
             {/* Ambient Background */}
-            <div className="fixed inset-0 z-0">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(0,108,153,0.15)_0%,transparent_50%),radial-gradient(circle_at_100%_100%,rgba(0,64,110,0.2)_0%,transparent_50%)]"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 rounded-full blur-[120px] opacity-50"></div>
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-blue-600/10 to-transparent"></div>
+                <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-cyan-500/10 to-transparent"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]"></div>
             </div>
 
             {/* Navbar */}
-            <nav className="relative z-10 container mx-auto px-6 py-4 flex justify-between items-center border-b border-white/5 max-w-7xl">
-                <div className="flex items-center gap-2">
-                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-16 md:h-20 w-auto drop-shadow-xl sidebar-logo-contrast" />
-                </div>
-                <div className="flex items-center gap-4">
-                    <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
-                        Sign In
-                    </Link>
-                    <Link to="/login" className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-900/50 transition-all hover:-translate-y-0.5 active:scale-95">
-                        Get Started
-                    </Link>
+            <nav className="relative z-10 border-b border-white/5">
+                <div className="container mx-auto px-6 max-w-7xl flex justify-between items-center py-4">
+                    <div className="flex items-center gap-2">
+                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-16 md:h-20 w-auto drop-shadow-xl" />
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                            Sign In
+                        </Link>
+                        <Link to="/login" className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-900/50 transition-all hover:-translate-y-0.5 active:scale-95">
+                            Get Started
+                        </Link>
+                    </div>
                 </div>
             </nav>
 
@@ -99,34 +102,21 @@ const Landing = () => {
                     </div>
 
                     {/* Right Column: High-Impact Glowing Logo Presentation */}
-                    <div className="lg:col-span-7 flex justify-center items-center relative min-h-[400px] w-full">
+                    <div className="lg:col-span-7 flex justify-center items-center relative lg:min-h-[400px] w-full">
                         {/* Glow backdrops */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-tr from-blue-500/20 to-cyan-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse"></div>
                         
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
+                            animate={{ opacity: 1, scale: 1, y: [0, -15, 0] }}
+                            transition={{ duration: 0.8, delay: 0.2, y: { duration: 6, repeat: Infinity, ease: 'easeInOut' } }}
                             className="relative z-10 w-full max-w-lg flex justify-center items-center"
-                            style={{
-                                animation: 'float-animation 6s ease-in-out infinite'
-                            }}
                         >
-                            {/* Embedded CSS animation for floating effect */}
-                            <style>{`
-                                @keyframes float-animation {
-                                    0% { transform: translateY(0px); }
-                                    50% { transform: translateY(-15px); }
-                                    100% { transform: translateY(0px); }
-                                }
-                            `}</style>
-                            
                             <img 
                                 src="/logo-storeai.png" 
                                 alt="StoreAI Logo Banner" 
                                 className="w-full h-auto object-contain max-h-[350px] drop-shadow-[0_20px_50px_rgba(37,99,235,0.45)] hover:scale-105 transition-transform duration-500"
                                 onError={(e) => {
-                                    // Fallback to StoreAI-Logo.png if logo-storeai.png is not found
                                     e.currentTarget.src = "/StoreAI-Logo.png";
                                 }}
                             />
@@ -169,7 +159,7 @@ const Landing = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="lg:col-span-4 p-6 rounded-2xl bg-slate-800/60 border border-white/10 hover:bg-slate-800/80 transition-all flex flex-col justify-between"
+                        className="lg:col-span-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex flex-col justify-between"
                     >
                         <div>
                             <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
@@ -266,13 +256,16 @@ const Landing = () => {
                     </div>
                     <div className="flex flex-wrap gap-4 md:col-span-2 justify-center md:justify-end">
                         <a href="mailto:contactus@whitekraaft.com" className="px-4 py-2 bg-slate-900/40 border border-white/5 hover:bg-slate-900/60 rounded-xl text-xs text-slate-300 flex items-center gap-2 transition-all">
-                            📧 contactus@whitekraaft.com
+                            <Mail size={14} />
+                            contactus@whitekraaft.com
                         </a>
                         <a href="tel:+917032295550" className="px-4 py-2 bg-slate-900/40 border border-white/5 hover:bg-slate-900/60 rounded-xl text-xs text-slate-300 flex items-center gap-2 transition-all">
-                            📞 +91 70322 95550
+                            <Phone size={14} />
+                            +91 70322 95550
                         </a>
                         <a href="https://wa.me/917032295550" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl text-xs text-emerald-400 flex items-center gap-2 transition-all font-semibold">
-                            💬 WhatsApp Sales
+                            <MessageCircle size={14} />
+                            WhatsApp Sales
                         </a>
                     </div>
                 </motion.div>
@@ -281,9 +274,9 @@ const Landing = () => {
             {/* Footer */}
             <footer className="relative z-10 border-t border-white/5 py-4 bg-slate-950/80 mt-8">
                 <div className="container mx-auto px-6 max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-10 w-auto opacity-80 drop-shadow-md sidebar-logo-contrast" />
+                    <img src="/logo-mt.png" alt="StoreAI Logo" className="h-10 w-auto opacity-80 drop-shadow-md" />
                     <div className="text-slate-500 text-xs">
-                        © {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com.
+                        &copy; {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com.
                     </div>
                 </div>
             </footer>

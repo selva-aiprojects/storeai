@@ -7,10 +7,10 @@ const Accounts = () => {
     const { ledger, financialSummary } = data || {};
 
     const summaryData = [
-        { label: 'Total Receivables', value: financialSummary?.receivables || 0, icon: ArrowUpRight, color: 'var(--accent-success)' },
-        { label: 'Total Payables', value: financialSummary?.payables || 0, icon: ArrowDownRight, color: 'var(--accent-danger)' },
-        { label: 'Cash On Hand', value: (financialSummary?.receivables || 0) - (financialSummary?.payables || 0), icon: DollarSign, color: 'var(--accent-primary)' },
-        { label: 'Net GST Liability', value: data?.taxSummary?.netPayable || 0, icon: DollarSign, color: (data?.taxSummary?.netPayable || 0) > 0 ? 'var(--accent-danger)' : 'var(--accent-success)' },
+        { label: 'Total Receivables', value: financialSummary?.receivables || 0, icon: ArrowUpRight, color: 'var(--status-success)' },
+        { label: 'Total Payables', value: financialSummary?.payables || 0, icon: ArrowDownRight, color: 'var(--status-danger)' },
+        { label: 'Cash On Hand', value: (financialSummary?.receivables || 0) - (financialSummary?.payables || 0), icon: DollarSign, color: 'var(--module-dashboard)' },
+        { label: 'Net GST Liability', value: data?.taxSummary?.netPayable || 0, icon: DollarSign, color: (data?.taxSummary?.netPayable || 0) > 0 ? 'var(--status-danger)' : 'var(--status-success)' },
     ];
 
     return (

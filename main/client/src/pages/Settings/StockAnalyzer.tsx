@@ -418,7 +418,7 @@ const StockAnalyzer: React.FC = () => {
                             </div>
 
                             {/* Scoring Engine */}
-                            <div className="metric-card" style={{ borderTop: '4px solid var(--secondary-500)' }}>
+                            <div className="metric-card" style={{ borderTop: '4px solid var(--module-settings)' }}>
                                 <div className="metric-card-header">
                                     <span>MODEL CONFIDENCE</span>
                                     <Target size={14} className="text-muted" />

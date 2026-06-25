@@ -4,6 +4,10 @@ import { Package, Truck, CheckCircle2, FileText, AlertTriangle, Layers, ArrowRig
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { getMarketResearch } from '../services/ai';
 
+const DASHBOARD_ACCENT = 'var(--module-dashboard)';
+const SALES_ACCENT = 'var(--module-sales)';
+const PURCHASES_ACCENT = 'var(--module-purchases)';
+
 const Dashboard = () => {
     const { data } = useOutletContext<any>();
     const { stats, sales = [], orders = [], products = [], inventory } = data || {};
@@ -57,16 +61,16 @@ const Dashboard = () => {
 
             {/* --- Financial Status --- */}
             <div className="dashboard-grid">
-                <div className="metric-card" style={{ borderTop: '4px solid var(--success)' }}>
+                <div className="metric-card" style={{ borderTop: `4px solid ${SALES_ACCENT}` }}>
                     <div className="metric-card-header">
                         <span>TOTAL REVENUE</span>
                         <ArrowRight size={14} className="text-muted" />
                     </div>
-                    <div className="metric-card-value text-emerald-600">₹{totalRevenue.toLocaleString()}</div>
+                    <div className="metric-card-value" style={{ color: SALES_ACCENT }}>₹{totalRevenue.toLocaleString()}</div>
                     <div className="metric-card-footer">Direct Sales + Secondary Flow</div>
                 </div>
 
-                <div className="metric-card" style={{ borderTop: '4px solid var(--danger)' }}>
+                <div className="metric-card" style={{ borderTop: '4px solid var(--color-expense)' }}>
                     <div className="metric-card-header">
                         <span>PROCUREMENT COST</span>
                         <ArrowRight size={14} className="text-muted" />
@@ -75,48 +79,47 @@ const Dashboard = () => {
                     <div className="metric-card-footer">Inventory Inward + Overheads</div>
                 </div>
 
-                <div className="metric-card" style={{ borderTop: '4px solid var(--primary-500)' }}>
+                <div className="metric-card" style={{ borderTop: `4px solid ${DASHBOARD_ACCENT}` }}>
                     <div className="metric-card-header">
                         <span>NET OPERATIONAL BALANCE</span>
                         <ArrowRight size={14} className="text-muted" />
                     </div>
-                    <div className="metric-card-value" style={{ color: netStatus >= 0 ? 'var(--primary-600)' : 'var(--danger)' }}>
+                    <div className="metric-card-value" style={{ color: netStatus >= 0 ? DASHBOARD_ACCENT : 'var(--color-expense)' }}>
                         {netStatus >= 0 ? '+' : '-'}₹{Math.abs(netStatus).toLocaleString()}
                     </div>
                     <div className="metric-card-footer">Current Liquidity Position</div>
                 </div>
 
-                <div className="metric-card" style={{ borderTop: '4px solid var(--secondary-500)' }}>
+                <div className="metric-card" style={{ borderTop: `4px solid ${PURCHASES_ACCENT}` }}>
                     <div className="metric-card-header">
                         <span>WORKFLOW VELOCITY</span>
                         <ArrowRight size={14} className="text-muted" />
                     </div>
-                    <div className="metric-card-value text-sky-600">{toBePacked + toBeShipped + toBeDelivered}</div>
+                    <div className="metric-card-value" style={{ color: PURCHASES_ACCENT }}>{toBePacked + toBeShipped + toBeDelivered}</div>
                     <div className="metric-card-footer">Active Pipeline Movements</div>
                 </div>
             </div>
 
             {/* --- Market Intelligence & Exchanges (Unified Professional AI Theme) --- */}
-            <div className="flex items-center gap-3 mt-4 mb-3 border-b border-cyan-100 pb-2">
-                <div className="bg-cyan-100 p-1.5 rounded-lg">
-                    <Activity size={18} className="text-cyan-600" />
+            <div className="flex items-center gap-3 mt-4 mb-3 border-b pb-2" style={{ borderColor: 'var(--module-dashboard-light)' }}>
+                <div className="p-1.5 rounded-lg" style={{ background: 'var(--module-dashboard-bg)' }}>
+                    <Activity size={18} style={{ color: DASHBOARD_ACCENT }} />
                 </div>
-                <h2 className="text-sm font-bold text-gray-800 tracking-tight uppercase">Predictive Market Intelligence</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded-full border border-cyan-100">AI POWERED</span>
+                <h2 className="text-sm font-bold tracking-tight uppercase" style={{ color: 'var(--text-primary)' }}>Predictive Market Intelligence</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border" style={{ background: 'var(--module-dashboard-bg)', color: DASHBOARD_ACCENT, borderColor: 'var(--module-dashboard-light)' }}>AI POWERED</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Market Sentiment Card */}
-                <div className="card border-t-4 border-t-cyan-500 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-                    {/* Background Decoration */}
+                <div className="card hover:shadow-md transition-all relative overflow-hidden group border-t-4" style={{ borderTopColor: 'var(--module-reports)' }}>
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                         <Zap size={140} />
                     </div>
 
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-cyan-50/30">
+                    <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)', background: 'var(--module-dashboard-bg)' }}>
                         <div className="flex items-center gap-2">
-                            <Zap size={16} className="text-cyan-500" />
-                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Market Sentiment</span>
+                            <Zap size={16} style={{ color: DASHBOARD_ACCENT }} />
+                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Market Sentiment</span>
                         </div>
                         {marketData && (
                             <span className={`text-[10px] font-black px-2 py-1 rounded-full border ${marketData.market_sentiment === 'BULLISH'
@@ -131,20 +134,20 @@ const Dashboard = () => {
                     <div className="p-5 relative z-10">
                         {marketData ? (
                             <div className="space-y-4">
-                                <div className="bg-cyan-50/50 rounded-xl p-4 border border-cyan-100/50">
-                                    <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                                <div className="rounded-xl p-4 border" style={{ background: 'var(--module-reports-bg)', borderColor: 'var(--module-reports-light)' }}>
+                                    <p className="text-sm leading-relaxed font-medium" style={{ color: 'var(--text-primary)' }}>
                                         {marketData.summary}
                                     </p>
                                 </div>
 
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <TrendingIcon size={14} className="text-cyan-400" />
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Top Monitoring</span>
+                                        <TrendingIcon size={14} style={{ color: 'var(--module-reports)' }} />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Top Monitoring</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {marketData.top_picks?.map((pick: string) => (
-                                            <span key={pick} className="text-xs font-semibold px-2.5 py-1 bg-white border border-gray-200 text-gray-600 rounded-md shadow-sm">
+                                            <span key={pick} className="text-xs font-semibold px-2.5 py-1 bg-white border rounded-md shadow-sm" style={{ borderColor: 'var(--border-default)', color: 'var(--text-secondary)' }}>
                                                 {pick}
                                             </span>
                                         ))}
@@ -152,7 +155,7 @@ const Dashboard = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="py-8 text-center flex flex-col items-center justify-center text-gray-400 space-y-2">
+                            <div className="py-8 text-center flex flex-col items-center justify-center space-y-2" style={{ color: 'var(--text-muted)' }}>
                                 <Activity size={24} className="opacity-20" />
                                 <span className="text-xs font-medium">Market analysis session paused</span>
                             </div>
@@ -161,37 +164,37 @@ const Dashboard = () => {
                 </div>
 
                 {/* Live Exchange Status */}
-                <div className="card border-t-4 border-t-cyan-500 bg-white shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+                <div className="card hover:shadow-md transition-all relative overflow-hidden group border-t-4" style={{ borderTopColor: 'var(--module-reports)' }}>
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                         <Globe size={140} />
                     </div>
 
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-cyan-50/30">
+                    <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)', background: 'var(--module-reports-bg)' }}>
                         <div className="flex items-center gap-2">
-                            <Globe size={16} className="text-cyan-500" />
-                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Live Exchange Feed</span>
+                            <Globe size={16} style={{ color: 'var(--module-reports)' }} />
+                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Live Exchange Feed</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--module-reports)' }}></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: 'var(--module-reports)' }}></span>
                             </span>
-                            <span className="text-[10px] font-bold text-cyan-600">LIVE</span>
+                            <span className="text-[10px] font-bold" style={{ color: 'var(--module-reports)' }}>LIVE</span>
                         </div>
                     </div>
 
                     <div className="p-0">
-                        <div className="divide-y divide-gray-50">
+                        <div className="divide-y" style={{ borderColor: 'var(--border-light)' }}>
                             {marketData?.exchanges?.map((ex: any) => (
-                                <div key={ex.name} className="p-4 hover:bg-gray-50/50 transition-colors flex items-center justify-between group/item">
+                                <div key={ex.name} className="p-4 transition-colors flex items-center justify-between" style={{ borderColor: 'var(--border-light)' }}>
                                     <div className="flex items-center gap-3">
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm border ${ex.trend.startsWith('+') ? 'bg-emerald-50 border-emerald-100 text-emerald-500' : 'bg-rose-50 border-rose-100 text-rose-500'
                                             }`}>
                                             <TrendingIcon size={16} />
                                         </div>
                                         <div>
-                                            <div className="text-sm font-bold text-gray-800">{ex.name}</div>
-                                            <div className="text-[10px] font-semibold text-gray-400">{ex.status}</div>
+                                            <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{ex.name}</div>
+                                            <div className="text-[10px] font-semibold" style={{ color: 'var(--text-muted)' }}>{ex.status}</div>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -199,21 +202,21 @@ const Dashboard = () => {
                                             }`}>
                                             {ex.trend}
                                         </div>
-                                        <div className="text-[10px] font-medium text-gray-400">
-                                            Vol: <span className="text-gray-600">{marketData.volatility}</span>
+                                        <div className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                                            Vol: <span style={{ color: 'var(--text-tertiary)' }}>{marketData.volatility}</span>
                                         </div>
                                     </div>
                                 </div>
                             )) || [1, 2].map(i => (
                                 <div key={i} className="p-4 animate-pulse flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-gray-100 rounded-lg"></div>
+                                        <div className="w-8 h-8 rounded-lg" style={{ background: 'var(--bg-hover)' }}></div>
                                         <div className="space-y-1">
-                                            <div className="h-3 w-16 bg-gray-100 rounded"></div>
-                                            <div className="h-2 w-10 bg-gray-100 rounded"></div>
+                                            <div className="h-3 w-16 rounded" style={{ background: 'var(--bg-hover)' }}></div>
+                                            <div className="h-2 w-10 rounded" style={{ background: 'var(--bg-hover)' }}></div>
                                         </div>
                                     </div>
-                                    <div className="h-4 w-12 bg-gray-100 rounded"></div>
+                                    <div className="h-4 w-12 rounded" style={{ background: 'var(--bg-hover)' }}></div>
                                 </div>
                             ))}
                         </div>
@@ -224,10 +227,10 @@ const Dashboard = () => {
             {/* --- Workflow Pipeline (Refined) --- */}
             <div className="section-header" style={{ marginTop: '10px', fontSize: '1rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Workflow Pipeline</div>
             <div className="dashboard-grid">
-                <ActivityCard count={toBePacked} label="To Be Packed" icon={Package} color="var(--secondary-500)" footer="Awaiting Warehouse Prep" />
-                <ActivityCard count={toBeShipped} label="To Be Shipped" icon={Truck} color="var(--warning)" footer="Ready for Transit" />
-                <ActivityCard count={toBeDelivered} label="To Be Delivered" icon={CheckCircle2} color="var(--success)" footer="Out for Fulfillment" />
-                <ActivityCard count={toBeInvoiced} label="To Be Invoiced" icon={FileText} color="var(--danger)" footer="Awaiting Payment Post" />
+                <ActivityCard count={toBePacked} label="To Be Packed" icon={Package} color={PURCHASES_ACCENT} footer="Awaiting Warehouse Prep" />
+                <ActivityCard count={toBeShipped} label="To Be Shipped" icon={Truck} color="var(--status-warning)" footer="Ready for Transit" />
+                <ActivityCard count={toBeDelivered} label="To Be Delivered" icon={CheckCircle2} color="var(--status-success)" footer="Out for Fulfillment" />
+                <ActivityCard count={toBeInvoiced} label="To Be Invoiced" icon={FileText} color="var(--color-expense)" footer="Awaiting Payment Post" />
             </div>
 
             <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
@@ -244,8 +247,8 @@ const Dashboard = () => {
                         </div>
                         <div style={{ height: '160px', position: 'relative' }}>
                             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-600)' }}>{activeItems}</div>
-                                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>ACTIVE</div>
+                                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: DASHBOARD_ACCENT }}>{activeItems}</div>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)' }}>ACTIVE</div>
                             </div>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
@@ -262,13 +265,13 @@ const Dashboard = () => {
                 <div className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div className="card-header">INVENTORY MOMENTUM</div>
                     <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>QUANTITY IN HAND</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', borderBottom: '1px solid var(--border-default)', paddingBottom: '12px' }}>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-muted)' }}>QUANTITY IN HAND</span>
                             <span className="metric-value" style={{ fontSize: '1.75rem' }}>{quantityInHand.toLocaleString()}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end' }}>
-                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>TO BE RECEIVED</span>
-                            <span className="metric-value" style={{ fontSize: '1.75rem', color: 'var(--secondary-500)' }}>{quantityToReceive.toLocaleString()}</span>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-muted)' }}>TO BE RECEIVED</span>
+                            <span className="metric-value" style={{ fontSize: '1.75rem', color: PURCHASES_ACCENT }}>{quantityToReceive.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
@@ -280,21 +283,21 @@ const Dashboard = () => {
                     <div className="card-header">TOP PERFORMING PRODUCTS</div>
                     <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {topSelling.length > 0 ? topSelling.map((item: any, idx: number) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-500)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '12px', borderRadius: '12px', background: 'var(--bg-hover)', border: '1px solid var(--border-light)' }}>
+                                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: DASHBOARD_ACCENT, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                                     <Layers size={18} />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.name}</div>
+                                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{item.name}</div>
                                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{item.qty} units sold</div>
                                 </div>
-                                <div style={{ fontWeight: 800, fontSize: '0.8rem', color: 'var(--primary-600)', opacity: 0.3 }}>0{idx + 1}</div>
+                                <div style={{ fontWeight: 800, fontSize: '0.8rem', color: DASHBOARD_ACCENT, opacity: 0.3 }}>0{idx + 1}</div>
                             </div>
                         )) : <div style={{ opacity: 0.5, textAlign: 'center', padding: '20px' }}>No performance data available.</div>}
                     </div>
                 </div>
 
-                <div className="card" style={{ background: 'var(--primary-gradient)', color: 'white' }}>
+                <div className="card" style={{ background: 'var(--sidebar-bg)', color: 'white' }}>
                     <div className="card-header" style={{ color: 'rgba(255,255,255,0.8)' }}>SUPPLY CHAIN ADVISOR</div>
                     <div style={{ marginTop: '30px', textAlign: 'center' }}>
                         <div style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '8px' }}>Pending Inventory Inward</div>
@@ -307,7 +310,7 @@ const Dashboard = () => {
             </div>
 
             {/* --- Direct Release Advisor (FIFO/Expiry focus) --- */}
-            <div className="section-header" style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Direct Release Advisor (FIFO Compliance)</div>
+            <div className="section-header" style={{ fontSize: '1rem', color: 'var(--text-secondary)', borderBottomColor: 'var(--module-inventory-light)' }}>Direct Release Advisor (FIFO Compliance)</div>
             <div className="table-container">
                 <table>
                     <thead>
@@ -327,7 +330,7 @@ const Dashboard = () => {
                             return (
                                 <tr key={p.id}>
                                     <td><b>{p.name}</b></td>
-                                    <td><code style={{ color: 'var(--secondary-500)', fontWeight: 700 }}>{bestBatch.batchNumber}</code></td>
+                                    <td><code style={{ color: DASHBOARD_ACCENT, fontWeight: 700 }}>{bestBatch.batchNumber}</code></td>
                                     <td>{p.unit}</td>
                                     <td><b>{bestBatch.quantityAvailable}</b></td>
                                     <td>
@@ -359,8 +362,8 @@ const ActivityCard = ({ count, label, icon: Icon, color, footer }: any) => (
 
 const DetailRow = ({ label, value, isDanger }: any) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: isDanger ? 'var(--accent-danger)' : 'var(--text-muted)', fontSize: '0.9rem' }}>{label}</span>
-        <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>{value}</span>
+        <span style={{ color: isDanger ? 'var(--status-danger)' : 'var(--text-muted)', fontSize: '0.9rem' }}>{label}</span>
+        <span style={{ fontWeight: 700, fontSize: '1.1rem', color: isDanger ? 'var(--status-danger)' : 'var(--text-primary)' }}>{value}</span>
     </div>
 );
 

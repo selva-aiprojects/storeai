@@ -91,6 +91,12 @@
   --color-active: var(--status-success);
   --color-inactive: var(--status-neutral);
 
+  /* Legacy aliases for backward compatibility */
+  --accent-primary: var(--brand-primary);
+  --accent-secondary: var(--brand-sky);
+  --accent-success: var(--status-success);
+  --accent-danger: var(--status-danger);
+
   /* ===== BACKGROUND LAYERS ===== */
   --bg-body: #f8fafc;                 /* Slate 50 */
   --bg-surface: #ffffff;              /* Pure White */
@@ -182,7 +188,7 @@
   /* ===== LAYOUT CONSTANTS ===== */
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 72px;
-  --header-height: 100px;
+  --header-height: 88px;
   --footer-height: 60px;
   --content-max-width: 1600px;
 }
