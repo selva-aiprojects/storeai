@@ -472,6 +472,93 @@ h6 {
 
 
 /* =======================
+   Modal / Overlay
+   ====================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.modal-wide {
+  max-width: 1200px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.modal-header svg {
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.modal-header svg:hover {
+  color: var(--danger);
+}
+
+/* Modal form grid — prevent overflow */
+.modal form .pos-container {
+  min-width: 0;
+}
+
+.modal form .pos-container > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.modal form > div > div > div {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .modal-wide {
+    max-width: 100%;
+  }
+}
+
+/* =======================
    Forms
    ====================== */
 .form-group {

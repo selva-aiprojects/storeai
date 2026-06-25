@@ -262,7 +262,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px', maxHeight: '65vh' }}>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px', maxHeight: '65vh' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
 
                             {(type === 'products' || type === 'inventory') && (
@@ -278,7 +278,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                     <div className="form-group"><label>SALES PRICE (₹)</label><input type="number" step="0.01" value={formData.price} onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })} required /></div>
                                     <div className="form-group"><label>COST PRICE (₹)</label><input type="number" step="0.01" value={formData.costPrice} onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) })} required /></div>
                                     <div className="form-group"><label>INITIAL STOCK</label><input type="number" value={formData.stockQuantity} onChange={e => setFormData({ ...formData, stockQuantity: parseInt(e.target.value) })} required /></div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', gridColumn: 'span 2' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', gridColumn: 'span 2', minWidth: 0 }}>
                                         <div className="form-group"><label>TRANSPORT (₹)</label><input type="number" value={formData.transportationCost} onChange={e => setFormData({ ...formData, transportationCost: parseFloat(e.target.value) })} step="0.01" /></div>
                                         <div className="form-group"><label>GST (%)</label><input type="number" value={formData.gstRate} onChange={e => setFormData({ ...formData, gstRate: parseFloat(e.target.value) })} step="0.1" /></div>
                                         <div className="form-group"><label>OTHERS (%)</label><input type="number" value={formData.otherTaxRate} onChange={e => setFormData({ ...formData, otherTaxRate: parseFloat(e.target.value) })} step="0.1" /></div>
@@ -346,7 +346,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                             {type === 'customers' && (
                                 <>
                                     <div className="form-group"><label>Customer / Client Name</label><input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required /></div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', minWidth: 0 }}>
                                         <div className="form-group"><label>Contact Email</label><input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} /></div>
                                         <div className="form-group"><label>Mobile Number</label><input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} /></div>
                                     </div>
@@ -356,7 +356,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                             )}
 
                             {type === 'employees' && (
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', minWidth: 0 }}>
                                     <div className="form-group"><label>First Name</label><input value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} required /></div>
                                     <div className="form-group"><label>Last Name</label><input value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} required /></div>
                                     <div className="form-group"><label>Employee ID / Aadhaar</label><input value={formData.employeeId} onChange={e => setFormData({ ...formData, employeeId: e.target.value })} required /></div>
@@ -415,8 +415,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                             <button type="button" className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.65rem' }} onClick={() => setFormData({ ...formData, items: [...formData.items, { productId: '', quantity: 12 }] })}>+ ITEM</button>
                                         </div>
                                         {formData.items?.map((item: any, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', background: 'var(--bg-hover)', padding: '8px', borderRadius: '8px' }}>
-                                                <select style={{ flex: 1, fontSize: '0.85rem' }} value={item.productId} onChange={e => {
+                                            <div key={idx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', background: 'var(--bg-hover)', padding: '8px', borderRadius: '8px', minWidth: 0 }}>
+                                                <select style={{ flex: 1, minWidth: 0, fontSize: '0.85rem' }} value={item.productId} onChange={e => {
                                                     const n = [...formData.items];
                                                     n[idx].productId = e.target.value;
                                                     setFormData({ ...formData, items: n });
@@ -424,8 +424,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                                     <option value="">Select Item</option>
                                                     {products?.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                                                 </select>
-                                                <input type="number" style={{ width: '80px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
-                                                <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ color: 'var(--text-danger)', border: 'none', background: 'none' }}><X size={16} /></button>
+                                                <input type="number" style={{ maxWidth: '80px', width: '70px', flexShrink: 0 }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
+                                                <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ color: 'var(--text-danger)', border: 'none', background: 'none', flexShrink: 0 }}><X size={16} /></button>
                                             </div>
                                         ))}
                                     </div>
@@ -442,17 +442,17 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                             <button type="button" className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '0.65rem' }} onClick={() => setFormData({ ...formData, items: [...formData.items, { productId: '', quantity: 1, unitPrice: 0 }] })}>+ ITEM</button>
                                         </div>
                                         {formData.items?.map((item: any, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px' }}>
-                                                <select style={{ flex: 1 }} value={item.productId} onChange={e => {
+                                            <div key={idx} style={{ display: 'flex', gap: '5px', marginBottom: '5px', minWidth: 0 }}>
+                                                <select style={{ flex: 1, minWidth: 0 }} value={item.productId} onChange={e => {
                                                     const n = [...formData.items];
                                                     n[idx].productId = e.target.value;
                                                     const product = products?.find((p: any) => p.id === e.target.value);
                                                     if (product) n[idx].unitPrice = product.costPrice;
                                                     setFormData({ ...formData, items: n });
                                                 }} required><option value="">Select Item</option>{products?.map((p: any) => <option key={p.id} value={p.id}>{p.name} [₹{p.price}]</option>)}</select>
-                                                <input type="number" step="0.01" placeholder="Price (₹)" style={{ width: '80px' }} value={item.unitPrice} onChange={e => { const n = [...formData.items]; n[idx].unitPrice = parseFloat(e.target.value); setFormData({ ...formData, items: n }); }} required />
-                                                <input type="number" style={{ width: '60px' }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
-                                                <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>×</button>
+                                                <input type="number" step="0.01" placeholder="Price" style={{ maxWidth: '90px', width: '70px', flexShrink: 0 }} value={item.unitPrice} onChange={e => { const n = [...formData.items]; n[idx].unitPrice = parseFloat(e.target.value); setFormData({ ...formData, items: n }); }} required />
+                                                <input type="number" style={{ maxWidth: '70px', width: '55px', flexShrink: 0 }} value={item.quantity} onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }} min="1" />
+                                                <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer', flexShrink: 0 }}>×</button>
                                             </div>
                                         ))}
                                     </div>
@@ -628,7 +628,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                             {type === 'payment' && (
                                 <>
                                     <div className="form-group"><label>Payment Title</label><input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required /></div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', minWidth: 0 }}>
                                         <div className="form-group"><label>Amount (₹)</label><input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: parseFloat(e.target.value) })} required /></div>
                                         <div className="form-group"><label>Category</label><select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}><option value="GENERAL">General</option><option value="OPERATIONAL">Operational</option><option value="SALARY">Salary</option></select></div>
                                     </div>
@@ -638,13 +638,13 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
 
                             {type === 'users' && (
                                 <>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', minWidth: 0 }}>
                                         <div className="form-group"><label>First Name</label><input value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} required /></div>
                                         <div className="form-group"><label>Last Name</label><input value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} required /></div>
                                     </div>
                                     <div className="form-group"><label>Email</label><input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required /></div>
                                     <div className="form-group"><label>Password</label><input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} required /></div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: user?.activeTenant?.slug === 'storeai' ? '1fr 1fr' : '1fr', gap: '10px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: user?.activeTenant?.slug === 'storeai' ? '1fr 1fr' : '1fr', gap: '10px', minWidth: 0 }}>
                                         <div className="form-group">
                                             <label>System Role</label>
                                             <select value={formData.roleCode} onChange={e => setFormData({ ...formData, roleCode: e.target.value })} required>
@@ -746,7 +746,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                         <input value={formData.cardNumber} onChange={e => setFormData({ ...formData, cardNumber: e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim() })} maxLength={19} required placeholder="0000 0000 0000 0000" />
                                     </div>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', minWidth: 0 }}>
                                         <div className="form-group">
                                             <label>EXPIRY (MM/YY)</label>
                                             <input value={formData.expiry} onChange={e => setFormData({ ...formData, expiry: e.target.value })} required placeholder="12/26" />
@@ -827,7 +827,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: type === 'sales' ? '1fr 2fr' : '1fr', gap: '15px', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: type === 'sales' ? '1fr 2fr' : '1fr', gap: '15px', marginTop: '20px', padding: '20px 24px 0', borderTop: '1px solid var(--border-color)' }}>
                         {type === 'sales' && (
                             <button className="btn btn-secondary" type="button" onClick={parkOrder} style={{ padding: '14px', height: '54px' }}>
                                 <Pause size={18} /> PARK
