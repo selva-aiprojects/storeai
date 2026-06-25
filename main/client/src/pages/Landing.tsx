@@ -16,7 +16,7 @@ const Landing = () => {
             <nav className="relative z-10 border-b border-white/5">
                 <div className="container mx-auto px-6 max-w-7xl flex justify-between items-center py-4">
                     <div className="flex items-center gap-2">
-                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-16 md:h-20 w-auto drop-shadow-xl" />
+                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-48 md:h-60 w-auto drop-shadow-xl" />
                     </div>
                     <div className="flex items-center gap-4">
                         <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
