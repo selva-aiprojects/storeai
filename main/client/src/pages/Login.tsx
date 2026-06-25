@@ -53,7 +53,7 @@ const Login = ({ setUser }: any) => {
             >
 
                 {/* ================= LEFT SIDE ================= */}
-                <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#003254] to-[#00547A] p-10 text-white overflow-hidden">
+                <div className="relative hidden lg:flex flex-col justify-center gap-10 bg-gradient-to-br from-[#003254] to-[#00547A] p-12 text-white overflow-hidden">
 
                     {/* Wavy Background Decor */}
                     <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -77,11 +77,11 @@ const Login = ({ setUser }: any) => {
                     </div>
 
                     {/* Center Logo */}
-                    <div className="flex justify-center relative z-10 py-2">
+                    <div className="flex justify-center relative z-10">
                         <img
                             src="/logo-mt.png"
                             alt="StoreAI"
-                            className="w-full max-h-[360px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105"
+                            className="w-3/4 max-h-[260px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105"
                         />
                     </div>
 
@@ -113,10 +113,10 @@ const Login = ({ setUser }: any) => {
                 </div>
 
                 {/* ================= RIGHT SIDE ================= */}
-                <div className="p-6 lg:p-10 flex flex-col justify-center">
+                <div className="p-8 lg:p-12 flex flex-col justify-center">
 
                     {/* Mobile Logo Branding Header */}
-                    <div className="lg:hidden flex justify-center mb-4 px-8 py-4 bg-gradient-to-r from-[#003254] to-[#00547A] rounded-2xl shadow-lg -mx-2 transition-all duration-500">
+                    <div className="lg:hidden flex justify-center mb-6 px-8 py-4 bg-gradient-to-r from-[#003254] to-[#00547A] rounded-2xl shadow-lg transition-all duration-500">
                         <img src="/logo-mt.png" alt="StoreAI" className="h-32 w-auto drop-shadow-xl" />
                     </div>
 
@@ -126,10 +126,10 @@ const Login = ({ setUser }: any) => {
                         Back to Home
                     </Link>
 
-                    <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-800">
+                    <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-800 tracking-tight">
                         Welcome Back
                     </h1>
-                    <p className="mt-1.5 text-slate-500 font-medium text-sm xl:text-base">
+                    <p className="mt-2 text-slate-500 font-medium text-sm xl:text-base">
                         Enter your credentials to access your workspace.
                     </p>
 
@@ -139,7 +139,7 @@ const Login = ({ setUser }: any) => {
                         </div>
                     )}
 
-                    <form onSubmit={handleLogin} className="mt-4 space-y-3">
+                    <form onSubmit={handleLogin} className="mt-6 space-y-4">
 
                         {/* Email */}
                         <div>
