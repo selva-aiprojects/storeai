@@ -103,6 +103,9 @@ main/docs/debug_*.png
 main/docs/error_state.png
 main/docs/StoreAI_Role_Workflows.docx
 
+# opencode config
+.opencode/
+
 # Local Vercel env and test artifacts
 main/client/.env.vercel.*
 main/server/.env.vercel.*
