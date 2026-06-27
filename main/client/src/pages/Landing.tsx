@@ -4,7 +4,7 @@ import { Building2, ChevronRight, Zap, TrendingUp, Clock, Star, ArrowRight, Mail
 
 const Landing = () => {
     return (
-        <div className="min-h-screen bg-slate-900 text-white font-['Outfit'] overflow-hidden selection:bg-blue-500/30 flex flex-col justify-between">
+        <div className="min-h-screen bg-slate-900 text-white font-['Outfit'] overflow-x-hidden selection:bg-blue-500/30 flex flex-col justify-between">
             {/* Ambient Background */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-blue-600/10 to-transparent"></div>
@@ -16,7 +16,9 @@ const Landing = () => {
             <nav className="relative z-10 border-b border-white/5">
                 <div className="container mx-auto px-4 md:px-6 max-w-7xl flex justify-between items-center py-1 md:py-2">
                     <div className="flex items-center gap-2">
-                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-12 md:h-14 w-auto drop-shadow-xl -my-2" />
+                        <div className="h-8 md:h-10 overflow-visible flex items-center">
+                            <img src="/logo-mt.png" alt="StoreAI Logo" className="h-8 md:h-10 w-auto scale-[2] drop-shadow-xl" />
+                        </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
