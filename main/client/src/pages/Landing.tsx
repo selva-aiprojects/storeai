@@ -14,9 +14,9 @@ const Landing = () => {
 
             {/* Navbar */}
             <nav className="relative z-10 border-b border-white/5">
-                <div className="container mx-auto px-6 max-w-7xl flex justify-between items-center py-4">
+                <div className="container mx-auto px-4 md:px-6 max-w-7xl flex justify-between items-center py-1 md:py-2">
                     <div className="flex items-center gap-2">
-                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-48 md:h-60 w-auto drop-shadow-xl" />
+                        <img src="/logo-mt.png" alt="StoreAI Logo" className="h-8 md:h-10 w-auto drop-shadow-xl" />
                     </div>
                     <div className="flex items-center gap-4">
                         <Link to="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
@@ -30,7 +30,7 @@ const Landing = () => {
             </nav>
 
             {/* Main Content Area */}
-            <main className="relative z-10 container mx-auto px-6 py-6 max-w-7xl flex-grow">
+            <main className="relative z-10 container mx-auto px-6 pt-4 pb-8 max-w-7xl flex-grow">
                 {/* Upper Split Screen: Hero & Preview */}
                 <div className="grid lg:grid-cols-12 gap-8 items-center mb-8">
                     {/* Left Column: Hero Text & CTAs & Stats */}
