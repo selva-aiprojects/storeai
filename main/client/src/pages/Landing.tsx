@@ -17,7 +17,7 @@ const Landing = () => {
                 <div className="container mx-auto px-4 md:px-6 max-w-7xl flex justify-between items-center py-1 md:py-2">
                     <div className="flex items-center gap-2">
                         <div className="h-8 md:h-10 overflow-visible flex items-center">
-                            <img src="/logo-mt.png" alt="StoreAI Logo" className="h-8 md:h-10 w-auto scale-[2] drop-shadow-xl" />
+                            <img src="/logo-mt.png" alt="StoreAI Logo" className="h-8 md:h-10 w-auto scale-[4] drop-shadow-xl" />
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
