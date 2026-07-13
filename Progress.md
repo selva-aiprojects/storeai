@@ -30,7 +30,7 @@ Recommendations:
 - Keep these debug files in a single folder `main/server/debug/` or archive them with a timestamped suffix (e.g. `.archived-20260713.log`) for future reconciliation.
 - When reconciling ledgers next time, run the relevant debug script(s) against the same dataset and attach the output to this Progress record.
 
-Commit: (to be filled after commit)
-Branch: (to be filled after push)
+Commit: 3ccb63fb1838be00c0768c8c31430cd80ac25bf2
+Branch: main
 
 -- End of Progress
