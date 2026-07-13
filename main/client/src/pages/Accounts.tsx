@@ -1,16 +1,46 @@
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Printer, Plus, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import api from '../../services/api';
 
 const Accounts = () => {
     const { data, setModal } = useOutletContext<any>();
     const navigate = useNavigate();
     const { ledger, financialSummary } = data || {};
 
+    // Backwards-compatible: server previously returned flat { receivables, payables }
+    // New server returns { payments: {...}, ledger: {...} }
+    const paymentsSummary = financialSummary?.payments || financialSummary || { receivables: 0, payables: 0, netBalance: 0 };
+    const ledgerSummary = financialSummary?.ledger || { receivables: 0, payables: 0, netBalance: 0 };
+
     const summaryData = [
-        { label: 'Total Receivables', value: financialSummary?.receivables || 0, icon: ArrowUpRight, color: 'var(--status-success)' },
-        { label: 'Total Payables', value: financialSummary?.payables || 0, icon: ArrowDownRight, color: 'var(--status-danger)' },
-        { label: 'Cash On Hand', value: (financialSummary?.receivables || 0) - (financialSummary?.payables || 0), icon: DollarSign, color: 'var(--module-dashboard)' },
-        { label: 'Net GST Liability', value: data?.taxSummary?.netPayable || 0, icon: DollarSign, color: (data?.taxSummary?.netPayable || 0) > 0 ? 'var(--status-danger)' : 'var(--status-success)' },
+        {
+            label: 'Total Receivables',
+            value: paymentsSummary.receivables || 0,
+            secondary: ledgerSummary.receivables || 0,
+            icon: ArrowUpRight,
+            color: 'var(--status-success)'
+        },
+        {
+            label: 'Total Payables',
+            value: paymentsSummary.payables || 0,
+            secondary: ledgerSummary.payables || 0,
+            icon: ArrowDownRight,
+            color: 'var(--status-danger)'
+        },
+        {
+            label: 'Cash On Hand',
+            value: paymentsSummary.netBalance || ((paymentsSummary.receivables || 0) - (paymentsSummary.payables || 0)),
+            secondary: ledgerSummary.netBalance || ((ledgerSummary.receivables || 0) - (ledgerSummary.payables || 0)),
+            icon: DollarSign,
+            color: 'var(--module-dashboard)'
+        },
+        {
+            label: 'Net GST Liability',
+            value: data?.taxSummary?.netPayable || 0,
+            icon: DollarSign,
+            color: (data?.taxSummary?.netPayable || 0) > 0 ? 'var(--status-danger)' : 'var(--status-success)'
+        },
     ];
 
     return (
@@ -27,6 +57,9 @@ const Accounts = () => {
                     <button className="btn btn-primary" onClick={() => setModal({ type: 'payment' })}>
                         <Plus size={16} style={{ marginRight: '8px' }} /> NEW TRANSACTION
                     </button>
+                    <button className="btn btn-outline" onClick={() => setModal({ type: 'reconcile' })}>
+                        Reconcile
+                    </button>
                 </div>
             </div>
 
@@ -39,6 +72,11 @@ const Accounts = () => {
                         <div>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>{item.label}</div>
                             <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>₹{item.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                            {item.secondary !== undefined && (
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                                    Ledger: ₹{item.secondary.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}

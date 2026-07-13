@@ -42,7 +42,8 @@ export const getFinancialSummary = async (req: AuthRequest, res: Response) => {
         const tenantId = req.user?.tenantId;
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
-        const [receivables, payables] = await Promise.all([
+        // Aggregate canonical payments (used by current UI summary)
+        const [receivables, payables, ledgerReceivableAgg, ledgerPayableAgg] = await Promise.all([
             prisma.payment.aggregate({
                 where: { type: 'RECEIVABLE', tenantId },
                 _sum: { amount: true }
@@ -50,16 +51,35 @@ export const getFinancialSummary = async (req: AuthRequest, res: Response) => {
             prisma.payment.aggregate({
                 where: { type: 'PAYABLE', tenantId },
                 _sum: { amount: true }
+            }),
+            // Ledger-based totals (useful when ledger entries are the source of truth)
+            prisma.ledger.aggregate({
+                where: { tenantId, category: 'RECEIVABLE' },
+                _sum: { amount: true }
+            }),
+            prisma.ledger.aggregate({
+                where: { tenantId, category: 'PAYABLE' },
+                _sum: { amount: true }
             })
         ]);
 
         const receivablesTotal = receivables?._sum?.amount || 0;
         const payablesTotal = payables?._sum?.amount || 0;
+        const ledgerReceivablesTotal = ledgerReceivableAgg?._sum?.amount || 0;
+        const ledgerPayablesTotal = ledgerPayableAgg?._sum?.amount || 0;
 
+        // Return both payment-based and ledger-based summaries so frontend can reconcile
         res.json({
-            receivables: receivablesTotal,
-            payables: payablesTotal,
-            netBalance: receivablesTotal - payablesTotal
+            payments: {
+                receivables: receivablesTotal,
+                payables: payablesTotal,
+                netBalance: receivablesTotal - payablesTotal
+            },
+            ledger: {
+                receivables: ledgerReceivablesTotal,
+                payables: ledgerPayablesTotal,
+                netBalance: ledgerReceivablesTotal - ledgerPayablesTotal
+            }
         });
     } catch (error) {
         res.status(500).json({ error: 'Financial data fetch failed' });

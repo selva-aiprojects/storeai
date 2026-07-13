@@ -7,6 +7,7 @@ import api, { createProduct, createSupplier, createOrder, createSale, createUser
 
 const FormModal = ({ type, metadata, onClose, categories, suppliers, products, departments, users, customers, employees, warehouses, tenants, user }: any) => {
     const [formData, setFormData] = useState<any>({});
+    const [reconcileData, setReconcileData] = useState<any>(null);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -82,9 +83,26 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             grn: 'GOODS RECEIPT [GRN]',
             help: 'SYSTEM DOCUMENTATION',
             view_batches: 'STOCK BATCH ANALYSIS'
+            ,
+            reconcile: 'RECONCILIATION'
         };
         return mapping[type] || 'PROTOCOL ENTRY';
     };
+
+    useEffect(() => {
+        if (type !== 'reconcile') return;
+        let mounted = true;
+        (async () => {
+            try {
+                setReconcileData(null);
+                const resp = await api.get('/accounts/reconcile');
+                if (mounted) setReconcileData(resp.data);
+            } catch (e) {
+                if (mounted) setReconcileData({ error: true });
+            }
+        })();
+        return () => { mounted = false; };
+    }, [type]);
 
     const generateReceipt = (sale: any) => {
         const doc = new jsPDF() as any;
@@ -263,7 +281,60 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px', maxHeight: '65vh' }}>
+
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
+                            {type === 'reconcile' && (
+                                <div style={{ padding: '10px 8px' }}>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '8px' }}>Reconciliation Results</div>
+                                    {!reconcileData && (
+                                        <div style={{ padding: '12px', background: 'var(--bg-hover)', borderRadius: '8px' }}>Loading...</div>
+                                    )}
+                                    {reconcileData && reconcileData.error && (
+                                        <div style={{ padding: '12px', background: '#fee2e2', color: '#9f3a38', borderRadius: '8px' }}>Failed to fetch reconciliation.</div>
+                                    )}
+                                    {reconcileData && !reconcileData.error && (
+                                        <div>
+                                            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                                                <div style={{ padding: '8px', background: 'var(--bg-hover)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Payments Totals</div>
+                                                    <div style={{ fontWeight: 800 }}> {JSON.stringify(reconcileData.totals.payments || {})}</div>
+                                                </div>
+                                                <div style={{ padding: '8px', background: 'var(--bg-hover)', borderRadius: '8px' }}>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ledger Totals</div>
+                                                    <div style={{ fontWeight: 800 }}>{JSON.stringify(reconcileData.totals.ledger || {})}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="table-container" style={{ maxHeight: '40vh', overflowY: 'auto' }}>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Category</th>
+                                                            <th>Payments</th>
+                                                            <th>Ledger</th>
+                                                            <th>Difference</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {reconcileData.mismatches && reconcileData.mismatches.length > 0 ? (
+                                                            reconcileData.mismatches.map((m: any, idx: number) => (
+                                                                <tr key={idx}>
+                                                                    <td>{m.category}</td>
+                                                                    <td>₹{(m.payments || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                                    <td>₹{(m.ledger || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                                    <td style={{ color: m.difference > 0 ? 'var(--status-success)' : 'var(--status-danger)', fontWeight: 700 }}>₹{(m.difference).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                                </tr>
+                                                            ))
+                                                        ) : (
+                                                            <tr><td colSpan={4} style={{ textAlign: 'center', opacity: 0.7 }}>No mismatches found.</td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {(type === 'products' || type === 'inventory') && (
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
@@ -833,8 +904,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <Pause size={18} /> PARK
                             </button>
                         )}
-                        <button className="btn btn-primary" type={type === 'help' ? 'button' : 'submit'} onClick={type === 'help' ? onClose : undefined} style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
-                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? 'PRINT GST INVOICE [F9]' : 'CONFIRM TRANSACTION'))}
+                        <button className="btn btn-primary" type={type === 'help' || type === 'reconcile' ? 'button' : 'submit'} onClick={type === 'help' || type === 'reconcile' ? onClose : undefined} style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
+                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'reconcile' ? 'CLOSE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? 'PRINT GST INVOICE [F9]' : 'CONFIRM TRANSACTION')))}
                         </button>
                     </div>
                 </form>
