@@ -991,3 +991,304 @@ model IncentiveLedger {
   @@index([status])
   @@index([referenceType, referenceId])
 }
+
+model activities {
+  id            Int       @id @default(autoincrement())
+  user_id       Int?
+  activity_type String?   @db.VarChar
+  description   String?   @db.VarChar
+  timestamp     DateTime? @default(now()) @db.Timestamptz(6)
+  users         users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_activities_id")
+}
+
+model audit_logs {
+  id                                     Int       @id @default(autoincrement())
+  action                                 String?   @db.VarChar
+  admin_id                               Int?
+  target_user_id                         Int?
+  details                                String?
+  reason                                 String?   @db.VarChar
+  timestamp                              DateTime? @db.Timestamp(6)
+  users_audit_logs_admin_idTousers       users?    @relation("audit_logs_admin_idTousers", fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_audit_logs_target_user_idTousers users?    @relation("audit_logs_target_user_idTousers", fields: [target_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([action], map: "ix_audit_logs_action")
+  @@index([id], map: "ix_audit_logs_id")
+}
+
+model holdings {
+  id            Int         @id @default(autoincrement())
+  portfolio_id  Int?
+  symbol        String?     @db.VarChar
+  quantity      Int?
+  avg_price     Float?
+  current_price Float?
+  pnl           Float?
+  pnl_pct       Float?
+  portfolios    portfolios? @relation(fields: [portfolio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_holdings_id")
+  @@index([symbol], map: "ix_holdings_symbol")
+}
+
+model kyc_applications {
+  id                                        Int       @id @default(autoincrement())
+  user_id                                   Int?
+  full_name                                 String    @db.VarChar
+  email                                     String    @db.VarChar
+  phone                                     String?   @db.VarChar
+  dob                                       String?   @db.VarChar
+  pan                                       String?   @db.VarChar
+  aadhaar_last4                             String?   @db.VarChar
+  address_line1                             String?   @db.VarChar
+  address_line2                             String?   @db.VarChar
+  city                                      String?   @db.VarChar
+  state                                     String?   @db.VarChar
+  pincode                                   String?   @db.VarChar
+  country                                   String?   @db.VarChar
+  occupation                                String?   @db.VarChar
+  income_range                              String?   @db.VarChar
+  source_of_funds                           String?   @db.VarChar
+  pep                                       Boolean?
+  sanctions                                 Boolean?
+  tax_residency                             String?   @db.VarChar
+  bank_account_last4                        String?   @db.VarChar
+  ifsc                                      String?   @db.VarChar
+  desired_role                              String?   @db.VarChar
+  requested_trading_mode                    String?   @db.VarChar
+  risk_tolerance                            String?   @db.VarChar
+  documents_json                            String?
+  status                                    String?   @db.VarChar
+  reviewer_id                               Int?
+  review_notes                              String?
+  reviewed_at                               DateTime? @db.Timestamp(6)
+  created_at                                DateTime  @default(now()) @db.Timestamp(6)
+  updated_at                                DateTime  @default(now()) @db.Timestamp(6)
+  users_kyc_applications_reviewer_idTousers users?    @relation("kyc_applications_reviewer_idTousers", fields: [reviewer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_kyc_applications_user_idTousers     users?    @relation("kyc_applications_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([email], map: "ix_kyc_applications_email")
+  @@index([full_name], map: "ix_kyc_applications_full_name")
+  @@index([id], map: "ix_kyc_applications_id")
+  @@index([status], map: "ix_kyc_applications_status")
+}
+
+model portfolio_optimization_results {
+  id                  Int       @id @default(autoincrement())
+  user_id             Int?
+  strategy_name       String?   @db.VarChar
+  symbol              String?   @db.VarChar
+  start_date          DateTime? @db.Timestamp(6)
+  end_date            DateTime? @db.Timestamp(6)
+  optimization_method String?   @db.VarChar
+  objective_metric    String?   @db.VarChar
+  best_parameters     Json?     @db.Json
+  best_score          Float?
+  execution_time      Float?
+  status              String?   @db.VarChar
+  created_at          DateTime? @db.Timestamp(6)
+  users               users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_portfolio_optimization_results_id")
+  @@index([strategy_name], map: "ix_portfolio_optimization_results_strategy_name")
+  @@index([symbol], map: "ix_portfolio_optimization_results_symbol")
+}
+
+model portfolios {
+  id              Int          @id @default(autoincrement())
+  user_id         Int?
+  name            String?      @db.VarChar
+  cash_balance    Float?
+  invested_amount Float?
+  win_rate        Float?
+  holdings        holdings[]
+  users           users?       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  strategies      strategies[]
+  trades          trades[]
+
+  @@index([id], map: "ix_portfolios_id")
+  @@index([name], map: "ix_portfolios_name")
+}
+
+model projections {
+  id              Int     @id @default(autoincrement())
+  ticker          String? @db.VarChar
+  move_prediction String? @db.VarChar
+  action          String? @db.VarChar
+  logic           String? @db.VarChar
+
+  @@index([id], map: "ix_projections_id")
+  @@index([ticker], map: "ix_projections_ticker")
+}
+
+model social_sentiment {
+  id               Int       @id @default(autoincrement())
+  symbol           String    @db.VarChar
+  source           String    @db.VarChar
+  message_id       String    @unique @db.VarChar
+  message_text     String
+  author           String?   @db.VarChar
+  sentiment_score  Float?
+  sentiment_label  String?   @db.VarChar
+  engagement_score Float?
+  timestamp        DateTime  @db.Timestamp(6)
+  processed_at     DateTime? @db.Timestamp(6)
+  additional_data  Json?     @db.Json
+  user_id          Int?
+  users            users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_social_sentiment_id")
+  @@index([source], map: "ix_social_sentiment_source")
+  @@index([symbol], map: "ix_social_sentiment_symbol")
+}
+
+model strategies {
+  id             Int         @id @default(autoincrement())
+  portfolio_id   Int?
+  name           String?     @db.VarChar
+  symbol         String?     @db.VarChar
+  status         String?     @db.VarChar
+  pnl            String?     @db.VarChar
+  drawdown       Float?
+  execution_mode String?     @db.VarChar
+  portfolios     portfolios? @relation(fields: [portfolio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_strategies_id")
+  @@index([name], map: "ix_strategies_name")
+}
+
+model strategy_optimization_results {
+  id                 Int       @id @default(autoincrement())
+  user_id            Int?
+  strategy_name      String?   @db.VarChar
+  symbol             String?   @db.VarChar
+  start_date         DateTime? @db.Timestamp(6)
+  end_date           DateTime? @db.Timestamp(6)
+  parameter_space    Json?     @db.Json
+  best_parameters    Json?     @db.Json
+  best_score         Float?
+  optimization_trace Json?     @db.Json
+  execution_time     Float?
+  status             String?   @db.VarChar
+  created_at         DateTime? @db.Timestamp(6)
+  users              users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_strategy_optimization_results_id")
+  @@index([strategy_name], map: "ix_strategy_optimization_results_strategy_name")
+  @@index([symbol], map: "ix_strategy_optimization_results_symbol")
+}
+
+model ticket_messages {
+  id         Int       @id @default(autoincrement())
+  ticket_id  Int?
+  user_id    Int?
+  message    String?
+  created_at DateTime? @db.Timestamp(6)
+  tickets    tickets?  @relation(fields: [ticket_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_ticket_messages_id")
+}
+
+model tickets {
+  id              Int               @id @default(autoincrement())
+  user_id         Int?
+  subject         String?           @db.VarChar
+  description     String?
+  status          String?           @db.VarChar
+  priority        String?           @db.VarChar
+  created_at      DateTime?         @db.Timestamp(6)
+  updated_at      DateTime?         @db.Timestamp(6)
+  ticket_messages ticket_messages[]
+  users           users?            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_tickets_id")
+  @@index([subject], map: "ix_tickets_subject")
+}
+
+model trade_approvals {
+  id                                       Int       @id @default(autoincrement())
+  user_id                                  Int?
+  status                                   String?   @db.VarChar
+  trade_payload                            String?
+  reason                                   String?   @db.VarChar
+  approver_id                              Int?
+  created_at                               DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at                               DateTime? @db.Timestamptz(6)
+  users_trade_approvals_approver_idTousers users?    @relation("trade_approvals_approver_idTousers", fields: [approver_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_trade_approvals_user_idTousers     users?    @relation("trade_approvals_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_trade_approvals_id")
+  @@index([user_id], map: "ix_trade_approvals_user_id")
+}
+
+model trades {
+  id               Int         @id @default(autoincrement())
+  user_id          Int?
+  portfolio_id     Int?
+  symbol           String?     @db.VarChar
+  action           String?     @db.VarChar
+  quantity         Int?
+  price            Float?
+  status           String?     @db.VarChar
+  execution_mode   String?     @db.VarChar
+  timestamp        DateTime?   @default(now()) @db.Timestamptz(6)
+  risk_score       Float?
+  rejection_reason String?     @db.VarChar
+  pnl              String?     @db.VarChar
+  decision_logic   String?     @db.VarChar
+  market_behavior  String?     @db.VarChar
+  portfolios       portfolios? @relation(fields: [portfolio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_trades_id")
+  @@index([symbol], map: "ix_trades_symbol")
+}
+
+model users {
+  id                                                   Int                              @id @default(autoincrement())
+  email                                                String?                          @unique(map: "ix_users_email") @db.VarChar
+  hashed_password                                      String?                          @db.VarChar
+  full_name                                            String?                          @db.VarChar
+  risk_tolerance                                       String?                          @db.VarChar
+  trading_mode                                         String?                          @db.VarChar
+  role                                                 String?                          @db.VarChar
+  allowed_sectors                                      String?                          @db.VarChar
+  is_active                                            Boolean?
+  is_superuser                                         Boolean?
+  trading_suspended                                    Boolean?
+  approval_threshold                                   Float?
+  confidence_threshold                                 Float?
+  activities                                           activities[]
+  audit_logs_audit_logs_admin_idTousers                audit_logs[]                     @relation("audit_logs_admin_idTousers")
+  audit_logs_audit_logs_target_user_idTousers          audit_logs[]                     @relation("audit_logs_target_user_idTousers")
+  kyc_applications_kyc_applications_reviewer_idTousers kyc_applications[]               @relation("kyc_applications_reviewer_idTousers")
+  kyc_applications_kyc_applications_user_idTousers     kyc_applications[]               @relation("kyc_applications_user_idTousers")
+  portfolio_optimization_results                       portfolio_optimization_results[]
+  portfolios                                           portfolios[]
+  social_sentiment                                     social_sentiment[]
+  strategy_optimization_results                        strategy_optimization_results[]
+  ticket_messages                                      ticket_messages[]
+  tickets                                              tickets[]
+  trade_approvals_trade_approvals_approver_idTousers   trade_approvals[]                @relation("trade_approvals_approver_idTousers")
+  trade_approvals_trade_approvals_user_idTousers       trade_approvals[]                @relation("trade_approvals_user_idTousers")
+  trades                                               trades[]
+  watchlist_items                                      watchlist_items[]
+
+  @@index([full_name], map: "ix_users_full_name")
+  @@index([id], map: "ix_users_id")
+}
+
+model watchlist_items {
+  id            Int     @id @default(autoincrement())
+  user_id       Int?
+  symbol        String? @db.VarChar
+  current_price Float?
+  change        String? @db.VarChar
+  users         users?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_watchlist_items_id")
+  @@index([symbol], map: "ix_watchlist_items_symbol")
+}

@@ -17,22 +17,22 @@ interface AccountConfig {
 
 const STANDARD_ACCOUNTS: AccountConfig[] = [
     // ===== ASSETS =====
-    { code: '1000', name: 'Cash Account', accountGroup: 'ASSETS', accountType: 'CASH' },
-    { code: '1010', name: 'Bank Account - Primary', accountGroup: 'ASSETS', accountType: 'BANK' },
-    { code: '1020', name: 'Petty Cash', accountGroup: 'ASSETS', accountType: 'CASH' },
-    { code: '1100', name: 'Accounts Receivable', accountGroup: 'ASSETS', accountType: 'AR' },
-    { code: '1200', name: 'Inventory', accountGroup: 'ASSETS', accountType: 'INVENTORY' },
-    { code: '1300', name: 'GST Input Tax Credit', accountGroup: 'ASSETS', accountType: 'GST_INPUT' },
-    { code: '1400', name: 'Prepaid Expenses', accountGroup: 'ASSETS', accountType: 'PREPAID' },
-    { code: '1500', name: 'Fixed Assets', accountGroup: 'ASSETS', accountType: 'FIXED_ASSET' },
+    { code: '1000', name: 'Cash Account', accountGroup: 'ASSET', accountType: 'CASH' },
+    { code: '1010', name: 'Bank Account - Primary', accountGroup: 'ASSET', accountType: 'BANK' },
+    { code: '1020', name: 'Petty Cash', accountGroup: 'ASSET', accountType: 'CASH' },
+    { code: '1100', name: 'Accounts Receivable', accountGroup: 'ASSET', accountType: 'AR' },
+    { code: '1200', name: 'Inventory', accountGroup: 'ASSET', accountType: 'INVENTORY' },
+    { code: '1300', name: 'GST Input Tax Credit', accountGroup: 'ASSET', accountType: 'GST_INPUT' },
+    { code: '1400', name: 'Prepaid Expenses', accountGroup: 'ASSET', accountType: 'PREPAID' },
+    { code: '1500', name: 'Fixed Assets', accountGroup: 'ASSET', accountType: 'FIXED_ASSET' },
 
     // ===== LIABILITIES =====
-    { code: '2000', name: 'Accounts Payable', accountGroup: 'LIABILITIES', accountType: 'AP' },
-    { code: '2100', name: 'GST Output Tax Payable', accountGroup: 'LIABILITIES', accountType: 'GST_OUTPUT' },
-    { code: '2200', name: 'Employee Payables', accountGroup: 'LIABILITIES', accountType: 'EMPLOYEE_PAYABLE' },
-    { code: '2210', name: 'Salary Payable', accountGroup: 'LIABILITIES', accountType: 'SALARY_PAYABLE' },
-    { code: '2220', name: 'TDS Payable', accountGroup: 'LIABILITIES', accountType: 'TAX_PAYABLE' },
-    { code: '2300', name: 'Other Current Liabilities', accountGroup: 'LIABILITIES', accountType: 'LIABILITY' },
+    { code: '2000', name: 'Accounts Payable', accountGroup: 'LIABILITY', accountType: 'AP' },
+    { code: '2100', name: 'GST Output Tax Payable', accountGroup: 'LIABILITY', accountType: 'GST_OUTPUT' },
+    { code: '2200', name: 'Employee Payables', accountGroup: 'LIABILITY', accountType: 'EMPLOYEE_PAYABLE' },
+    { code: '2210', name: 'Salary Payable', accountGroup: 'LIABILITY', accountType: 'SALARY_PAYABLE' },
+    { code: '2220', name: 'TDS Payable', accountGroup: 'LIABILITY', accountType: 'TAX_PAYABLE' },
+    { code: '2300', name: 'Other Current Liabilities', accountGroup: 'LIABILITY', accountType: 'LIABILITY' },
 
     // ===== EQUITY =====
     { code: '3000', name: 'Owner\'s Capital', accountGroup: 'EQUITY', accountType: 'CAPITAL' },
@@ -45,19 +45,19 @@ const STANDARD_ACCOUNTS: AccountConfig[] = [
     { code: '4900', name: 'Other Income', accountGroup: 'INCOME', accountType: 'OTHER_INCOME' },
 
     // ===== EXPENSES =====
-    { code: '5000', name: 'Cost of Goods Sold (COGS)', accountGroup: 'EXPENSES', accountType: 'COGS' },
-    { code: '5100', name: 'Purchase Account', accountGroup: 'EXPENSES', accountType: 'PURCHASE' },
-    { code: '5200', name: 'Salaries & Wages', accountGroup: 'EXPENSES', accountType: 'SALARY' },
-    { code: '5210', name: 'Employee Incentives', accountGroup: 'EXPENSES', accountType: 'INCENTIVE' },
-    { code: '5220', name: 'Employee Benefits', accountGroup: 'EXPENSES', accountType: 'BENEFITS' },
-    { code: '5300', name: 'Transportation Expenses', accountGroup: 'EXPENSES', accountType: 'TRANSPORT' },
-    { code: '5400', name: 'Rent Expense', accountGroup: 'EXPENSES', accountType: 'RENT' },
-    { code: '5500', name: 'Utilities Expense', accountGroup: 'EXPENSES', accountType: 'UTILITIES' },
-    { code: '5600', name: 'Office Supplies', accountGroup: 'EXPENSES', accountType: 'SUPPLIES' },
-    { code: '5700', name: 'Marketing & Advertising', accountGroup: 'EXPENSES', accountType: 'MARKETING' },
-    { code: '5800', name: 'Professional Fees', accountGroup: 'EXPENSES', accountType: 'PROFESSIONAL_FEES' },
-    { code: '5900', name: 'Administrative Expenses', accountGroup: 'EXPENSES', accountType: 'ADMIN' },
-    { code: '5950', name: 'Bank Charges', accountGroup: 'EXPENSES', accountType: 'BANK_CHARGES' },
+    { code: '5000', name: 'Cost of Goods Sold (COGS)', accountGroup: 'EXPENSE', accountType: 'COGS' },
+    { code: '5100', name: 'Purchase Account', accountGroup: 'EXPENSE', accountType: 'PURCHASE' },
+    { code: '5200', name: 'Salaries & Wages', accountGroup: 'EXPENSE', accountType: 'SALARY' },
+    { code: '5210', name: 'Employee Incentives', accountGroup: 'EXPENSE', accountType: 'INCENTIVE' },
+    { code: '5220', name: 'Employee Benefits', accountGroup: 'EXPENSE', accountType: 'BENEFITS' },
+    { code: '5300', name: 'Transportation Expenses', accountGroup: 'EXPENSE', accountType: 'TRANSPORT' },
+    { code: '5400', name: 'Rent Expense', accountGroup: 'EXPENSE', accountType: 'RENT' },
+    { code: '5500', name: 'Utilities Expense', accountGroup: 'EXPENSE', accountType: 'UTILITIES' },
+    { code: '5600', name: 'Office Supplies', accountGroup: 'EXPENSE', accountType: 'SUPPLIES' },
+    { code: '5700', name: 'Marketing & Advertising', accountGroup: 'EXPENSE', accountType: 'MARKETING' },
+    { code: '5800', name: 'Professional Fees', accountGroup: 'EXPENSE', accountType: 'PROFESSIONAL_FEES' },
+    { code: '5900', name: 'Administrative Expenses', accountGroup: 'EXPENSE', accountType: 'ADMIN' },
+    { code: '5950', name: 'Bank Charges', accountGroup: 'EXPENSE', accountType: 'BANK_CHARGES' },
 ];
 
 async function seedChartOfAccounts(tenantId: string) {

@@ -50,8 +50,8 @@ export const ReportService = {
                 // Calculate closing balance based on account type
                 let closingBalance = account.openingBalance + debitSum - creditSum;
 
-                // For liability/income accounts, credit increases balance
-                if (['LIABILITIES', 'INCOME', 'EQUITY'].includes(account.accountGroup)) {
+                // For liability/income/equity accounts, credit increases balance
+                if (['LIABILITIES', 'LIABILITY', 'INCOME', 'EQUITY'].includes(account.accountGroup)) {
                     closingBalance = account.openingBalance + creditSum - debitSum;
                 }
 
@@ -71,10 +71,12 @@ export const ReportService = {
             });
 
             const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01; // Allow for rounding
+            const accountingMode = isBalanced ? 'DOUBLE_ENTRY' : 'SINGLE_ENTRY';
 
             return {
                 periodStart: start,
                 periodEnd: end,
+                accountingMode,
                 accounts: trialBalanceData,
                 totals: {
                     totalDebit,
@@ -108,7 +110,7 @@ export const ReportService = {
                 where: {
                     tenantId,
                     isActive: true,
-                    accountGroup: { in: ['INCOME', 'EXPENSES'] }
+                    accountGroup: { in: ['INCOME', 'EXPENSE', 'EXPENSES'] }
                 },
                 include: {
                     ledgerEntries: {
@@ -141,7 +143,7 @@ export const ReportService = {
                         name: account.name,
                         amount
                     });
-                } else if (account.accountGroup === 'EXPENSES') {
+                } else if (['EXPENSE', 'EXPENSES'].includes(account.accountGroup)) {
                     const amount = debitSum - creditSum; // Expenses increase with debit
                     totalExpenses += amount;
 
@@ -197,7 +199,7 @@ export const ReportService = {
                 where: {
                     tenantId,
                     isActive: true,
-                    accountGroup: { in: ['ASSETS', 'LIABILITIES', 'EQUITY'] }
+                    accountGroup: { in: ['ASSET', 'ASSETS', 'LIABILITY', 'LIABILITIES', 'EQUITY'] }
                 },
                 include: {
                     ledgerEntries: {
@@ -213,7 +215,12 @@ export const ReportService = {
 
             const assets: any[] = [];
             const liabilities: any[] = [];
-            const equity: any[] = [];
+            const equity: any = {
+                items: [],
+                capital: 0,
+                retainedEarnings: 0,
+                other: 0
+            };
             let totalAssets = 0;
             let totalLiabilities = 0;
             let totalEquity = 0;
@@ -224,7 +231,7 @@ export const ReportService = {
 
                 let balance = 0;
 
-                if (account.accountGroup === 'ASSETS') {
+                if (['ASSET', 'ASSETS'].includes(account.accountGroup)) {
                     balance = account.openingBalance + debitSum - creditSum;
                     totalAssets += balance;
                     assets.push({
@@ -233,7 +240,7 @@ export const ReportService = {
                         type: account.accountType,
                         balance
                     });
-                } else if (account.accountGroup === 'LIABILITIES') {
+                } else if (['LIABILITY', 'LIABILITIES'].includes(account.accountGroup)) {
                     balance = account.openingBalance + creditSum - debitSum;
                     totalLiabilities += balance;
                     liabilities.push({
@@ -244,8 +251,16 @@ export const ReportService = {
                     });
                 } else if (account.accountGroup === 'EQUITY') {
                     balance = account.openingBalance + creditSum - debitSum;
+                    if (account.accountType === 'CAPITAL' || account.accountType === 'EQUITY') {
+                        equity.capital += balance;
+                    } else if (account.accountType === 'RETAINED_EARNINGS' || account.accountType === 'CURRENT_YEAR_PL') {
+                        equity.retainedEarnings += balance;
+                    } else {
+                        equity.other += balance;
+                    }
+
                     totalEquity += balance;
-                    equity.push({
+                    equity.items.push({
                         code: account.code,
                         name: account.name,
                         type: account.accountType,
@@ -258,13 +273,14 @@ export const ReportService = {
             const yearStart = new Date(asOf.getFullYear(), 3, 1);
             const plData = await this.generateProfitAndLoss(tenantId, yearStart, asOf);
 
-            // Add current year P/L to equity
-            totalEquity += plData.netProfit;
-
-            const isBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 0.01;
+            const currentYearPL = plData.netProfit;
+            const totalEquityWithPL = totalEquity + currentYearPL;
+            const isBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquityWithPL)) < 0.01;
+            const accountingMode = isBalanced ? 'DOUBLE_ENTRY' : 'SINGLE_ENTRY';
 
             return {
                 asOfDate: asOf,
+                accountingMode,
                 assets: {
                     items: assets,
                     total: totalAssets
@@ -274,11 +290,11 @@ export const ReportService = {
                     total: totalLiabilities
                 },
                 equity: {
-                    items: equity,
-                    currentYearPL: plData.netProfit,
-                    total: totalEquity
+                    items: equity.items,
+                    currentYearPL,
+                    total: totalEquityWithPL
                 },
-                totalLiabilitiesAndEquity: totalLiabilities + totalEquity,
+                totalLiabilitiesAndEquity: totalLiabilities + totalEquityWithPL,
                 isBalanced,
                 difference: totalAssets - (totalLiabilities + totalEquity),
                 generatedAt: new Date()

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import prisma from '../lib/prisma';
 import { AuthRequest } from '../middleware/authMiddleware';
+import { InventoryService } from '../services/inventory.service';
 
 export const getInventorySummary = async (req: AuthRequest, res: Response) => {
     try {
@@ -20,28 +21,13 @@ export const getInventorySummary = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// ... (Keep existing simple logic for compatibility or update if needed)
-// Ideally, we move all this to InventoryService.moveStock()
-// For now, let's keep the existing simple endpoints but add the ADVANCED INWARD endpoint below.
-
-// ... (Existing logic creates 'GENERAL' batch stocks)
-// We should arguably deprecate this in favor of the Service logic.
-
-// Let's forward simple receipts to the new service if they have batch info, 
-// otherwise keep legacy behavior? 
-// For this task, let's just create a completely new reliable endpoint.
-
+// Store operations: Use the InventoryService for GRN and batch-aware receipts.
 export const createDocument = async (req: AuthRequest, res: Response) => {
     try {
         const { type, sourceWarehouseId, targetWarehouseId, items, notes } = req.body;
         const tenantId = req.user?.tenantId;
 
         if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
-
-        // Forward to legacy or new logic
-        // For now, if type is RECEIPT, we might want to ensure it uses the new detailed flow, 
-        // but this endpoint expects simple items. We will leave it as "Legacy Simple Receipt" 
-        // and force users to use /inward for advanced batching.
 
         const result = await prisma.$transaction(async (tx) => {
             const doc = await tx.inventoryDocument.create({
@@ -62,7 +48,6 @@ export const createDocument = async (req: AuthRequest, res: Response) => {
                 },
                 include: { items: true }
             });
-            // ... (Legacy Movement Logic omitted for brevity, assuming it's handled or we focus on Inward first)
             return doc;
         });
 
@@ -77,8 +62,6 @@ export const createDocument = async (req: AuthRequest, res: Response) => {
  * Advanced Inward Entry (GRN)
  * Uses InventoryService to track Batches/Expiry/Ledger
  */
-import { InventoryService } from '../services/inventory.service';
-
 export const processInwardEntry = async (req: AuthRequest, res: Response) => {
     try {
         const tenantId = req.user?.tenantId;

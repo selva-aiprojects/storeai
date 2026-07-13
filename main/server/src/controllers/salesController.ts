@@ -9,13 +9,11 @@ export const createSale = async (req: AuthRequest, res: Response) => {
     if (!tenantId) return res.status(403).json({ error: 'Tenant context required' });
 
     try {
-        const { customerId, items, paymentMethod, amountPaid, isHomeDelivery, deliveryAddress, salesmanId } = req.body;
+        const { customerId, items, paymentMethod, amountPaid, dueDate, promotionCode, isHomeDelivery, deliveryAddress, salesmanId, team, terminalId, salesChannel } = req.body;
 
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ error: 'At least one item is required for a sale' });
         }
-
-        const totalExpected = items.reduce((acc: number, i: any) => acc + (Number(i.unitPrice) * Number(i.quantity)), 0);
 
         const result = await SalesService.createSale({
             tenantId,
@@ -24,13 +22,18 @@ export const createSale = async (req: AuthRequest, res: Response) => {
             items: items.map((i: any) => ({
                 productId: i.productId,
                 quantity: Number(i.quantity),
-                unitPrice: Number(i.unitPrice),
+                unitPrice: i.unitPrice !== undefined ? Number(i.unitPrice) : undefined,
                 discount: Number(i.discount || 0)
             })),
             paymentMethod: paymentMethod || 'CASH',
-            amountPaid: Number(amountPaid) || totalExpected, // Default to total if not provided
+            amountPaid: Number(amountPaid || 0),
+            dueDate,
+            promotionCode,
             isHomeDelivery,
-            deliveryAddress
+            deliveryAddress,
+            team,
+            terminalId,
+            salesChannel
         });
 
         res.status(201).json(result);

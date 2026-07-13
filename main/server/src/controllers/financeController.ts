@@ -157,7 +157,7 @@ export const getProfitAndLoss = async (req: AuthRequest, res: Response) => {
         const accounts = await prisma.chartOfAccounts.findMany({
             where: {
                 tenantId,
-                accountGroup: { in: ['INCOME', 'EXPENSES'] }
+                accountGroup: { in: ['INCOME', 'EXPENSE', 'EXPENSES'] }
             },
             include: {
                 ledgerEntries: {
@@ -176,7 +176,7 @@ export const getProfitAndLoss = async (req: AuthRequest, res: Response) => {
 
             if (acc.accountGroup === 'INCOME') {
                 totalIncome += (credits - debits);
-            } else if (acc.accountGroup === 'EXPENSES') {
+            } else if (['EXPENSE', 'EXPENSES'].includes(acc.accountGroup)) {
                 const balance = debits - credits;
                 if (acc.accountType === 'COGS') {
                     cogs += balance;
@@ -261,7 +261,7 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
         const accounts = await prisma.chartOfAccounts.findMany({
             where: {
                 tenantId,
-                accountGroup: { in: ['ASSETS', 'LIABILITIES', 'EQUITY'] }
+                accountGroup: { in: ['ASSET', 'ASSETS', 'LIABILITY', 'LIABILITIES', 'EQUITY'] }
             },
             include: {
                 ledgerEntries: {
@@ -278,7 +278,7 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
             const debits = acc.ledgerEntries.reduce((sum, e) => sum + e.debitAmount, 0);
             const credits = acc.ledgerEntries.reduce((sum, e) => sum + e.creditAmount, 0);
 
-            if (acc.accountGroup === 'ASSETS') {
+            if (['ASSET', 'ASSETS'].includes(acc.accountGroup)) {
                 const balance = debits - credits;
                 if (acc.accountType === 'CASH' || acc.accountType === 'BANK') assets.cash += balance;
                 else if (acc.accountType === 'INVENTORY') assets.inventory += balance;
@@ -286,7 +286,7 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
                 else if (acc.accountType === 'GST_INPUT') assets.gstInput += balance;
                 else assets.other += balance;
                 assets.total += balance;
-            } else if (acc.accountGroup === 'LIABILITIES') {
+            } else if (['LIABILITY', 'LIABILITIES'].includes(acc.accountGroup)) {
                 const balance = credits - debits;
                 if (acc.accountType === 'AP') liabilities.payables += balance;
                 else if (acc.accountType === 'GST_OUTPUT') liabilities.gstPayable += balance;
@@ -294,15 +294,16 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
                 liabilities.total += balance;
             } else if (acc.accountGroup === 'EQUITY') {
                 const balance = credits - debits;
-                if (acc.accountType === 'CAPITAL') equity.capital += balance;
-                else if (acc.accountType === 'RETAINED_EARNINGS') equity.retainedEarnings += balance;
+                if (acc.accountType === 'CAPITAL' || acc.accountType === 'EQUITY') equity.capital += balance;
+                else if (acc.accountType === 'RETAINED_EARNINGS' || acc.accountType === 'CURRENT_YEAR_PL') equity.retainedEarnings += balance;
+                else equity.other += balance;
                 equity.total += balance;
             }
         });
 
         // 1. Calculate Current Year Profit (from PL Logic)
         const plRes = await prisma.chartOfAccounts.findMany({
-            where: { tenantId, accountGroup: { in: ['INCOME', 'EXPENSES'] } },
+            where: { tenantId, accountGroup: { in: ['INCOME', 'EXPENSE', 'EXPENSES'] } },
             include: { ledgerEntries: { select: { debitAmount: true, creditAmount: true } } }
         });
 

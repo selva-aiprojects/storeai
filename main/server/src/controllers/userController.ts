@@ -52,7 +52,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 
         res.status(201).json(user);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).json({ error: 'User creation failed' });
     }
 };
