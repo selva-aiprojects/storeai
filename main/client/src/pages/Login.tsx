@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, Building2, Users, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import api, { login as loginApi } from "../services/api";
+import { login as loginApi } from "../services/api";
 
 const Login = ({ setUser }: any) => {
     const [authForm, setAuthForm] = useState({
@@ -10,7 +10,7 @@ const Login = ({ setUser }: any) => {
         password: "",
         tenantSlug: "",
     });
-
+    const [availableTenants, setAvailableTenants] = useState<Array<{id:string; name:string; slug:string}>>([]);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -22,6 +22,7 @@ const Login = ({ setUser }: any) => {
         try {
             const resp = await loginApi(authForm);
             localStorage.setItem("store_ai_token", resp.data.token);
+            setAvailableTenants(resp.data.availableTenants || []);
             setUser(resp.data.user);
         } catch (e: any) {
             const status = e?.response?.status;
@@ -178,20 +179,32 @@ const Login = ({ setUser }: any) => {
                         {/* Tenant */}
                         <div>
                             <label className="text-[10px] font-bold tracking-widest uppercase text-slate-500">
-                                Tenant Descriptor (Optional)
+                                Tenant
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 value={authForm.tenantSlug}
                                 onChange={(e) =>
                                     setAuthForm({
                                         ...authForm,
-                                        tenantSlug: e.target.value.toLowerCase(),
+                                        tenantSlug: e.target.value,
                                     })
                                 }
-                                placeholder="e.g. quantum-corp"
                                 className="mt-1.5 w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition text-[13px] font-semibold"
-                            />
+                            >
+                                <option value="">Select a tenant (optional)</option>
+                                {availableTenants.length > 0 ? (
+                                    availableTenants.map((tenant) => (
+                                        <option key={tenant.id} value={tenant.slug}>
+                                            {tenant.name} ({tenant.slug})
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option value="">No tenants loaded yet</option>
+                                )}
+                            </select>
+                            <p className="mt-2 text-[11px] text-slate-400">
+                                Choose a tenant or leave it blank to use the default workspace.
+                            </p>
                         </div>
 
                         {/* Button */}

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 import { AuthRequest } from '../middleware/authMiddleware';
+import { resolveActiveTenantRelation } from '../utils/tenantResolver';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
@@ -90,26 +91,15 @@ export const login = async (req: Request, res: Response) => {
             return res.status(403).json({ error: 'User is not associated with any account' });
         }
 
-        // Determine active tenant in a stable/safe order:
-        // 1) requested tenantSlug
-        // 2) StoreAI hub tenant
-        // 3) any ACTIVE tenant
-        // 4) fallback to first relation
-        let activeTenantRelation = user.tenants[0];
-        if (tenantSlug) {
-            const found = user.tenants.find(t => t.tenant.slug === tenantSlug);
-            if (found) activeTenantRelation = found;
-        } else {
-            const storeAiTenant = user.tenants.find(t => t.tenant.slug === 'storeai');
-            const activeTenant = user.tenants.find(t => t.tenant.status === 'ACTIVE');
-            if (storeAiTenant) {
-                activeTenantRelation = storeAiTenant;
-            } else if (activeTenant) {
-                activeTenantRelation = activeTenant;
-            }
+        const activeTenantRelation = resolveActiveTenantRelation(user.tenants as any, tenantSlug);
+        if (!activeTenantRelation) {
+            return res.status(403).json({ error: 'User is not associated with any account' });
         }
 
         const activeTenant = activeTenantRelation.tenant;
+        if (!activeTenant) {
+            return res.status(403).json({ error: 'User is not associated with any account' });
+        }
 
         // Onboarding/Approval Workflow Check
         if (activeTenant.status === 'PENDING' && activeTenant.slug !== 'storeai') {
@@ -120,10 +110,14 @@ export const login = async (req: Request, res: Response) => {
         }
 
         const activeRole = activeTenantRelation.role;
-        const permissions = activeRole.permissions.map(p => p.code);
+        if (!activeRole) {
+            return res.status(403).json({ error: 'User role not found for the selected tenant' });
+        }
+
+        const permissions = (activeRole.permissions || []).map((p: { code: string }) => p.code);
         const features = {
-            ...(activeTenant.plan?.features as object || {}),
-            ...(activeTenant.features as object || {})
+            ...((activeTenant.plan?.features as Record<string, unknown>) || {}),
+            ...((activeTenant.features as Record<string, unknown>) || {})
         };
 
         const tokenOptions: any = {};
@@ -139,7 +133,7 @@ export const login = async (req: Request, res: Response) => {
                 lastName: user.lastName,
                 tenantId: activeTenant.id,
                 tenantSlug: activeTenant.slug,
-                role: activeRole.code,
+                role: (activeRole as { code?: string }).code || 'USER',
                 permissions,
                 features
             },
@@ -161,7 +155,7 @@ export const login = async (req: Request, res: Response) => {
                     logo: activeTenant.logo,
                     plan: activeTenant.plan?.name
                 },
-                role: activeRole.code,
+                role: (activeRole as { code?: string }).code || 'USER',
                 permissions,
                 features
             },
@@ -199,10 +193,16 @@ export const getMe = async (req: AuthRequest, res: Response) => {
             return res.status(404).json({ error: 'User or tenant association not found' });
         }
 
-        // Determine active tenant based on the token's tenantId
         const activeTenantId = req.user?.tenantId;
-        const activeTenantRelation = user.tenants.find(t => t.tenantId === activeTenantId) || user.tenants[0];
+        const activeTenantRelation = user.tenants.find(t => t.tenantId === activeTenantId) || resolveActiveTenantRelation(user.tenants as any);
+        if (!activeTenantRelation) {
+            return res.status(404).json({ error: 'User or tenant association not found' });
+        }
+
         const activeTenant = activeTenantRelation.tenant;
+        if (!activeTenant) {
+            return res.status(404).json({ error: 'User or tenant association not found' });
+        }
 
         // Onboarding/Approval Workflow Check
         if (activeTenant.status === 'PENDING' && activeTenant.slug !== 'storeai') {
@@ -212,10 +212,13 @@ export const getMe = async (req: AuthRequest, res: Response) => {
             return res.status(403).json({ error: 'ACCESS DENIED: Your tenant subscription has been suspended. Please contact StoreAI Hub Administration.' });
         }
         const activeRole = activeTenantRelation.role;
-        const permissions = activeRole.permissions.map(p => p.code);
+        if (!activeRole) {
+            return res.status(403).json({ error: 'User role not found for the selected tenant' });
+        }
+        const permissions = (activeRole.permissions || []).map((p: { code: string }) => p.code);
         const features = {
-            ...(activeTenant.plan?.features as object || {}),
-            ...(activeTenant.features as object || {})
+            ...((activeTenant.plan?.features as Record<string, unknown>) || {}),
+            ...((activeTenant.features as Record<string, unknown>) || {})
         };
 
         res.json({
@@ -230,7 +233,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
                 logo: activeTenant.logo,
                 plan: activeTenant.plan?.name
             },
-            role: activeRole.code,
+            role: (activeRole as { code?: string }).code || 'USER',
             permissions,
             features
         });

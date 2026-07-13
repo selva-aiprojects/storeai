@@ -272,7 +272,7 @@ export const getBalanceSheet = async (req: AuthRequest, res: Response) => {
 
         const assets = { cash: 0, inventory: 0, receivables: 0, gstInput: 0, other: 0, total: 0 };
         const liabilities = { payables: 0, gstPayable: 0, other: 0, total: 0 };
-        const equity = { capital: 0, retainedEarnings: 0, total: 0 };
+        const equity = { capital: 0, retainedEarnings: 0, other: 0, total: 0 };
 
         accounts.forEach(acc => {
             const debits = acc.ledgerEntries.reduce((sum, e) => sum + e.debitAmount, 0);
