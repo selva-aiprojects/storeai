@@ -42,7 +42,6 @@ import ConfigSettings from './pages/Finance/ConfigSettings';
 import BalanceSheet from './pages/Finance/BalanceSheet';
 import IndividualLedger from './pages/Finance/IndividualLedger';
 import Administration from './pages/Administration';
-import StockAnalyzer from './pages/Settings/StockAnalyzer';
 import GlobalInventory from './pages/GlobalInventory';
 
 function App() {
@@ -196,7 +195,6 @@ function App() {
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/administration" element={<Administration />} />
                         <Route path="/assistant" element={<Assistant />} />
-                        <Route path="/stock-analyzer" element={<StockAnalyzer />} />
                         <Route path="/global-inventory" element={<GlobalInventory />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>

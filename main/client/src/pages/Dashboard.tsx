@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Package, Truck, CheckCircle2, FileText, AlertTriangle, Layers, ArrowRight, Zap, Globe, TrendingUp as TrendingIcon, Activity } from 'lucide-react';
+import { Package, Truck, CheckCircle2, FileText, AlertTriangle, Layers, ArrowRight } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
-import { getMarketResearch } from '../services/ai';
 
 const DASHBOARD_ACCENT = 'var(--module-dashboard)';
 const SALES_ACCENT = 'var(--module-sales)';
@@ -11,14 +9,6 @@ const PURCHASES_ACCENT = 'var(--module-purchases)';
 const Dashboard = () => {
     const { data } = useOutletContext<any>();
     const { stats, sales = [], orders = [], products = [], inventory } = data || {};
-    const [marketData, setMarketData] = useState<any>(null);
-
-    useEffect(() => {
-        getMarketResearch()
-            .then(res => setMarketData(res))
-            .catch(err => console.error("Dashboard Market Fetch Error:", err));
-    }, []);
-
     // --- Financial Status ---
     const totalRevenue = stats?.revenue || sales.reduce((acc: number, s: any) => acc + (s.totalAmount || 0), 0);
     const totalProcurement = stats?.procurement || orders.reduce((acc: number, o: any) => acc + (o.totalAmount || 0), 0);
@@ -97,130 +87,6 @@ const Dashboard = () => {
                     </div>
                     <div className="metric-card-value" style={{ color: PURCHASES_ACCENT }}>{toBePacked + toBeShipped + toBeDelivered}</div>
                     <div className="metric-card-footer">Active Pipeline Movements</div>
-                </div>
-            </div>
-
-            {/* --- Market Intelligence & Exchanges (Unified Professional AI Theme) --- */}
-            <div className="flex items-center gap-3 mt-4 mb-3 border-b pb-2" style={{ borderColor: 'var(--module-dashboard-light)' }}>
-                <div className="p-1.5 rounded-lg" style={{ background: 'var(--module-dashboard-bg)' }}>
-                    <Activity size={18} style={{ color: DASHBOARD_ACCENT }} />
-                </div>
-                <h2 className="text-sm font-bold tracking-tight uppercase" style={{ color: 'var(--text-primary)' }}>Predictive Market Intelligence</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border" style={{ background: 'var(--module-dashboard-bg)', color: DASHBOARD_ACCENT, borderColor: 'var(--module-dashboard-light)' }}>AI POWERED</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Market Sentiment Card */}
-                <div className="card hover:shadow-md transition-all relative overflow-hidden group border-t-4" style={{ borderTopColor: 'var(--module-reports)' }}>
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
-                        <Zap size={140} />
-                    </div>
-
-                    <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)', background: 'var(--module-dashboard-bg)' }}>
-                        <div className="flex items-center gap-2">
-                            <Zap size={16} style={{ color: DASHBOARD_ACCENT }} />
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Market Sentiment</span>
-                        </div>
-                        {marketData && (
-                            <span className={`text-[10px] font-black px-2 py-1 rounded-full border ${marketData.market_sentiment === 'BULLISH'
-                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                : 'bg-rose-50 text-rose-600 border-rose-100'
-                                }`}>
-                                {marketData.market_sentiment}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="p-5 relative z-10">
-                        {marketData ? (
-                            <div className="space-y-4">
-                                <div className="rounded-xl p-4 border" style={{ background: 'var(--module-reports-bg)', borderColor: 'var(--module-reports-light)' }}>
-                                    <p className="text-sm leading-relaxed font-medium" style={{ color: 'var(--text-primary)' }}>
-                                        {marketData.summary}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <TrendingIcon size={14} style={{ color: 'var(--module-reports)' }} />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Top Monitoring</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {marketData.top_picks?.map((pick: string) => (
-                                            <span key={pick} className="text-xs font-semibold px-2.5 py-1 bg-white border rounded-md shadow-sm" style={{ borderColor: 'var(--border-default)', color: 'var(--text-secondary)' }}>
-                                                {pick}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="py-8 text-center flex flex-col items-center justify-center space-y-2" style={{ color: 'var(--text-muted)' }}>
-                                <Activity size={24} className="opacity-20" />
-                                <span className="text-xs font-medium">Market analysis session paused</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Live Exchange Status */}
-                <div className="card hover:shadow-md transition-all relative overflow-hidden group border-t-4" style={{ borderTopColor: 'var(--module-reports)' }}>
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
-                        <Globe size={140} />
-                    </div>
-
-                    <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-light)', background: 'var(--module-reports-bg)' }}>
-                        <div className="flex items-center gap-2">
-                            <Globe size={16} style={{ color: 'var(--module-reports)' }} />
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Live Exchange Feed</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: 'var(--module-reports)' }}></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: 'var(--module-reports)' }}></span>
-                            </span>
-                            <span className="text-[10px] font-bold" style={{ color: 'var(--module-reports)' }}>LIVE</span>
-                        </div>
-                    </div>
-
-                    <div className="p-0">
-                        <div className="divide-y" style={{ borderColor: 'var(--border-light)' }}>
-                            {marketData?.exchanges?.map((ex: any) => (
-                                <div key={ex.name} className="p-4 transition-colors flex items-center justify-between" style={{ borderColor: 'var(--border-light)' }}>
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm border ${ex.trend.startsWith('+') ? 'bg-emerald-50 border-emerald-100 text-emerald-500' : 'bg-rose-50 border-rose-100 text-rose-500'
-                                            }`}>
-                                            <TrendingIcon size={16} />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{ex.name}</div>
-                                            <div className="text-[10px] font-semibold" style={{ color: 'var(--text-muted)' }}>{ex.status}</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className={`text-sm font-black ${ex.trend.startsWith('+') ? 'text-emerald-600' : 'text-rose-600'
-                                            }`}>
-                                            {ex.trend}
-                                        </div>
-                                        <div className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                                            Vol: <span style={{ color: 'var(--text-tertiary)' }}>{marketData.volatility}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )) || [1, 2].map(i => (
-                                <div key={i} className="p-4 animate-pulse flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg" style={{ background: 'var(--bg-hover)' }}></div>
-                                        <div className="space-y-1">
-                                            <div className="h-3 w-16 rounded" style={{ background: 'var(--bg-hover)' }}></div>
-                                            <div className="h-2 w-10 rounded" style={{ background: 'var(--bg-hover)' }}></div>
-                                        </div>
-                                    </div>
-                                    <div className="h-4 w-12 rounded" style={{ background: 'var(--bg-hover)' }}></div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </div>
 

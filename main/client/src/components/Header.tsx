@@ -1,4 +1,4 @@
-import { RefreshCw, Plus, Menu, Sparkles, TrendingUp, HelpCircle } from 'lucide-react';
+import { RefreshCw, Plus, Menu, Sparkles, HelpCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 
@@ -28,7 +28,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
             '/pl': 'Profit & Loss (P&L)',
             '/config-finance': 'Finance Policies',
             '/reports': 'Strategic Reports',
-            '/assistant': 'AI Intelligence',
+            '/assistant': 'StoreAI Assistant',
             '/settings': 'System Settings'
         };
         const defaultTitle = path.substring(1)
@@ -91,14 +91,6 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                 </button>
 
                 <div className="h-6 w-px bg-gray-200 mx-1"></div>
-
-                <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-[#0061A8] bg-[#0061A8]/5 hover:bg-[#0061A8]/10 border border-[#0061A8]/20 transition-all uppercase tracking-wider"
-                    onClick={() => navigate('/stock-analyzer')}
-                >
-                    <TrendingUp size={16} />
-                    <span>Market Intel</span>
-                </button>
 
                 <button
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#0061A8] to-[#00A3E0] hover:shadow-lg hover:shadow-blue-900/10 transition-all uppercase tracking-wider"

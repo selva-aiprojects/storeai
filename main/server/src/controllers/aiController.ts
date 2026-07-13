@@ -1,13 +1,41 @@
 import { Request, Response } from 'express';
-import YahooFinance from 'yahoo-finance2';
 import { PrismaClient } from '@prisma/client';
-import Groq from 'groq-sdk';
+import axios from 'axios';
 
 const prisma = new PrismaClient();
-const yahooFinance = new YahooFinance();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+type GeminiMessage = {
+    role: 'user' | 'model';
+    parts: Array<{ text: string }>;
+};
+
+const generateGeminiContent = async (
+    systemInstruction: string,
+    contents: GeminiMessage[],
+    temperature: number,
+    maxOutputTokens: number
+) => {
+    if (!GOOGLE_API_KEY) {
+        throw new Error('GOOGLE_API_KEY is not configured');
+    }
+
+    const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`,
+        {
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents,
+            generationConfig: { temperature, maxOutputTokens }
+        },
+        { params: { key: GOOGLE_API_KEY } }
+    );
+
+    return response.data?.candidates?.[0]?.content?.parts
+        ?.map((part: { text?: string }) => part.text || '')
+        .join('')
+        .trim() || '';
+};
 
 const SYSTEM_PROMPT = `You are StoreAI, an intelligent store management assistant integrated with a live retail database.
 
@@ -32,11 +60,8 @@ export const chat = async (req: Request, res: Response) => {
         let source = 'CONVERSATION';
         let intent = 'GENERAL';
 
-        const intentCompletion = await groq.chat.completions.create({
-            messages: [
-                {
-                    role: 'system',
-                    content: `Classify the user's store query into exactly one category. Respond with ONLY the category word, nothing else.
+        const intentResponse = await generateGeminiContent(
+            `Classify the user's store query into exactly one category. Respond with ONLY the category word, nothing else.
 
 Categories:
 - INVENTORY: questions about products, stock, inventory, items, SKUs, pricing, stock levels, low stock
@@ -44,16 +69,13 @@ Categories:
 - CUSTOMERS: questions about customers, clients, buyers, customer details
 - HR: questions about employees, staff, payroll, attendance, HR
 - SUPPLIERS: questions about suppliers, vendors, purchase orders
-- GENERAL: greetings, help requests, chit-chat, or anything else`
-                },
-                { role: 'user', content: query }
-            ],
-            model: 'llama3-8b-8192',
-            temperature: 0.1,
-            max_tokens: 20
-        });
+- GENERAL: greetings, help requests, chit-chat, or anything else`,
+            [{ role: 'user', parts: [{ text: query }] }],
+            0.1,
+            20
+        );
 
-        intent = intentCompletion.choices[0]?.message?.content?.trim().toUpperCase() || 'GENERAL';
+        intent = intentResponse.toUpperCase() || 'GENERAL';
 
         if (intent === 'INVENTORY') {
             const products = await prisma.product.findMany({
@@ -121,17 +143,24 @@ Categories:
             }
         }
 
-        const messages: any[] = [
-            { role: 'system', content: SYSTEM_PROMPT }
-        ];
+        const messages: GeminiMessage[] = [];
 
         if (history && history.length > 0) {
             const recentHistory = history.slice(-6);
             for (const msg of recentHistory) {
                 if (msg.role && msg.content) {
-                    messages.push({ role: msg.role, content: msg.content });
+                    messages.push({
+                        role: msg.role === 'assistant' ? 'model' : 'user',
+                        parts: [{ text: msg.content }]
+                    });
                 }
             }
+        }
+
+        // Gemini conversations must start with a user message. The UI's welcome
+        // message is assistant-authored, so omit it when it leads the history.
+        while (messages[0]?.role === 'model') {
+            messages.shift();
         }
 
         let userContent = query;
@@ -139,16 +168,9 @@ Categories:
             userContent = `The user asked: "${query}"\n\nHere is the relevant data from the database:\n${JSON.stringify(contextData, null, 2)}\n\nPlease summarize this data for the user in a friendly, conversational way.`;
         }
 
-        messages.push({ role: 'user', content: userContent });
+        messages.push({ role: 'user', parts: [{ text: userContent }] });
 
-        const chatCompletion = await groq.chat.completions.create({
-            messages,
-            model: 'llama-3.3-70b-versatile',
-            temperature: 0.7,
-            max_tokens: 500
-        });
-
-        responseText = chatCompletion.choices[0]?.message?.content || '';
+        responseText = await generateGeminiContent(SYSTEM_PROMPT, messages, 0.7, 500);
 
         if (!responseText) {
             responseText = "I'm having trouble processing that request. Could you try rephrasing?";
@@ -158,167 +180,21 @@ Categories:
     } catch (error: any) {
         console.error('AI Chat Error:', error);
         res.status(500).json({
-            response: 'I encountered an error processing your request. Please ensure the GROQ_API_KEY is configured correctly.',
+            response: 'StoreAI Assistant is temporarily unavailable. Please try again in a moment.',
             source: 'ERROR',
-            detail: error.message
+            detail: 'The assistant service could not complete the request.'
         });
     }
-};
-
-export const stockAnalyze = async (req: Request, res: Response) => {
-    const { ticker } = req.body;
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    const startDate = oneYearAgo.toISOString().split('T')[0];
-
-    try {
-        let quote: any;
-        let history: any[];
-
-        try {
-            const results = await Promise.all([
-                yahooFinance.quote(ticker),
-                yahooFinance.historical(ticker, { period1: startDate, interval: '1d' })
-            ]);
-            quote = results[0];
-            history = results[1];
-        } catch (apiErr: any) {
-            console.error('Yahoo Finance API Error:', apiErr);
-            if (apiErr.message?.includes('Not Found') || apiErr.message?.includes('404')) {
-                return res.status(404).json({ detail: `Ticker '${ticker}' not found on exchange.` });
-            }
-            throw new Error(`Exchange Data Error: ${apiErr.message}`);
-        }
-
-        if (!quote) throw new Error('Stock ticker not found.');
-
-        const lastPrice = quote.regularMarketPrice || 0;
-        const prevClose = quote.regularMarketPreviousClose || lastPrice;
-        const priceChange = lastPrice - prevClose;
-        const percentChange = prevClose !== 0 ? (priceChange / prevClose) * 100 : 0;
-
-        const closePrices: number[] = history.map((h: any) => h.close).filter((c: any) => c !== null && c !== undefined);
-
-        const sma50 = closePrices.length >= 50 ? closePrices.slice(-50).reduce((a: number, b: number) => a + b, 0) / 50 : lastPrice;
-        const sma200 = closePrices.length >= 200 ? closePrices.slice(-200).reduce((a: number, b: number) => a + b, 0) / 200 : lastPrice;
-
-        const groqAnalysis = await groq.chat.completions.create({
-            messages: [
-                {
-                    role: 'system',
-                    content: `You are a stock market analyst. Analyze the given stock data and provide a brief analysis.
-Return your response as a JSON object with these fields:
-- rating: "Strong Buy" | "Buy" | "Hold" | "Sell" | "Avoid"
-- thesis: brief 1-2 sentence analysis
-- confidence: number 0-100
-- risk: "Low" | "Medium" | "High"`
-                },
-                {
-                    role: 'user',
-                    content: `Ticker: ${ticker}
-Company: ${quote.longName || ticker}
-Last Price: ${lastPrice}
-Change: ${percentChange.toFixed(2)}%
-50-day SMA: ${sma50.toFixed(2)}
-200-day SMA: ${sma200.toFixed(2)}
-Market Cap: ${quote.marketCap || 'N/A'}
-Volume: ${quote.regularMarketVolume || 'N/A'}`
-                }
-            ],
-            model: 'llama-3.3-70b-versatile',
-            temperature: 0.3,
-            max_tokens: 300
-        });
-
-        let analysis: any = {
-            rating: 'Hold',
-            thesis: 'Market conditions are neutral.',
-            confidence: 50,
-            risk: 'Medium'
-        };
-
-        try {
-            const content = groqAnalysis.choices[0]?.message?.content || '';
-            const jsonMatch = content.match(/\{.*\}/s);
-            if (jsonMatch) {
-                analysis = JSON.parse(jsonMatch[0]);
-            }
-        } catch {
-            // Fall back to defaults
-        }
-
-        const chartData = history.slice(-90).map((h: any) => ({
-            date: h.date.toISOString().split('T')[0],
-            close: h.close
-        }));
-
-        res.json({
-            meta: {
-                ticker: ticker || 'UNKNOWN',
-                company_name: quote.longName || ticker,
-                sector: 'Financial / Tech',
-                last_price: lastPrice,
-                currency: quote.currency || 'INR',
-                time_range: '3M'
-            },
-            core_signals: {
-                ai_overall_rating: analysis.rating || 'Hold',
-                technical_score: lastPrice > sma50 ? (lastPrice > sma200 ? 85 : 60) : (lastPrice < sma200 ? 30 : 45),
-                fundamental_score: Math.floor(Math.random() * (90 - 60) + 60),
-                news_score: percentChange > 0 ? 80 : 40,
-                risk_score: analysis.risk === 'Low' ? 20 : analysis.risk === 'High' ? 70 : 45,
-                confidence: analysis.confidence || 50
-            },
-            ai_rationale: {
-                thesis: analysis.thesis || '',
-                time_horizon: 'medium_term',
-                bull_case: 'Positive momentum may continue if market conditions remain favorable.',
-                bear_case: 'Downside risk from broader market volatility.'
-            },
-            explanations: {
-                technical_explain: `Price is ${percentChange >= 0 ? 'up' : 'down'} ${Math.abs(percentChange).toFixed(2)}% today. Trading ${lastPrice > sma50 ? 'above' : 'below'} 50-day SMA.`,
-                fundamental_explain: 'Analysis based on available market data.',
-                news_explain: 'Recent price action reflects broader market sentiment.',
-                risk_explain: `Risk level: ${analysis.risk || 'Medium'}.`
-            },
-            charts: { price_series: chartData },
-            recent_news: [
-                {
-                    headline: `${ticker} Analysis: ${analysis.rating || 'Market Update'}`,
-                    source: 'StoreAI Intelligence',
-                    published_at: new Date().toISOString().split('T')[0],
-                    sentiment: percentChange >= 0 ? 'Positive' : 'Negative',
-                    impact: 'Medium',
-                    why_it_matters: 'AI-generated analysis based on technical indicators.'
-                }
-            ]
-        });
-    } catch (error: any) {
-        console.error('Stock Analysis Failed:', error);
-        res.status(500).json({ error: 'Analysis Failed', detail: error.message || 'Unknown Error Occurred' });
-    }
-};
-
-export const marketResearch = async (req: Request, res: Response) => {
-    res.json({
-        status: 'active',
-        market_sentiment: 'BULLISH',
-        volatility: 'MODERATE',
-        top_picks: ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY'],
-        summary: 'Nifty 50 showing strong support at key EMA levels. Positive outlook on BFSI and Auto sectors.',
-        exchanges: [
-            { name: 'NSE', status: 'OPEN', trend: '+0.45%' },
-            { name: 'BSE', status: 'OPEN', trend: '+0.42%' }
-        ]
-    });
 };
 
 export const healthCheck = async (req: Request, res: Response) => {
-    const groqConfigured = !!(process.env.GROQ_API_KEY);
+    const googleConfigured = !!GOOGLE_API_KEY;
     res.json({
         status: 'online',
-        service: 'StoreAI Intelligence Engine',
+        service: 'StoreAI Assistant',
         version: '1.0.0',
-        groq: groqConfigured ? 'connected' : 'not configured'
+        provider: 'google-gemini',
+        model: GEMINI_MODEL,
+        google: googleConfigured ? 'configured' : 'not configured'
     });
 };

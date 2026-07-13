@@ -99,7 +99,7 @@ const Assistant = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 1,
-            text: "Hello! I am your StoreAI Intelligence Platform Assistant from Cognivectra's product. I have live access to your inventory, sales, and resource records. What aspects of your store shall we analyze together today?",
+            text: "Hello! I'm your StoreAI Assistant. I can help analyze your inventory, sales, and resource records. What would you like to explore today?",
             sender: 'ai',
             timestamp: new Date()
         }
@@ -151,13 +151,14 @@ const Assistant = () => {
             setMessages(prev => [...prev, aiMsg]);
 
         } catch (error) {
-            let errorMessage = (error as any)?.message || 'Unknown error';
-            let details = (error as any)?.response?.data?.detail || 'No backend details';
+            let errorMessage = 'ASSISTANT UNAVAILABLE';
+            let details = 'Please try again in a moment.';
 
             if ((error as any)?.response?.status === 401) {
                 errorMessage = 'AUTHENTICATION EXPIRED';
                 details = 'Please re-login to restore secure AI access.';
-            } else if (errorMessage === 'Network Error') {
+            } else if ((error as any)?.message === 'Network Error') {
+                errorMessage = 'CONNECTION ISSUE';
                 details = `Connection failed to URL: ${import.meta.env.VITE_AI_API_URL || 'localhost:8000/api'}. Ensure VITE_AI_API_URL is set in Render for site: ${window.location.origin}`;
                 console.error("AI Network Failure Context:", {
                     origin: window.location.origin,
@@ -167,7 +168,7 @@ const Assistant = () => {
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
-                text: `CRITICAL: Intelligence Engine Link Failure. [Error: ${errorMessage}] [Details: ${details}]`,
+                text: `I couldn't complete that request right now (${errorMessage}). ${details}`,
                 sender: 'ai',
                 timestamp: new Date()
             }]);
@@ -206,7 +207,7 @@ const Assistant = () => {
                     </div>
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
-                            StoreAI <span className="text-blue-600">Intelligence Platform</span>
+                            StoreAI <span className="text-blue-600">Assistant</span>
                         </h1>
                         <p className="text-xs text-gray-500 font-medium">
                             Intelligent Store Oversight • Operational Insights

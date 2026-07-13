@@ -75,14 +75,4 @@ export const chatWithAI = async (query: string, history: any[] = []) => {
     }
 };
 
-export const getMarketResearch = async () => {
-    try {
-        const response = await aiApi.get('/market-research');
-        return response.data;
-    } catch (error) {
-        console.error("Market Research Error:", error);
-        throw error;
-    }
-};
-
 export default aiApi;
