@@ -1,7 +1,7 @@
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Printer, Plus, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import api from '../../services/api';
+import api from '../services/api';
 
 const Accounts = () => {
     const { data, setModal } = useOutletContext<any>();
