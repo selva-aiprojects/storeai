@@ -74,6 +74,9 @@ api.interceptors.response.use((response) => {
             data: response.data,
             timestamp: Date.now()
         });
+    } else {
+        // A write can affect several lists, so cached reads must not hide it.
+        cache.clear();
     }
     return response;
 }, (error) => {
@@ -96,6 +99,8 @@ export const getGlobalProducts = () => api.get('/products/all');
 export const createProduct = (data: any) => api.post('/products', data);
 export const updateProduct = (id: string, data: any) => api.patch(`/products/${id}`, data);
 export const deleteProduct = (id: string) => api.delete(`/products/${id}`);
+export const getPricingRules = () => api.get('/products/rules');
+export const createPricingRule = (data: any) => api.post('/products/rules', data);
 
 // Suppliers
 export const getSuppliers = () => api.get('/suppliers');

@@ -161,8 +161,11 @@ export const generatePayroll = async (req: AuthRequest, res: Response) => {
 
         const { employeeId, monthStr } = req.body;
         // monthStr: YYYY-MM
+        if (!employeeId || !/^\d{4}-(0[1-9]|1[0-2])$/.test(monthStr || '')) {
+            return res.status(400).json({ error: 'Employee and a valid payroll month (YYYY-MM) are required' });
+        }
 
-        const result = await HRService.generatePayrollForEmployee(employeeId, monthStr);
+        const result = await HRService.generatePayrollForEmployee(employeeId, monthStr, tenantId);
         res.status(201).json(result);
     } catch (error: any) {
         console.error(error);

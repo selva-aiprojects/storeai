@@ -3,11 +3,13 @@ import { motion } from 'framer-motion';
 import { X, Building2, FileText, Pause } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import api, { createProduct, createSupplier, createOrder, createSale, createUser, createEmployee, createCustomer, createPayroll, createGoodsReceipt, generatePayroll } from '../services/api';
+import api, { createProduct, createSupplier, createOrder, createSale, createUser, createEmployee, createCustomer, createPayroll, createGoodsReceipt, generatePayroll, createPricingRule, getPricingRules } from '../services/api';
 
 const FormModal = ({ type, metadata, onClose, categories, suppliers, products, departments, users, customers, employees, warehouses, tenants, user }: any) => {
     const [formData, setFormData] = useState<any>({});
     const [reconcileData, setReconcileData] = useState<any>(null);
+    const [pricingRules, setPricingRules] = useState<any[]>([]);
+    const [pricingRulesLoading, setPricingRulesLoading] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,6 +40,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             customers: { name: '', email: '', phone: '', address: '', city: '', state: '', gstNumber: '' },
             payroll: { employeeId: metadata?.id || '', amount: metadata?.salary || 0, month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }), status: 'PAID', incentive: 0, overtimeAmount: 0 },
             pricing_rule: { productId: metadata?.id || '', name: 'Volume Discount', minQuantity: 10, discountPercent: 5.0 },
+            view_batches: { productId: metadata?.id || '', warehouseId: warehouses?.[0]?.id || '', quantity: 1, costPrice: metadata?.costPrice || 0, batchNumber: `BATCH-${Date.now()}`, expiryDate: '' },
             requisitions: { items: metadata?.productId ? [{ productId: metadata.productId, quantity: 12 }] : [{ productId: '', quantity: 1 }], priority: 'MEDIUM', notes: '' },
             grn: {
                 warehouseId: warehouses?.[0]?.id || '',
@@ -84,6 +87,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             help: 'SYSTEM DOCUMENTATION',
             view_batches: 'STOCK BATCH ANALYSIS'
             ,
+            pricing_rule: 'PRICING RULE',
             reconcile: 'RECONCILIATION'
         };
         return mapping[type] || 'PROTOCOL ENTRY';
@@ -103,6 +107,25 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
         })();
         return () => { mounted = false; };
     }, [type]);
+
+    useEffect(() => {
+        if (type !== 'pricing_rule' || !metadata?.id) return;
+
+        let mounted = true;
+        setPricingRulesLoading(true);
+        getPricingRules()
+            .then((response) => {
+                if (mounted) setPricingRules(response.data.filter((rule: any) => rule.productId === metadata.id));
+            })
+            .catch(() => {
+                if (mounted) setPricingRules([]);
+            })
+            .finally(() => {
+                if (mounted) setPricingRulesLoading(false);
+            });
+
+        return () => { mounted = false; };
+    }, [type, metadata?.id]);
 
     const generateReceipt = (sale: any) => {
         const doc = new jsPDF() as any;
@@ -229,6 +252,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             if (type === 'products' || type === 'inventory') await createProduct(formData);
             if (type === 'suppliers') await createSupplier(formData);
             if (type === 'orders' || type === 'purchases') await createOrder(formData);
+            if (type === 'pricing_rule') await createPricingRule(formData);
+            if (type === 'view_batches') await api.post('/inventory/inward', formData);
             if (type === 'payment') await api.post('/accounts/payment', formData);
             if (type === 'sales') {
                 const resp = await createSale(formData);
@@ -388,7 +413,54 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: '12px' }}>RECORD NEW BATCH</div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                            <div className="form-group"><label>WAREHOUSE</label><select value={formData.warehouseId || ''} onChange={e => setFormData({ ...formData, warehouseId: e.target.value })} required><option value="">Select warehouse</option>{warehouses?.map((warehouse: any) => <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>)}</select></div>
+                                            <div className="form-group"><label>BATCH #</label><input value={formData.batchNumber || ''} onChange={e => setFormData({ ...formData, batchNumber: e.target.value })} required /></div>
+                                            <div className="form-group"><label>QUANTITY</label><input type="number" min="1" value={formData.quantity ?? 1} onChange={e => setFormData({ ...formData, quantity: Number(e.target.value) })} required /></div>
+                                            <div className="form-group"><label>COST PRICE</label><input type="number" min="0" step="0.01" value={formData.costPrice ?? 0} onChange={e => setFormData({ ...formData, costPrice: Number(e.target.value) })} required /></div>
+                                            <div className="form-group"><label>EXPIRY DATE (OPTIONAL)</label><input type="date" value={formData.expiryDate || ''} onChange={e => setFormData({ ...formData, expiryDate: e.target.value })} /></div>
+                                        </div>
+                                    </div>
                                 </div>
+                            )}
+
+                            {type === 'pricing_rule' && (
+                                <>
+                                    <div style={{ background: 'var(--bg-hover)', padding: '15px', borderRadius: '12px' }}>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>CONFIGURING PRICING FOR</div>
+                                        <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{metadata?.name}</div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>RULE NAME</label>
+                                        <input value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                        <div className="form-group">
+                                            <label>MINIMUM QUANTITY</label>
+                                            <input type="number" min="1" value={formData.minQuantity ?? 1} onChange={e => setFormData({ ...formData, minQuantity: Number(e.target.value) })} required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>DISCOUNT (%)</label>
+                                            <input type="number" min="0" max="100" step="0.01" value={formData.discountPercent ?? 0} onChange={e => setFormData({ ...formData, discountPercent: Number(e.target.value) })} required />
+                                        </div>
+                                    </div>
+                                    <div className="table-container" style={{ maxHeight: '180px' }}>
+                                        <table>
+                                            <thead><tr><th>ACTIVE RULES</th><th>MIN. QTY</th><th>DISCOUNT</th></tr></thead>
+                                            <tbody>
+                                                {pricingRulesLoading ? (
+                                                    <tr><td colSpan={3} style={{ textAlign: 'center', opacity: 0.6 }}>Loading rules...</td></tr>
+                                                ) : pricingRules.length ? pricingRules.map((rule: any) => (
+                                                    <tr key={rule.id}><td>{rule.name}</td><td>{rule.minQuantity}</td><td>{rule.discountPercent}%</td></tr>
+                                                )) : (
+                                                    <tr><td colSpan={3} style={{ textAlign: 'center', opacity: 0.6 }}>No pricing rules configured.</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
                             )}
 
                             {type === 'generate_all_payroll' && (
@@ -904,8 +976,8 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <Pause size={18} /> PARK
                             </button>
                         )}
-                        <button className="btn btn-primary" type={type === 'help' || type === 'reconcile' ? 'button' : 'submit'} onClick={type === 'help' || type === 'reconcile' ? onClose : undefined} style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
-                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'reconcile' ? 'CLOSE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? 'PRINT GST INVOICE [F9]' : 'CONFIRM TRANSACTION')))}
+                        <button className="btn btn-primary" type={['help', 'reconcile'].includes(type) ? 'button' : 'submit'} onClick={['help', 'reconcile'].includes(type) ? onClose : undefined} style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
+                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'reconcile' ? 'CLOSE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? 'PRINT GST INVOICE [F9]' : (type === 'pricing_rule' ? 'SAVE RULE' : (type === 'view_batches' ? 'ADD BATCH' : 'CONFIRM TRANSACTION')))))}
                         </button>
                     </div>
                 </form>

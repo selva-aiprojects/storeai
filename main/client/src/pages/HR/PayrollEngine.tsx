@@ -25,9 +25,11 @@ const PayrollEngine = () => {
     const processPayroll = async (empId: string) => {
         setProcessing(empId);
         try {
-            const resp = await api.post('/hr/payroll/process', { employeeId: empId, month, year });
-            const slipResp = await api.get(`/hr/payroll/slip?employeeId=${empId}&month=${month}&year=${year}`);
-            setSlips(prev => ({ ...prev, [empId]: slipResp.data }));
+            const monthStr = `${year}-${String(month).padStart(2, '0')}`;
+            const response = await api.post('/hr/payroll/generate', { employeeId: empId, monthStr });
+            setSlips(prev => ({ ...prev, [empId]: response.data }));
+        } catch (error: any) {
+            alert(error.response?.data?.error || 'Unable to generate the payroll slip.');
         } finally {
             setProcessing(null);
         }
@@ -81,7 +83,7 @@ const PayrollEngine = () => {
                                         {slip ? (
                                             <div className="text-right mr-4">
                                                 <div className="text-xs text-gray-400">Net Payable</div>
-                                                <div className="text-lg font-black text-green-600">₹{slip.netAmount?.toLocaleString()}</div>
+                                                <div className="text-lg font-black text-green-600">₹{slip.netSalary?.toLocaleString()}</div>
                                             </div>
                                         ) : null}
 

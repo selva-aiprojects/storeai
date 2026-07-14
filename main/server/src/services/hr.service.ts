@@ -33,21 +33,39 @@ export const HRService = {
     /**
      * Generate Payroll for Employee
      */
-    async generatePayrollForEmployee(employeeId: string, monthStr: string) {
+    async generatePayrollForEmployee(employeeId: string, monthStr: string, tenantId: string) {
         // monthStr format: "YYYY-MM"
         const [year, month] = monthStr.split('-').map(Number);
 
         // 1. Get Employee & Structure
-        const employee = await prisma.employee.findUnique({
-            where: { id: employeeId },
+        const employee = await prisma.employee.findFirst({
+            where: { id: employeeId, department: { tenantId } },
             include: { salaryStructure: true }
         });
 
-        if (!employee || !employee.salaryStructure) {
-            throw new Error("Employee or Salary Structure not found");
+        if (!employee) {
+            throw new Error("Employee not found in this organization");
         }
 
-        const structure = employee.salaryStructure;
+        // Prevent duplicate slips when Generate Slip is clicked again.
+        const existingPayroll = await prisma.payroll.findFirst({
+            where: { employeeId, month: monthStr },
+            orderBy: { createdAt: 'desc' }
+        });
+        if (existingPayroll) return existingPayroll;
+
+        // Salary structures are optional during employee onboarding. Use the
+        // employee's base salary until detailed components are configured.
+        const structure = employee.salaryStructure || {
+            basic: employee.salary || 0,
+            hra: 0,
+            medical: 0,
+            transport: 0,
+            special: 0,
+            da: 0,
+            providentFund: (employee.salary || 0) * 0.12,
+            professionalTax: 200
+        };
 
         // 2. Calculate LOP
         const lopDays = await this.calculateLopDays(employeeId, month, year);
