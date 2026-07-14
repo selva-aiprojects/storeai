@@ -80,7 +80,7 @@ app.use(morgan('combined', { stream: httpLogStream }));
 
 // Initialize scheduled jobs (audit log archival, etc.)
 import initializeScheduledJobs from './utils/scheduler';
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && process.env.VERCEL !== '1') {
     initializeScheduledJobs();
 }
 
@@ -125,13 +125,12 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 const startServer = async () => {
-    await ensureAdminAccessOnBoot();
+    if (process.env.VERCEL === '1') return;
 
-    if (process.env.VERCEL !== '1') {
-        app.listen(PORT, () => {
-            logger.info(`StoreAI Enterprise Server running on port ${PORT}`);
-        });
-    }
+    await ensureAdminAccessOnBoot();
+    app.listen(PORT, () => {
+        logger.info(`StoreAI Enterprise Server running on port ${PORT}`);
+    });
 };
 
 startServer().catch((error) => {

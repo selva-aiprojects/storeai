@@ -24,34 +24,39 @@ const fileFormat = winston.format.combine(
     winston.format.json()
 );
 
-// Create logger instance
-export const logger = winston.createLogger({
-    level: process.env.LOG_LEVEL || 'info',
-    defaultMeta: { service: 'storeai-backend' },
-    transports: [
-        // Error logs - separate file for critical issues
+const isServerless = process.env.VERCEL === '1';
+const transports: winston.transport[] = [
+    new winston.transports.Console({
+        format: consoleFormat,
+        level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
+    }),
+];
+
+// Vercel function filesystems are read-only. Persist logs only on long-lived
+// server processes and send serverless logs to Vercel's console collector.
+if (!isServerless) {
+    transports.unshift(
         new winston.transports.File({
             filename: path.join(logsDir, 'error.log'),
             level: 'error',
             format: fileFormat,
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880,
             maxFiles: 5,
         }),
-
-        // Combined logs - all log levels
         new winston.transports.File({
             filename: path.join(logsDir, 'combined.log'),
             format: fileFormat,
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880,
             maxFiles: 10,
-        }),
+        })
+    );
+}
 
-        // Console output - for development
-        new winston.transports.Console({
-            format: consoleFormat,
-            level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
-        }),
-    ],
+// Create logger instance
+export const logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    defaultMeta: { service: 'storeai-backend' },
+    transports,
 });
 
 // Stream for Morgan HTTP logging
