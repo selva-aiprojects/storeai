@@ -31,6 +31,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             suppliers: { name: '', email: '', contact: '', status: 'ACTIVE', paymentTerms: 'Net 30' },
             orders: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
             purchases: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
+            tenant: { name: '', slug: '', logo: '', planId: 'PRO' },
             payment: { title: 'Payment Processing', amount: 0, method: 'BANK_TRANSFER', type: 'PAYABLE', category: 'GENERAL', description: '' },
             sales: { items: [{ productId: '', quantity: 1, unitPrice: 0 }], customerId: '', team: 'SALES', isHomeDelivery: false, deliveryAddress: '', deliveryCity: '', amountPaid: 0, paymentMethod: 'CASH' },
             users: { email: '', password: '', firstName: '', lastName: '', roleCode: 'STAFF', tenantId: '' },
@@ -813,6 +814,21 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 </>
                             )}
 
+                            {type === 'tracking_po' && (
+                                <>
+                                    <div className="form-group"><label>Tracking Number</label><input value={formData.trackingNumber} onChange={e => setFormData({ ...formData, trackingNumber: e.target.value })} required /></div>
+                                    <div className="form-group"><label>Shipping Carrier</label><input value={formData.shippingCarrier} onChange={e => setFormData({ ...formData, shippingCarrier: e.target.value })} required /></div>
+                                    <div className="form-group"><label>Status</label>
+                                        <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+                                            <option value="SHIPPED">SHIPPED</option>
+                                            <option value="IN_TRANSIT">IN TRANSIT</option>
+                                            <option value="DELIVERED">DELIVERED</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group"><label>Expected Delivery Date</label><input type="date" value={formData.expectedDeliveryDate ? new Date(formData.expectedDeliveryDate).toISOString().split('T')[0] : ''} onChange={e => setFormData({ ...formData, expectedDeliveryDate: e.target.value })} /></div>
+                                </>
+                            )}
+
                             {type === 'grn' && (
                                 <>
                                     <div className="form-group"><label>Target Warehouse</label><select value={formData.warehouseId} onChange={e => setFormData({ ...formData, warehouseId: e.target.value })} required><option value="">Select Warehouse</option>{warehouses?.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}</select></div>
@@ -839,7 +855,14 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                 <>
                                     <div className="form-group">
                                         <label>Organization Name</label>
-                                        <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required placeholder="StoreAI Retail Hub" />
+                                        <input value={formData.name} onChange={e => {
+                                            const name = e.target.value;
+                                            setFormData({
+                                                ...formData,
+                                                name,
+                                                slug: formData.slug || name.toLowerCase().trim().replace(/\s+/g, '-')
+                                            });
+                                        }} required placeholder="StoreAI Retail Hub" />
                                     </div>
                                     <div className="form-group">
                                         <label>URL Slug (Unique ID)</label>

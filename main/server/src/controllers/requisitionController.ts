@@ -26,9 +26,26 @@ export const createRequisition = async (req: AuthRequest, res: Response) => {
         const tenantId = req.user?.tenantId;
         const { items, notes, priority } = req.body;
 
-        const employee = await prisma.employee.findFirst({
+        let employee = await prisma.employee.findFirst({
             where: { userId: req.user?.id }
         });
+
+        if (!employee) {
+            const defaultDept = await prisma.department.findFirst({ where: { tenantId: tenantId! } }) 
+                || await prisma.department.create({ data: { name: 'System Admin', tenantId: tenantId! } });
+            employee = await prisma.employee.create({
+                data: {
+                    userId: req.user?.id,
+                    employeeId: `EMP-SYS-${Date.now()}`,
+                    firstName: 'System',
+                    lastName: 'User',
+                    designation: 'Administrator',
+                    joiningDate: new Date(),
+                    salary: 0,
+                    departmentId: defaultDept.id
+                }
+            });
+        }
 
         if (!employee) return res.status(403).json({ error: 'Employee profile not found' });
 

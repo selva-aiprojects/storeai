@@ -257,6 +257,13 @@ export const getOrders = async (req: AuthRequest, res: Response) => {
                 supplier: {
                     select: { name: true }
                 },
+                items: {
+                    include: { product: true }
+                },
+                trackingNumber: true,
+                shippingCarrier: true,
+                shippedAt: true,
+                expectedDeliveryDate: true,
                 _count: {
                     select: { items: true, goodsReceipts: true }
                 }
