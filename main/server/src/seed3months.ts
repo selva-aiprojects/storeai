@@ -239,7 +239,7 @@ async function seedCompleteEnterpriseData() {
         data: {
           employeeId: emp.id,
           month: `${m.name}`,
-          basicPay: basic,
+          basicSalary: basic,
           hra,
           allowances,
           deductions: pfDeduction,
