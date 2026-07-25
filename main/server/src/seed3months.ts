@@ -245,6 +245,7 @@ async function seedCompleteEnterpriseData() {
           deductions: pfDeduction,
           netSalary: netPay,
           amount: netPay,
+          totalPayout: netPay,
           status: 'PAID',
           paymentDate: payrollDate,
           tenantId: tenant.id
