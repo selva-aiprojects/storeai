@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
+/* Import Unified Professional Design System — MUST be first so CSS variables cascade */
+@import './styles/unified-theme.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Unified Professional Design System */
 
 /* =========================================================
    STORE AI - ELITE ENTERPRISE THEME (New Branding)
@@ -49,7 +50,7 @@
   --danger: #ef4444;
 
   /* Layout Constants */
-  --sidebar-width: 260px;
+  --sidebar-width: 280px;
   --header-height: 88px;
   --border-color: #e2e8f0;
   /* Slate 200 */
@@ -494,7 +495,7 @@ h6 {
   box-shadow: 0 30px 90px rgba(15, 23, 42, 0.4);
   width: 95vw;
   max-width: 960px;
-  min-height: 75vh;
+  min-height: auto;
   max-height: 92vh;
   display: flex;
   flex-direction: column;
@@ -503,9 +504,15 @@ h6 {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.modal-compact {
+  max-width: 620px;
+  min-height: auto !important;
+  border-radius: 20px;
+}
+
 .modal-wide {
-  max-width: 1440px;
-  min-height: 85vh;
+  max-width: 1380px;
+  min-height: 80vh;
 }
 
 .modal-fullscreen {

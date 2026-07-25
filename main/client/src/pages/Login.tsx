@@ -219,8 +219,41 @@ const Login = ({ setUser }: any) => {
                         >
                             {loading ? "AUTHORIZING..." : "SIGN IN TO WORKSPACE"}
                         </button>
-
                     </form>
+
+                    {/* Quick Demo Login Presets */}
+                    <div className="mt-5 border-t border-slate-100 pt-4">
+                        <span className="text-[10px] font-bold tracking-wider uppercase text-slate-400 block mb-2">
+                            ⚡ Quick Demo Login Shortcuts
+                        </span>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setAuthForm({
+                                    email: "admin.1785002808043@apexretail.com",
+                                    password: "ApexAdmin@2026",
+                                    tenantSlug: "apex-retail-1785002802666"
+                                })}
+                                className="p-2.5 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 border border-emerald-200/80 rounded-xl text-left transition-all"
+                            >
+                                <span className="block text-[11px] font-extrabold text-emerald-900">🏢 Apex Global Retail</span>
+                                <span className="block text-[9px] text-emerald-700 font-mono mt-0.5">3 Months Seeded Data</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setAuthForm({
+                                    email: "admin@storeai.com",
+                                    password: "Admin@123",
+                                    tenantSlug: "storeai"
+                                })}
+                                className="p-2.5 bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200/80 rounded-xl text-left transition-all"
+                            >
+                                <span className="block text-[11px] font-extrabold text-indigo-900">👑 SuperAdmin Hub</span>
+                                <span className="block text-[9px] text-indigo-700 font-mono mt-0.5">All Tenants Admin</span>
+                            </button>
+                        </div>
+                    </div>
 
                     {/* Footer */}
                     <div className="mt-4 text-center text-[10px] text-slate-400 font-semibold">

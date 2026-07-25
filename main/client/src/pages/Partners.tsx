@@ -1,5 +1,6 @@
 import { useOutletContext } from 'react-router-dom';
 import { Plus, Phone, Mail, Award, Building2, ShieldCheck, MapPin, Clock, DollarSign } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 const Partners = () => {
     const { data, setModal } = useOutletContext<any>();
@@ -16,25 +17,22 @@ const Partners = () => {
 
     return (
         <div className="space-y-6 font-['Outfit']">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold shadow-lg shadow-orange-500/20">
-                        <Building2 className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Supplier & Vendor Partners Master</h1>
-                        <p className="text-sm font-medium text-slate-500">Manage vendor GSTIN tax IDs, MSME certifications, lead times & accounts payable ledgers</p>
-                    </div>
-                </div>
-
-                <button
-                    onClick={() => setModal({ type: 'suppliers' })}
-                    className="px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-orange-500/20 flex items-center gap-2 transition-all hover:scale-105"
-                >
-                    <Plus className="w-4 h-4" /> ONBOARD NEW SUPPLIER
-                </button>
-            </div>
+            <PageHeader
+                title="Supplier & Vendor Master"
+                subtitle="Manage vendor GSTIN tax IDs, MSME certifications, lead times & accounts payable ledgers"
+                icon={Building2}
+                badge={`${displaySuppliers.length} VENDORS`}
+                badgeColor="amber"
+                iconGradient="from-amber-500 to-orange-600"
+                actions={
+                    <button
+                        onClick={() => setModal({ type: 'suppliers' })}
+                        className="px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-orange-500/20 flex items-center gap-2 transition-all hover:scale-105"
+                    >
+                        <Plus className="w-4 h-4" /> ONBOARD NEW SUPPLIER
+                    </button>
+                }
+            />
 
             {/* Suppliers Data Table */}
             <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">

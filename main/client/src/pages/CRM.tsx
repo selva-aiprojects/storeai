@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, Plus, PhoneCall, Mail, DollarSign, X, CheckCircle, Sparkles } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 export default function CRM() {
     const [leads, setLeads] = useState([
@@ -40,24 +41,22 @@ export default function CRM() {
 
     return (
         <div className="space-y-6 font-['Outfit']">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 flex items-center justify-center font-bold">
-                        <Users className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">CRM & Sales Pipeline</h1>
-                        <p className="text-sm text-slate-500">Track leads, deal stages, RFQ proposals & interaction timelines</p>
-                    </div>
-                </div>
-                <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                    <Plus className="w-4 h-4" /> Add New Lead / Deal
-                </button>
-            </div>
+            <PageHeader
+                title="CRM & Sales Pipeline"
+                subtitle="Track leads, deal stages, RFQ proposals & interaction timelines"
+                icon={Users}
+                badge={`${leads.length} DEALS`}
+                badgeColor="cyan"
+                iconGradient="from-teal-500 to-emerald-600"
+                actions={
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="px-5 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-2xl font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/20 transition-all hover:scale-105"
+                    >
+                        <Plus className="w-4 h-4" /> Add New Lead / Deal
+                    </button>
+                }
+            />
 
             {/* Pipeline Kanban Board */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 overflow-x-auto pb-4">

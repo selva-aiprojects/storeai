@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { getGlobalProducts } from '../services/api';
 import { Package, Building2, Search, MapPin, Tag, ShieldCheck, RefreshCw } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 const GlobalInventory = () => {
     const { setModal } = useOutletContext<any>() as any;
@@ -48,49 +49,46 @@ const GlobalInventory = () => {
 
     return (
         <div className="space-y-6 font-['Outfit']">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-cyan-500/20">
-                        <Package className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Global Stock Master & Audit</h1>
-                        <p className="text-sm font-medium text-slate-500">Cross-tenant multi-warehouse inventory valuation & HSN audit (Super Admin)</p>
-                    </div>
-                </div>
+            <PageHeader
+                title="Global Stock Master & Audit"
+                subtitle="Cross-tenant multi-warehouse inventory valuation & HSN audit (Super Admin)"
+                icon={Package}
+                badge={`${filtered.length} GLOBAL ITEMS`}
+                badgeColor="cyan"
+                iconGradient="from-cyan-500 to-blue-600"
+                actions={
+                    <>
+                        <div className="relative">
+                            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Search SKU or Name..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 w-[200px]"
+                            />
+                        </div>
 
-                <div className="flex items-center gap-3 flex-wrap">
-                    <div className="relative">
-                        <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search SKU or Product Name..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-cyan-500 w-[220px]"
-                        />
-                    </div>
+                        <select
+                            value={tenantFilter}
+                            onChange={(e) => setTenantFilter(e.target.value)}
+                            className="py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none"
+                        >
+                            <option value="">All Tenant Workspaces</option>
+                            {tenants.map(t => (
+                                <option key={t as string} value={t as string}>{t as string}</option>
+                            ))}
+                        </select>
 
-                    <select
-                        value={tenantFilter}
-                        onChange={(e) => setTenantFilter(e.target.value)}
-                        className="py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none"
-                    >
-                        <option value="">All Tenant Workspaces</option>
-                        {tenants.map(t => (
-                            <option key={t as string} value={t as string}>{t as string}</option>
-                        ))}
-                    </select>
-
-                    <button
-                        onClick={fetchGlobalData}
-                        className="p-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold text-xs flex items-center gap-1 shadow-md transition-colors"
-                    >
-                        <RefreshCw className="w-4 h-4" /> Refresh
-                    </button>
-                </div>
-            </div>
+                        <button
+                            onClick={fetchGlobalData}
+                            className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition-colors"
+                        >
+                            <RefreshCw className="w-4 h-4" /> Refresh
+                        </button>
+                    </>
+                }
+            />
 
             {/* Table */}
             <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">

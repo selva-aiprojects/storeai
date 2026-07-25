@@ -1,8 +1,4 @@
 /* =======================
-   Responsive System (Light Edition)
-   ======================= */
-
-/* =======================
    Responsive System (Modern Enterprise Edition)
    ======================= */
 
@@ -79,19 +75,16 @@
         gap: 12px;
     }
 
-    /* Fixed Table Overlap */
     .table-container {
         border-radius: var(--radius-md);
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         border: 1px solid var(--border-color);
         margin: 0 -4px;
-        /* Slight bleed for better reach */
     }
 
     table {
         min-width: 650px;
-        /* Ensure enough space for data columns */
     }
 
     th,
@@ -100,7 +93,6 @@
         white-space: nowrap;
     }
 
-    /* POS Mobile Fixes */
     .pos-container {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -111,7 +103,6 @@
         font-size: 0.8rem;
     }
 
-    /* Footer Mobile */
     .footer {
         flex-direction: column !important;
         align-items: flex-start !important;
@@ -122,18 +113,28 @@
     .footer-copyright {
         font-size: 0.65rem;
     }
+
+    .modal-compact {
+        max-width: 90% !important;
+        border-radius: 16px;
+    }
 }
 
 @media (max-width: 480px) {
     .header-title {
         display: none !important;
-        /* Hide title on very small screens to give space for actions */
     }
 
     .modal {
-        width: 95% !important;
-        padding: 16px !important;
-        border-radius: var(--radius-lg);
+        width: 100% !important;
+        max-height: 94vh !important;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .modal-compact {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 16px 16px 0 0;
     }
 
     .btn {

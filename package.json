@@ -3,5 +3,8 @@
     "store-ai-client": "file:main/client",
     "tsc": "^2.0.4",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.0"
   }
 }

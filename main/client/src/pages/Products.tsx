@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Package, Tag, Layers, ArrowUpRight, Plus, ShieldCheck, MapPin, DollarSign, Percent, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '../components/PageHeader';
 
 const Products = () => {
     const { data, setModal } = useOutletContext<any>() as any;
@@ -19,26 +20,23 @@ const Products = () => {
     const displayProducts = (products && products.length > 0) ? products : demoProducts;
 
     return (
-        <div className="px-2.5 max-w-[1600px] mx-auto font-['Outfit'] space-y-6">
-            {/* Header/Banner */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-500/20">
-                        <Package className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Enterprise Product Catalog</h1>
-                        <p className="text-sm font-medium text-slate-500">Master inventory records, HSN codes, cost margins & GST tax brackets</p>
-                    </div>
-                </div>
-
-                <button
-                    onClick={() => setModal({ type: 'products' })}
-                    className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-extrabold text-xs tracking-wider uppercase flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all hover:scale-105"
-                >
-                    <Plus className="w-4 h-4" /> Add New Master Product
-                </button>
-            </div>
+        <div className="px-2.5 max-w-[1600px] mx-auto font-['Outfit']">
+            <PageHeader
+                title="Enterprise Product Catalog"
+                subtitle="Master inventory records, HSN codes, cost margins & GST tax brackets"
+                icon={Package}
+                badge={`${displayProducts.length} MASTER SKUs`}
+                badgeColor="cyan"
+                iconGradient="from-blue-600 to-indigo-600"
+                actions={
+                    <button
+                        onClick={() => setModal({ type: 'products' })}
+                        className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-extrabold text-xs tracking-wider uppercase flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all hover:scale-105"
+                    >
+                        <Plus className="w-4 h-4" /> Add New Master Product
+                    </button>
+                }
+            />
 
             {/* Products Grid */}
             <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-6 pb-10">

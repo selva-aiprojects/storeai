@@ -54,6 +54,11 @@ import LoyaltyProgram from './pages/LoyaltyProgram';
 import SubscriptionBilling from './pages/SubscriptionBilling';
 import WarehouseBins from './pages/WarehouseBins';
 
+import { CurrencyProvider } from './context/CurrencyContext';
+import { LanguageProvider } from './context/LanguageContext';
+import { Promotions } from './pages/Promotions';
+import { LogisticsFulfillment } from './pages/LogisticsFulfillment';
+
 
 function App() {
     const [user, setUser] = useState<any>(null);
@@ -165,92 +170,101 @@ function App() {
         setLoading(false);
     };
 
+    // Derive tenant's home currency from merged plan/tenant features — fallback to INR
+    const tenantCurrency: string = (user?.features?.currency as string) || 'INR';
+
     return (
-        <Router>
-            {!user ? (
-                <Routes>
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/login" element={<Login setUser={setUser} />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-            ) : (
-                <Routes>
-                    <Route element={<DashboardLayout user={user} logout={() => {
-                        localStorage.clear();
-                        sessionStorage.clear();
-                        window.location.href = '/'; // Force hard reload to clear all react state
-                        setUser(null);
-                    }} refreshData={refreshData} setModal={setModal} data={data} loading={loading} />}>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/products" element={<Products />} />
-                        <Route path="/inventory" element={<Inventory />} />
-                        <Route path="/sales" element={<Sales />} />
-                        <Route path="/returns" element={<Returns />} />
-                        <Route path="/purchases" element={<Purchases />} />
-                        <Route path="/daybook" element={<Daybook />} />
-                        <Route path="/ledger" element={<GeneralLedger />} />
-                        <Route path="/ledger/:entityId" element={<IndividualLedger />} />
-                        <Route path="/balance-sheet" element={<BalanceSheet />} />
-                        <Route path="/liability" element={<LiabilityTracker />} />
-                        <Route path="/gst" element={<GSTCompliance />} />
-                        <Route path="/pl" element={<ProfitLoss />} />
-                        <Route path="/config-finance" element={<ConfigSettings />} />
-                        <Route path="/reports" element={<Reports />} />
-                        <Route path="/partners" element={<Partners />} />
-                        <Route path="/customers" element={<Customers />} />
-                        <Route path="/hr-master" element={<EmployeeMaster />} />
-                        <Route path="/attendance" element={<AttendanceMaster />} />
-                        <Route path="/payroll" element={<PayrollEngine />} />
-                        <Route path="/hr-reports" element={<HRReports />} />
-                        <Route path="/accounts" element={<Accounts />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/administration" element={<Administration />} />
-                        <Route path="/assistant" element={<Assistant />} />
-                        <Route path="/global-inventory" element={<GlobalInventory />} />
-                        <Route path="/pos" element={<POS products={data.products} />} />
-                        <Route path="/storefront" element={<Storefront products={data.products} />} />
-                        <Route path="/vendor-portal" element={<VendorPortal />} />
-                        <Route path="/customer-portal" element={<CustomerPortal />} />
-                        <Route path="/crm" element={<CRM />} />
-                        <Route path="/loyalty" element={<LoyaltyProgram />} />
-                        <Route path="/subscriptions" element={<SubscriptionBilling />} />
-                        <Route path="/warehouse-bins" element={<WarehouseBins />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
+        <CurrencyProvider tenantCurrency={tenantCurrency}>
+            <LanguageProvider>
+                <Router>
+                    {!user ? (
+                        <Routes>
+                            <Route path="/" element={<Landing />} />
+                            <Route path="/login" element={<Login setUser={setUser} />} />
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    ) : (
+                        <Routes>
+                            <Route element={<DashboardLayout user={user} logout={() => {
+                                localStorage.clear();
+                                sessionStorage.clear();
+                                window.location.href = '/'; // Force hard reload to clear all react state
+                                setUser(null);
+                            }} refreshData={refreshData} setModal={setModal} data={data} loading={loading} />}>
+                                <Route path="/" element={<Dashboard />} />
+                                <Route path="/products" element={<Products />} />
+                                <Route path="/inventory" element={<Inventory />} />
+                                <Route path="/sales" element={<Sales />} />
+                                <Route path="/returns" element={<Returns />} />
+                                <Route path="/purchases" element={<Purchases />} />
+                                <Route path="/daybook" element={<Daybook />} />
+                                <Route path="/ledger" element={<GeneralLedger />} />
+                                <Route path="/ledger/:entityId" element={<IndividualLedger />} />
+                                <Route path="/balance-sheet" element={<BalanceSheet />} />
+                                <Route path="/liability" element={<LiabilityTracker />} />
+                                <Route path="/gst" element={<GSTCompliance />} />
+                                <Route path="/pl" element={<ProfitLoss />} />
+                                <Route path="/config-finance" element={<ConfigSettings />} />
+                                <Route path="/reports" element={<Reports />} />
+                                <Route path="/promotions" element={<Promotions />} />
+                                <Route path="/logistics" element={<LogisticsFulfillment />} />
+                                <Route path="/partners" element={<Partners />} />
+                                <Route path="/customers" element={<Customers />} />
+                                <Route path="/hr-master" element={<EmployeeMaster />} />
+                                <Route path="/attendance" element={<AttendanceMaster />} />
+                                <Route path="/payroll" element={<PayrollEngine />} />
+                                <Route path="/hr-reports" element={<HRReports />} />
+                                <Route path="/accounts" element={<Accounts />} />
+                                <Route path="/settings" element={<Settings />} />
+                                <Route path="/administration" element={<Administration />} />
+                                <Route path="/assistant" element={<Assistant />} />
+                                <Route path="/global-inventory" element={<GlobalInventory />} />
+                                <Route path="/pos" element={<POS products={data.products} />} />
+                                <Route path="/storefront" element={<Storefront products={data.products} />} />
+                                <Route path="/vendor-portal" element={<VendorPortal />} />
+                                <Route path="/customer-portal" element={<CustomerPortal />} />
+                                <Route path="/crm" element={<CRM />} />
+                                <Route path="/loyalty" element={<LoyaltyProgram />} />
+                                <Route path="/subscriptions" element={<SubscriptionBilling />} />
+                                <Route path="/warehouse-bins" element={<WarehouseBins />} />
+                                <Route path="*" element={<Navigate to="/" replace />} />
 
-                    </Route>
-                </Routes>
-            )}
+                            </Route>
+                        </Routes>
+                    )}
 
-            <AnimatePresence>
-                {modal && (
-                    <FormModal
-                        type={modal.type}
-                        metadata={modal.metadata}
-                        onClose={() => {
-                            const type = modal.type;
-                            let scope = 'essential';
-                            if (['sales', 'customers'].includes(type)) scope = 'sales';
-                            if (['orders', 'purchases', 'grn', 'suppliers', 'requisitions'].includes(type)) scope = 'purchases';
-                            if (['employees', 'payroll', 'generate_all_payroll'].includes(type)) scope = 'hr';
-                            if (['payment'].includes(type)) scope = 'finance';
+                    <AnimatePresence>
+                        {modal && (
+                            <FormModal
+                                type={modal.type}
+                                metadata={modal.metadata}
+                                onClose={() => {
+                                    const type = modal.type;
+                                    let scope = 'essential';
+                                    if (['sales', 'customers'].includes(type)) scope = 'sales';
+                                    if (['orders', 'purchases', 'grn', 'suppliers', 'requisitions'].includes(type)) scope = 'purchases';
+                                    if (['employees', 'payroll', 'generate_all_payroll'].includes(type)) scope = 'hr';
+                                    if (['payment'].includes(type)) scope = 'finance';
 
-                            setModal(null);
-                            refreshData(scope);
-                        }}
-                        categories={data.categories}
-                        suppliers={data.suppliers}
-                        products={data.products}
-                        departments={data.departments}
-                        users={data.users}
-                        customers={data.customers}
-                        employees={data.employees}
-                        warehouses={data.warehouses}
-                        tenants={data.tenants}
-                        user={user}
-                    />
-                )}
-            </AnimatePresence>
-        </Router>
+                                    setModal(null);
+                                    refreshData(scope);
+                                }}
+                                categories={data.categories}
+                                suppliers={data.suppliers}
+                                products={data.products}
+                                departments={data.departments}
+                                users={data.users}
+                                customers={data.customers}
+                                employees={data.employees}
+                                warehouses={data.warehouses}
+                                tenants={data.tenants}
+                                user={user}
+                            />
+                        )}
+                    </AnimatePresence>
+                </Router>
+            </LanguageProvider>
+        </CurrencyProvider>
     );
 }
 

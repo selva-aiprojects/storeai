@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import PageHeader from '../components/PageHeader';
 
 interface CartItem {
     id: string;
@@ -216,54 +217,45 @@ export default function POS({ products = [] }: { products?: any[] }) {
     return (
         <div className={`font-['Outfit'] transition-all ${isFullscreen ? 'fixed inset-0 z-[99999] bg-slate-950 text-white p-6 overflow-y-auto' : 'space-y-5'}`}>
             
-            {/* TOP POS TERMINAL BAR */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-5 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                        <ShoppingCart className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                                Point of Sale (POS) Terminal
-                            </h1>
-                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 rounded-md">
-                                REG-01 • ACTIVE
-                            </span>
-                        </div>
-                        <p className="text-xs text-slate-500">Cashier register workspace with GST tax breakdown & home delivery options</p>
-                    </div>
-                </div>
+            {/* UNIFIED ENTERPRISE PAGE HEADER */}
+            <PageHeader
+                title="Point of Sale (POS) Terminal"
+                subtitle="Cashier register workspace with GST tax breakdown & home delivery options"
+                icon={ShoppingCart}
+                badge="REG-01 • ACTIVE"
+                badgeColor="emerald"
+                iconGradient="from-emerald-500 to-teal-600"
+                actions={
+                    <>
+                        <button
+                            onClick={() => setIsOnline(!isOnline)}
+                            className={`px-3 py-2 rounded-2xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${isOnline ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200'}`}
+                        >
+                            {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                            {isOnline ? 'ONLINE' : 'OFFLINE MODE'}
+                        </button>
 
-                <div className="flex items-center gap-2.5 flex-wrap">
-                    <button
-                        onClick={() => setIsOnline(!isOnline)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${isOnline ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200'}`}
-                    >
-                        {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-                        {isOnline ? 'ONLINE' : 'OFFLINE MODE'}
-                    </button>
+                        <button
+                            onClick={() => setIsFullscreen(!isFullscreen)}
+                            className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-extrabold rounded-2xl flex items-center gap-1.5 transition-colors"
+                        >
+                            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                            {isFullscreen ? 'EXIT FULLSCREEN' : 'FULLSCREEN TERMINAL'}
+                        </button>
 
-                    <button
-                        onClick={() => setIsFullscreen(!isFullscreen)}
-                        className="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
-                    >
-                        {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-                        {isFullscreen ? 'EXIT FULLSCREEN' : 'FULLSCREEN TERMINAL'}
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            setCart([]);
-                            setCashReceived(0);
-                            setDiscountAmount(0);
-                        }}
-                        className="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
-                    >
-                        <RotateCcw className="w-4 h-4" /> CLEAR CART
-                    </button>
-                </div>
-            </div>
+                        <button
+                            onClick={() => {
+                                setCart([]);
+                                setCashReceived(0);
+                                setDiscountAmount(0);
+                            }}
+                            className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-extrabold rounded-2xl flex items-center gap-1.5 transition-colors"
+                        >
+                            <RotateCcw className="w-4 h-4" /> CLEAR CART
+                        </button>
+                    </>
+                }
+            />
 
             {/* CATEGORY FILTER TABS */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">

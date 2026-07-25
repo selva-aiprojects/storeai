@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Award, Gift, Sparkles, Star, Plus, X, CheckCircle } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 export default function LoyaltyProgram() {
     const [tiers, setTiers] = useState([
@@ -40,24 +41,22 @@ export default function LoyaltyProgram() {
 
     return (
         <div className="space-y-6 font-['Outfit']">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center font-bold">
-                        <Award className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Loyalty & Rewards Program</h1>
-                        <p className="text-sm text-slate-500">Configure point earning rules, customer tiers & voucher redemptions</p>
-                    </div>
-                </div>
-                <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                    <Plus className="w-4 h-4" /> Add Reward Tier Rule
-                </button>
-            </div>
+            <PageHeader
+                title="Loyalty & Rewards Program"
+                subtitle="Configure point earning rules, customer tiers & voucher redemptions"
+                icon={Award}
+                badge={`${tiers.length} REWARD TIERS`}
+                badgeColor="rose"
+                iconGradient="from-rose-500 to-pink-600"
+                actions={
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="px-5 py-3 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-rose-500/20 flex items-center gap-2 transition-all hover:scale-105"
+                    >
+                        <Plus className="w-4 h-4" /> Add Reward Tier Rule
+                    </button>
+                }
+            />
 
             {/* Loyalty Tiers Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

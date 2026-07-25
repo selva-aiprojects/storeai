@@ -298,7 +298,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className={`modal ${['sales', 'grn', 'employees', 'view_batches', 'orders', 'purchases'].includes(type) ? 'modal-wide' : ''} ${isModalFullscreen ? 'modal-fullscreen' : ''}`}
+                className={`modal ${['sales', 'grn', 'employees', 'view_batches', 'orders', 'purchases'].includes(type) ? 'modal-wide' : (['tenant', 'suppliers', 'categories', 'pricing_rule', 'payment_feature', 'help', 'generate_all_payroll'].includes(type) ? 'modal-compact' : '')} ${isModalFullscreen ? 'modal-fullscreen' : ''}`}
                 onClick={e => e.stopPropagation()}
             >
                 <div className="modal-header">
@@ -895,15 +895,43 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                             }} style={{ fontSize: '0.7rem' }} />
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Initial Plan</label>
-                                        <select value={formData.planId} onChange={e => setFormData({ ...formData, planId: e.target.value })}>
-                                            <option value="PRO">PRO ($99/mo)</option>
-                                            <option value="ENTERPRISE">ENTERPRISE ($499/mo)</option>
-                                        </select>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                        <div className="form-group">
+                                            <label>Initial Plan</label>
+                                            <select value={formData.planId} onChange={e => setFormData({ ...formData, planId: e.target.value })}>
+                                                <option value="PRO">PRO ($99/mo)</option>
+                                                <option value="ENTERPRISE">ENTERPRISE ($499/mo)</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>🌐 Default Currency</label>
+                                            <select
+                                                value={formData.currency || 'INR'}
+                                                onChange={e => setFormData({ ...formData, currency: e.target.value })}
+                                                style={{ borderLeft: '3px solid var(--module-sales)' }}
+                                            >
+                                                <option value="USD">🇺🇸 USD — US Dollar</option>
+                                                <option value="EUR">🇪🇺 EUR — Euro</option>
+                                                <option value="GBP">🇬🇧 GBP — British Pound</option>
+                                                <option value="INR">🇮🇳 INR — Indian Rupee</option>
+                                                <option value="AED">🇦🇪 AED — UAE Dirham</option>
+                                                <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+                                                <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+                                                <option value="AUD">🇦🇺 AUD — Australian Dollar</option>
+                                                <option value="SGD">🇸🇬 SGD — Singapore Dollar</option>
+                                                <option value="MYR">🇲🇾 MYR — Malaysian Ringgit</option>
+                                                <option value="SAR">🇸🇦 SAR — Saudi Riyal</option>
+                                                <option value="QAR">🇶🇦 QAR — Qatari Riyal</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style={{ padding: '8px 12px', background: 'var(--module-sales-bg)', border: '1px solid var(--module-sales-light)', borderRadius: 'var(--radius-md)', fontSize: '0.7rem', color: 'var(--module-sales)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span>💡</span>
+                                        <span>The selected currency will be the tenant's default operational currency for pricing, invoicing, and financial reports. It can be updated later from tenant settings.</span>
                                     </div>
                                 </>
                             )}
+
 
                             {type === 'payment_feature' && (
                                 <>
@@ -1004,13 +1032,13 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: type === 'sales' ? '1fr 2fr' : '1fr', gap: '15px', marginTop: '20px', padding: '20px 24px 0', borderTop: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: type === 'sales' ? '1fr 2fr' : '1fr', gap: '12px', padding: '16px 24px 20px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
                         {type === 'sales' && (
-                            <button className="btn btn-secondary" type="button" onClick={parkOrder} style={{ padding: '14px', height: '54px' }}>
+                            <button className="btn btn-secondary" type="button" onClick={parkOrder} style={{ padding: '12px', height: '48px' }}>
                                 <Pause size={18} /> PARK
                             </button>
                         )}
-                        <button className="btn btn-primary" type={['help', 'reconcile'].includes(type) ? 'button' : 'submit'} onClick={['help', 'reconcile'].includes(type) ? onClose : undefined} style={{ padding: '14px', fontWeight: 900, height: '54px', fontSize: '1rem' }}>
+                        <button className="btn btn-primary" type={['help', 'reconcile'].includes(type) ? 'button' : 'submit'} onClick={['help', 'reconcile'].includes(type) ? onClose : undefined} style={{ padding: '12px', fontWeight: 800, height: '48px', fontSize: '0.95rem', borderRadius: '12px' }}>
                             {type === 'help' ? 'DISMISS GUIDE' : (type === 'reconcile' ? 'CLOSE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? 'PRINT GST INVOICE [F9]' : (type === 'pricing_rule' ? 'SAVE RULE' : (type === 'view_batches' ? 'ADD BATCH' : 'CONFIRM TRANSACTION')))))}
                         </button>
                     </div>

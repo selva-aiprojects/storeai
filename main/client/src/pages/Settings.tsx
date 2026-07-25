@@ -42,8 +42,9 @@ const Settings = () => {
 
     const handleUpdateTenant = async (id: string, updates: any) => {
         try {
+            // If currency is being updated, send it as a top-level field
+            // The backend adminUpdateTenant will merge it into features
             await api.put(`/tenants/manage/${id}`, updates);
-            alert('Tenant record updated');
             fetchAllTenants();
         } catch (error) {
             alert('Management action failed');
@@ -129,6 +130,7 @@ const Settings = () => {
                                     <tr>
                                         <th>TENANT IDENTITY</th>
                                         <th>SUBSCRIPTION PLAN</th>
+                                        <th>CURRENCY</th>
                                         <th>ACTIVE ENTITLEMENTS</th>
                                         <th>METRICS</th>
                                         <th>GOVERNANCE</th>
@@ -164,8 +166,20 @@ const Settings = () => {
                                                 </div>
                                             </td>
                                             <td>
+                                                <select
+                                                    value={(tenant.features?.currency) || 'INR'}
+                                                    onChange={(e) => handleUpdateTenant(tenant.id, { currency: e.target.value })}
+                                                    style={{ background: 'transparent', border: '1px solid var(--module-sales-light)', color: 'var(--module-sales)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', padding: '3px 6px', borderRadius: '6px' }}
+                                                    title="Set tenant default currency"
+                                                >
+                                                    {['USD','EUR','GBP','INR','AED','JPY','CAD','AUD','SGD','MYR','SAR','QAR'].map(c => (
+                                                        <option key={c} value={c} style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)' }}>{c}</option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                            <td>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '250px' }}>
-                                                    {Object.entries(tenant.features || {}).map(([key, val]) => (
+                                                    {Object.entries(tenant.features || {}).filter(([key]) => key !== 'currency').map(([key, val]) => (
                                                         val === true && (
                                                             <span key={key} style={{ fontSize: '0.55rem', padding: '2px 6px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', borderRadius: '4px', fontWeight: 700 }}>
                                                                 {key.replace('_MODULE', '')}

@@ -60,10 +60,6 @@ aiApi.interceptors.response.use((response) => {
     return response;
 }, (error) => {
     updateProgress(false);
-    if (error.response?.status === 401) {
-        // Option: handle redirect to login or show modal
-        // For now, let the component handle the error which it already does
-    }
     return Promise.reject(error);
 });
 
@@ -71,9 +67,23 @@ export const chatWithAI = async (query: string, history: any[] = []) => {
     try {
         const response = await aiApi.post('/chat', { query, history });
         return response.data;
-    } catch (error) {
-        console.error("AI Chat Error:", error);
-        throw error;
+    } catch (primaryError: any) {
+        console.warn("Primary AI endpoint unreachable, attempting fallback to core Express AI service...", primaryError);
+        const fallbackUrl = `${API_URL}/ai/chat`;
+        try {
+            const token = localStorage.getItem('store_ai_token');
+            const fallbackResponse = await axios.post(fallbackUrl, { query, history }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                timeout: 60000
+            });
+            return fallbackResponse.data;
+        } catch (fallbackError) {
+            console.error("Fallback AI Chat Error:", fallbackError);
+            throw primaryError;
+        }
     }
 };
 

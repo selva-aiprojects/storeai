@@ -218,7 +218,11 @@ export const getMe = async (req: AuthRequest, res: Response) => {
         const permissions = (activeRole.permissions || []).map((p: { code: string }) => p.code);
         const features = {
             ...((activeTenant.plan?.features as Record<string, unknown>) || {}),
-            ...((activeTenant.features as Record<string, unknown>) || {})
+            ...((activeTenant.features as Record<string, unknown>) || {}),
+            // Expose tenant's configured currency for CurrencyProvider initialization
+            currency: ((activeTenant.features as Record<string, unknown>)?.currency
+                || (activeTenant.plan?.features as Record<string, unknown>)?.currency
+                || 'INR') as string,
         };
 
         res.json({

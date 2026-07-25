@@ -9,37 +9,54 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
     const getPageTitle = () => {
         const path = location.pathname;
         const mapping: Record<string, string> = {
-            '/': 'Dashboard',
-            '/products': 'Product Catalog',
-            '/inventory': 'Stock Master',
-            '/sales': 'Sales [POS]',
-            '/returns': 'Sales Returns',
-            '/purchases': 'Procurement Hub',
-            '/partners': 'Partners',
-            '/customers': 'Customers',
-            '/hr-master': 'Employee Master',
-            '/attendance': 'Attendance Master',
-            '/payroll': 'Payroll Engine',
-            '/hr-reports': 'Statutory Reports',
-            '/daybook': 'Daybook (Daily)',
-            '/ledger': 'General Ledger',
-            '/liability': 'Liability Tracker',
-            '/gst': 'GST Compliance',
-            '/pl': 'Profit & Loss (P&L)',
-            '/config-finance': 'Finance Policies',
-            '/reports': 'Strategic Reports',
-            '/assistant': 'StoreAI Assistant',
-            '/settings': 'System Settings'
+            '/': 'Executive Dashboard',
+            '/pos': 'In-Store POS Billing',
+            '/storefront': 'Online Web E-Store',
+            '/customer-portal': 'Customer Self-Service Portal',
+            '/vendor-portal': 'Supplier & Vendor Portal',
+            '/products': 'Product & SKU Catalog',
+            '/inventory': 'Stock Master & Inventory',
+            '/warehouse-bins': 'Warehouse & Bin Storage',
+            '/sales': 'Sales Invoices & Orders',
+            '/returns': 'Sales & Customer Returns',
+            '/crm': 'CRM & Customer Relationships',
+            '/loyalty': 'Loyalty & Rewards Program',
+            '/subscriptions': 'Subscription & Recurring Billing',
+            '/purchases': 'Procurement & Vendor POs',
+            '/partners': 'Suppliers & Business Partners',
+            '/logistics': 'Logistics & Outbound Fulfillment',
+            '/customers': 'Customer Directory',
+            '/hr-master': 'Employee Directory & HR',
+            '/attendance': 'Employee Presence & Shift Logs',
+            '/payroll': 'Payroll Engine & Compensation',
+            '/hr-reports': 'Statutory & HR Compliance',
+            '/daybook': 'Daily Financial Daybook',
+            '/ledger': 'General Ledger & Accounts',
+            '/liability': 'Vendor Liability Tracker',
+            '/balance-sheet': 'Enterprise Balance Sheet',
+            '/gst': 'GST Compliance & Filing',
+            '/pl': 'Profit & Loss (P&L) Statement',
+            '/config-finance': 'Finance Policy Settings',
+            '/reports': 'Strategic Intelligence Reports',
+            '/assistant': 'StoreAI Copilot Assistant',
+            '/settings': 'System Settings & Controls',
+            '/administration': 'Tenant Access & User Management',
+            '/global-inventory': 'Multi-Store Global Inventory'
         };
+
+        if (mapping[path]) return mapping[path];
+
+        if (path.startsWith('/ledger/')) return 'Individual Account Ledger';
+
         const defaultTitle = path.substring(1)
             .split('-')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
 
-        return mapping[path] || (defaultTitle || 'Dashboard');
+        return defaultTitle || 'Executive Dashboard';
     };
 
-    const showNewButton = ['/inventory', '/sales', '/purchases', '/hr', '/customers', '/accounts'].includes(location.pathname);
+    const showNewButton = ['/inventory', '/sales', '/purchases', '/hr', '/customers', '/accounts', '/pos'].includes(location.pathname);
 
     return (
         <header className="header">
@@ -78,44 +95,42 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     className="p-2 text-gray-400 hover:text-sky-700 hover:bg-sky-50 rounded-full transition-all"
                     title="Sync Data"
                     onClick={() => {
-                        const path = location.pathname;
                         let scope = 'essential';
-                        if (path === '/sales' || path === '/customers') scope = 'sales';
-                        if (path === '/inventory' || path === '/purchases') scope = 'purchases';
-                        if (path === '/hr') scope = 'hr';
-                        if (path === '/accounts' || path === '/financials') scope = 'finance';
+                        const path = location.pathname;
+                        if (path.includes('sales') || path.includes('customer') || path.includes('pos')) scope = 'sales';
+                        if (path.includes('purchase') || path.includes('inventory') || path.includes('warehouse')) scope = 'purchases';
+                        if (path.includes('hr') || path.includes('employee') || path.includes('payroll')) scope = 'hr';
+                        if (path.includes('ledger') || path.includes('daybook') || path.includes('pl') || path.includes('gst')) scope = 'finance';
                         refreshData(scope);
                     }}
                 >
                     <RefreshCw size={18} />
                 </button>
 
-                <div className="h-6 w-px bg-gray-200 mx-1"></div>
-
-                <button
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#0061A8] to-[#00A3E0] hover:shadow-lg hover:shadow-blue-900/10 transition-all uppercase tracking-wider"
-                    onClick={() => navigate('/assistant')}
-                >
-                    <Sparkles size={16} />
-                    <span>AI Intel</span>
-                </button>
-
                 {showNewButton && (
                     <button
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-[#001a33] hover:bg-[#002244] transition-all ml-2 uppercase tracking-wider shadow-lg shadow-slate-900/10"
+                        className="btn btn-primary text-xs font-bold"
                         onClick={() => {
                             const path = location.pathname;
-                            let type = path.substring(1);
-                            if (path === '/accounts' || path === '/financials') type = 'payment';
-                            if (path === '/hr') type = 'employees';
-                            if (path === '/purchases') type = 'orders';
-                            setModal({ type });
+                            if (path.includes('sales') || path === '/pos') setModal({ type: 'sales' });
+                            else if (path.includes('purchase')) setModal({ type: 'orders' });
+                            else if (path.includes('inventory')) setModal({ type: 'products' });
+                            else if (path.includes('customers')) setModal({ type: 'customers' });
+                            else setModal({ type: 'sales' });
                         }}
                     >
                         <Plus size={16} />
-                        <span>New Entry</span>
+                        New Entry
                     </button>
                 )}
+
+                <button
+                    className="btn btn-secondary flex items-center gap-2 text-xs font-bold bg-gradient-to-r from-sky-500 to-indigo-600 text-white border-0 hover:from-sky-600 hover:to-indigo-700 shadow-md shadow-indigo-500/20"
+                    onClick={() => navigate('/assistant')}
+                >
+                    <Sparkles size={14} className="animate-pulse" />
+                    <span>AI INTEL</span>
+                </button>
             </div>
         </header>
     );

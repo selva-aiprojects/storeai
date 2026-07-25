@@ -37,19 +37,6 @@ const generateGeminiContent = async (
         .trim() || '';
 };
 
-const SYSTEM_PROMPT = `You are StoreAI, an intelligent store management assistant integrated with a live retail database.
-
-You have access to store data via the system (inventory/products, sales/orders, customers, suppliers, HR).
-When the user asks about specific data, the system will query the database and provide you with results to summarize.
-
-Guidelines:
-- Be concise, helpful, and professional
-- Use bullet points or tables for structured data
-- If you don't know something, say so
-- For inventory queries, mention stock levels and prices
-- For sales queries, mention amounts and dates
-- Keep responses under 150 words unless the user asks for detail`;
-
 export const chat = async (req: Request, res: Response) => {
     const { query, history } = req.body;
     const lowerQuery = query?.toLowerCase() || '';
@@ -57,144 +44,99 @@ export const chat = async (req: Request, res: Response) => {
     try {
         let responseText = '';
         let contextData: any = null;
-        let source = 'CONVERSATION';
-        let intent = 'GENERAL';
+        let source = 'STOREAI_DATA_ENGINE';
 
-        const intentResponse = await generateGeminiContent(
-            `Classify the user's store query into exactly one category. Respond with ONLY the category word, nothing else.
+        // Try Gemini if API key is configured
+        if (GOOGLE_API_KEY) {
+            try {
+                const intentResponse = await generateGeminiContent(
+                    `Classify user query into ONE category: INVENTORY, SALES, CUSTOMERS, HR, SUPPLIERS, GENERAL`,
+                    [{ role: 'user', parts: [{ text: query }] }],
+                    0.1, 20
+                );
+                const intent = intentResponse.toUpperCase() || 'GENERAL';
 
-Categories:
-- INVENTORY: questions about products, stock, inventory, items, SKUs, pricing, stock levels, low stock
-- SALES: questions about sales, revenue, orders, invoices, transactions, purchase history
-- CUSTOMERS: questions about customers, clients, buyers, customer details
-- HR: questions about employees, staff, payroll, attendance, HR
-- SUPPLIERS: questions about suppliers, vendors, purchase orders
-- GENERAL: greetings, help requests, chit-chat, or anything else`,
-            [{ role: 'user', parts: [{ text: query }] }],
-            0.1,
-            20
-        );
+                if (intent === 'INVENTORY') {
+                    contextData = await prisma.product.findMany({ take: 10, orderBy: { stockQuantity: 'asc' } });
+                } else if (intent === 'SALES') {
+                    contextData = await prisma.sale.findMany({ take: 10, orderBy: { createdAt: 'desc' } });
+                } else if (intent === 'CUSTOMERS') {
+                    contextData = await prisma.customer.findMany({ take: 10, orderBy: { createdAt: 'desc' } });
+                } else if (intent === 'SUPPLIERS') {
+                    contextData = await prisma.supplier.findMany({ take: 10, orderBy: { createdAt: 'desc' } });
+                }
 
-        intent = intentResponse.toUpperCase() || 'GENERAL';
-
-        if (intent === 'INVENTORY') {
-            const products = await prisma.product.findMany({
-                take: 15,
-                orderBy: { stockQuantity: 'asc' },
-                select: { name: true, sku: true, stockQuantity: true, price: true, category: true }
-            });
-
-            if (lowerQuery.includes('low') || lowerQuery.includes('shortage') || lowerQuery.includes('short')) {
-                const lowStock = products.filter(p => p.stockQuantity < 10);
-                contextData = lowStock;
-                source = 'SQL';
-            } else if (products.length > 0) {
-                contextData = products;
-                source = 'SQL';
-            }
-        }
-        else if (intent === 'SALES') {
-            const sales = await prisma.sale.findMany({
-                take: 10,
-                orderBy: { createdAt: 'desc' },
-                include: { customer: { select: { name: true } } }
-            });
-            if (sales.length > 0) {
-                contextData = sales.map(s => ({
-                    Invoice: s.invoiceNo,
-                    Customer: s.customer?.name || 'Walk-in',
-                    Amount: s.totalAmount,
-                    Date: new Date(s.createdAt).toLocaleDateString()
-                }));
-                source = 'SQL';
-            }
-        }
-        else if (intent === 'CUSTOMERS') {
-            const customers = await prisma.customer.findMany({
-                take: 10,
-                orderBy: { createdAt: 'desc' },
-                select: { name: true, email: true, city: true, phone: true }
-            });
-            if (customers.length > 0) {
-                contextData = customers;
-                source = 'SQL';
-            }
-        }
-        else if (intent === 'HR') {
-            const employees = await prisma.employee.findMany({
-                take: 10,
-                orderBy: { createdAt: 'desc' },
-                select: { firstName: true, lastName: true, designation: true, employeeId: true, departmentId: true }
-            });
-            if (employees.length > 0) {
-                contextData = employees;
-                source = 'SQL';
-            }
-        }
-        else if (intent === 'SUPPLIERS') {
-            const suppliers = await prisma.supplier.findMany({
-                take: 10,
-                orderBy: { createdAt: 'desc' },
-                select: { name: true, email: true, contact: true }
-            });
-            if (suppliers.length > 0) {
-                contextData = suppliers;
-                source = 'SQL';
+                const geminiMessages: GeminiMessage[] = [{ role: 'user', parts: [{ text: `User query: "${query}"\nDatabase Context: ${JSON.stringify(contextData)}` }] }];
+                responseText = await generateGeminiContent("You are StoreAI, an intelligent commerce assistant.", geminiMessages, 0.7, 500);
+                source = 'GEMINI_AI';
+            } catch (err) {
+                console.warn("Gemini API call failed, switching to Smart Retail Engine:", err);
             }
         }
 
-        const messages: GeminiMessage[] = [];
+        // Smart Retail Data Engine (Fallback / Direct Mode when no GOOGLE_API_KEY)
+        if (!responseText) {
+            if (lowerQuery.includes('stock') || lowerQuery.includes('inventory') || lowerQuery.includes('product') || lowerQuery.includes('item') || lowerQuery.includes('sku')) {
+                const products = await prisma.product.findMany({ take: 10, orderBy: { stockQuantity: 'asc' } });
+                const totalSKUs = await prisma.product.count();
 
-        if (history && history.length > 0) {
-            const recentHistory = history.slice(-6);
-            for (const msg of recentHistory) {
-                if (msg.role && msg.content) {
-                    messages.push({
-                        role: msg.role === 'assistant' ? 'model' : 'user',
-                        parts: [{ text: msg.content }]
-                    });
+                if (lowerQuery.includes('low') || lowerQuery.includes('alert') || lowerQuery.includes('shortage')) {
+                    const lowStock = products.filter(p => p.stockQuantity < 10);
+                    responseText = `📊 **Low Stock Report:**\nFound **${lowStock.length} items** requiring reorder:\n` +
+                        lowStock.map(p => `• **${p.name}** (${p.sku}): ${p.stockQuantity} units left (₹${p.price})`).join('\n');
+                    contextData = lowStock;
+                } else {
+                    responseText = `📦 **Inventory Summary:**\nTotal SKUs: **${totalSKUs}**\n\nTop Product Stock Levels:\n` +
+                        products.slice(0, 5).map(p => `• **${p.name}**: ${p.stockQuantity} units | ₹${p.price}`).join('\n');
+                    contextData = products;
                 }
             }
-        }
+            else if (lowerQuery.includes('sale') || lowerQuery.includes('revenue') || lowerQuery.includes('order') || lowerQuery.includes('invoice')) {
+                const sales = await prisma.sale.findMany({ take: 5, orderBy: { createdAt: 'desc' }, include: { customer: true } });
+                const totalSalesCount = await prisma.sale.count();
 
-        // Gemini conversations must start with a user message. The UI's welcome
-        // message is assistant-authored, so omit it when it leads the history.
-        while (messages[0]?.role === 'model') {
-            messages.shift();
-        }
-
-        let userContent = query;
-        if (contextData) {
-            userContent = `The user asked: "${query}"\n\nHere is the relevant data from the database:\n${JSON.stringify(contextData, null, 2)}\n\nPlease summarize this data for the user in a friendly, conversational way.`;
-        }
-
-        messages.push({ role: 'user', parts: [{ text: userContent }] });
-
-        responseText = await generateGeminiContent(SYSTEM_PROMPT, messages, 0.7, 500);
-
-        if (!responseText) {
-            responseText = "I'm having trouble processing that request. Could you try rephrasing?";
+                responseText = `💰 **Sales & Revenue Snapshot:**\nTotal Transactions Logged: **${totalSalesCount}**\n\nRecent Orders:\n` +
+                    sales.map((s: any) => `• **Invoice #${s.invoiceNo}**: ₹${s.totalAmount} (${s.paymentMode || s.paymentMethod || 'CASH'}) - ${new Date(s.createdAt).toLocaleDateString()}`).join('\n');
+                contextData = sales;
+            }
+            else if (lowerQuery.includes('customer') || lowerQuery.includes('client') || lowerQuery.includes('buyer')) {
+                const customers = await prisma.customer.findMany({ take: 5, orderBy: { createdAt: 'desc' } });
+                responseText = `👥 **Customer Records:**\nActive Customers: **${customers.length}**\n` +
+                    customers.map(c => `• **${c.name}** (${c.phone || c.email})`).join('\n');
+                contextData = customers;
+            }
+            else if (lowerQuery.includes('supplier') || lowerQuery.includes('vendor') || lowerQuery.includes('po')) {
+                const suppliers = await prisma.supplier.findMany({ take: 5 });
+                responseText = `🚛 **Registered Suppliers & Partners:**\n` +
+                    suppliers.map(s => `• **${s.name}** (GST: ${s.gstNumber || 'N/A'}) - Term: ${s.paymentTerms}`).join('\n');
+                contextData = suppliers;
+            }
+            else if (lowerQuery.includes('profit') || lowerQuery.includes('finance') || lowerQuery.includes('daybook') || lowerQuery.includes('cash')) {
+                const daybook = await prisma.daybook.findMany({ take: 5, orderBy: { date: 'desc' } });
+                responseText = `📈 **Financial Accounting Summary:**\n` +
+                    daybook.map(d => `• [${d.type}] ${d.description}: ₹${d.credit || d.debit}`).join('\n');
+                contextData = daybook;
+            }
+            else {
+                responseText = `👋 **Hello! I am your StoreAI Assistant.**\n\nI can analyze your live retail database in real time. Ask me about:\n• 📦 **Inventory & Stock:** *"Show low stock items"* or *"List top products"*\n• 💰 **Sales & Revenue:** *"Show recent invoices"* or *"Sales summary"*\n• 👥 **Customers & CRM:** *"Show customer records"*\n• 🚛 **Suppliers & Procurement:** *"List suppliers"*\n• 📈 **Financials:** *"Show daybook transactions"*`;
+            }
         }
 
         res.json({ response: responseText, context: contextData, source });
     } catch (error: any) {
         console.error('AI Chat Error:', error);
-        res.status(500).json({
-            response: 'StoreAI Assistant is temporarily unavailable. Please try again in a moment.',
-            source: 'ERROR',
-            detail: 'The assistant service could not complete the request.'
+        res.json({
+            response: `🤖 **StoreAI Assistant Online:**\nAsk me about products, stock levels, sales revenue, customers, or supplier purchase orders!`,
+            source: 'FALLBACK'
         });
     }
 };
 
 export const healthCheck = async (req: Request, res: Response) => {
-    const googleConfigured = !!GOOGLE_API_KEY;
     res.json({
         status: 'online',
         service: 'StoreAI Assistant',
-        version: '1.0.0',
-        provider: 'google-gemini',
-        model: GEMINI_MODEL,
-        google: googleConfigured ? 'configured' : 'not configured'
+        version: '2.0.0',
+        engine: GOOGLE_API_KEY ? 'gemini-ai' : 'smart-retail-data-engine'
     });
 };

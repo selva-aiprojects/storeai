@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Warehouse as WarehouseIcon, MapPin, Plus, X, CheckCircle } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 
 export default function WarehouseBins() {
     const [warehouses, setWarehouses] = useState([
@@ -43,24 +44,22 @@ export default function WarehouseBins() {
 
     return (
         <div className="space-y-6 font-['Outfit']">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-600 flex items-center justify-center font-bold">
-                        <WarehouseIcon className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Warehouse & Bin Location (WMS)</h1>
-                        <p className="text-sm text-slate-500">Manage fulfillment hubs, zone aisle rack bin locations & inter-warehouse transfers</p>
-                    </div>
-                </div>
-                <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                    <Plus className="w-4 h-4" /> Add Storage Bin Location
-                </button>
-            </div>
+            <PageHeader
+                title="Warehouse & Bin Location (WMS)"
+                subtitle="Manage fulfillment hubs, zone aisle rack bin locations & inter-warehouse transfers"
+                icon={WarehouseIcon}
+                badge={`${bins.length} BINS ACTIVE`}
+                badgeColor="sky"
+                iconGradient="from-sky-500 to-indigo-600"
+                actions={
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="px-5 py-3 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-sky-500/20 flex items-center gap-2 transition-all hover:scale-105"
+                    >
+                        <Plus className="w-4 h-4" /> Add Storage Bin Location
+                    </button>
+                }
+            />
 
             {/* Warehouse Overview Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

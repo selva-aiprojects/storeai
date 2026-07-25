@@ -58,7 +58,7 @@ export const updateTenantFeatures = async (req: AuthRequest, res: Response) => {
 
 export const createTenant = async (req: AuthRequest, res: Response) => {
     try {
-        const { name, slug, planId, logo } = req.body;
+        const { name, slug, planId, logo, currency } = req.body;
         const userId = req.user?.id;
 
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -82,6 +82,9 @@ export const createTenant = async (req: AuthRequest, res: Response) => {
         const plan = await prisma.plan.findUnique({ where: { name: planId || 'PRO' } });
         if (!plan) return res.status(400).json({ error: 'Selected subscription plan not found' });
 
+        // Store currency in tenant features JSON (default INR for global deployments)
+        const tenantCurrency = (currency || 'INR').toUpperCase();
+
         const tenant = await prisma.tenant.create({
             data: {
                 name,
@@ -89,6 +92,7 @@ export const createTenant = async (req: AuthRequest, res: Response) => {
                 logo,
                 planId: plan.id,
                 status: 'ACTIVE', // Admin created tenants are active by default
+                features: { currency: tenantCurrency },
                 users: {
                     create: {
                         userId: userId,
@@ -119,8 +123,6 @@ export const getPlans = async (req: AuthRequest, res: Response) => {
 
 export const getAllTenants = async (req: AuthRequest, res: Response) => {
     try {
-        // In a real production system, you'd check if the user is a "System Admin"
-        // For this demo/validation platform, we allow SUPER_ADMINs to see the directory
         const tenants = await prisma.tenant.findMany({
             select: {
                 id: true,
@@ -128,9 +130,11 @@ export const getAllTenants = async (req: AuthRequest, res: Response) => {
                 slug: true,
                 status: true,
                 logo: true,
+                features: true,
+                planId: true,
                 createdAt: true,
                 plan: {
-                    select: { name: true }
+                    select: { id: true, name: true, price: true, billingCycle: true }
                 },
                 _count: {
                     select: { users: true }
@@ -142,6 +146,7 @@ export const getAllTenants = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ error: 'Failed to fetch tenants directory' });
     }
 };
+
 export const adminUpdateTenant = async (req: AuthRequest, res: Response) => {
     try {
         // Strict security: Only Hub Admin (from 'storeai' slug) can manage other tenants
@@ -153,11 +158,24 @@ export const adminUpdateTenant = async (req: AuthRequest, res: Response) => {
         }
 
         const { id } = req.params;
-        const { planId, status, features } = req.body;
+        const { planId, status, features, currency } = req.body;
+
+        // If currency is being updated directly, merge it into features
+        let updatedFeatures = features;
+        if (currency && !features) {
+            // Fetch existing features and merge
+            const existing = await prisma.tenant.findUnique({ where: { id }, select: { features: true } });
+            const existingFeatures = (existing?.features as Record<string, unknown>) || {};
+            updatedFeatures = { ...existingFeatures, currency: currency.toUpperCase() };
+        }
 
         const updated = await prisma.tenant.update({
             where: { id },
-            data: { planId, status, features }
+            data: {
+                planId,
+                status,
+                ...(updatedFeatures !== undefined ? { features: updatedFeatures } : {})
+            }
         });
 
         res.json(updated);

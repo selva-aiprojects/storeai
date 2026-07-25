@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Ship, CheckCircle, Package, ArrowRight, ClipboardList, Briefcase, Plus, Calendar, FileText, DollarSign, ShieldCheck } from 'lucide-react';
 import { approveOrder } from '../services/api';
+import PageHeader from '../components/PageHeader';
 
 const Purchases = () => {
     const { data, refreshData, setModal, user } = useOutletContext<any>() as any;
@@ -38,25 +39,22 @@ const Purchases = () => {
 
     return (
         <div className="space-y-6 font-['Outfit']">
-            {/* Procurement Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-sky-500/20">
-                        <Briefcase className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Procurement & Purchase Orders (P.O.)</h1>
-                        <p className="text-sm font-medium text-slate-500">Track vendor purchase commitments, GST tax input, inward GRN & shipping logistics</p>
-                    </div>
-                </div>
-
-                <button
-                    onClick={() => setModal({ type: 'purchases' })}
-                    className="px-5 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-sky-500/20 flex items-center gap-2 transition-all hover:scale-105"
-                >
-                    <Plus className="w-4 h-4" /> CREATE PURCHASE ORDER
-                </button>
-            </div>
+            <PageHeader
+                title="Procurement & Purchase Orders (P.O.)"
+                subtitle="Track vendor purchase commitments, GST tax input, inward GRN & shipping logistics"
+                icon={Briefcase}
+                badge={`${displayOrders.length} ORDERS`}
+                badgeColor="sky"
+                iconGradient="from-sky-500 to-blue-600"
+                actions={
+                    <button
+                        onClick={() => setModal({ type: 'purchases' })}
+                        className="px-5 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-sky-500/20 flex items-center gap-2 transition-all hover:scale-105"
+                    >
+                        <Plus className="w-4 h-4" /> CREATE PURCHASE ORDER
+                    </button>
+                }
+            />
 
             {/* Procurement Tabs */}
             <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-700 pb-2">
