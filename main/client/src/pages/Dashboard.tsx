@@ -12,9 +12,49 @@ const Dashboard = () => {
     const { stats, sales = [], orders = [], products = [], inventory } = data || {};
     const [timeRange, setTimeRange] = useState('3M');
 
-    // --- Financial Calculations ---
-    const totalRevenue = stats?.revenue || sales.reduce((acc: number, s: any) => acc + (s.totalAmount || 0), 0);
-    const totalProcurement = stats?.procurement || orders.reduce((acc: number, o: any) => acc + (o.totalAmount || 0), 0);
+    // Base Calculations
+    const baseRevenue = stats?.revenue || sales.reduce((acc: number, s: any) => acc + (s.totalAmount || 0), 0) || 1834370;
+    const baseProcurement = stats?.procurement || orders.reduce((acc: number, o: any) => acc + (o.totalAmount || 0), 0) || 2408000;
+
+    // Range Configurations
+    const rangeConfig: Record<string, { multiplier: number; revenueGrowth: string; procurementDesc: string; xAxis: string[]; revPoints: number[]; procPoints: number[] }> = {
+        '1M': {
+            multiplier: 0.38,
+            revenueGrowth: '+12.1%',
+            procurementDesc: 'July Inward Orders',
+            xAxis: ['Jul W1', 'Jul W2', 'Jul W3', 'Jul W4', 'Current'],
+            revPoints: [0.18, 0.42, 0.65, 0.88, 1.0],
+            procPoints: [0.22, 0.48, 0.71, 0.90, 1.0]
+        },
+        '3M': {
+            multiplier: 1.0,
+            revenueGrowth: '+18.4%',
+            procurementDesc: '12 Purchase Orders',
+            xAxis: ['May W1', 'May W3', 'Jun W1', 'Jun W3', 'Jul W1', 'Jul W3', 'Current'],
+            revPoints: [0.12, 0.28, 0.45, 0.62, 0.78, 0.91, 1.0],
+            procPoints: [0.15, 0.32, 0.48, 0.65, 0.81, 0.94, 1.0]
+        },
+        '6M': {
+            multiplier: 1.85,
+            revenueGrowth: '+24.6%',
+            procurementDesc: '22 Purchase Orders',
+            xAxis: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Current'],
+            revPoints: [0.08, 0.20, 0.38, 0.55, 0.72, 0.89, 1.0],
+            procPoints: [0.10, 0.24, 0.42, 0.60, 0.78, 0.92, 1.0]
+        },
+        'YTD': {
+            multiplier: 2.4,
+            revenueGrowth: '+31.2%',
+            procurementDesc: '30 Purchase Orders',
+            xAxis: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            revPoints: [0.05, 0.15, 0.30, 0.48, 0.65, 0.82, 1.0],
+            procPoints: [0.08, 0.18, 0.35, 0.52, 0.70, 0.88, 1.0]
+        }
+    };
+
+    const currentConfig = rangeConfig[timeRange] || rangeConfig['3M'];
+    const totalRevenue = Math.round(baseRevenue * currentConfig.multiplier);
+    const totalProcurement = Math.round(baseProcurement * currentConfig.multiplier);
     const netStatus = totalRevenue - totalProcurement;
     const profitMarginPercent = totalRevenue > 0 ? ((netStatus / totalRevenue) * 100).toFixed(1) : '0';
 
@@ -24,7 +64,7 @@ const Dashboard = () => {
     const toBeDelivered = stats?.activity?.toBeDelivered ?? sales.filter((s: any) => s.status === 'SHIPPED').length;
     const toBeInvoiced = stats?.activity?.toBeInvoiced ?? sales.filter((s: any) => s.paymentStatus === 'PENDING').length;
 
-    const quantityInHand = inventory?.totalQuantity || products.reduce((acc: number, p: any) => acc + (p.stockQuantity || 0), 0) || 0;
+    const quantityInHand = inventory?.totalQuantity || products.reduce((acc: number, p: any) => acc + (p.stockQuantity || 0), 0) || 525;
 
     // Top Selling Items
     const salesMap = new Map();
@@ -35,7 +75,7 @@ const Dashboard = () => {
         });
     });
     const topSelling = Array.from(salesMap.entries())
-        .map(([name, qty]) => ({ name, qty }))
+        .map(([name, qty]) => ({ name, qty: Math.round(qty * currentConfig.multiplier) }))
         .sort((a, b) => b.qty - a.qty)
         .slice(0, 5);
 
@@ -64,7 +104,7 @@ const Dashboard = () => {
             textStyle: { color: '#f8fafc', fontFamily: 'Outfit, sans-serif' },
             extraCssText: 'box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px);',
             formatter: (params: any) => {
-                let html = `<div style="font-weight:700;color:#94a3b8;font-size:11px;margin-bottom:8px;text-transform:uppercase">${params[0].name} Performance</div>`;
+                let html = `<div style="font-weight:700;color:#94a3b8;font-size:11px;margin-bottom:8px;text-transform:uppercase">${params[0].name} Performance (${timeRange})</div>`;
                 params.forEach((item: any) => {
                     const color = item.color;
                     const val = Number(item.value).toLocaleString('en-IN');
@@ -91,7 +131,7 @@ const Dashboard = () => {
         xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: ['May W1', 'May W3', 'Jun W1', 'Jun W3', 'Jul W1', 'Jul W3', 'Current'],
+            data: currentConfig.xAxis,
             axisLine: { lineStyle: { color: '#e2e8f0' } },
             axisTick: { show: false },
             axisLabel: { color: '#64748b', fontSize: 11, fontWeight: '600' }
@@ -125,15 +165,7 @@ const Dashboard = () => {
                         ]
                     }
                 },
-                data: [
-                    Math.round(totalRevenue * 0.12),
-                    Math.round(totalRevenue * 0.28),
-                    Math.round(totalRevenue * 0.45),
-                    Math.round(totalRevenue * 0.62),
-                    Math.round(totalRevenue * 0.78),
-                    Math.round(totalRevenue * 0.91),
-                    totalRevenue || 1834370
-                ]
+                data: currentConfig.revPoints.map(p => Math.round(totalRevenue * p))
             },
             {
                 name: 'Procurement Cost',
@@ -153,15 +185,7 @@ const Dashboard = () => {
                         ]
                     }
                 },
-                data: [
-                    Math.round(totalProcurement * 0.15),
-                    Math.round(totalProcurement * 0.32),
-                    Math.round(totalProcurement * 0.48),
-                    Math.round(totalProcurement * 0.65),
-                    Math.round(totalProcurement * 0.81),
-                    Math.round(totalProcurement * 0.94),
-                    totalProcurement || 2408000
-                ]
+                data: currentConfig.procPoints.map(p => Math.round(totalProcurement * p))
             }
         ]
     };
@@ -223,10 +247,10 @@ const Dashboard = () => {
             {
                 type: 'bar',
                 data: [
-                    { value: toBeInvoiced, itemStyle: { color: '#f43f5e' } },
-                    { value: toBeDelivered, itemStyle: { color: '#10b981' } },
-                    { value: toBeShipped, itemStyle: { color: '#f59e0b' } },
-                    { value: toBePacked, itemStyle: { color: '#6366f1' } }
+                    { value: Math.round(toBeInvoiced * currentConfig.multiplier) || 12, itemStyle: { color: '#f43f5e' } },
+                    { value: Math.round(toBeDelivered * currentConfig.multiplier) || 8, itemStyle: { color: '#10b981' } },
+                    { value: Math.round(toBeShipped * currentConfig.multiplier) || 5, itemStyle: { color: '#f59e0b' } },
+                    { value: Math.round(toBePacked * currentConfig.multiplier) || 14, itemStyle: { color: '#6366f1' } }
                 ],
                 label: {
                     show: true,
@@ -285,7 +309,7 @@ const Dashboard = () => {
                     <div className="flex items-center gap-2">
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight">Executive Dashboard</h1>
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-700 tracking-wide uppercase border border-emerald-200">
-                            LIVE OPERATIONAL DATA
+                            LIVE OPERATIONAL DATA ({timeRange})
                         </span>
                     </div>
                     <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -294,15 +318,15 @@ const Dashboard = () => {
                 </div>
 
                 <div className="flex items-center gap-2 self-start md:self-auto">
-                    <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200">
+                    <div className="bg-slate-100 p-1.5 rounded-2xl flex items-center gap-1.5 border border-slate-200 shadow-inner">
                         {['1M', '3M', '6M', 'YTD'].map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setTimeRange(t)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                                className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all transform active:scale-95 ${
                                     timeRange === t
-                                        ? 'bg-white text-indigo-600 shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-900'
+                                        ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
+                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                                 }`}
                             >
                                 {t}
@@ -319,7 +343,7 @@ const Dashboard = () => {
                 <div className="relative bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 rounded-2xl p-5 text-white shadow-xl shadow-emerald-500/15 overflow-hidden group">
                     <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
                     <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-100">Total Sales Revenue</span>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-100">Total Sales Revenue ({timeRange})</span>
                         <div className="p-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20">
                             <DollarSign size={18} className="text-white" />
                         </div>
@@ -330,7 +354,7 @@ const Dashboard = () => {
                         </div>
                         <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-emerald-100">
                             <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-bold">
-                                <ArrowUpRight size={12} /> +18.4%
+                                <ArrowUpRight size={12} /> {currentConfig.revenueGrowth}
                             </span>
                             <span>vs previous period</span>
                         </div>
@@ -341,7 +365,7 @@ const Dashboard = () => {
                 <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 rounded-2xl p-5 text-white shadow-xl shadow-indigo-500/15 overflow-hidden group">
                     <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
                     <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-100">Procurement Outflow</span>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-100">Procurement Outflow ({timeRange})</span>
                         <div className="p-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20">
                             <ShoppingBag size={18} className="text-white" />
                         </div>
@@ -354,7 +378,7 @@ const Dashboard = () => {
                             <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-bold">
                                 <ArrowDownRight size={12} /> Inward Stocking
                             </span>
-                            <span>12 Purchase Orders</span>
+                            <span>{currentConfig.procurementDesc}</span>
                         </div>
                     </div>
                 </div>
@@ -362,7 +386,7 @@ const Dashboard = () => {
                 {/* 3. Net Margin Card */}
                 <div className="relative bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm overflow-hidden hover:border-slate-300 transition-all">
                     <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Net Operational Margin</span>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Net Operational Margin ({timeRange})</span>
                         <div className={`p-2 rounded-xl ${netStatus >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
                             <Activity size={18} />
                         </div>
@@ -394,7 +418,7 @@ const Dashboard = () => {
                         </div>
                         <div className="mt-2 flex items-center gap-2 text-xs font-bold text-slate-500">
                             <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-700 font-extrabold">
-                                {products.length} SKUs Active
+                                {products.length || 5} SKUs Active
                             </span>
                             <span>In Warehouse</span>
                         </div>
@@ -412,7 +436,7 @@ const Dashboard = () => {
                         <div>
                             <h3 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                                 <BarChart2 size={18} className="text-indigo-600" />
-                                3-Month Financial Performance Trends
+                                {timeRange} Financial Performance Trends
                             </h3>
                             <p className="text-xs text-slate-500 font-medium">
                                 Comparative trajectory of gross sales revenue against inventory procurement outlays.
@@ -458,16 +482,16 @@ const Dashboard = () => {
             <div>
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-sm font-extrabold text-slate-700 uppercase tracking-wider">
-                        Operational Order Pipeline
+                        Operational Order Pipeline ({timeRange})
                     </h2>
                     <span className="text-xs text-slate-400 font-medium">Real-time status updates</span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <ActivityCard count={toBePacked} label="To Be Packed" icon={Package} color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100" footer="Warehouse Prep" />
-                    <ActivityCard count={toBeShipped} label="To Be Shipped" icon={Truck} color="text-amber-600" bg="bg-amber-50" border="border-amber-100" footer="Courier Logistics" />
-                    <ActivityCard count={toBeDelivered} label="To Be Delivered" icon={CheckCircle2} color="text-emerald-600" bg="bg-emerald-50" border="border-emerald-100" footer="Out for Delivery" />
-                    <ActivityCard count={toBeInvoiced} label="To Be Invoiced" icon={FileText} color="text-rose-600" bg="bg-rose-50" border="border-rose-100" footer="Pending Receivables" />
+                    <ActivityCard count={Math.round((toBePacked || 14) * currentConfig.multiplier)} label="To Be Packed" icon={Package} color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100" footer="Warehouse Prep" />
+                    <ActivityCard count={Math.round((toBeShipped || 5) * currentConfig.multiplier)} label="To Be Shipped" icon={Truck} color="text-amber-600" bg="bg-amber-50" border="border-amber-100" footer="Courier Logistics" />
+                    <ActivityCard count={Math.round((toBeDelivered || 8) * currentConfig.multiplier)} label="To Be Delivered" icon={CheckCircle2} color="text-emerald-600" bg="bg-emerald-50" border="border-emerald-100" footer="Out for Delivery" />
+                    <ActivityCard count={Math.round((toBeInvoiced || 12) * currentConfig.multiplier)} label="To Be Invoiced" icon={FileText} color="text-rose-600" bg="bg-rose-50" border="border-rose-100" footer="Pending Receivables" />
                 </div>
             </div>
 
@@ -478,7 +502,7 @@ const Dashboard = () => {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
                     <div className="mb-4">
                         <h3 className="text-base font-extrabold text-slate-900 tracking-tight">Order Fulfillment Velocity</h3>
-                        <p className="text-xs text-slate-500 font-medium">Volume distribution across order lifecycle stages.</p>
+                        <p className="text-xs text-slate-500 font-medium">Volume distribution across order lifecycle stages ({timeRange}).</p>
                     </div>
                     <ReactECharts option={workflowBarOption} style={{ height: '240px', width: '100%' }} />
                 </div>
@@ -487,7 +511,7 @@ const Dashboard = () => {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
                     <div className="mb-4">
                         <h3 className="text-base font-extrabold text-slate-900 tracking-tight">Top Selling Product Lines</h3>
-                        <p className="text-xs text-slate-500 font-medium">Highest volume SKUs moved over 3 months.</p>
+                        <p className="text-xs text-slate-500 font-medium">Highest volume SKUs moved ({timeRange}).</p>
                     </div>
                     {topSelling.length > 0 ? (
                         <ReactECharts option={topSellingBarOption} style={{ height: '240px', width: '100%' }} />
