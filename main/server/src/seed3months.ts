@@ -247,8 +247,7 @@ async function seedCompleteEnterpriseData() {
           amount: netPay,
           totalPayout: netPay,
           status: 'PAID',
-          paymentDate: payrollDate,
-          tenantId: tenant.id
+          paymentDate: payrollDate
         }
       });
 
