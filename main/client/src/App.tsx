@@ -44,6 +44,17 @@ import IndividualLedger from './pages/Finance/IndividualLedger';
 import Administration from './pages/Administration';
 import GlobalInventory from './pages/GlobalInventory';
 
+// Unified Commerce OS Extended Pages
+import POS from './pages/POS';
+import Storefront from './pages/Storefront';
+import VendorPortal from './pages/VendorPortal';
+import CustomerPortal from './pages/CustomerPortal';
+import CRM from './pages/CRM';
+import LoyaltyProgram from './pages/LoyaltyProgram';
+import SubscriptionBilling from './pages/SubscriptionBilling';
+import WarehouseBins from './pages/WarehouseBins';
+
+
 function App() {
     const [user, setUser] = useState<any>(null);
     const [modal, setModal] = useState<any>(null);
@@ -196,7 +207,16 @@ function App() {
                         <Route path="/administration" element={<Administration />} />
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="/global-inventory" element={<GlobalInventory />} />
+                        <Route path="/pos" element={<POS products={data.products} />} />
+                        <Route path="/storefront" element={<Storefront products={data.products} />} />
+                        <Route path="/vendor-portal" element={<VendorPortal />} />
+                        <Route path="/customer-portal" element={<CustomerPortal />} />
+                        <Route path="/crm" element={<CRM />} />
+                        <Route path="/loyalty" element={<LoyaltyProgram />} />
+                        <Route path="/subscriptions" element={<SubscriptionBilling />} />
+                        <Route path="/warehouse-bins" element={<WarehouseBins />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
+
                     </Route>
                 </Routes>
             )}

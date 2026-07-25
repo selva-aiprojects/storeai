@@ -39,111 +39,126 @@ const Login = ({ setUser }: any) => {
     };
 
     return (
-        <div className="h-screen flex items-center justify-center px-4 py-4 lg:py-6 font-['Outfit'] relative overflow-hidden bg-slate-50">
-            {/* Ambient Background matching the wavy gradients */}
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_0%_0%,rgba(0,64,110,0.1)_0%,transparent_40%),radial-gradient(circle_at_100%_100%,rgba(0,108,153,0.1)_0%,transparent_40%)]"></div>
+        <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 font-['Outfit'] relative overflow-hidden bg-slate-950">
+            {/* Multi-Color Ambient Glow Background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 -right-40 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-pink-500/15 rounded-full blur-3xl"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(15,23,42,0.6)_0%,rgba(2,6,23,0.95)_100%)]"></div>
+            </div>
 
-            {/* MAIN CARD */}
+            {/* FLOATING ROUNDED PANEL CARD */}
             <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="w-full max-w-6xl bg-white rounded-3xl shadow-[0_30px_80px_-20px_rgba(0,61,122,0.25)] overflow-hidden grid lg:grid-cols-2 relative z-10 mx-auto"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="w-full max-w-5xl bg-white rounded-3xl shadow-[0_30px_90px_-15px_rgba(0,0,0,0.6)] overflow-hidden grid lg:grid-cols-12 relative z-10 mx-auto border border-slate-100/20"
             >
 
-                {/* ================= LEFT SIDE ================= */}
-                <div className="relative hidden lg:flex flex-col justify-center gap-10 bg-gradient-to-br from-[#003254] to-[#00547A] p-12 text-white overflow-hidden">
+                {/* ================= LEFT SIDE (BRAND PANEL - 5 COLS) ================= */}
+                <div className="lg:col-span-5 relative hidden lg:flex flex-col justify-between p-8 xl:p-10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden border-r border-white/10">
 
-                    {/* Wavy Background Decor */}
-                    <div className="absolute inset-0 opacity-20 pointer-events-none">
-                        <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="#ffffff" d="M0 200c150 100 250 -50 400 0s250 100 400 0v600H0V200z" opacity="0.3"></path>
-                            <path fill="#ffffff" d="M0 400c150 150 250 -100 400 0s250 150 400 0v400H0V400z" opacity="0.2"></path>
-                        </svg>
-                    </div>
+                    {/* Multi-color ambient gradient accents */}
+                    <div className="absolute -top-24 -left-24 w-64 h-64 bg-cyan-500/25 rounded-full blur-2xl"></div>
+                    <div className="absolute bottom-0 -right-20 w-64 h-64 bg-pink-500/20 rounded-full blur-2xl"></div>
+                    <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
-                    {/* Top Branding */}
+                    {/* Top Tagline */}
                     <div className="relative z-10">
-                        <h2 className="text-4xl xl:text-5xl font-extrabold leading-[1.05] tracking-[-0.03em] drop-shadow-md">
-                            Multi-Tenant <br />
-                            <span className="text-[#ffffff]">Intelligence</span>
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-cyan-300 tracking-wider uppercase mb-3">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Unified Commerce OS
+                        </div>
+                        <h2 className="text-2xl xl:text-3xl font-extrabold leading-tight tracking-tight drop-shadow-md">
+                            Smart Store <br />
+                            <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
+                                Multi-Tenant Intelligence
+                            </span>
                         </h2>
-
-                        <p className="mt-2 text-base xl:text-lg text-blue-50 font-medium max-w-md leading-relaxed drop-shadow-sm">
-                            Strategic operations engine powering inventory optimization,
-                            finance intelligence, and AI-driven growth.
-                        </p>
                     </div>
 
-                    {/* Center Logo */}
-                    <div className="flex justify-center relative z-10">
-                        <img
-                            src="/logo-mt.png"
-                            alt="StoreAI"
-                            className="w-3/4 max-h-[260px] object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105"
-                        />
+                    {/* Center 5x Large Multi-Color Logo Display */}
+                    <div className="relative z-10 my-4 flex flex-col items-center justify-center">
+                        <div className="p-8 bg-slate-900/70 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center w-full group hover:border-cyan-400/50 transition-all duration-300">
+                            <img
+                                src="/StoreAI-Logo-new.png"
+                                alt="StoreAI Enterprise Multi-Tenant"
+                                className="w-full h-auto max-h-[380px] object-contain filter drop-shadow-[0_12px_35px_rgba(6,182,212,0.45)] group-hover:scale-105 transition-transform duration-500"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/logo-transparent.png";
+                                }}
+                            />
+                        </div>
                     </div>
 
-                    {/* Bottom Trust Badges */}
+                    {/* Bottom Features */}
                     <div className="space-y-2 relative z-10">
                         {[
                             {
-                                icon: <ShieldCheck size={16} />,
-                                text: "Enterprise-Grade Authentication",
+                                icon: <ShieldCheck size={16} className="text-cyan-400" />,
+                                text: "Enterprise Multi-Tenant Security",
                             },
                             {
-                                icon: <Building2 size={16} />,
-                                text: "Isolated Tenant Infrastructure",
+                                icon: <Building2 size={16} className="text-indigo-400" />,
+                                text: "Real-Time Stock & Finance Engine",
                             },
                             {
-                                icon: <Users size={16} />,
-                                text: "Dynamic RBAC Governance",
+                                icon: <Users size={16} className="text-pink-400" />,
+                                text: "AI-Powered Operations Copilot",
                             },
                         ].map((item, idx) => (
                             <div
                                 key={idx}
-                                className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs xl:text-sm font-semibold border border-white/10"
+                                className="flex items-center gap-2.5 bg-white/5 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-medium text-slate-200 border border-white/10"
                             >
-                                <span className="text-[#1FB6FF]">{item.icon}</span>
+                                {item.icon}
                                 {item.text}
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* ================= RIGHT SIDE ================= */}
-                <div className="p-8 lg:p-12 flex flex-col justify-center">
+                {/* ================= RIGHT SIDE (LOGIN FORM PANEL - 7 COLS) ================= */}
+                <div className="lg:col-span-7 p-6 sm:p-8 xl:p-10 flex flex-col justify-center bg-white">
 
-                    {/* Mobile Logo Branding Header */}
-                    <div className="lg:hidden flex justify-center mb-6 px-8 py-4 bg-gradient-to-r from-[#003254] to-[#00547A] rounded-2xl shadow-lg transition-all duration-500">
-                        <img src="/logo-mt.png" alt="StoreAI" className="h-32 w-auto drop-shadow-xl" />
+                    {/* Mobile 5x Large Logo Branding Header */}
+                    <div className="lg:hidden flex flex-col items-center justify-center mb-6 p-6 bg-slate-900 rounded-2xl shadow-xl border border-slate-800">
+                        <img 
+                            src="/StoreAI-Logo-new.png" 
+                            alt="StoreAI Enterprise Multi-Tenant" 
+                            className="h-28 w-auto object-contain drop-shadow-2xl" 
+                            onError={(e) => { e.currentTarget.src = "/logo-transparent.png"; }} 
+                        />
                     </div>
 
                     {/* Back to Home Link */}
-                    <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 font-semibold text-sm transition-colors mb-6 self-start w-fit">
-                        <ArrowLeft size={16} />
+                    <Link to="/" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-blue-600 font-semibold text-xs transition-colors mb-4 self-start w-fit">
+                        <ArrowLeft size={14} />
                         Back to Home
                     </Link>
 
-                    <h1 className="text-3xl xl:text-4xl font-extrabold text-slate-800 tracking-tight">
-                        Welcome Back
-                    </h1>
-                    <p className="mt-2 text-slate-500 font-medium text-sm xl:text-base">
-                        Enter your credentials to access your workspace.
-                    </p>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            Sign In to <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">StoreAI</span>
+                        </h1>
+                        <p className="mt-1 text-slate-500 font-medium text-xs sm:text-sm">
+                            Enter your credentials to access your tenant workspace.
+                        </p>
+                    </div>
 
                     {errorMessage && (
-                        <div className="mt-4 bg-rose-50 border border-rose-200 text-rose-600 text-[13px] font-semibold p-3 rounded-xl">
+                        <div className="mt-4 bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold p-3 rounded-xl">
                             {errorMessage}
                         </div>
                     )}
 
-                    <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                    <form onSubmit={handleLogin} className="mt-5 space-y-3.5">
 
                         {/* Email */}
                         <div>
-                            <label className="text-[10px] font-bold tracking-widest uppercase text-slate-500">
-                                Identity URL / Email
+                            <label className="text-[10px] font-bold tracking-wider uppercase text-slate-500">
+                                Email / Username
                             </label>
                             <input
                                 type="email"
@@ -153,14 +168,14 @@ const Login = ({ setUser }: any) => {
                                     setAuthForm({ ...authForm, email: e.target.value })
                                 }
                                 placeholder="admin@storeai.com"
-                                className="mt-1.5 w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition text-[13px] font-semibold"
+                                className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition text-xs font-medium text-slate-800"
                             />
                         </div>
 
                         {/* Password */}
                         <div>
-                            <label className="text-[10px] font-bold tracking-widest uppercase text-slate-500">
-                                Access Token / Password
+                            <label className="text-[10px] font-bold tracking-wider uppercase text-slate-500">
+                                Password
                             </label>
                             <input
                                 type="password"
@@ -170,14 +185,14 @@ const Login = ({ setUser }: any) => {
                                     setAuthForm({ ...authForm, password: e.target.value })
                                 }
                                 placeholder="••••••••"
-                                className="mt-1.5 w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition text-[13px] font-semibold"
+                                className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition text-xs font-medium text-slate-800"
                             />
                         </div>
 
                         {/* Tenant */}
                         <div>
-                            <label className="text-[10px] font-bold tracking-widest uppercase text-slate-500">
-                                Tenant workspace
+                            <label className="text-[10px] font-bold tracking-wider uppercase text-slate-500">
+                                Tenant Workspace (Optional)
                             </label>
                             <input
                                 type="text"
@@ -188,28 +203,28 @@ const Login = ({ setUser }: any) => {
                                         tenantSlug: e.target.value.toLowerCase().trim().replace(/\s+/g, "-"),
                                     })
                                 }
-                                placeholder="e.g. acme-retail"
+                                placeholder="e.g. storeai"
                                 autoComplete="organization"
-                                className="mt-1.5 w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition text-[13px] font-semibold"
+                                className="mt-1 w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition text-xs font-medium text-slate-800"
                             />
-                            <p className="mt-2 text-[11px] text-slate-400">
-                                Enter your organization’s tenant slug, or leave it blank to use your default workspace.
+                            <p className="mt-1 text-[10px] text-slate-400">
+                                Leave blank to automatically sign in to your default tenant.
                             </p>
                         </div>
 
-                        {/* Button */}
+                        {/* Submit Button */}
                         <button
                             disabled={loading}
-                            className="w-full mt-4 bg-gradient-to-r from-[#003254] to-[#00547A] hover:from-[#00243D] hover:to-[#003E5A] text-white py-4 rounded-xl font-bold tracking-widest shadow-xl shadow-blue-900/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] text-xs"
+                            className="w-full mt-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white py-3 rounded-xl font-bold tracking-wider shadow-lg shadow-indigo-500/25 transition-all hover:-translate-y-0.5 active:scale-[0.99] text-xs"
                         >
-                            {loading ? "AUTHORIZING..." : "SIGN IN TO STOREAI"}
+                            {loading ? "AUTHORIZING..." : "SIGN IN TO WORKSPACE"}
                         </button>
 
                     </form>
 
                     {/* Footer */}
-                    <div className="mt-5 text-center text-[10px] text-slate-400 font-semibold tracking-wider">
-                        © {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com
+                    <div className="mt-4 text-center text-[10px] text-slate-400 font-semibold">
+                        © {new Date().getFullYear()} StoreAI Intelligence. Multi-Tenant Enterprise Platform.
                     </div>
 
                 </div>

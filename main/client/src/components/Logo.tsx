@@ -5,71 +5,27 @@ interface LogoProps {
     showText?: boolean;
     className?: string;
     theme?: 'light' | 'dark';
-    variant?: 'colored' | 'white';
+    variant?: 'colored' | 'white' | 'multicolor';
 }
 
-const Logo: React.FC<LogoProps> = ({ size = 96, showText = false, className = "", theme = 'dark', variant }) => {
-    const effectiveSize = size * 2.5;
-
-    // Default to 'colored' unless explicitly 'white' or if theme is dark and variant not specified
-    const activeVariant = variant || (theme === 'dark' ? 'white' : 'colored');
-
-    const coloredLogo = '/logo-mt.png';
-    const whiteLogo = '/logo-mt.png'; // Fallback to colored or apply filter
-
-    const primaryLogo = activeVariant === 'white' ? whiteLogo : coloredLogo;
-    const fallbackLogo = '/logo-mt.png';
-    const iconPath = '/storeai-app-icon.png';
-
-    const styleFilter = activeVariant === 'white'
-        ? 'brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-        : 'none';
-
+const Logo: React.FC<LogoProps> = ({ size = 36, className = "" }) => {
     return (
-        <div className={`flex items-center ${className}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <div style={{
-                position: 'relative',
-                width: showText ? 'auto' : '42px',
-                height: showText ? effectiveSize : '42px',
-                display: 'flex',
-                alignItems: 'center',
-                overflow: 'visible',
-                borderRadius: '8px',
-            }}>
-                {showText ? (
-                    <img
-                        src={primaryLogo}
-                        alt="StoreAI"
-                        style={{
-                            height: effectiveSize,
-                            width: 'auto',
-                            objectFit: 'contain',
-                            display: 'block',
-                            filter: styleFilter
-                        }}
-                        onError={(e) => {
-                            if (e.currentTarget.src.endsWith(primaryLogo)) {
-                                e.currentTarget.src = fallbackLogo;
-                                return;
-                            }
-                            e.currentTarget.style.display = 'none';
-                        }}
-                    />
-                ) : (
-                    <div className="bg-gradient-to-br from-[#0061A8] to-[#00A3E0] shadow-md rounded-[0.8rem] flex items-center justify-center" style={{
-                        width: '42px',
-                        height: '42px',
-                    }}>
-                        <img
-                            src={iconPath}
-                            alt="StoreAI"
-                            className="w-[75%] h-[75%] object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
-                        />
-                    </div>
-                )}
-            </div>
+        <div className={`flex items-center ${className}`}>
+            <img
+                src="/StoreAI-Logo-new.png"
+                alt="StoreAI Multi-Tenant"
+                style={{ height: `${size}px`, width: 'auto' }}
+                className="object-contain hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                    e.currentTarget.src = '/logo-transparent.png';
+                }}
+            />
         </div>
     );
 };
 
 export default Logo;
+
+
+
+

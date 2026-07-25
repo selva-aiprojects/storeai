@@ -196,3 +196,148 @@ CREATE TABLE "GSTLog" (
     "date" TIMESTAMP DEFAULT now(),
     "isPaid" BOOLEAN DEFAULT false
 );
+
+-- 8. Warehouse & Bin Management (WMS)
+CREATE TABLE "Warehouse" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "code" TEXT UNIQUE NOT NULL,
+    "address" TEXT,
+    "isFulfillmentCenter" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "WarehouseBin" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "warehouseId" UUID NOT NULL REFERENCES "Warehouse"("id") ON DELETE CASCADE,
+    "zone" TEXT NOT NULL,
+    "aisle" TEXT NOT NULL,
+    "rack" TEXT NOT NULL,
+    "binCode" TEXT UNIQUE NOT NULL,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "StockTransfer" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "transferNumber" TEXT UNIQUE NOT NULL,
+    "fromWarehouseId" UUID NOT NULL REFERENCES "Warehouse"("id"),
+    "toWarehouseId" UUID NOT NULL REFERENCES "Warehouse"("id"),
+    "status" TEXT DEFAULT 'PENDING', -- PENDING, SHIPPED, RECEIVED, CANCELLED
+    "notes" TEXT,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+-- 9. Loyalty Programs & Rewards
+CREATE TABLE "LoyaltyAccount" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "customerId" UUID UNIQUE NOT NULL REFERENCES "Customer"("id") ON DELETE CASCADE,
+    "pointsBalance" INTEGER DEFAULT 0,
+    "tierLevel" TEXT DEFAULT 'BRONZE', -- BRONZE, SILVER, GOLD, PLATINUM
+    "lifetimePoints" INTEGER DEFAULT 0,
+    "updatedAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "LoyaltyLedger" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "loyaltyAccountId" UUID NOT NULL REFERENCES "LoyaltyAccount"("id") ON DELETE CASCADE,
+    "points" INTEGER NOT NULL, -- Positive for Earned, Negative for Redeemed
+    "type" TEXT NOT NULL, -- 'EARN', 'REDEEM', 'EXPIRATION', 'BONUS'
+    "description" TEXT,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "RewardVoucher" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "code" TEXT UNIQUE NOT NULL,
+    "discountValue" DECIMAL(10,2) NOT NULL,
+    "minOrderValue" DECIMAL(10,2) DEFAULT 0,
+    "expiresAt" TIMESTAMP NOT NULL,
+    "isRedeemed" BOOLEAN DEFAULT false,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+-- 10. Subscription Billing Engine
+CREATE TABLE "SubscriptionPlan" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "code" TEXT UNIQUE NOT NULL,
+    "billingInterval" TEXT DEFAULT 'MONTHLY', -- WEEKLY, MONTHLY, YEARLY
+    "price" DECIMAL(10,2) NOT NULL,
+    "currency" TEXT DEFAULT 'INR',
+    "isActive" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "Subscription" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "customerId" UUID NOT NULL REFERENCES "Customer"("id") ON DELETE CASCADE,
+    "planId" UUID NOT NULL REFERENCES "SubscriptionPlan"("id"),
+    "status" TEXT DEFAULT 'ACTIVE', -- ACTIVE, PAST_DUE, CANCELLED, PAUSED
+    "currentPeriodStart" TIMESTAMP DEFAULT now(),
+    "currentPeriodEnd" TIMESTAMP NOT NULL,
+    "autoRenew" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "SubscriptionInvoice" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "subscriptionId" UUID NOT NULL REFERENCES "Subscription"("id") ON DELETE CASCADE,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "status" TEXT DEFAULT 'UNPAID', -- PAID, UNPAID, VOID
+    "dueDate" TIMESTAMP NOT NULL,
+    "paidAt" TIMESTAMP,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+-- 11. CRM & Lead Funnel
+CREATE TABLE "Lead" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" TEXT NOT NULL,
+    "company" TEXT,
+    "email" TEXT,
+    "phone" TEXT,
+    "stage" TEXT DEFAULT 'NEW', -- NEW, QUALIFIED, PROPOSAL, WON, LOST
+    "estimatedValue" DECIMAL(10,2) DEFAULT 0,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "CustomerInteraction" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "customerId" UUID REFERENCES "Customer"("id") ON DELETE CASCADE,
+    "leadId" UUID REFERENCES "Lead"("id") ON DELETE CASCADE,
+    "type" TEXT NOT NULL, -- 'CALL', 'EMAIL', 'MEETING', 'NOTE'
+    "notes" TEXT NOT NULL,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+-- 12. POS Shift & Register Session
+CREATE TABLE "POSShift" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "cashierName" TEXT NOT NULL,
+    "openedAt" TIMESTAMP DEFAULT now(),
+    "closedAt" TIMESTAMP,
+    "openingFloat" DECIMAL(10,2) NOT NULL,
+    "closingCashExpected" DECIMAL(10,2) DEFAULT 0,
+    "closingCashActual" DECIMAL(10,2) DEFAULT 0,
+    "status" TEXT DEFAULT 'OPEN' -- OPEN, CLOSED
+);
+
+-- 13. Vendor & Customer Portal Users
+CREATE TABLE "VendorUser" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "supplierId" UUID NOT NULL REFERENCES "Supplier"("id") ON DELETE CASCADE,
+    "email" TEXT UNIQUE NOT NULL,
+    "password" TEXT NOT NULL,
+    "isActive" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE "CustomerUser" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "customerId" UUID NOT NULL REFERENCES "Customer"("id") ON DELETE CASCADE,
+    "email" TEXT UNIQUE NOT NULL,
+    "password" TEXT NOT NULL,
+    "isActive" BOOLEAN DEFAULT true,
+    "createdAt" TIMESTAMP DEFAULT now()
+);
+

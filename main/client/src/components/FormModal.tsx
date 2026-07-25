@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Building2, FileText, Pause } from 'lucide-react';
+import { X, Building2, FileText, Pause, Maximize2, Minimize2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import api, { createProduct, createSupplier, createOrder, createSale, createUser, createEmployee, createCustomer, createPayroll, createGoodsReceipt, generatePayroll, createPricingRule, getPricingRules } from '../services/api';
@@ -10,6 +10,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
     const [reconcileData, setReconcileData] = useState<any>(null);
     const [pricingRules, setPricingRules] = useState<any[]>([]);
     const [pricingRulesLoading, setPricingRulesLoading] = useState(false);
+    const [isModalFullscreen, setIsModalFullscreen] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -297,16 +298,26 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className={`modal ${['sales', 'grn', 'employees', 'view_batches'].includes(type) ? 'modal-wide' : ''}`}
+                className={`modal ${['sales', 'grn', 'employees', 'view_batches', 'orders', 'purchases'].includes(type) ? 'modal-wide' : ''} ${isModalFullscreen ? 'modal-fullscreen' : ''}`}
                 onClick={e => e.stopPropagation()}
             >
                 <div className="modal-header">
                     <span>{getModalTitle()}</span>
-                    <X onClick={onClose} style={{ cursor: 'pointer' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <button
+                            type="button"
+                            onClick={() => setIsModalFullscreen(!isModalFullscreen)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', display: 'flex', alignItems: 'center' }}
+                            title={isModalFullscreen ? 'Exit Fullscreen' : 'Fullscreen Popup'}
+                        >
+                            {isModalFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                        </button>
+                        <X onClick={onClose} style={{ cursor: 'pointer' }} />
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px', maxHeight: '65vh' }}>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px', maxHeight: isModalFullscreen ? '88vh' : '78vh' }}>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
                             {type === 'reconcile' && (

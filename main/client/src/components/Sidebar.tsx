@@ -23,11 +23,20 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
 
     const menuItems: any[] = [
         { path: '/', label: 'Dashboard', icon: LayoutDashboard, permission: 'dashboard:view' },
-        { divider: 'Inventory & Catalog' },
+        { divider: 'Front-of-House Touchpoints' },
+        { path: '/pos', label: 'POS Terminal', icon: CreditCard, feature: 'RETAIL_MODULE' },
+        { path: '/storefront', label: 'Storefront', icon: Package, feature: 'RETAIL_MODULE' },
+        { path: '/customer-portal', label: 'Customer Portal', icon: Home, feature: 'CRM_MODULE' },
+        { path: '/vendor-portal', label: 'Vendor Portal', icon: Truck, feature: 'PROCUREMENT_MODULE' },
+        { divider: 'Inventory & WMS' },
         { path: '/products', label: 'Product Catalog', icon: Layers, feature: 'RETAIL_MODULE', permission: 'inventory:read' },
         { path: '/inventory', label: 'Stock Master', icon: Package, feature: 'INVENTORY_MODULE', permission: 'inventory:read' },
-        { divider: 'Trade & Logistics' },
-        { path: '/sales', label: 'Sales [POS]', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
+        { path: '/warehouse-bins', label: 'Warehouse & Bins', icon: Building2, feature: 'INVENTORY_MODULE' },
+        { divider: 'Trade & Growth' },
+        { path: '/sales', label: 'Sales & Invoices', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
+        { path: '/crm', label: 'CRM & Pipeline', icon: Users, feature: 'CRM_MODULE' },
+        { path: '/loyalty', label: 'Loyalty & Rewards', icon: BarChart3, feature: 'RETAIL_MODULE' },
+        { path: '/subscriptions', label: 'Subscriptions', icon: History, feature: 'FINANCE_MODULE' },
         { path: '/returns', label: 'Sales Returns', icon: RotateCcw, feature: 'RETAIL_MODULE', permission: 'sales:read' },
         { path: '/purchases', label: 'Procurement Hub', icon: Truck, feature: 'PROCUREMENT_MODULE', permission: 'orders:read' },
         { divider: 'Organization' },
@@ -49,7 +58,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         { path: '/config-finance', label: 'Finance Policies', icon: Settings, feature: 'FINANCE_MODULE', permission: 'accounts:read' },
         { path: '/reports', label: 'Strategic Reports', icon: TrendingUp, feature: 'REPORT_MODULE', permission: 'reports:view', hideMobileLabel: true },
         { divider: 'StoreAI Assistant' },
-        { path: '/assistant', label: 'Assistant', icon: Layers, feature: 'AI_MODULE', permission: 'dashboard:view', hideMobileLabel: true },
+        { path: '/assistant', label: 'AI Assistant', icon: Layers, feature: 'AI_MODULE', permission: 'dashboard:view', hideMobileLabel: true }
     ];
 
     if (user?.role === 'SUPER_ADMIN') {
@@ -84,9 +93,10 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
 
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
-            {/* Redesigned Sidebar Header */}
-            <div className="sidebar-header flex items-center justify-center p-4 relative" style={{ minHeight: isCollapsed ? '80px' : '100px' }}>
-                <Logo size={isCollapsed ? 64 : 84} showText={!isCollapsed} className={isCollapsed ? 'sidebar-logo-contrast' : 'sidebar-brand sidebar-logo-contrast'} variant="colored" />
+            {/* Redesigned Sidebar Header with Large Logo */}
+            <div className="sidebar-header flex items-center justify-center p-3 relative" style={{ height: isCollapsed ? '70px' : '115px', minHeight: isCollapsed ? '70px' : '115px' }}>
+                <Logo size={isCollapsed ? 54 : 160} showText={!isCollapsed} className={isCollapsed ? 'sidebar-logo-contrast' : 'sidebar-brand sidebar-logo-contrast'} variant="multicolor" />
+
 
                 {!mobileOpen && (
                     <button

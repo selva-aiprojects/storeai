@@ -62,9 +62,18 @@ export const createTenant = async (req: AuthRequest, res: Response) => {
         const userId = req.user?.id;
 
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+        if (!name?.trim()) return res.status(400).json({ error: 'Organization name is required' });
 
-        // Ensure slug is clean
-        const cleanSlug = slug.toLowerCase().trim().replace(/\s+/g, '-');
+        // Use the organization name as a fallback, then ensure the slug is URL-safe.
+        const cleanSlug = (slug || name).toLowerCase().trim().replace(/\s+/g, '-');
+        if (!cleanSlug) return res.status(400).json({ error: 'Tenant slug is required' });
+
+        const existingTenant = await prisma.tenant.findUnique({ where: { slug: cleanSlug } });
+        if (existingTenant) {
+            return res.status(409).json({
+                error: `The tenant slug "${cleanSlug}" is already in use. Choose a different organization name or slug.`
+            });
+        }
 
         const superAdminRole = await prisma.role.findFirst({ where: { code: 'SUPER_ADMIN' } });
         if (!superAdminRole) return res.status(500).json({ error: 'System Roles not initialized. Please run seeding.' });
@@ -92,6 +101,9 @@ export const createTenant = async (req: AuthRequest, res: Response) => {
         res.status(201).json(tenant);
     } catch (error: any) {
         console.error("Create Tenant Error:", error);
+        if (error.code === 'P2002') {
+            return res.status(409).json({ error: 'This tenant slug is already in use. Please choose another one.' });
+        }
         res.status(400).json({ error: error.message || 'Failed to create tenant' });
     }
 };

@@ -312,12 +312,10 @@ const Settings = () => {
                     <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>USER ACCESS CONTROL</span>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            {user?.activeTenant?.slug === 'storeai' && (
-                                <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.7rem' }} onClick={() => setModal({ type: 'tenant' })}>
-                                    <Building2 size={14} style={{ marginRight: '6px' }} /> PROVISION TENANT
-                                </button>
-                            )}
-                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.7rem' }} onClick={() => setModal({ type: 'users' })}>
+                            <button className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: 700 }} onClick={() => setModal({ type: 'tenant' })}>
+                                <Building2 size={14} style={{ marginRight: '6px' }} /> + CREATE NEW TENANT
+                            </button>
+                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.75rem', fontWeight: 700 }} onClick={() => setModal({ type: 'users' })}>
                                 <UserCog size={14} style={{ marginRight: '6px' }} /> PROVISION USER
                             </button>
                         </div>
