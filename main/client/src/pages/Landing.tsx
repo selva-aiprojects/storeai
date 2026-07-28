@@ -408,9 +408,9 @@ const Landing = () => {
                         <p className="text-xs text-slate-400">Have questions about enterprise deployment or custom pricing?</p>
                     </div>
                     <div className="flex flex-wrap gap-3 md:col-span-2 justify-center md:justify-end">
-                        <a href="mailto:contactus@whitekraaft.com" className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-200 flex items-center gap-2 transition-all font-semibold">
+                        <a href="mailto:contactus@cognivectra.com" className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-200 flex items-center gap-2 transition-all font-semibold">
                             <Mail size={15} className="text-cyan-400" />
-                            contactus@whitekraaft.com
+                            contactus@cognivectra.com
                         </a>
                         <a href="tel:+917032295550" className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-200 flex items-center gap-2 transition-all font-semibold">
                             <Phone size={15} className="text-indigo-400" />
@@ -429,7 +429,7 @@ const Landing = () => {
                 <div className="container mx-auto px-6 max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4">
                     <img src="/StoreAI-Logo-new.png" alt="StoreAI Logo" className="h-16 w-auto opacity-90 drop-shadow-lg" />
                     <div className="text-slate-500 text-xs font-semibold">
-                        &copy; {new Date().getFullYear()} StoreAI Intelligence. A product of Whitekraaft.com. All rights reserved.
+                        &copy; {new Date().getFullYear()} StoreAI Intelligence. A product of Cognivectra.com. All rights reserved.
                     </div>
                 </div>
             </footer>
