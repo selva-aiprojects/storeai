@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import {
     ShoppingCart, QrCode, CreditCard, DollarSign, Smartphone, Award, Printer, RotateCcw,
     CheckCircle, Wifi, WifiOff, Maximize2, Minimize2, Search, Image as ImageIcon, MapPin,
@@ -7,6 +8,7 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import PageHeader from '../components/PageHeader';
+import { createSale } from '../services/api';
 
 interface CartItem {
     id: string;
@@ -22,6 +24,7 @@ interface CartItem {
 }
 
 export default function POS({ products = [] }: { products?: any[] }) {
+    const { refreshData } = (useOutletContext<any>() || {}) as any;
     const [cart, setCart] = useState<CartItem[]>([]);
     const [barcodeInput, setBarcodeInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -121,7 +124,21 @@ export default function POS({ products = [] }: { products?: any[] }) {
     const grandTotal = Math.max(0, subtotal + totalGst + deliveryFee - loyaltyDiscount - Number(discountAmount || 0));
     const changeDue = Math.max(0, cashReceived - grandTotal);
 
-    const handleCompleteSale = () => {
+    const resetPosTerminal = () => {
+        setCart([]);
+        setBarcodeInput('');
+        setSearchQuery('');
+        setCashReceived(0);
+        setLoyaltyPointsToRedeem(0);
+        setDiscountAmount(0);
+        setIsHomeDelivery(false);
+        setDeliveryAddress('');
+        if (typeof refreshData === 'function') {
+            refreshData('sales');
+        }
+    };
+
+    const handleCompleteSale = async () => {
         if (cart.length === 0) return alert('Cart is empty!');
 
         const receiptData = {
@@ -149,6 +166,18 @@ export default function POS({ products = [] }: { products?: any[] }) {
             cashReceived,
             changeDue
         };
+
+        try {
+            await createSale({
+                items: cart.map(i => ({ productId: i.id, quantity: i.quantity, unitPrice: i.price })),
+                paymentMethod,
+                amountPaid: cashReceived || grandTotal,
+                isHomeDelivery,
+                deliveryAddress: isHomeDelivery ? deliveryAddress : undefined
+            });
+        } catch (e) {
+            console.warn('POS sale backend sync:', e);
+        }
 
         setLastSaleReceipt(receiptData);
         setIsReceiptModalOpen(true);
@@ -582,10 +611,13 @@ export default function POS({ products = [] }: { products?: any[] }) {
                                 <Printer className="w-4 h-4" /> Thermal Print
                             </button>
                             <button
-                                onClick={() => setIsReceiptModalOpen(false)}
+                                onClick={() => {
+                                    setIsReceiptModalOpen(false);
+                                    resetPosTerminal();
+                                }}
                                 className="py-3 px-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs"
                             >
-                                Close
+                                Close & Reset
                             </button>
                         </div>
                     </div>

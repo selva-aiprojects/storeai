@@ -122,6 +122,8 @@ function App() {
         const salesTasks = [
             safeFetchService(getSales, 'sales'),
             safeFetchService(getCustomers, 'customers'),
+            safeFetchService(getProducts, 'products'),
+            safeFetch('/dashboard/stats', 'stats'),
         ];
 
         const purchaseTasks = [
