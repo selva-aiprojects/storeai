@@ -412,11 +412,11 @@ const Landing = () => {
                             <Mail size={15} className="text-cyan-400" />
                             contactus@cognivectra.com
                         </a>
-                        <a href="tel:+917032295550" className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-200 flex items-center gap-2 transition-all font-semibold">
+                        <a href="tel:+918825492600" className="px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-200 flex items-center gap-2 transition-all font-semibold">
                             <Phone size={15} className="text-indigo-400" />
-                            +91 70322 95550
+                            +91 88254 92600
                         </a>
-                        <a href="https://wa.me/917032295550" target="_blank" rel="noopener noreferrer" className="px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl text-xs text-emerald-400 flex items-center gap-2 transition-all font-bold">
+                        <a href="https://wa.me/918825492600" target="_blank" rel="noopener noreferrer" className="px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-xl text-xs text-emerald-400 flex items-center gap-2 transition-all font-bold">
                             <MessageCircle size={15} />
                             WhatsApp Sales
                         </a>
