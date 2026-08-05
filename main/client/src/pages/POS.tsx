@@ -185,8 +185,17 @@ export default function POS({ products = [] }: { products?: any[] }) {
 
     const downloadPDFInvoice = (receipt: any) => {
         const doc = new jsPDF() as any;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const rightMargin = 15;
+        const money = (value: number) => `INR ${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const originalText = doc.text.bind(doc);
+        doc.text = (text: string | string[], ...args: any[]) => {
+            const normaliseCurrency = (value: string) => value.replace(/\u20B9|\u00e2\u201a\u00b9/g, 'INR ');
+            return originalText(Array.isArray(text) ? text.map(normaliseCurrency) : normaliseCurrency(text), ...args);
+        };
         doc.setFillColor(15, 23, 42);
-        doc.rect(0, 0, 210, 36, 'F');
+        doc.rect(0, 0, pageWidth, 36, 'F');
 
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20);
@@ -203,13 +212,13 @@ export default function POS({ products = [] }: { products?: any[] }) {
         doc.text("BILL TO (CUSTOMER):", 15, 48);
         doc.setFont("helvetica", "normal");
         doc.text(`${receipt.customer} (${receipt.phone})`, 15, 54);
-        doc.text(`${receipt.billingAddress}`, 15, 60);
+        doc.text(doc.splitTextToSize(receipt.billingAddress || 'Walk-in customer', 92), 15, 60);
 
         if (receipt.isHomeDelivery) {
             doc.setFont("helvetica", "bold");
             doc.text("SHIP TO (DELIVERY ADDRESS):", 125, 48);
             doc.setFont("helvetica", "normal");
-            doc.text(`${receipt.deliveryAddress}, ${receipt.deliveryCity}`, 125, 54);
+            doc.text(doc.splitTextToSize(`${receipt.deliveryAddress}, ${receipt.deliveryCity}`, 70), 125, 54);
         }
 
         const tableData = receipt.items.map((item: any, idx: number) => [
@@ -227,7 +236,18 @@ export default function POS({ products = [] }: { products?: any[] }) {
             head: [['#', 'ITEM & BATCH', 'CATEGORY', 'QTY', 'RATE', 'GST', 'TOTAL']],
             body: tableData,
             theme: 'grid',
-            headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }
+            margin: { left: 15, right: rightMargin },
+            styles: { fontSize: 8, cellPadding: 2, valign: 'middle', overflow: 'linebreak' },
+            headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+            columnStyles: {
+                0: { cellWidth: 7, halign: 'center' },
+                1: { cellWidth: 68 },
+                2: { cellWidth: 30 },
+                3: { cellWidth: 12, halign: 'center' },
+                4: { cellWidth: 25, halign: 'right' },
+                5: { cellWidth: 12, halign: 'center' },
+                6: { cellWidth: 26, halign: 'right' },
+            },
         });
 
         const finalY = (doc as any).lastAutoTable.finalY || 120;
@@ -240,11 +260,45 @@ export default function POS({ products = [] }: { products?: any[] }) {
         doc.setFontSize(12);
         doc.text(`GRAND TOTAL: ₹${receipt.grandTotal.toFixed(2)}`, 140, finalY + 40);
 
+        // Redraw the financial summary in a fixed-width, right-aligned block.
+        // This prevents long values from running past the A4 right margin.
+        let summaryY = finalY + 12;
+        if (summaryY + 32 > pageHeight - 15) {
+            doc.addPage();
+            summaryY = 25;
+        } else {
+            doc.setFillColor(255, 255, 255);
+            doc.rect(130, finalY + 4, pageWidth - 130 - rightMargin, 46, 'F');
+        }
+        const summaryLabelX = 138;
+        const summaryValueX = pageWidth - rightMargin;
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('Subtotal', summaryLabelX, summaryY);
+        doc.text(money(receipt.subtotal), summaryValueX, summaryY, { align: 'right' });
+        doc.text('CGST', summaryLabelX, summaryY + 7);
+        doc.text(money(receipt.cgst), summaryValueX, summaryY + 7, { align: 'right' });
+        doc.text('SGST', summaryLabelX, summaryY + 14);
+        doc.text(money(receipt.sgst), summaryValueX, summaryY + 14, { align: 'right' });
+        let grandTotalY = summaryY + 22;
+        if (receipt.deliveryFee > 0) {
+            doc.text('Home delivery', summaryLabelX, summaryY + 21);
+            doc.text(money(receipt.deliveryFee), summaryValueX, summaryY + 21, { align: 'right' });
+            grandTotalY += 7;
+        }
+        doc.setDrawColor(203, 213, 225);
+        doc.line(summaryLabelX, grandTotalY - 6, summaryValueX, grandTotalY - 6);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('GRAND TOTAL', summaryLabelX, grandTotalY);
+        doc.text(money(receipt.grandTotal), summaryValueX, grandTotalY, { align: 'right' });
+
         doc.save(`${receipt.invoiceNo}.pdf`);
     };
 
     return (
-        <div className={`font-['Outfit'] transition-all ${isFullscreen ? 'fixed inset-0 z-[99999] bg-slate-950 text-white p-6 overflow-y-auto' : 'space-y-5'}`}>
+        <div className={`pos-terminal-shell font-['Outfit'] transition-all ${isFullscreen ? 'fixed inset-0 z-[99999] bg-slate-950 text-white p-6 overflow-y-auto' : 'space-y-5'}`}>
             
             {/* UNIFIED ENTERPRISE PAGE HEADER */}
             <PageHeader
@@ -255,7 +309,7 @@ export default function POS({ products = [] }: { products?: any[] }) {
                 badgeColor="emerald"
                 iconGradient="from-emerald-500 to-teal-600"
                 actions={
-                    <>
+                    <div className="pos-header-actions flex items-center gap-2 flex-wrap justify-end">
                         <button
                             onClick={() => setIsOnline(!isOnline)}
                             className={`px-3 py-2 rounded-2xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${isOnline ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200'}`}
@@ -282,12 +336,12 @@ export default function POS({ products = [] }: { products?: any[] }) {
                         >
                             <RotateCcw className="w-4 h-4" /> CLEAR CART
                         </button>
-                    </>
+                    </div>
                 }
             />
 
             {/* CATEGORY FILTER TABS */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="pos-category-tabs flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                 {categoriesList.map(cat => (
                     <button
                         key={cat}
@@ -301,13 +355,13 @@ export default function POS({ products = [] }: { products?: any[] }) {
             </div>
 
             {/* POS MAIN GRID */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="pos-terminal-grid grid grid-cols-1 lg:grid-cols-12 gap-5">
                 
                 {/* LEFT: PRODUCT CATALOG GRID (7 COLS) */}
-                <div className="lg:col-span-7 space-y-4">
+                <div className="pos-product-panel lg:col-span-7 space-y-4 min-w-0">
                     {/* Barcode & Search Bar */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <form onSubmit={handleBarcodeSubmit} className="relative">
+                    <div className="pos-search-grid grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <form onSubmit={handleBarcodeSubmit} className="relative min-w-0">
                             <QrCode className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
                             <input
                                 type="text"
@@ -317,7 +371,7 @@ export default function POS({ products = [] }: { products?: any[] }) {
                                 className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 outline-none"
                             />
                         </form>
-                        <div className="relative">
+                        <div className="relative min-w-0">
                             <Search className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
                             <input
                                 type="text"
@@ -330,12 +384,12 @@ export default function POS({ products = [] }: { products?: any[] }) {
                     </div>
 
                     {/* Product Cards Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 max-h-[600px] overflow-y-auto pr-1">
+                    <div className="pos-product-grid grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3.5 max-h-[600px] overflow-y-auto pr-1 min-w-0">
                         {filteredProducts.map((p) => (
                             <div
                                 key={p.id}
                                 onClick={() => handleAddToCart(p)}
-                                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-lg flex flex-col justify-between group relative"
+                                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-lg flex flex-col justify-between group relative min-w-0"
                             >
                                 {/* Product Image & Badges */}
                                 <div className="h-32 bg-slate-100 dark:bg-slate-900 relative flex items-center justify-center overflow-hidden p-2">
@@ -364,21 +418,21 @@ export default function POS({ products = [] }: { products?: any[] }) {
                                 </div>
 
                                 {/* Card Body & Expiry Info */}
-                                <div className="p-3 space-y-1.5">
+                                <div className="p-3 space-y-1.5 min-w-0">
                                     <h4 className="font-bold text-xs text-slate-900 dark:text-white line-clamp-1 group-hover:text-emerald-600 transition-colors">
                                         {p.name}
                                     </h4>
 
-                                    <div className="flex items-center justify-between text-[10px] text-slate-400">
-                                        <span>Batch: {p.batchNumber || 'BATCH-01'}</span>
-                                        <span className="text-amber-500 font-semibold flex items-center gap-0.5">
+                                    <div className="flex items-center justify-between text-[10px] text-slate-400 gap-2 min-w-0">
+                                        <span className="truncate">Batch: {p.batchNumber || 'BATCH-01'}</span>
+                                        <span className="text-amber-500 font-semibold flex items-center gap-0.5 shrink-0">
                                             <Calendar className="w-2.5 h-2.5" /> Exp: {p.expiryDate || '2027'}
                                         </span>
                                     </div>
 
-                                    <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                                    <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-700/50 gap-2">
                                         <span className="text-sm font-extrabold text-slate-900 dark:text-white">₹{Number(p.price).toFixed(2)}</span>
-                                        <span className="text-[10px] text-slate-400 font-bold bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-md">
+                                        <span className="text-[10px] text-slate-400 font-bold bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-md shrink-0">
                                             Stock: {p.stockQuantity ?? 50}
                                         </span>
                                     </div>
@@ -389,25 +443,25 @@ export default function POS({ products = [] }: { products?: any[] }) {
                 </div>
 
                 {/* RIGHT: ADVANCED BILLING & CUSTOMER DETAILS (5 COLS) */}
-                <div className="lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between shadow-sm">
-                    <div className="space-y-4">
+                <div className="pos-billing-panel lg:col-span-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 flex flex-col justify-between shadow-sm min-w-0">
+                    <div className="space-y-4 min-w-0">
                         
                         {/* CUSTOMER & REPEAT CUSTOMER MARKING SECTION */}
                         <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700/70 space-y-3">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center gap-2">
                                 <span className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
                                     <UserCheck className="w-4 h-4 text-emerald-500" /> Customer Protocol
                                 </span>
 
                                 {/* REPEAT CUSTOMER BADGE */}
                                 {isRepeatCustomer && (
-                                    <span className="px-2.5 py-0.5 bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300 border border-pink-200 text-[10px] font-bold rounded-full flex items-center gap-1">
+                                    <span className="px-2.5 py-0.5 bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300 border border-pink-200 text-[10px] font-bold rounded-full flex items-center gap-1 whitespace-nowrap">
                                         <Sparkles className="w-3 h-3 text-pink-500" /> REPEATED CUSTOMER ({customerVisitCount}th Visit)
                                     </span>
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="pos-customer-grid grid grid-cols-2 gap-2 text-xs">
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-400 uppercase">Customer Name</label>
                                     <input
@@ -430,7 +484,7 @@ export default function POS({ products = [] }: { products?: any[] }) {
 
                             {/* HOME DELIVERY & ADDRESS TOGGLE */}
                             <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between gap-2">
                                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 whitespace-nowrap cursor-pointer">
                                         <input
                                             type="checkbox"
@@ -441,7 +495,7 @@ export default function POS({ products = [] }: { products?: any[] }) {
                                         <Truck className="w-3.5 h-3.5 text-emerald-500" /> Enable Home Delivery
                                     </label>
                                     {isHomeDelivery && (
-                                        <span className="text-[10px] text-emerald-600 font-bold">+₹{deliveryCharge} Delivery Fee</span>
+                                        <span className="text-[10px] text-emerald-600 font-bold whitespace-nowrap">+₹{deliveryCharge} Delivery Fee</span>
                                     )}
                                 </div>
 
@@ -464,31 +518,31 @@ export default function POS({ products = [] }: { products?: any[] }) {
 
                         {/* CART ITEMS LIST */}
                         <div>
-                            <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700 mb-2">
+                            <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700 mb-2 gap-2">
                                 <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Cart Order</h3>
-                                <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap">
                                     {cart.reduce((s, c) => s + c.quantity, 0)} Items Selected
                                 </span>
                             </div>
 
-                            <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                            <div className="pos-cart-list space-y-2 max-h-[220px] overflow-y-auto pr-1">
                                 {cart.length === 0 ? (
                                     <div className="text-center py-10 text-slate-400 text-xs font-medium">
                                         Cart is empty. Click commodities on the left or scan barcode.
                                     </div>
                                 ) : (
                                     cart.map(item => (
-                                        <div key={item.id} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                                            <div className="flex-1 pr-2">
+                                        <div key={item.id} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700/50 gap-2">
+                                            <div className="flex-1 pr-2 min-w-0">
                                                 <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{item.name}</p>
                                                 <p className="text-[10px] text-slate-400">₹{item.price} + {item.gstPercentage}% GST • {item.batchNumber}</p>
                                             </div>
-                                            <div className="flex items-center gap-1.5">
+                                            <div className="flex items-center gap-1.5 shrink-0">
                                                 <button onClick={() => updateQuantity(item.id, -1)} className="w-5 h-5 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold flex items-center justify-center text-xs">-</button>
                                                 <span className="text-xs font-extrabold w-5 text-center text-slate-900 dark:text-white">{item.quantity}</span>
                                                 <button onClick={() => updateQuantity(item.id, 1)} className="w-5 h-5 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold flex items-center justify-center text-xs">+</button>
                                             </div>
-                                            <span className="text-xs font-extrabold text-slate-900 dark:text-white ml-3 w-16 text-right">
+                                            <span className="text-xs font-extrabold text-slate-900 dark:text-white ml-3 w-16 text-right shrink-0">
                                                 ₹{(item.price * item.quantity).toFixed(2)}
                                             </span>
                                         </div>
@@ -514,7 +568,7 @@ export default function POS({ products = [] }: { products?: any[] }) {
                         </div>
 
                         {/* PAYMENT METHODS */}
-                        <div className="grid grid-cols-4 gap-2 pt-1">
+                        <div className="pos-payment-grid grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                             {[
                                 { id: 'CASH', label: 'Cash', icon: DollarSign },
                                 { id: 'CARD', label: 'Card', icon: CreditCard },

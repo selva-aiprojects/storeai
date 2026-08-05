@@ -10,6 +10,7 @@ import api, {
 // Layouts & Components
 import DashboardLayout from './layouts/DashboardLayout';
 import FormModal from './components/FormModal';
+import GlobalSlowLoader from './components/GlobalSlowLoader';
 
 // Pages
 import Landing from './pages/Landing';
@@ -178,6 +179,7 @@ function App() {
     return (
         <CurrencyProvider tenantCurrency={tenantCurrency}>
             <LanguageProvider>
+                <GlobalSlowLoader />
                 <Router>
                     {!user ? (
                         <Routes>

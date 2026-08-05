@@ -13,6 +13,15 @@ const CACHE_TTL = 60000; // Increased to 60s for better performance
 
 // --- Progress Control (Hourglass Fix) ---
 let activeRequests = 0;
+let slowLoaderTimer: ReturnType<typeof window.setTimeout> | undefined;
+let slowLoaderVisible = false;
+
+const setSlowLoaderVisible = (visible: boolean) => {
+    if (slowLoaderVisible === visible) return;
+    slowLoaderVisible = visible;
+    document.dispatchEvent(new CustomEvent('storeai:slow-loading', { detail: { visible } }));
+};
+
 const updateProgress = (show: boolean) => {
     let bar = document.getElementById('top-progress-bar');
     if (!bar) {
@@ -23,12 +32,20 @@ const updateProgress = (show: boolean) => {
 
     if (show) {
         activeRequests++;
+        if (activeRequests === 1) {
+            slowLoaderTimer = window.setTimeout(() => {
+                if (activeRequests > 0) setSlowLoaderVisible(true);
+            }, 2000);
+        }
         bar.style.opacity = '1';
         bar.style.width = activeRequests > 1 ? '70%' : '30%';
         setTimeout(() => { if (activeRequests > 0) bar!.style.width = '90%'; }, 200);
     } else {
         activeRequests = Math.max(0, activeRequests - 1);
         if (activeRequests === 0) {
+            if (slowLoaderTimer) window.clearTimeout(slowLoaderTimer);
+            slowLoaderTimer = undefined;
+            setSlowLoaderVisible(false);
             bar.style.width = '100%';
             setTimeout(() => {
                 if (activeRequests === 0) {
@@ -51,6 +68,7 @@ api.interceptors.request.use((config) => {
         const cached = cache.get(config.url);
         if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
             updateProgress(false); // Immediate finish for cache hit
+            (config as any).__storeAiProgressComplete = true;
             config.adapter = (cfg: any) => Promise.resolve({
                 data: cached.data,
                 status: 200,
@@ -68,7 +86,7 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use((response) => {
-    updateProgress(false);
+    if (!(response.config as any).__storeAiProgressComplete) updateProgress(false);
     if (response.config.method === 'get') {
         cache.set(response.config.url, {
             data: response.data,

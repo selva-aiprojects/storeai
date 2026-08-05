@@ -17,7 +17,7 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
             '/products': 'Product & SKU Catalog',
             '/inventory': 'Stock Master & Inventory',
             '/warehouse-bins': 'Warehouse & Bin Storage',
-            '/sales': 'Sales Invoices & Orders',
+            '/sales': 'Order Desk & Invoices',
             '/returns': 'Sales & Customer Returns',
             '/crm': 'CRM & Customer Relationships',
             '/loyalty': 'Loyalty & Rewards Program',
@@ -56,7 +56,13 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
         return defaultTitle || 'Executive Dashboard';
     };
 
-    const showNewButton = ['/inventory', '/sales', '/purchases', '/hr', '/customers', '/accounts', '/pos'].includes(location.pathname);
+    const pageAction = {
+        '/sales': { label: 'New Manual Invoice', type: 'sales' },
+        '/purchases': { label: 'New Purchase Order', type: 'orders' },
+        '/inventory': { label: 'Add Product', type: 'products' },
+        '/customers': { label: 'Add Customer', type: 'customers' },
+        '/accounts': { label: 'New Payment', type: 'payment' },
+    }[location.pathname];
 
     return (
         <header className="header">
@@ -107,20 +113,13 @@ const Header = ({ refreshData, setModal, setSidebarOpen, user }: any) => {
                     <RefreshCw size={18} />
                 </button>
 
-                {showNewButton && (
+                {pageAction && (
                     <button
                         className="btn btn-primary text-xs font-bold"
-                        onClick={() => {
-                            const path = location.pathname;
-                            if (path.includes('sales') || path === '/pos') setModal({ type: 'sales' });
-                            else if (path.includes('purchase')) setModal({ type: 'orders' });
-                            else if (path.includes('inventory')) setModal({ type: 'products' });
-                            else if (path.includes('customers')) setModal({ type: 'customers' });
-                            else setModal({ type: 'sales' });
-                        }}
+                        onClick={() => setModal({ type: pageAction.type })}
                     >
                         <Plus size={16} />
-                        New Entry
+                        {pageAction.label}
                     </button>
                 )}
 

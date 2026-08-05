@@ -22,14 +22,14 @@ const DashboardLayout = ({ user, logout, refreshData, setModal, data, loading }:
 
     useEffect(() => {
         const handleGlobalDown = (e: KeyboardEvent) => {
-            if (e.key === 'F2') {
+            if (e.key === 'F2' && location.pathname === '/sales') {
                 e.preventDefault();
                 setModal({ type: 'sales' });
             }
         };
         window.addEventListener('keydown', handleGlobalDown);
         return () => window.removeEventListener('keydown', handleGlobalDown);
-    }, [setModal]);
+    }, [location.pathname, setModal]);
 
     const outletContext = useMemo(() => ({ user, refreshData, setModal, data }), [user, refreshData, setModal, data]);
 

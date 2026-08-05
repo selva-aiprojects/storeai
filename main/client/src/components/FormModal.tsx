@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Building2, FileText, Pause, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Building2, FileText, Pause, Maximize2, Minimize2, Search, Plus, Minus, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import api, { createProduct, createSupplier, createOrder, createSale, createUser, createEmployee, createCustomer, createPayroll, createGoodsReceipt, generatePayroll, createPricingRule, getPricingRules } from '../services/api';
@@ -11,12 +11,18 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
     const [pricingRules, setPricingRules] = useState<any[]>([]);
     const [pricingRulesLoading, setPricingRulesLoading] = useState(false);
     const [isModalFullscreen, setIsModalFullscreen] = useState(false);
+    const [posSearchQuery, setPosSearchQuery] = useState('');
+    const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'F9' && type === 'sales') {
                 e.preventDefault();
                 handleSubmit(new Event('submit'));
+            }
+            if (e.key === 'F2' && type === 'sales') {
+                e.preventDefault();
+                setFormData((prev: any) => ({ ...prev, items: [], amountPaid: 0 }));
             }
             if (e.key === 'Escape') onClose();
         };
@@ -34,7 +40,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             purchases: { supplierId: '', items: [{ productId: '', quantity: 1, unitPrice: 0 }] },
             tenant: { name: '', slug: '', logo: '', planId: 'PRO' },
             payment: { title: 'Payment Processing', amount: 0, method: 'BANK_TRANSFER', type: 'PAYABLE', category: 'GENERAL', description: '' },
-            sales: { items: [{ productId: '', quantity: 1, unitPrice: 0 }], customerId: '', team: 'SALES', isHomeDelivery: false, deliveryAddress: '', deliveryCity: '', amountPaid: 0, paymentMethod: 'CASH' },
+            sales: { items: [], customerId: '', team: 'SALES', isHomeDelivery: false, deliveryAddress: '', deliveryCity: '', amountPaid: 0, paymentMethod: 'CASH' },
             users: { email: '', password: '', firstName: '', lastName: '', roleCode: 'STAFF', tenantId: '' },
             employees: { firstName: '', lastName: '', employeeId: '', designation: '', joiningDate: new Date().toISOString().split('T')[0], salary: 0, departmentId: '', userId: '', aadhaarNumber: '', panNumber: '' },
             tracking_po: { trackingNumber: '', shippingCarrier: '', status: 'SHIPPED', expectedDeliveryDate: '' },
@@ -78,7 +84,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
             orders: 'PURCHASE ORDER [PO]',
             purchases: 'PROCUREMENT LOG',
             payment: 'BILLINGS & PAYMENTS',
-            sales: 'SALES [GST INVOICE]',
+            sales: 'MANUAL SALES INVOICE',
             users: 'ACCESS PROTOCOL',
             employees: 'HR ONBOARDING',
             customers: 'CUSTOMER MASTER',
@@ -237,7 +243,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
     };
 
     const parkOrder = () => {
-        if (!formData.items.some((i: any) => i.productId)) return alert("Cart is empty.");
+        if (!formData.items?.some((i: any) => i.productId)) return alert("Cart is empty.");
         const parked = JSON.parse(localStorage.getItem('parked_orders') || '[]');
         const label = prompt("Enter a label for this parked order (e.g., Customer Name or Table #):", `Order ${parked.length + 1}`);
         if (!label) return;
@@ -246,6 +252,64 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
         localStorage.setItem('parked_orders', JSON.stringify(parked));
         alert("Order Parked Successfully. You can resume it from the Sales Dashboard.");
         onClose();
+    };
+
+    const handleAddProductToCart = (product: any) => {
+        if (!product) return;
+        const currentItems = formData.items || [];
+        const existingIdx = currentItems.findIndex((i: any) => i.productId === product.id);
+        let updatedItems: any[] = [];
+        if (existingIdx >= 0) {
+            updatedItems = currentItems.map((item: any, idx: number) => {
+                if (idx === existingIdx) {
+                    return { ...item, quantity: item.quantity + 1 };
+                }
+                return item;
+            });
+        } else {
+            updatedItems = [...currentItems, { productId: product.id, quantity: 1, unitPrice: product.price }];
+        }
+        const total = updatedItems.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0);
+        setFormData({
+            ...formData,
+            items: updatedItems,
+            amountPaid: total
+        });
+        setPosSearchQuery('');
+        setShowSearchDropdown(false);
+    };
+
+    const handleUpdateItemQty = (idx: number, delta: number) => {
+        const currentItems = [...(formData.items || [])];
+        if (!currentItems[idx]) return;
+        const newQty = Math.max(1, (currentItems[idx].quantity || 1) + delta);
+        currentItems[idx].quantity = newQty;
+        const total = currentItems.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0);
+        setFormData({
+            ...formData,
+            items: currentItems,
+            amountPaid: total
+        });
+    };
+
+    const handleRemoveItem = (idx: number) => {
+        const currentItems = [...(formData.items || [])];
+        currentItems.splice(idx, 1);
+        const total = currentItems.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0);
+        setFormData({
+            ...formData,
+            items: currentItems,
+            amountPaid: total
+        });
+    };
+
+    const handleSelectPaymentMethod = (method: string) => {
+        const total = formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0) || 0;
+        setFormData({
+            ...formData,
+            paymentMethod: method,
+            amountPaid: total
+        });
     };
 
     const handleSubmit = async (e: any) => {
@@ -316,10 +380,10 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px', maxHeight: isModalFullscreen ? '88vh' : '78vh' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, minHeight: 0, overflowY: type === 'sales' ? 'hidden' : 'auto', padding: type === 'sales' ? '12px 16px' : '16px 24px', display: 'flex', flexDirection: 'column' }}>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: type === 'sales' ? '0' : '10px', height: type === 'sales' ? '100%' : 'auto', minHeight: 0, flex: type === 'sales' ? 1 : 'none' }}>
                             {type === 'reconcile' && (
                                 <div style={{ padding: '10px 8px' }}>
                                     <div style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '8px' }}>Reconciliation Results</div>
@@ -621,68 +685,190 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                         <div className="pos-cart-header">
                                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                 <span style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 800, letterSpacing: '0.05em' }}>VIRTUAL CART</span>
-                                                <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>ACTIVE SESSION</span>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                                                    ACTIVE SESSION ({formData.items?.length || 0} ITEMS)
+                                                </span>
                                             </div>
-                                            <button type="button" className="btn btn-primary" style={{ padding: '6px 14px' }} onClick={() => setFormData({ ...formData, items: [...formData.items, { productId: '', quantity: 1, unitPrice: 0 }] })}>
-                                                + ADD ITEM
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary"
+                                                style={{ padding: '6px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                                onClick={() => {
+                                                    const firstProd = products?.[0];
+                                                    if (firstProd) {
+                                                        handleAddProductToCart(firstProd);
+                                                    } else {
+                                                        setFormData({ ...formData, items: [...(formData.items || []), { productId: '', quantity: 1, unitPrice: 0 }] });
+                                                    }
+                                                }}
+                                            >
+                                                <Plus size={14} /> ADD ITEM
                                             </button>
                                         </div>
 
-                                        <div className="pos-cart-list no-scrollbar">
-                                            {formData.items?.map((item: any, idx: number) => (
-                                                <div key={idx} className="pos-cart-item">
-                                                    <select
-                                                        style={{ border: 'none', background: 'transparent', fontWeight: 700 }}
-                                                        value={item.productId}
-                                                        onChange={e => {
-                                                            const n = [...formData.items];
-                                                            n[idx].productId = e.target.value;
-                                                            const product = products?.find((p: any) => p.id === e.target.value);
-                                                            if (product) n[idx].unitPrice = product.price;
-                                                            setFormData({ ...formData, items: n });
+                                        {/* Smart Instant Product Search Bar */}
+                                        <div className="pos-search-wrapper">
+                                            <div className="pos-search-input-box">
+                                                <Search size={16} style={{ color: '#64748b' }} />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search product by name or SKU to quick add..."
+                                                    value={posSearchQuery}
+                                                    onChange={e => {
+                                                        setPosSearchQuery(e.target.value);
+                                                        setShowSearchDropdown(true);
+                                                    }}
+                                                    onFocus={() => setShowSearchDropdown(true)}
+                                                />
+                                                {posSearchQuery && (
+                                                    <X
+                                                        size={14}
+                                                        style={{ cursor: 'pointer', color: '#94a3b8' }}
+                                                        onClick={() => {
+                                                            setPosSearchQuery('');
+                                                            setShowSearchDropdown(false);
                                                         }}
-                                                        required
-                                                    >
-                                                        <option value="">Search Item...</option>
-                                                        {products?.map((p: any) => <option key={p.id} value={p.id}>{p.name} [₹{p.price}]</option>)}
-                                                    </select>
-                                                    <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '8px', padding: '0 8px' }}>
-                                                        <span style={{ fontSize: '0.7rem', color: '#64748b', marginRight: '4px' }}>₹</span>
-                                                        <input
-                                                            type="number"
-                                                            step="0.01"
-                                                            style={{ border: 'none', background: 'transparent', width: '100%', fontWeight: 600 }}
-                                                            value={item.unitPrice}
-                                                            onChange={e => { const n = [...formData.items]; n[idx].unitPrice = parseFloat(e.target.value); setFormData({ ...formData, items: n }); }}
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '8px', padding: '0 8px' }}>
-                                                        <span style={{ fontSize: '0.7rem', color: '#64748b', marginRight: '4px' }}>QTY</span>
-                                                        <input
-                                                            type="number"
-                                                            style={{ border: 'none', background: 'transparent', width: '100%', fontWeight: 700, textAlign: 'center' }}
-                                                            value={item.quantity}
-                                                            onChange={e => { const n = [...formData.items]; n[idx].quantity = parseInt(e.target.value); setFormData({ ...formData, items: n }); }}
-                                                            min="1"
-                                                        />
-                                                    </div>
-                                                    <button type="button" onClick={() => { const n = [...formData.items]; n.splice(idx, 1); setFormData({ ...formData, items: n }); }} style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}>
-                                                        <X size={16} />
-                                                    </button>
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {/* Filtered Dropdown Popover */}
+                                            {showSearchDropdown && posSearchQuery.trim() !== '' && (
+                                                <div className="pos-search-dropdown no-scrollbar">
+                                                    {products
+                                                        ?.filter((p: any) =>
+                                                            p.name.toLowerCase().includes(posSearchQuery.toLowerCase()) ||
+                                                            (p.sku && p.sku.toLowerCase().includes(posSearchQuery.toLowerCase()))
+                                                        )
+                                                        .slice(0, 8)
+                                                        .map((p: any) => (
+                                                            <div
+                                                                key={p.id}
+                                                                className="pos-search-result-item"
+                                                                onClick={() => handleAddProductToCart(p)}
+                                                            >
+                                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>{p.name}</span>
+                                                                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>SKU: {p.sku || 'N/A'} • {p.stockQuantity ?? 0} in stock</span>
+                                                                </div>
+                                                                <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#4f46e5' }}>
+                                                                    ₹{p.price}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    {products?.filter((p: any) => p.name.toLowerCase().includes(posSearchQuery.toLowerCase()) || (p.sku && p.sku.toLowerCase().includes(posSearchQuery.toLowerCase()))).length === 0 && (
+                                                        <div style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center' }}>
+                                                            No products match "{posSearchQuery}"
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            ))}
+                                            )}
+                                        </div>
+
+                                        <div className="pos-cart-list no-scrollbar">
+                                            {formData.items?.map((item: any, idx: number) => {
+                                                const product = products?.find((p: any) => p.id === item.productId);
+                                                const lineTotal = (item.quantity || 0) * (item.unitPrice || 0);
+
+                                                return (
+                                                    <div key={idx} className="pos-cart-item-row">
+                                                        {/* Product Select / Name */}
+                                                        <div>
+                                                            <select
+                                                                style={{ border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.85rem', width: '100%', outline: 'none' }}
+                                                                value={item.productId}
+                                                                onChange={e => {
+                                                                    const n = [...formData.items];
+                                                                    n[idx].productId = e.target.value;
+                                                                    const prod = products?.find((p: any) => p.id === e.target.value);
+                                                                    if (prod) n[idx].unitPrice = prod.price;
+                                                                    const tot = n.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0);
+                                                                    setFormData({ ...formData, items: n, amountPaid: tot });
+                                                                }}
+                                                                required
+                                                            >
+                                                                <option value="">Select Item...</option>
+                                                                {products?.map((p: any) => (
+                                                                    <option key={p.id} value={p.id}>
+                                                                        {p.name} [₹{p.price}]
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                            {product && (
+                                                                <span style={{ fontSize: '0.65rem', color: '#6366f1', display: 'block', marginTop: '2px', fontWeight: 600 }}>
+                                                                    Available: {product.stockQuantity ?? 0} {product.unit || 'pcs'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Unit Price */}
+                                                        <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '8px', padding: '2px 8px' }}>
+                                                            <span style={{ fontSize: '0.7rem', color: '#64748b', marginRight: '4px' }}>₹</span>
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                style={{ border: 'none', background: 'transparent', width: '100%', fontWeight: 600, fontSize: '0.85rem' }}
+                                                                value={item.unitPrice}
+                                                                onChange={e => {
+                                                                    const n = [...formData.items];
+                                                                    n[idx].unitPrice = parseFloat(e.target.value) || 0;
+                                                                    const tot = n.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0);
+                                                                    setFormData({ ...formData, items: n, amountPaid: tot });
+                                                                }}
+                                                                required
+                                                            />
+                                                        </div>
+
+                                                        {/* Stepper QTY */}
+                                                        <div className="pos-qty-stepper">
+                                                            <button type="button" className="pos-qty-btn" onClick={() => handleUpdateItemQty(idx, -1)}>-</button>
+                                                            <input
+                                                                type="number"
+                                                                className="pos-qty-input"
+                                                                value={item.quantity}
+                                                                onChange={e => {
+                                                                    const n = [...formData.items];
+                                                                    n[idx].quantity = Math.max(1, parseInt(e.target.value) || 1);
+                                                                    const tot = n.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0);
+                                                                    setFormData({ ...formData, items: n, amountPaid: tot });
+                                                                }}
+                                                                min="1"
+                                                            />
+                                                            <button type="button" className="pos-qty-btn" onClick={() => handleUpdateItemQty(idx, 1)}>+</button>
+                                                        </div>
+
+                                                        {/* Line Total */}
+                                                        <div style={{ textAlign: 'right', fontWeight: 800, fontSize: '0.88rem', color: '#1e293b' }}>
+                                                            ₹{lineTotal.toFixed(2)}
+                                                        </div>
+
+                                                        {/* Remove Item */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveItem(idx)}
+                                                            style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer', padding: '4px', display: 'flex', justifyContent: 'center' }}
+                                                            title="Remove Item"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+
                                             {(!formData.items || formData.items.length === 0) && (
-                                                <div style={{ textAlign: 'center', padding: '40px', opacity: 0.4 }}>
-                                                    <div style={{ fontSize: '1.2rem', marginBottom: '8px' }}>🛒</div>
-                                                    <div style={{ fontSize: '0.8rem' }}>Cart is empty. Start adding items.</div>
+                                                <div style={{ textAlign: 'center', padding: '40px 20px', background: '#ffffff', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                                                    <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🛒</div>
+                                                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155' }}>Cart is currently empty</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                                                        Use the search bar above or click <b>+ ADD ITEM</b> to start building the bill.
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
 
                                         <div className="pos-hotkey-bar">
-                                            <span><span className="pos-hotkey">F2</span> NEW</span>
-                                            <span><span className="pos-hotkey">F9</span> INVOICE</span>
+                                            <span><span className="pos-hotkey">F2</span> CLEAR CART</span>
+                                            <span><span className="pos-hotkey">F9</span> COMPLETE SALE</span>
                                             <span><span className="pos-hotkey">ESC</span> EXIT</span>
                                         </div>
                                     </div>
@@ -734,34 +920,47 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                                         <div className="pos-checkout-card">
                                             <span className="pos-total-label">BILLING TOTAL (INC. GST)</span>
                                             <div className="pos-total-value">
-                                                ₹{formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * i.unitPrice), 0).toFixed(2)}
+                                                ₹{(formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0) || 0).toFixed(2)}
                                             </div>
                                             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', width: '100%', marginTop: '5px' }}>
-                                                <span style={{ fontSize: '0.65rem', opacity: 0.7 }}>Net: ₹{(formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * i.unitPrice), 0) / 1.18).toFixed(2)}</span>
-                                                <span style={{ fontSize: '0.65rem', opacity: 0.7, color: '#fbbf24' }}>GST (18%): ₹{(formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * i.unitPrice), 0) - (formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * i.unitPrice), 0) / 1.18)).toFixed(2)}</span>
+                                                <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>Net: ₹{((formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0) || 0) / 1.18).toFixed(2)}</span>
+                                                <span style={{ fontSize: '0.65rem', opacity: 0.8, color: '#fbbf24' }}>GST (18%): ₹{((formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0) || 0) - ((formData.items?.reduce((sum: number, i: any) => sum + (i.quantity * (i.unitPrice || 0)), 0) || 0) / 1.18)).toFixed(2)}</span>
                                             </div>
-                                            <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.1)', margin: '15px 0' }}></div>
-                                            <div style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                                <div style={{ textAlign: 'left' }}>
-                                                    <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>METHOD</span>
-                                                    <select
-                                                        className="pos-checkout-select"
-                                                        style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.8rem', fontWeight: 700, padding: 0, width: '100%' }}
-                                                        value={formData.paymentMethod}
-                                                        onChange={e => setFormData({ ...formData, paymentMethod: e.target.value })}
-                                                    >
-                                                        <option value="CASH">CASH</option>
-                                                        <option value="CARD">CARD</option>
-                                                        <option value="UPI">UPI</option>
-                                                    </select>
+
+                                            <div style={{ width: '100%', height: '1px', background: 'rgba(255,255,255,0.15)', margin: '12px 0' }}></div>
+
+                                            {/* Payment Method Pills */}
+                                            <div style={{ width: '100%', textAlign: 'left' }}>
+                                                <span style={{ fontSize: '0.6rem', opacity: 0.8, fontWeight: 700, letterSpacing: '0.05em' }}>PAYMENT METHOD</span>
+                                                <div className="payment-pills-grid">
+                                                    {[
+                                                        { code: 'CASH', label: 'Cash', icon: '💵' },
+                                                        { code: 'CARD', label: 'Card', icon: '💳' },
+                                                        { code: 'UPI', label: 'UPI', icon: '📱' },
+                                                        { code: 'NETBANKING', label: 'Net', icon: '🏦' },
+                                                    ].map((pm) => (
+                                                        <button
+                                                            key={pm.code}
+                                                            type="button"
+                                                            className={`payment-pill ${formData.paymentMethod === pm.code ? 'active' : ''}`}
+                                                            onClick={() => handleSelectPaymentMethod(pm.code)}
+                                                        >
+                                                            <span>{pm.icon}</span>
+                                                            <span>{pm.label}</span>
+                                                        </button>
+                                                    ))}
                                                 </div>
-                                                <div style={{ textAlign: 'right' }}>
-                                                    <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>PAYING</span>
+                                            </div>
+
+                                            <div style={{ width: '100%', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '10px' }}>
+                                                <span style={{ fontSize: '0.68rem', opacity: 0.8, fontWeight: 700 }}>AMOUNT PAYING</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', maxWidth: '100px' }}>
+                                                    <span style={{ fontSize: '0.8rem', fontWeight: 800 }}>₹</span>
                                                     <input
                                                         type="number"
-                                                        style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.8rem', fontWeight: 700, padding: 0, textAlign: 'right', width: '100%' }}
-                                                        value={formData.amountPaid}
-                                                        onChange={e => setFormData({ ...formData, amountPaid: parseFloat(e.target.value) })}
+                                                        style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.85rem', fontWeight: 800, textAlign: 'right', width: '100%', outline: 'none' }}
+                                                        value={formData.amountPaid ?? 0}
+                                                        onChange={e => setFormData({ ...formData, amountPaid: parseFloat(e.target.value) || 0 })}
                                                     />
                                                 </div>
                                             </div>
@@ -769,12 +968,12 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
 
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '12px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', cursor: 'pointer' }} onClick={() => setFormData({ ...formData, isHomeDelivery: !formData.isHomeDelivery })}>
                                             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>Dispatch for Home Delivery?</span>
-                                            <input type="checkbox" checked={formData.isHomeDelivery} onChange={e => setFormData({ ...formData, isHomeDelivery: e.target.checked })} style={{ width: '18px', height: '18px', cursor: 'pointer' }} onClick={e => e.stopPropagation()} />
+                                            <input type="checkbox" checked={formData.isHomeDelivery || false} onChange={e => setFormData({ ...formData, isHomeDelivery: e.target.checked })} style={{ width: '18px', height: '18px', cursor: 'pointer' }} onClick={e => e.stopPropagation()} />
                                         </div>
                                         {formData.isHomeDelivery && (
                                             <div className="card" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <input placeholder="Delivery Address" value={formData.deliveryAddress} onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })} style={{ fontSize: '0.8rem' }} />
-                                                <input placeholder="City / Zone" value={formData.deliveryCity} onChange={e => setFormData({ ...formData, deliveryCity: e.target.value })} style={{ fontSize: '0.8rem' }} />
+                                                <input placeholder="Delivery Address" value={formData.deliveryAddress || ''} onChange={e => setFormData({ ...formData, deliveryAddress: e.target.value })} style={{ fontSize: '0.8rem' }} />
+                                                <input placeholder="City / Zone" value={formData.deliveryCity || ''} onChange={e => setFormData({ ...formData, deliveryCity: e.target.value })} style={{ fontSize: '0.8rem' }} />
                                             </div>
                                         )}
                                     </div>
@@ -1039,7 +1238,7 @@ const FormModal = ({ type, metadata, onClose, categories, suppliers, products, d
                             </button>
                         )}
                         <button className="btn btn-primary" type={['help', 'reconcile'].includes(type) ? 'button' : 'submit'} onClick={['help', 'reconcile'].includes(type) ? onClose : undefined} style={{ padding: '12px', fontWeight: 800, height: '48px', fontSize: '0.95rem', borderRadius: '12px' }}>
-                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'reconcile' ? 'CLOSE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? 'PRINT GST INVOICE [F9]' : (type === 'pricing_rule' ? 'SAVE RULE' : (type === 'view_batches' ? 'ADD BATCH' : 'CONFIRM TRANSACTION')))))}
+                            {type === 'help' ? 'DISMISS GUIDE' : (type === 'reconcile' ? 'CLOSE' : (type === 'payment_feature' ? `AUTHORIZE ₹${formData.price}` : (type === 'sales' ? '⚡ CREATE & PRINT GST INVOICE [F9]' : (type === 'pricing_rule' ? 'SAVE RULE' : (type === 'view_batches' ? 'ADD BATCH' : 'CONFIRM TRANSACTION')))))}
                         </button>
                     </div>
                 </form>

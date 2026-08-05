@@ -41,7 +41,7 @@ const Sales = () => {
                 <div className="card" style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--accent-primary)', cursor: 'pointer' }} onClick={() => setModal({ type: 'sales' })}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-primary)' }}>
                         <Zap size={20} fill="var(--accent-primary)" />
-                        <h4 style={{ margin: 0 }}>NEW SALE [F2]</h4>
+                        <h4 style={{ margin: 0 }}>CREATE MANUAL INVOICE [F2]</h4>
                     </div>
                 </div>
 

@@ -2,6 +2,40 @@
    Responsive System (Modern Enterprise Edition)
    ======================= */
 
+.pos-terminal-shell {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+}
+
+.pos-header-actions {
+    width: auto;
+}
+
+.pos-category-tabs {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.pos-category-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.pos-terminal-grid {
+    width: 100%;
+    min-width: 0;
+}
+
+.pos-product-panel,
+.pos-billing-panel,
+.pos-product-grid,
+.pos-cart-list,
+.pos-payment-grid,
+.pos-customer-grid {
+    min-width: 0;
+}
+
 @media (max-width: 1024px) {
     :root {
         --sidebar-width: 0px;
@@ -22,6 +56,23 @@
         margin-left: -8px;
         margin-right: 4px;
         border-radius: 8px;
+    }
+
+    .pos-terminal-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pos-product-panel,
+    .pos-billing-panel {
+        width: 100%;
+    }
+
+    .pos-billing-panel {
+        order: 2;
+    }
+
+    .pos-product-panel {
+        order: 1;
     }
 }
 
@@ -103,6 +154,20 @@
         font-size: 0.8rem;
     }
 
+    .pos-search-grid,
+    .pos-customer-grid,
+    .pos-payment-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pos-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .pos-billing-panel {
+        padding: 16px;
+    }
+
     .footer {
         flex-direction: column !important;
         align-items: flex-start !important;
@@ -123,6 +188,37 @@
 @media (max-width: 480px) {
     .header-title {
         display: none !important;
+    }
+
+    .pos-terminal-shell {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .pos-category-tabs button {
+        padding: 8px 10px;
+    }
+
+    .pos-product-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pos-header-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .pos-header-actions > button {
+        flex: 1 1 0;
+        justify-content: center;
+    }
+
+    .pos-billing-panel {
+        padding: 14px;
+    }
+
+    .pos-cart-list {
+        max-height: 180px;
     }
 
     .modal {

@@ -33,7 +33,7 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
         { path: '/inventory', label: 'Live Stock Inventory', icon: Package, feature: 'INVENTORY_MODULE', permission: 'inventory:read' },
         { path: '/warehouse-bins', label: 'Warehouse Racks & Bins', icon: Building2, feature: 'INVENTORY_MODULE' },
         { divider: 'Sales & Commerce' },
-        { path: '/sales', label: 'Sales Invoices & Orders', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
+        { path: '/sales', label: 'Order Desk & Invoices', icon: CreditCard, feature: 'RETAIL_MODULE', permission: 'sales:read' },
         { path: '/crm', label: 'CRM & Sales Pipeline', icon: Users, feature: 'CRM_MODULE' },
         { path: '/loyalty', label: 'Loyalty & Rewards', icon: BarChart3, feature: 'RETAIL_MODULE' },
         { path: '/subscriptions', label: 'Subscription Billing', icon: History, feature: 'FINANCE_MODULE' },
@@ -93,9 +93,8 @@ const Sidebar = ({ user, logout, mobileOpen, setMobileOpen, isCollapsed, setIsCo
 
     return (
         <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
-            {/* Redesigned Sidebar Header with Large Logo */}
-            <div className="sidebar-header flex items-center justify-center p-3 relative" style={{ height: isCollapsed ? '70px' : '115px', minHeight: isCollapsed ? '70px' : '115px' }}>
-                <Logo size={isCollapsed ? 54 : 160} showText={!isCollapsed} className={isCollapsed ? 'sidebar-logo-contrast' : 'sidebar-brand sidebar-logo-contrast'} variant="multicolor" />
+            <div className="sidebar-header flex items-center justify-center p-3 relative" style={{ height: isCollapsed ? '64px' : '88px', minHeight: isCollapsed ? '64px' : '88px' }}>
+                <Logo size={isCollapsed ? 36 : 60} showText={!isCollapsed} className={isCollapsed ? 'sidebar-logo-contrast' : 'sidebar-brand sidebar-logo-contrast'} variant="multicolor" />
 
 
                 {!mobileOpen && (
